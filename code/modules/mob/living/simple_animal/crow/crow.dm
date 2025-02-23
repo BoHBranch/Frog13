@@ -40,10 +40,12 @@
 	sharp = TRUE
 	force = 7
 
-/mob/living/simple_animal/crow/New()
-	..()
+
+/mob/living/simple_animal/crow/Initialize()
+	. = ..()
 	messenger_bag = new(src)
 	update_icon()
+
 
 /mob/living/simple_animal/crow/GetIdCard()
 	return access_card
@@ -53,13 +55,13 @@
 		return
 	var/list/dat = list()
 	if(access_card)
-		dat += "<b>ID:</b> [access_card] (<a href='?src=\ref[src];remove_inv=access cuff'>Remove</a>)"
+		dat += "<b>ID:</b> [access_card] (<a href='byond://?src=\ref[src];remove_inv=access cuff'>Remove</a>)"
 	else
-		dat += "<b>ID:</b> <a href='?src=\ref[src];add_inv=access cuff'>Nothing</a>"
+		dat += "<b>ID:</b> <a href='byond://?src=\ref[src];add_inv=access cuff'>Nothing</a>"
 	if(messenger_bag)
-		dat += "<b>Back:</b> [messenger_bag] (<a href='?src=\ref[src];remove_inv=back'>Remove</a>)"
+		dat += "<b>Back:</b> [messenger_bag] (<a href='byond://?src=\ref[src];remove_inv=back'>Remove</a>)"
 	else
-		dat += "<b>Back:</b> <a href='?src=\ref[src];add_inv=back'>Nothing</a>"
+		dat += "<b>Back:</b> <a href='byond://?src=\ref[src];add_inv=back'>Nothing</a>"
 	var/datum/browser/popup = new(user, "[name]", "Inventory of \the [name]", 350, 150, src)
 	popup.set_content(jointext(dat, "<br>"))
 	popup.open()
@@ -82,16 +84,16 @@
 		if(removed)
 			removed.dropInto(loc)
 			usr.put_in_hands(removed)
-			visible_message("<span class='notice'>\The [usr] removes \the [removed] from \the [src]'s [href_list["remove_inv"]].</span>")
+			visible_message(SPAN_NOTICE("\The [usr] removes \the [removed] from \the [src]'s [href_list["remove_inv"]]."))
 			show_inv(usr)
 			update_icon()
 		else
-			to_chat(user, "<span class='warning'>There is nothing to remove from \the [src]'s [href_list["remove_inv"]].</span>")
+			to_chat(user, SPAN_WARNING("There is nothing to remove from \the [src]'s [href_list["remove_inv"]]."))
 		return TOPIC_HANDLED
 	if(href_list["add_inv"])
 		var/obj/item/equipping = user.get_active_hand()
 		if(!equipping)
-			to_chat(user, "<span class='warning'>You have nothing in your hand to put on \the [src]'s [href_list["add_inv"]].</span>")
+			to_chat(user, SPAN_WARNING("You have nothing in your hand to put on \the [src]'s [href_list["add_inv"]]."))
 			return 0
 		var/obj/item/equipped
 		var/checktype
@@ -103,10 +105,10 @@
 				equipped = messenger_bag
 				checktype = /obj/item/storage/messenger
 		if(equipped)
-			to_chat(user, "<span class='warning'>There is already something worn on \the [src]'s [href_list["add_inv"]].</span>")
+			to_chat(user, SPAN_WARNING("There is already something worn on \the [src]'s [href_list["add_inv"]]."))
 			return TOPIC_HANDLED
 		if(!istype(equipping, checktype))
-			to_chat(user, "<span class='warning'>\The [equipping] won't fit on \the [src]'s [href_list["add_inv"]].</span>")
+			to_chat(user, SPAN_WARNING("\The [equipping] won't fit on \the [src]'s [href_list["add_inv"]]."))
 			return TOPIC_HANDLED
 		switch(href_list["add_inv"])
 			if("access cuff")
@@ -115,7 +117,7 @@
 				messenger_bag = equipping
 		if(!user.unEquip(equipping, src))
 			return TOPIC_HANDLED
-		visible_message("<span class='notice'>\The [user] places \the [equipping] on to \the [src]'s [href_list["add_inv"]].</span>")
+		visible_message(SPAN_NOTICE("\The [user] places \the [equipping] on to \the [src]'s [href_list["add_inv"]]."))
 		update_icon()
 		show_inv(user)
 		return TOPIC_HANDLED
@@ -125,7 +127,7 @@
 	. = ..()
 	if(Adjacent(src))
 		if(messenger_bag)
-			if(messenger_bag.contents.len)
+			if(length(messenger_bag.contents))
 				to_chat(user, "It's wearing a little messenger bag with a Corvid Couriers logo on it. There's something stuffed inside.")
 			else
 				to_chat(user, "It's wearing a little messenger bag with a Corvid Couriers logo on it. It seems to be empty.")
@@ -134,13 +136,12 @@
 
 /mob/living/simple_animal/crow/on_update_icon()
 	..()
-	overlays -= "bag"
-	overlays -= "bag_dead"
+	ClearOverlays()
 	if(messenger_bag)
 		if(icon_state != icon_dead)
-			overlays |= "bag"
+			AddOverlays("bag")
 		else
-			overlays |= "bag_dead"
+			AddOverlays("bag_dead")
 
 /mob/living/simple_animal/crow/cyber
 	name = "cybercrow"
@@ -149,12 +150,11 @@
 
 /mob/living/simple_animal/crow/cyber/on_update_icon()
 	..()
-	overlays -= "cyber"
-	overlays -= "cyber_dead"
+	ClearOverlays()
 	if(icon_state != icon_dead)
-		overlays |= "cyber"
+		AddOverlays("cyber")
 	else
-		overlays |= "cyber_dead"
+		AddOverlays("cyber_dead")
 
 /datum/say_list/crow
 	speak = list("Caw.", "Caw?", "Caw!", "CAW.")

@@ -4,7 +4,7 @@
 	anchored = TRUE
 	density = TRUE
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
-	icon = 'icons/obj/virology.dmi'
+	icon = 'icons/obj/machines/research/virology.dmi'
 	icon_state = "analyser"
 
 	idle_power_usage = 20
@@ -63,41 +63,48 @@
 	ui_interact(user)
 	return TRUE
 
-/obj/machinery/radiocarbon_spectrometer/attackby(obj/I as obj, mob/user as mob)
+/obj/machinery/radiocarbon_spectrometer/use_tool(obj/item/I, mob/living/user, list/click_params)
 	if(scanning)
-		to_chat(user, "<span class='warning'>You can't do that while [src] is scanning!</span>")
-	else
-		if(istype(I, /obj/item/stack/nanopaste))
-			var/choice = alert("What do you want to do with the nanopaste?","Radiometric Scanner","Scan nanopaste","Fix seal integrity")
-			if(choice == "Fix seal integrity")
-				var/obj/item/stack/nanopaste/N = I
-				var/amount_used = min(N.get_amount(), 10 - scanner_seal_integrity / 10)
-				N.use(amount_used)
-				scanner_seal_integrity = round(scanner_seal_integrity + amount_used * 10)
-				return
-		if(istype(I, /obj/item/reagent_containers/glass))
-			var/choice = alert("What do you want to do with the container?","Radiometric Scanner","Add coolant","Empty coolant","Scan container")
-			if(choice == "Add coolant")
-				var/obj/item/reagent_containers/glass/G = I
-				var/amount_transferred = min(src.reagents.maximum_volume - src.reagents.total_volume, G.reagents.total_volume)
-				G.reagents.trans_to(src, amount_transferred)
-				to_chat(user, "<span class='info'>You empty [amount_transferred]u of coolant into [src].</span>")
-				update_coolant()
-				return
-			else if(choice == "Empty coolant")
-				var/obj/item/reagent_containers/glass/G = I
-				var/amount_transferred = min(G.reagents.maximum_volume - G.reagents.total_volume, src.reagents.total_volume)
-				src.reagents.trans_to(G, amount_transferred)
-				to_chat(user, "<span class='info'>You remove [amount_transferred]u of coolant from [src].</span>")
-				update_coolant()
-				return
-		if(scanned_item)
-			to_chat(user, "<span class=warning>\The [src] already has \a [scanned_item] inside!</span>")
-			return
-		if(!user.unEquip(I, src))
-			return
-		scanned_item = I
-		to_chat(user, "<span class=notice>You put \the [I] into \the [src].</span>")
+		to_chat(user, SPAN_WARNING("You can't do that while [src] is scanning!"))
+		return TRUE
+
+	if ((. = ..()))
+		return
+
+	if (istype(I, /obj/item/stack/nanopaste))
+		var/choice = alert("What do you want to do with the nanopaste?","Radiometric Scanner","Scan nanopaste","Fix seal integrity")
+		if(choice == "Fix seal integrity")
+			var/obj/item/stack/nanopaste/N = I
+			var/amount_used = min(N.get_amount(), 10 - scanner_seal_integrity / 10)
+			N.use(amount_used)
+			scanner_seal_integrity = round(scanner_seal_integrity + amount_used * 10)
+			return TRUE
+
+	if (istype(I, /obj/item/reagent_containers/glass))
+		var/choice = alert("What do you want to do with the container?","Radiometric Scanner","Add coolant","Empty coolant","Scan container")
+		if(choice == "Add coolant")
+			var/obj/item/reagent_containers/glass/G = I
+			var/amount_transferred = min(reagents.maximum_volume - reagents.total_volume, G.reagents.total_volume)
+			G.reagents.trans_to(src, amount_transferred)
+			to_chat(user, SPAN_INFO("You empty [amount_transferred]u of coolant into \the [src]."))
+			update_coolant()
+			return TRUE
+		else if(choice == "Empty coolant")
+			var/obj/item/reagent_containers/glass/G = I
+			var/amount_transferred = min(G.reagents.maximum_volume - G.reagents.total_volume, src.reagents.total_volume)
+			reagents.trans_to(G, amount_transferred)
+			to_chat(user, SPAN_INFO("You remove [amount_transferred]u of coolant from \the [src]."))
+			update_coolant()
+			return TRUE
+
+	if (scanned_item)
+		to_chat(user, SPAN_WARNING("\The [src] already has \a [scanned_item] inside!"))
+		return TRUE
+	if (!user.unEquip(I, src))
+		return TRUE
+	scanned_item = I
+	to_chat(user, SPAN_NOTICE("You put \the [I] into \the [src]."))
+	return TRUE
 
 /obj/machinery/radiocarbon_spectrometer/proc/update_coolant()
 	var/total_purity = 0
@@ -234,16 +241,16 @@
 			//emergency stop if seal integrity reaches 0
 			if(scanner_seal_integrity <= 0 || (scanner_temperature >= 1273 && !rad_shield))
 				stop_scanning()
-				src.visible_message("<span class='notice'>[icon2html(src, viewers(get_turf(src)))] buzzes unhappily. It has failed mid-scan!</span>", 2)
+				src.visible_message(SPAN_NOTICE("[icon2html(src, viewers(get_turf(src)))] buzzes unhappily. It has failed mid-scan!"), 2)
 
 			if(prob(5))
-				src.visible_message("<span class='notice'>[icon2html(src, viewers(get_turf(src)))] [pick("whirrs","chuffs","clicks")][pick(" excitedly"," energetically"," busily")].</span>", 2)
+				src.visible_message(SPAN_NOTICE("[icon2html(src, viewers(get_turf(src)))] [pick("whirrs","chuffs","clicks")][pick(" excitedly"," energetically"," busily")]."), 2)
 	else
 		//gradually cool down over time
 		if(scanner_temperature > 0)
 			scanner_temperature = max(scanner_temperature - 5 - 10 * rand(), 0)
 		if(prob(0.75))
-			src.visible_message("<span class='notice'>[icon2html(src, viewers(get_turf(src)))] [pick("plinks","hisses")][pick(" quietly"," softly"," sadly"," plaintively")].</span>", 2)
+			src.visible_message(SPAN_NOTICE("[icon2html(src, viewers(get_turf(src)))] [pick("plinks","hisses")][pick(" quietly"," softly"," sadly"," plaintively")]."), 2)
 	last_process_worldtime = world.time
 
 /obj/machinery/radiocarbon_spectrometer/proc/stop_scanning()
@@ -261,7 +268,7 @@
 		used_coolant = 0
 
 /obj/machinery/radiocarbon_spectrometer/proc/complete_scan()
-	src.visible_message("<span class='notice'>[icon2html(src, viewers(get_turf(src)))] makes an insistent chime.</span>", 2)
+	src.visible_message(SPAN_NOTICE("[icon2html(src, viewers(get_turf(src)))] makes an insistent chime."), 2)
 
 	if(scanned_item)
 		//create report
@@ -293,7 +300,7 @@
 
 		var/anom_found = 0
 		if(G)
-			data = " - Spectometric analysis on mineral sample has determined type [finds_as_strings[responsive_carriers.Find(G.source_mineral)]]<br>"
+			data = " - Spectometric analysis on mineral sample has determined type [GLOB.responsive_carriers_to_finds[G.source_mineral]]<br>"
 			if(G.age_billion > 0)
 				data += " - Radiometric dating shows age of [G.age_billion].[G.age_million] billion years<br>"
 			else if(G.age_million > 0)
@@ -302,10 +309,8 @@
 				data += " - Radiometric dating shows age of [G.age_thousand * 1000 + G.age] years<br>"
 			data += " - Chromatographic analysis shows the following materials present:<br>"
 			for(var/carrier in G.find_presence)
-				if(G.find_presence[carrier])
-					var/index = responsive_carriers.Find(carrier)
-					if(index > 0 && index <= finds_as_strings.len)
-						data += "	> [100 * G.find_presence[carrier]]% [finds_as_strings[index]]<br>"
+				if (G.find_presence[carrier] && GLOB.responsive_carriers_to_finds[carrier])
+					data += "	> [100 * G.find_presence[carrier]]% [GLOB.responsive_carriers_to_finds[carrier]]<br>"
 
 			if(G.artifact_id && G.artifact_distance >= 0)
 				anom_found = 1
@@ -333,11 +338,11 @@
 					scanner_progress = 0
 					scanning = 1
 					t_left_radspike = pick(5,10,15)
-					to_chat(user, "<span class='notice'>Scan initiated.</span>")
+					to_chat(user, SPAN_NOTICE("Scan initiated."))
 				else
-					to_chat(user, "<span class='warning'>Could not initiate scan, seal requires replacing.</span>")
+					to_chat(user, SPAN_WARNING("Could not initiate scan, seal requires replacing."))
 			else
-				to_chat(user, "<span class='warning'>Insert an item to scan.</span>")
+				to_chat(user, SPAN_WARNING("Insert an item to scan."))
 		. = TOPIC_REFRESH
 
 	else if(href_list["maserWavelength"])

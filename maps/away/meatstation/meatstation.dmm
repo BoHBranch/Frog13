@@ -3,33 +3,33 @@
 /turf/space,
 /area/space)
 "ab" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/nwhallway)
 "ac" = (
-/obj/effect/paint/meatstation/lab,
+/obj/paint/meatstation/lab,
 /turf/simulated/wall/r_wall,
 /area/meatstation/lab)
 "ad" = (
 /obj/random/junk,
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 1
 	},
-/obj/effect/floor_decal/industrial/outline/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/industrial/outline/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ae" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/engineering)
 "af" = (
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "ag" = (
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "ah" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/centerhallway)
 "ai" = (
@@ -43,10 +43,10 @@
 	d2 = 4;
 	icon_state = "2-4"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "aj" = (
-/obj/effect/floor_decal/solarpanel,
+/obj/floor_decal/solarpanel,
 /obj/structure/cable/yellow{
 	d2 = 4;
 	icon_state = "0-4"
@@ -54,7 +54,7 @@
 /obj/machinery/power/solar{
 	id = "meatstation_mainsolars"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "ak" = (
 /obj/structure/cable/yellow{
@@ -72,7 +72,7 @@
 	d2 = 4;
 	icon_state = "2-4"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "al" = (
 /obj/structure/cable/yellow{
@@ -80,8 +80,8 @@
 	icon_state = "0-4"
 	},
 /obj/machinery/power/tracker,
-/obj/effect/floor_decal/industrial/warning/full,
-/turf/simulated/floor/airless,
+/obj/floor_decal/industrial/warning/full,
+/turf/simulated/floor,
 /area/space)
 "am" = (
 /obj/structure/cable/yellow{
@@ -99,7 +99,7 @@
 	d2 = 4;
 	icon_state = "2-4"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "an" = (
 /obj/structure/cable/yellow{
@@ -112,7 +112,7 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "ao" = (
 /obj/structure/cable/yellow{
@@ -120,11 +120,11 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "ap" = (
 /obj/structure/girder,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "aq" = (
 /obj/structure/cable/yellow{
@@ -142,7 +142,7 @@
 	d2 = 8;
 	icon_state = "1-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "ar" = (
 /obj/structure/cable/yellow{
@@ -155,20 +155,20 @@
 	d2 = 8;
 	icon_state = "1-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "as" = (
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "at" = (
 /obj/structure/lattice,
 /turf/space,
 /area/meatstation/dorm)
 "au" = (
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "av" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/kitchen)
 "aw" = (
@@ -177,17 +177,17 @@
 /area/space)
 "ax" = (
 /obj/structure/girder,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "ay" = (
 /obj/structure/lattice,
 /turf/space,
 /area/meatstation/engineering)
 "az" = (
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "aA" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/swhallway)
 "aB" = (
@@ -208,10 +208,10 @@
 	icon_state = "0-4"
 	},
 /obj/machinery/power/smes/batteryrack,
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 9
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "aG" = (
 /obj/machinery/power/terminal{
@@ -221,7 +221,7 @@
 	d2 = 2;
 	icon_state = "0-2"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "aH" = (
 /obj/machinery/power/terminal{
@@ -236,7 +236,7 @@
 	d2 = 2;
 	icon_state = "0-2"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "aI" = (
 /obj/structure/cable/cyan{
@@ -247,10 +247,10 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 1
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "aJ" = (
 /obj/structure/cable/yellow{
@@ -262,7 +262,7 @@
 	id_tag = "meatstation_nairlockext";
 	locked = 1
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "aK" = (
 /obj/machinery/atmospherics/unary/vent_pump/on{
@@ -274,15 +274,15 @@
 /obj/machinery/recharger/wallcharger{
 	pixel_y = 24
 	},
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 1
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "aM" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
-/turf/simulated/floor/airless,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "aN" = (
 /obj/machinery/button/alternate/door/bolts{
@@ -303,10 +303,10 @@
 	d2 = 8;
 	icon_state = "2-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "aP" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/storage)
 "aQ" = (
@@ -319,7 +319,7 @@
 /area/space)
 "aS" = (
 /obj/structure/bookcase/manuals/engineering,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "aT" = (
 /obj/structure/bed/chair/office/comfy/red{
@@ -329,20 +329,20 @@
 /area/space)
 "aU" = (
 /obj/structure/bookcase/manuals/medical,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "aV" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/medical)
 "aW" = (
-/obj/effect/paint/meatstation,
-/obj/effect/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
 /turf/simulated/floor/plating,
 /area/meatstation/centerhallway)
 "aX" = (
 /obj/item/book/manual/engineering_guide,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "aY" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -352,7 +352,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
@@ -375,10 +375,10 @@
 /obj/machinery/light/small/red{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "bb" = (
-/obj/effect/floor_decal/solarpanel,
+/obj/floor_decal/solarpanel,
 /obj/structure/cable/yellow{
 	d2 = 8;
 	icon_state = "0-8"
@@ -386,7 +386,7 @@
 /obj/machinery/power/solar{
 	id = "meatstation_mainsolars"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "bc" = (
 /obj/structure/cable/yellow{
@@ -404,11 +404,11 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "bd" = (
 /obj/structure/girder,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "be" = (
 /obj/structure/lattice,
@@ -418,8 +418,8 @@
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "bg" = (
-/obj/effect/floor_decal/industrial/outline/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/industrial/outline/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "bh" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -460,19 +460,19 @@
 	icon_state = "0-4"
 	},
 /obj/machinery/power/smes/batteryrack,
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 8
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "bk" = (
 /obj/random/junk,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "bl" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "bm" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -487,7 +487,7 @@
 	icon_state = "1-4"
 	},
 /obj/item/inflatable/door,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "bn" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers,
@@ -511,7 +511,7 @@
 	pixel_x = -23;
 	pixel_y = -3
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "bq" = (
 /obj/structure/cable/cyan{
@@ -519,18 +519,18 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "br" = (
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 1;
 	level = 2
 	},
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "bs" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/dorm)
 "bt" = (
@@ -539,25 +539,25 @@
 /area/space)
 "bu" = (
 /obj/item/paper_bin,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "bv" = (
 /obj/structure/barricade/spike{
 	dir = 8
 	},
 /obj/machinery/light/small/red,
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "bw" = (
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 9
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "bx" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation/lab,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation/lab,
 /obj/machinery/door/blast/regular/open{
 	icon_state = "pdoor0";
 	id_tag = "meatstation_blastdoorext"
@@ -565,7 +565,7 @@
 /turf/simulated/floor/plating,
 /area/meatstation/lab)
 "by" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/hydroponics)
 "bz" = (
@@ -580,14 +580,14 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "bA" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/armory)
 "bB" = (
-/obj/effect/paint/meatstation/lab,
+/obj/paint/meatstation/lab,
 /turf/simulated/wall/r_wall,
 /area/meatstation/centerhallway)
 "bC" = (
@@ -639,7 +639,7 @@
 /area/meatstation/mess)
 "bI" = (
 /obj/random/single/meatstation/meatmound,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "bJ" = (
@@ -647,7 +647,7 @@
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "bK" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 5
 	},
 /turf/simulated/floor/tiled,
@@ -664,7 +664,7 @@
 	d2 = 8;
 	icon_state = "2-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "bM" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
@@ -688,7 +688,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "bO" = (
 /obj/machinery/door/airlock{
@@ -705,16 +705,16 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "bP" = (
 /obj/random/maintenance/clean,
 /obj/random/single/meatstation/meatball,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "bQ" = (
 /obj/structure/inflatable/wall,
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "bR" = (
@@ -733,7 +733,7 @@
 /area/meatstation/centerhallway)
 "bS" = (
 /obj/structure/inflatable/wall,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -742,18 +742,18 @@
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 4
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "bU" = (
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/carpet/blue,
 /area/meatstation/dorm)
 "bV" = (
 /obj/item/device/flashlight/lamp,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "bW" = (
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 8
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -768,12 +768,12 @@
 	pixel_x = -24;
 	pixel_y = -6
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "bX" = (
 /obj/item/device/flashlight/lamp,
 /obj/random/junk,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "bY" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -787,23 +787,23 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "bZ" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
-/turf/simulated/floor/airless,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "ca" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/nwhallway)
 "cb" = (
 /obj/machinery/light{
 	dir = 1
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "cc" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -817,19 +817,19 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "cd" = (
 /turf/simulated/floor/tiled,
 /area/meatstation/nwhallway)
 "ce" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/dorm)
 "cf" = (
 /obj/machinery/jukebox/old,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "cg" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -846,7 +846,7 @@
 /turf/simulated/floor/tiled,
 /area/meatstation/nwhallway)
 "ch" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -890,7 +890,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ck" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -967,8 +967,8 @@
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "cr" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/engineering)
 "cs" = (
@@ -1001,16 +1001,13 @@
 	d2 = 8;
 	icon_state = "1-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /obj/structure/inflatable/door,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "cu" = (
-/obj/structure/stasis_cage,
-/turf/simulated/floor/tiled/dark/airless,
-/area/meatstation/cargo)
-"cv" = (
-/turf/simulated/floor/tiled/dark/airless,
+/obj/machinery/stasis_cage,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "cw" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -1020,7 +1017,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "cx" = (
 /obj/machinery/door/airlock{
@@ -1041,7 +1038,7 @@
 /obj/machinery/light/small/red{
 	dir = 1
 	},
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 1;
 	icon_state = "warning"
 	},
@@ -1055,7 +1052,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "cA" = (
 /obj/machinery/door/airlock{
@@ -1128,7 +1125,7 @@
 "cH" = (
 /obj/structure/table/glass,
 /obj/item/clothing/head/collectable/paper,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 9
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -1157,7 +1154,7 @@
 /area/meatstation/cargo)
 "cL" = (
 /obj/random/maintenance/clean,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "cM" = (
 /obj/machinery/light{
@@ -1167,7 +1164,7 @@
 /area/meatstation/lab)
 "cN" = (
 /obj/machinery/radiocarbon_spectrometer,
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
@@ -1180,12 +1177,12 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "cP" = (
 /obj/structure/closet/l3closet/scientist,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 9
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -1198,7 +1195,7 @@
 "cQ" = (
 /obj/structure/closet/l3closet/scientist,
 /obj/random/maintenance/clean,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 5;
 	icon_state = "warning"
 	},
@@ -1212,12 +1209,12 @@
 "cR" = (
 /obj/random/junk,
 /obj/machinery/light/small/red,
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "cS" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/mess)
 "cT" = (
@@ -1259,8 +1256,8 @@
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "cX" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/kitchen)
 "cY" = (
@@ -1271,7 +1268,7 @@
 	dir = 1
 	},
 /obj/random/junk,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "da" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
@@ -1288,7 +1285,7 @@
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "db" = (
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -1307,7 +1304,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/random/single/meatstation/meatball,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "de" = (
 /obj/machinery/door/airlock/vault/bolted{
@@ -1327,7 +1324,7 @@
 /obj/machinery/vending/sovietsoda{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 9
 	},
 /turf/simulated/floor/lino,
@@ -1338,7 +1335,7 @@
 /area/meatstation/bathroom)
 "dh" = (
 /obj/item/paper,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "di" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -1356,7 +1353,7 @@
 /obj/machinery/light/small/red{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark,
@@ -1366,7 +1363,7 @@
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/armory)
 "dl" = (
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -1437,13 +1434,13 @@
 /obj/structure/closet/toolcloset,
 /obj/machinery/door/window/southleft,
 /obj/item/grenade/chem_grenade/metalfoam,
-/obj/effect/floor_decal/corner/purple/diagonal,
+/obj/floor_decal/corner/purple/diagonal,
 /obj/random/single/meatstation/meatball,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ds" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 1;
 	icon_state = "warning"
 	},
@@ -1451,13 +1448,13 @@
 /area/meatstation/centerhallway)
 "dt" = (
 /obj/machinery/portable_atmospherics/powered/scrubber/huge/stationary,
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 9
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "du" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall,
 /area/meatstation/dorm)
 "dv" = (
@@ -1472,20 +1469,20 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "dw" = (
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "dx" = (
-/obj/effect/wallframe_spawn/reinforced,
+/obj/wallframe_spawn/reinforced,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "dy" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/mess)
 "dz" = (
@@ -1508,7 +1505,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/mine,
+/obj/structure/mine,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "dB" = (
@@ -1527,8 +1524,8 @@
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "dD" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/black/border{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -1578,7 +1575,7 @@
 /area/meatstation/bathroom)
 "dJ" = (
 /obj/item/pen,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "dK" = (
 /obj/machinery/door/airlock{
@@ -1594,14 +1591,14 @@
 /turf/simulated/floor/lino,
 /area/meatstation/kitchen)
 "dL" = (
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "dM" = (
 /obj/machinery/light/small/red{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -1622,11 +1619,11 @@
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "dO" = (
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor,
 /area/meatstation/bathroom)
 "dP" = (
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -1659,7 +1656,7 @@
 /turf/space,
 /area/meatstation/kitchen)
 "dU" = (
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "dV" = (
 /obj/item/storage/box,
@@ -1671,10 +1668,10 @@
 /area/space)
 "dX" = (
 /obj/machinery/smartfridge/drinks,
-/obj/effect/floor_decal/corner/lime/border{
+/obj/floor_decal/corner/lime/border{
 	dir = 9
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "dY" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -1689,10 +1686,10 @@
 	icon_state = "1-8"
 	},
 /obj/structure/inflatable/door,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "dZ" = (
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "ea" = (
 /obj/machinery/door/airlock{
@@ -1724,13 +1721,13 @@
 /area/meatstation/storage)
 "ed" = (
 /obj/structure/inflatable/wall,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 9
 	},
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "ee" = (
-/obj/effect/wallframe_spawn/reinforced,
+/obj/wallframe_spawn/reinforced,
 /obj/structure/barricade,
 /turf/simulated/floor/plating,
 /area/meatstation/hydroponics)
@@ -1752,8 +1749,8 @@
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "eh" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/cargo)
 "ei" = (
@@ -1766,8 +1763,8 @@
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "ek" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/medical)
 "el" = (
@@ -1854,7 +1851,7 @@
 	icon_state = "1-2"
 	},
 /obj/structure/inflatable/door,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -1892,7 +1889,7 @@
 /area/meatstation/centerhallway)
 "eu" = (
 /obj/item/paper,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -1920,9 +1917,9 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /obj/random/single/meatstation/meatball,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "ey" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
@@ -1937,7 +1934,7 @@
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/armory)
 "ez" = (
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /obj/item/tape_roll,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
@@ -1951,7 +1948,7 @@
 /obj/item/reagent_containers/glass/beaker/vial/random,
 /obj/item/reagent_containers/glass/beaker/vial/random,
 /obj/item/reagent_containers/glass/beaker/vial/random,
-/obj/effect/decal/cleanable/cobweb,
+/obj/decal/cleanable/cobweb,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "eB" = (
@@ -1963,11 +1960,11 @@
 /area/meatstation/armory)
 "eC" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "eD" = (
 /obj/random/single/meatstation/meatworm,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "eE" = (
 /obj/structure/cable/cyan{
@@ -1999,7 +1996,7 @@
 "eG" = (
 /obj/structure/table/glass,
 /obj/machinery/microscope,
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/white,
@@ -2009,11 +2006,11 @@
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "eI" = (
-/obj/effect/decal/cleanable/dirt,
+/obj/decal/cleanable/dirt,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "eJ" = (
-/obj/effect/decal/cleanable/vomit,
+/obj/decal/cleanable/vomit,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "eK" = (
@@ -2035,7 +2032,7 @@
 /obj/machinery/light/small/red{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
@@ -2061,14 +2058,14 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 8
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "eO" = (
 /obj/structure/inflatable/wall,
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -2076,10 +2073,10 @@
 "eP" = (
 /obj/machinery/power/smes/buildable,
 /obj/structure/cable/cyan,
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 10
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "eQ" = (
 /obj/machinery/power/terminal{
@@ -2094,10 +2091,10 @@
 	d2 = 2;
 	icon_state = "0-2"
 	},
-/obj/effect/floor_decal/corner/purple/bordercorner{
+/obj/floor_decal/corner/purple/bordercorner{
 	dir = 8
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "eR" = (
 /obj/structure/cable/yellow{
@@ -2105,7 +2102,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 8
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -2113,14 +2110,10 @@
 	name = "interior airlock bolt control";
 	pixel_x = -24
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
-"eS" = (
-/obj/random/single/meatstation/low/wormguard,
-/turf/simulated/floor/tiled/dark,
-/area/meatstation/cargo)
 "eT" = (
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 9;
 	icon_state = "warning"
 	},
@@ -2131,7 +2124,7 @@
 	dir = 8
 	},
 /obj/random/junk,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -2175,7 +2168,7 @@
 /area/meatstation/medical)
 "eX" = (
 /obj/machinery/chemical_dispenser,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 9
 	},
 /turf/simulated/floor/tiled/dark,
@@ -2222,20 +2215,20 @@
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "fb" = (
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /obj/random/single/meatstation/meatworm,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "fc" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/space)
 "fd" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/bathroom)
 "fe" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/cargooffice)
 "ff" = (
@@ -2247,12 +2240,12 @@
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "fg" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/hydroponics)
 "fh" = (
-/obj/effect/floor_decal/industrial/warning/full,
+/obj/floor_decal/industrial/warning/full,
 /obj/machinery/button/alternate/door/bolts{
 	id_tag = "meatstation_sairlockint";
 	name = "interior airlock bolt control";
@@ -2271,13 +2264,13 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/light/small/red,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/storage)
 "fi" = (
 /obj/structure/table/rack,
-/obj/effect/floor_decal/corner/purple/border,
+/obj/floor_decal/corner/purple/border,
 /obj/machinery/light,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "fj" = (
 /obj/structure/cable/cyan{
@@ -2286,14 +2279,14 @@
 	icon_state = "0-2"
 	},
 /obj/structure/table/rack,
-/obj/effect/floor_decal/corner/purple/border,
+/obj/floor_decal/corner/purple/border,
 /obj/machinery/power/apc/meatstation{
 	pixel_y = -28
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "fk" = (
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 1
 	},
 /turf/simulated/floor/lino,
@@ -2306,10 +2299,10 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "fm" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /turf/simulated/wall/r_wall,
 /area/meatstation/cargo)
 "fn" = (
@@ -2322,13 +2315,13 @@
 	},
 /obj/random/trash,
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "fo" = (
 /obj/machinery/portable_atmospherics/canister/empty/air,
-/obj/effect/decal/cleanable/filth,
-/turf/simulated/floor/airless,
+/obj/decal/cleanable/filth,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "fp" = (
 /obj/structure/window/basic,
@@ -2362,7 +2355,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/floor_decal/industrial/warning/full,
+/obj/floor_decal/industrial/warning/full,
 /obj/machinery/light/small/red,
 /obj/machinery/button/alternate/door/bolts{
 	id_tag = "meatstation_nairlockint";
@@ -2376,7 +2369,7 @@
 	pixel_x = -6;
 	pixel_y = 30
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "fs" = (
 /obj/machinery/atmospherics/unary/vent_pump/on,
@@ -2404,10 +2397,10 @@
 "fu" = (
 /obj/item/paper,
 /obj/structure/bed/chair/office/comfy/beige,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "fv" = (
-/obj/effect/floor_decal/corner/red/bordercorner{
+/obj/floor_decal/corner/red/bordercorner{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/white,
@@ -2417,7 +2410,7 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 4
 	},
 /obj/machinery/power/apc/meatstation{
@@ -2444,7 +2437,7 @@
 /area/meatstation/bathroom)
 "fy" = (
 /obj/structure/hygiene/shower,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 9
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -2481,7 +2474,7 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /obj/machinery/power/apc/meatstation{
@@ -2503,7 +2496,7 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "fD" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -2518,10 +2511,10 @@
 	icon_state = "2-4"
 	},
 /obj/machinery/smartfridge/foods,
-/obj/effect/floor_decal/corner/lime/border{
+/obj/floor_decal/corner/lime/border{
 	dir = 1
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "fE" = (
 /obj/structure/cable/cyan{
@@ -2529,7 +2522,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
 /obj/structure/cable/cyan{
@@ -2547,14 +2540,14 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 4
 	},
 /obj/machinery/power/apc/meatstation{
 	dir = 4;
 	pixel_x = 24
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "fG" = (
 /obj/item/storage/box/canned_beans,
@@ -2565,7 +2558,7 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark,
@@ -2575,7 +2568,7 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -2605,14 +2598,14 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "fM" = (
-/obj/effect/floor_decal/solarpanel,
+/obj/floor_decal/solarpanel,
 /obj/machinery/power/solar{
 	id = "meatstation_mainsolars"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "fN" = (
 /obj/structure/cable/yellow{
@@ -2630,7 +2623,7 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "fO" = (
 /obj/structure/cable/yellow{
@@ -2643,7 +2636,7 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "fP" = (
 /turf/simulated/floor/exoplanet/grass,
@@ -2687,8 +2680,8 @@
 "fV" = (
 /obj/structure/table/marble,
 /obj/machinery/microwave,
-/obj/effect/floor_decal/corner/lime/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/lime/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "fW" = (
 /obj/item/paper,
@@ -2697,7 +2690,7 @@
 "fX" = (
 /obj/structure/table/glass,
 /obj/item/device/flashlight/lamp,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -2709,7 +2702,7 @@
 "fZ" = (
 /obj/structure/closet/crate/hydroponics/beekeeping,
 /obj/item/grenade/chem_grenade/water,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -2726,7 +2719,7 @@
 /obj/item/lipstick/random,
 /obj/random/junk,
 /obj/item/reagent_containers/spray/waterflower,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -2741,7 +2734,7 @@
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
@@ -2757,21 +2750,21 @@
 	d2 = 4;
 	icon_state = "0-4"
 	},
-/obj/effect/floor_decal/corner/lime/border{
+/obj/floor_decal/corner/lime/border{
 	dir = 8
 	},
 /obj/machinery/power/apc/meatstation{
 	dir = 8;
 	pixel_x = -24
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "gg" = (
 /obj/machinery/portable_atmospherics/hydroponics,
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -2784,7 +2777,7 @@
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "gi" = (
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -2814,8 +2807,8 @@
 /obj/machinery/door/window/northright,
 /obj/item/clothing/ring/material/bronze,
 /obj/item/grenade/chem_grenade/metalfoam,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "go" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -2840,16 +2833,16 @@
 /area/meatstation/hydroponics)
 "gq" = (
 /obj/random/single/meatstation/meatball,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "gr" = (
 /obj/machinery/cooker/fryer,
-/obj/effect/floor_decal/corner/lime/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/lime/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "gs" = (
 /obj/machinery/portable_atmospherics/hydroponics,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -2861,7 +2854,7 @@
 "gu" = (
 /obj/machinery/portable_atmospherics/hydroponics,
 /obj/item/seeds/random,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -2871,7 +2864,7 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -2883,7 +2876,7 @@
 /area/meatstation/hydroponics)
 "gx" = (
 /obj/machinery/washing_machine,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 9
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -2910,7 +2903,7 @@
 /area/meatstation/hydroponics)
 "gA" = (
 /obj/item/storage/candle_box/scented,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "gB" = (
 /obj/item/paper,
@@ -2938,8 +2931,8 @@
 "gD" = (
 /obj/structure/table/marble,
 /obj/machinery/cooker/cereal,
-/obj/effect/floor_decal/corner/lime/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/lime/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "gE" = (
 /obj/random/hostile,
@@ -2947,7 +2940,7 @@
 /area/meatstation/lab)
 "gF" = (
 /obj/machinery/washing_machine,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -2958,26 +2951,26 @@
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "gH" = (
-/obj/item/ironingiron,
+/obj/item/ironing_iron,
 /obj/structure/table/glass,
 /obj/item/reagent_containers/pill/detergent,
 /obj/item/storage/box/detergent,
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "gI" = (
 /obj/random/single/meatstation/wormguard,
-/obj/effect/decal/cleanable/filth,
-/turf/simulated/floor/airless,
+/obj/decal/cleanable/filth,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "gJ" = (
 /obj/machinery/vending/medical,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark,
@@ -3001,7 +2994,7 @@
 /obj/machinery/seed_storage/random{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 5
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -3009,7 +3002,7 @@
 "gM" = (
 /obj/structure/table/glass,
 /obj/item/paper,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -3039,7 +3032,7 @@
 	d2 = 8;
 	icon_state = "2-8"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "gQ" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -3056,15 +3049,15 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/lime/border{
+/obj/floor_decal/corner/lime/border{
 	dir = 1
 	},
 /obj/structure/inflatable/wall,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "gR" = (
 /obj/machinery/sleeper,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark,
@@ -3075,7 +3068,7 @@
 	icon_state = "0-2"
 	},
 /obj/machinery/sleeper,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 5
 	},
 /obj/machinery/power/apc/meatstation{
@@ -3089,7 +3082,7 @@
 	dir = 4
 	},
 /obj/machinery/washing_machine,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -3098,14 +3091,14 @@
 /obj/machinery/vending/hydronutrients/generic{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "gV" = (
 /obj/machinery/lapvend,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -3115,7 +3108,7 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -3137,8 +3130,8 @@
 	dir = 8
 	},
 /obj/machinery/door/window/northleft,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "gZ" = (
 /obj/machinery/power/rad_collector,
@@ -3146,8 +3139,8 @@
 	dir = 4
 	},
 /obj/machinery/door/window/northright,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ha" = (
 /obj/structure/cable/cyan{
@@ -3155,22 +3148,22 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/structure/bed/roller,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/structure/roller_bed,
+/obj/floor_decal/corner/paleblue/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "hb" = (
 /obj/machinery/suit_storage_unit/standard_unit,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "hc" = (
 /obj/machinery/portable_atmospherics/canister,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "hd" = (
 /obj/machinery/portable_atmospherics/powered/pump,
@@ -3182,19 +3175,19 @@
 /area/space)
 "hf" = (
 /obj/machinery/power/port_gen/pacman,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "hg" = (
 /obj/item/stack/material/titanium/ten,
-/obj/effect/floor_decal/industrial/outline/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/industrial/outline/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "hh" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on,
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/white,
@@ -3221,8 +3214,8 @@
 	dir = 8
 	},
 /obj/machinery/door/window/southleft,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "hl" = (
 /obj/machinery/reagentgrinder,
@@ -3233,7 +3226,7 @@
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
@@ -3268,12 +3261,12 @@
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "hs" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/centerhallway)
 "ht" = (
-/obj/effect/floor_decal/corner/b_green/bordercorner{
+/obj/floor_decal/corner/b_green/bordercorner{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -3291,7 +3284,7 @@
 /area/meatstation/hydroponics)
 "hw" = (
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
@@ -3304,8 +3297,8 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/b_green/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -3321,11 +3314,11 @@
 /area/space)
 "hA" = (
 /obj/structure/table/marble,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "hB" = (
 /obj/item/reagent_containers/glass/beaker/vial/random/toxin,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/dark,
@@ -3335,23 +3328,23 @@
 /obj/item/stack/cable_coil/cyan{
 	amount = 1
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "hD" = (
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "hE" = (
-/obj/effect/decal/cleanable/filth,
-/turf/simulated/floor/tiled/airless,
+/obj/decal/cleanable/filth,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "hF" = (
 /obj/item/paper,
 /obj/structure/bed/chair/office/comfy/yellow,
 /obj/random/junk,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "hG" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -3361,7 +3354,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -3375,18 +3368,18 @@
 	d2 = 4;
 	icon_state = "0-4"
 	},
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 9
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "hI" = (
 /obj/machinery/portable_atmospherics/canister/empty/oxygen,
-/obj/effect/floor_decal/industrial/outline/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/industrial/outline/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "hJ" = (
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 5
 	},
 /turf/simulated/floor/lino,
@@ -3395,7 +3388,7 @@
 /obj/machinery/vending/snack{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 8
 	},
 /turf/simulated/floor/lino,
@@ -3429,8 +3422,8 @@
 	d2 = 8;
 	icon_state = "1-8"
 	},
-/obj/structure/bed/roller,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/structure/roller_bed,
+/obj/floor_decal/corner/paleblue/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/dark,
@@ -3441,16 +3434,16 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "hP" = (
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 1
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "hQ" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -3473,7 +3466,7 @@
 /obj/structure/table/glass,
 /obj/item/paper_bin,
 /obj/item/pen/multi,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -3485,7 +3478,7 @@
 /area/meatstation/centerhallway)
 "hT" = (
 /obj/structure/reagent_dispensers/watertank,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -3505,8 +3498,8 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/filth,
-/turf/simulated/floor/airless,
+/obj/decal/cleanable/filth,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "hV" = (
 /obj/item/stack/material/rods,
@@ -3514,15 +3507,15 @@
 /area/meatstation/hydroponics)
 "hW" = (
 /obj/structure/window/basic,
-/obj/structure/bed/roller/ironingboard,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/random/ironing_board_structure,
+/obj/floor_decal/corner/b_green/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "hX" = (
-/obj/effect/decal/cleanable/blood/drip,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood/drip,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "hY" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -3540,8 +3533,8 @@
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "hZ" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation/lab,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation/lab,
 /obj/machinery/door/blast/regular/open{
 	dir = 4;
 	icon_state = "pdoor0";
@@ -3563,14 +3556,13 @@
 /area/meatstation/dorm)
 "id" = (
 /obj/structure/bed/chair/office/comfy/green,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "ie" = (
 /obj/structure/hygiene/toilet{
 	dir = 8
 	},
 /obj/item/inflatable_duck,
-/obj/random/single/meatstation/low/wormguard,
 /obj/machinery/light/small/red{
 	dir = 4
 	},
@@ -3581,12 +3573,12 @@
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "ig" = (
-/obj/effect/decal/cleanable/filth,
-/turf/simulated/floor/airless,
+/obj/decal/cleanable/filth,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ih" = (
 /obj/structure/hygiene/shower,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 5;
 	icon_state = "warning"
 	},
@@ -3609,7 +3601,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 8;
 	icon_state = "warning"
 	},
@@ -3636,15 +3628,15 @@
 /turf/simulated/floor/exoplanet/grass,
 /area/meatstation/hydroponics)
 "in" = (
-/obj/effect/floor_decal/corner/lime/border{
+/obj/floor_decal/corner/lime/border{
 	dir = 1
 	},
 /obj/structure/inflatable/wall,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "io" = (
 /obj/machinery/icecream_vat,
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "ip" = (
 /obj/machinery/door/airlock{
@@ -3658,7 +3650,7 @@
 /area/meatstation/bathroom)
 "ir" = (
 /obj/item/reagent_containers/food/snacks/meat/meatstationmeat,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "is" = (
 /obj/item/ammo_magazine/shotholder/empty,
@@ -3681,13 +3673,13 @@
 	d2 = 8;
 	icon_state = "1-8"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "iu" = (
-/obj/effect/floor_decal/corner/lime/border{
+/obj/floor_decal/corner/lime/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "iv" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
@@ -3701,21 +3693,21 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "iw" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "ix" = (
 /obj/structure/girder,
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor,
 /area/meatstation/bathroom)
 "iy" = (
 /obj/structure/girder,
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "iz" = (
 /obj/item/material/knife/kitchen,
@@ -3733,7 +3725,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 4
 	},
 /obj/structure/cable/cyan{
@@ -3748,7 +3740,7 @@
 /area/meatstation/storage)
 "iC" = (
 /obj/item/reagent_containers/food/snacks/slice/meatbread,
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "iD" = (
 /obj/item/reagent_containers/food/snacks/slice/meatpizza,
@@ -3756,7 +3748,7 @@
 /area/space)
 "iE" = (
 /obj/item/storage/box/handcuffs,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "iF" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -3767,16 +3759,16 @@
 	icon_state = "1-2"
 	},
 /obj/structure/table/marble,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "iG" = (
 /obj/structure/table/marble,
 /obj/item/material/knife/kitchen,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "iH" = (
 /obj/item/material/knife/kitchen/cleaver,
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "iI" = (
 /obj/item/reagent_containers/food/snacks/sliceable/pizza/meatpizza,
@@ -3784,14 +3776,14 @@
 /area/space)
 "iJ" = (
 /obj/machinery/cooker/grill,
-/obj/effect/floor_decal/corner/lime/diagonal,
-/turf/simulated/floor/airless/ceiling,
+/obj/floor_decal/corner/lime/diagonal,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "iK" = (
 /obj/structure/table/marble,
 /obj/machinery/cooker/candy,
-/obj/effect/floor_decal/corner/lime/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/lime/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "iL" = (
 /obj/machinery/conveyor{
@@ -3816,27 +3808,27 @@
 /turf/simulated/floor/plating,
 /area/meatstation/storage)
 "iN" = (
-/obj/effect/paint/meatstation,
+/obj/paint/meatstation,
 /obj/structure/disposalpipe/segment{
 	dir = 4
 	},
 /turf/simulated/wall/r_wall,
 /area/meatstation/storage)
 "iO" = (
-/obj/effect/floor_decal/corner/lime/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/lime/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "iP" = (
 /obj/machinery/cooker/oven,
 /obj/random/single/meatstation/meatworm,
-/obj/effect/floor_decal/corner/lime/diagonal,
-/turf/simulated/floor/airless/ceiling,
+/obj/floor_decal/corner/lime/diagonal,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "iQ" = (
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 4
 	},
 /turf/simulated/floor/lino,
@@ -3854,7 +3846,7 @@
 /turf/space,
 /area/space)
 "iT" = (
-/obj/item/material/kitchen/utensil/spork,
+/obj/item/material/utensil/spork,
 /turf/space,
 /area/space)
 "iU" = (
@@ -3864,25 +3856,25 @@
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "iV" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
 /turf/simulated/floor/plating,
 /area/meatstation/storage)
 "iW" = (
 /obj/item/material/knife/kitchen,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "iX" = (
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/lime/border{
+/obj/floor_decal/corner/lime/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "iY" = (
-/obj/item/material/kitchen/utensil/fork,
+/obj/item/material/utensil/fork,
 /turf/space,
 /area/space)
 "iZ" = (
@@ -3909,16 +3901,16 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/item/material/kitchen/utensil/fork,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/item/material/utensil/fork,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "jb" = (
 /obj/structure/lattice,
 /turf/space,
 /area/meatstation/storage)
 "jc" = (
-/obj/item/material/kitchen/utensil/spork/plastic,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/item/material/utensil/spork/plastic,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "jd" = (
 /obj/item/storage/mirror{
@@ -3934,12 +3926,11 @@
 /area/meatstation/bathroom)
 "jf" = (
 /obj/structure/girder,
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor,
 /area/meatstation/mess)
 "jg" = (
 /obj/item/stack/material/rods,
 /obj/item/material/shard,
-/obj/random/single/meatstation/low/wormscientist,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "jh" = (
@@ -3949,7 +3940,7 @@
 /obj/machinery/light{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/white,
@@ -3989,7 +3980,7 @@
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/dark,
@@ -4023,7 +4014,7 @@
 /obj/machinery/light{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/dark,
@@ -4052,7 +4043,7 @@
 /obj/item/reagent_containers/spray/cleaner,
 /obj/item/defibrillator,
 /obj/item/stack/nanopaste,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/dark,
@@ -4060,7 +4051,7 @@
 "jr" = (
 /obj/structure/table/rack,
 /obj/random/single/meatstation/laser,
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/dark,
@@ -4082,8 +4073,7 @@
 /obj/random/junk,
 /obj/random/maintenance/clean,
 /obj/item/plastique,
-/obj/effect/decal/cleanable/blood,
-/mob/living/simple_animal/hostile/meatstation/wormscientist,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "ju" = (
@@ -4109,14 +4099,14 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "jw" = (
 /obj/item/material/shard,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/dark,
@@ -4184,7 +4174,7 @@
 /area/meatstation/dorm)
 "jL" = (
 /obj/random/single/meatstation/meatworm,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "jM" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -4199,7 +4189,7 @@
 	icon_state = "4-8"
 	},
 /obj/random/single/meatstation/meatworm,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "jN" = (
 /obj/structure/table/woodentable/ebony,
@@ -4223,7 +4213,7 @@
 /area/meatstation/dorm)
 "jR" = (
 /obj/structure/coatrack,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -4285,15 +4275,10 @@
 /turf/simulated/floor/carpet/blue3,
 /area/meatstation/dorm)
 "kb" = (
-/obj/effect/paint/meatstation,
-/obj/effect/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
 /turf/simulated/floor/plating,
 /area/meatstation/dorm)
-"kc" = (
-/obj/structure/table/glass,
-/obj/machinery/reagent_temperature/cooler,
-/turf/simulated/floor/tiled/white,
-/area/meatstation/lab)
 "kd" = (
 /obj/structure/cable/cyan{
 	d1 = 1;
@@ -4326,12 +4311,12 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/red/bordercorner,
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/red/bordercorner,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "kg" = (
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 1;
 	icon_state = "warning"
 	},
@@ -4359,7 +4344,7 @@
 	d2 = 8;
 	icon_state = "1-8"
 	},
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 4;
 	icon_state = "warning"
 	},
@@ -4408,8 +4393,8 @@
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "km" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation/lab,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation/lab,
 /obj/structure/cable/cyan{
 	d2 = 4;
 	icon_state = "0-4"
@@ -4426,14 +4411,14 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "ko" = (
-/obj/effect/wallframe_spawn/reinforced,
-/obj/effect/paint/meatstation/lab,
+/obj/wallframe_spawn/reinforced,
+/obj/paint/meatstation/lab,
 /obj/structure/cable/cyan{
 	d2 = 8;
 	icon_state = "0-8"
@@ -4461,7 +4446,7 @@
 	icon_state = "4-8"
 	},
 /obj/structure/table/marble,
-/obj/item/material/kitchen/utensil/fork,
+/obj/item/material/utensil/fork,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "kr" = (
@@ -4519,17 +4504,17 @@
 /area/meatstation/mess)
 "kz" = (
 /obj/item/book/manual/detective,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "kA" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on,
 /obj/item/paper,
 /obj/random/junk,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "kB" = (
 /obj/random/junk,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "kC" = (
 /obj/structure/table/marble,
@@ -4548,7 +4533,7 @@
 	icon_state = "4-8"
 	},
 /obj/item/book/manual/anomaly_testing,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "kE" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -4562,7 +4547,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "kF" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -4577,7 +4562,7 @@
 	icon_state = "4-8"
 	},
 /obj/item/book/manual/chef_recipes,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "kG" = (
 /obj/structure/table/marble,
@@ -4589,7 +4574,7 @@
 /obj/machinery/vending/cigarette{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 8
 	},
 /turf/simulated/floor/lino,
@@ -4627,14 +4612,14 @@
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "kM" = (
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 4
 	},
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "kN" = (
 /obj/structure/table/marble,
-/obj/item/material/kitchen/utensil/spork,
+/obj/item/material/utensil/spork,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "kO" = (
@@ -4652,7 +4637,7 @@
 /obj/machinery/vending/hotfood{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 8
 	},
 /turf/simulated/floor/lino,
@@ -4663,7 +4648,7 @@
 /area/space)
 "kS" = (
 /obj/structure/table/woodentable/ebony,
-/obj/structure/flora/pottedplant/deskferntrim,
+/obj/item/flora/pottedplantsmall/fern,
 /turf/simulated/floor/carpet/blue2,
 /area/meatstation/dorm)
 "kT" = (
@@ -4690,7 +4675,7 @@
 	icon_state = "4-8"
 	},
 /obj/structure/table/standard,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "kW" = (
 /obj/structure/closet,
@@ -4735,11 +4720,11 @@
 /area/meatstation/mess)
 "lb" = (
 /obj/random/trash,
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "lc" = (
 /obj/random/trash,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "ld" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -4813,8 +4798,8 @@
 /area/meatstation/lab)
 "ln" = (
 /obj/item/storage/box/beakers,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "lo" = (
 /obj/structure/table/woodentable/ebony,
@@ -4844,7 +4829,7 @@
 	dir = 1
 	},
 /obj/item/book/manual/chemistry_recipes,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lr" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -4859,7 +4844,7 @@
 	icon_state = "4-8"
 	},
 /obj/item/device/flashlight/lamp,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "ls" = (
 /obj/structure/table/woodentable/ebony,
@@ -4879,7 +4864,7 @@
 	icon_state = "4-8"
 	},
 /obj/random/maintenance/clean,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lu" = (
 /obj/structure/table/woodentable/ebony,
@@ -4921,7 +4906,7 @@
 	},
 /obj/structure/table/standard,
 /obj/item/book/manual/engineering_hacking,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lB" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -4933,7 +4918,7 @@
 	icon_state = "4-8"
 	},
 /obj/item/deck/tarot,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "lC" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -4952,7 +4937,7 @@
 	d2 = 4;
 	icon_state = "2-4"
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lD" = (
 /obj/structure/table/gamblingtable,
@@ -4968,16 +4953,16 @@
 	dir = 4;
 	pixel_x = 24
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lF" = (
 /obj/structure/table/standard,
 /obj/random/junk,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lG" = (
 /obj/structure/table/standard,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lH" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -4992,12 +4977,12 @@
 	icon_state = "4-8"
 	},
 /obj/item/paper,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "lI" = (
 /obj/structure/table/standard,
 /obj/random/toy,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lJ" = (
 /obj/item/paper,
@@ -5007,7 +4992,7 @@
 /obj/structure/bed/chair/office/comfy/red{
 	dir = 8
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "lL" = (
 /obj/structure/bed/chair/office/comfy/black{
@@ -5019,12 +5004,12 @@
 /obj/structure/bed/chair/office/comfy/yellow{
 	dir = 1
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "lN" = (
 /obj/structure/table/standard,
 /obj/random/maintenance/clean,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lO" = (
 /obj/random/junk,
@@ -5036,7 +5021,7 @@
 	level = 2
 	},
 /obj/structure/table/standard,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lQ" = (
 /obj/item/book/manual/research_and_development,
@@ -5050,7 +5035,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lS" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
@@ -5064,17 +5049,17 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lT" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lU" = (
 /obj/structure/bed/chair/office/comfy/black,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "lV" = (
 /obj/item/pen,
@@ -5148,7 +5133,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/mine/dnascramble,
+/obj/structure/mine,
 /obj/machinery/light/small/red{
 	dir = 4
 	},
@@ -5166,33 +5151,14 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/mine/dnascramble,
+/obj/structure/mine,
 /obj/random/junk,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
-"mk" = (
-/obj/effect/decal/cleanable/blood/drip,
-/turf/simulated/floor/tiled/dark/airless,
-/area/meatstation/cargo)
 "ml" = (
-/obj/effect/mine/dnascramble,
+/obj/structure/mine,
 /obj/random/trash,
 /obj/random/junk,
-/turf/simulated/floor/tiled/dark,
-/area/meatstation/swhallway)
-"mm" = (
-/obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
-/obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/obj/structure/cable/cyan{
-	d1 = 1;
-	d2 = 2;
-	icon_state = "1-2"
-	},
-/obj/effect/mine,
-/turf/simulated/floor/tiled/dark,
-/area/meatstation/swhallway)
-"mn" = (
-/obj/effect/mine/dnascramble,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "mo" = (
@@ -5203,8 +5169,8 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/mine/dnascramble,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/structure/mine,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "mp" = (
@@ -5215,11 +5181,11 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood/drip,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "mq" = (
-/obj/effect/mine,
+/obj/structure/mine,
 /obj/machinery/light/small/red{
 	dir = 8
 	},
@@ -5234,7 +5200,7 @@
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 8
 	},
 /obj/structure/cable/green{
@@ -5242,7 +5208,7 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ms" = (
 /obj/structure/closet/toolcloset,
@@ -5254,16 +5220,16 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/item/material/shard,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mu" = (
 /obj/item/material/shard,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mv" = (
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mw" = (
 /obj/random/tool,
@@ -5272,8 +5238,8 @@
 "mx" = (
 /obj/structure/closet/toolcloset,
 /obj/machinery/door/window/northright,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "my" = (
 /obj/structure/closet/toolcloset,
@@ -5282,8 +5248,8 @@
 	},
 /obj/machinery/door/window/northright,
 /obj/item/inflatable/door,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mz" = (
 /obj/machinery/portable_atmospherics/canister/empty/air,
@@ -5292,15 +5258,15 @@
 "mA" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mB" = (
 /obj/machinery/portable_atmospherics/canister/carbon_dioxide,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mC" = (
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled,
 /area/meatstation/nwhallway)
 "mD" = (
@@ -5309,7 +5275,7 @@
 /area/space)
 "mE" = (
 /obj/machinery/portable_atmospherics/canister/phoron,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mF" = (
 /obj/machinery/portable_atmospherics/canister/phoron,
@@ -5321,7 +5287,7 @@
 /area/space)
 "mH" = (
 /obj/machinery/portable_atmospherics/canister/nitrogen,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mI" = (
 /obj/structure/closet/toolcloset,
@@ -5330,8 +5296,8 @@
 	},
 /obj/machinery/door/window/southleft,
 /obj/item/grenade/chem_grenade/metalfoam,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mJ" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -5346,17 +5312,13 @@
 	icon_state = "4-8"
 	},
 /obj/structure/reagent_dispensers/fueltank,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mK" = (
 /obj/structure/reagent_dispensers/fueltank,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mL" = (
-/obj/random/single/meatstation/low/wormguard,
-/turf/simulated/floor/airless,
-/area/meatstation/engineering)
-"mM" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
@@ -5368,9 +5330,8 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/random/single/meatstation/low/wormguard,
-/turf/simulated/floor/airless,
-/area/meatstation/engineering)
+/turf/simulated/floor/tiled/dark,
+/area/meatstation/medical)
 "mN" = (
 /obj/structure/table/woodentable/ebony,
 /obj/machinery/light/small/red{
@@ -5384,18 +5345,18 @@
 	dir = 4
 	},
 /obj/machinery/door/window/southright,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mP" = (
 /obj/machinery/pipedispenser/disposal,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mQ" = (
 /obj/machinery/pipedispenser,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mR" = (
 /obj/structure/cable/cyan{
@@ -5408,18 +5369,18 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mS" = (
 /obj/item/cell/crap,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mT" = (
 /obj/structure/closet/toolcloset,
 /obj/machinery/door/window/southleft,
 /obj/item/grenade/chem_grenade/metalfoam,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mU" = (
 /obj/structure/cable/cyan{
@@ -5428,11 +5389,11 @@
 	icon_state = "1-2"
 	},
 /obj/item/stack/material/aluminium/ten,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mV" = (
 /obj/item/stack/material/aluminium/ten,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mW" = (
 /obj/random/single/meatstation/meatworm,
@@ -5450,7 +5411,7 @@
 	d2 = 8;
 	icon_state = "2-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "mY" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -5460,12 +5421,12 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/mine/dnascramble,
+/obj/structure/mine,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "mZ" = (
 /obj/random/single/meatstation/low/wormscientist,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "na" = (
 /obj/item/stack/material/wood/ebony/twentyfive,
@@ -5477,8 +5438,8 @@
 /area/space)
 "nc" = (
 /obj/machinery/power/port_gen/pacman,
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nd" = (
 /obj/item/stack/material/gold/ten,
@@ -5486,7 +5447,7 @@
 /area/space)
 "ne" = (
 /obj/item/stack/material/steel/fifty,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nf" = (
 /obj/structure/cable/cyan{
@@ -5495,19 +5456,19 @@
 	icon_state = "1-2"
 	},
 /obj/item/stack/material/plasteel/fifty,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ng" = (
 /obj/item/stack/material/wood/ebony/twentyfive,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nh" = (
 /obj/item/stack/material/glass/reinforced/ten,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ni" = (
 /obj/item/stack/material/silver/ten,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nj" = (
 /obj/structure/cable/cyan{
@@ -5519,15 +5480,15 @@
 	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nk" = (
 /obj/item/stack/material/plasteel/ten,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nl" = (
 /obj/item/stack/material/phoron/ten,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nm" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -5543,8 +5504,8 @@
 	},
 /obj/item/stack/material/steel/fifty,
 /obj/machinery/pipedispenser/disposal,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nn" = (
 /obj/structure/closet/wardrobe/pjs,
@@ -5567,24 +5528,24 @@
 /obj/structure/bed/chair/office/comfy/beige{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "nr" = (
 /obj/random/junk,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ns" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/random/trash,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nt" = (
 /obj/random/trash,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "nu" = (
 /obj/item/book/manual/engineering_construction,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "nv" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -5599,7 +5560,7 @@
 	icon_state = "4-8"
 	},
 /obj/random/trash,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nw" = (
 /obj/random/junk,
@@ -5615,7 +5576,7 @@
 	dir = 8
 	},
 /obj/random/junk,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /obj/random/single/meatstation/meatmound,
 /obj/machinery/light/small/red{
 	dir = 4
@@ -5639,11 +5600,11 @@
 /area/meatstation/mess)
 "nC" = (
 /obj/random/junk,
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "nD" = (
 /obj/random/junk,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "nE" = (
 /obj/structure/closet,
@@ -5655,17 +5616,17 @@
 /area/meatstation/bathroom)
 "nF" = (
 /obj/random/single/meatstation/meatworm,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "nG" = (
 /obj/machinery/light{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "nH" = (
 /obj/item/clothing/accessory/scarf,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "nI" = (
 /obj/random/junk,
@@ -5687,16 +5648,16 @@
 	icon_state = "1-2"
 	},
 /obj/random/toolbox,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nM" = (
 /obj/structure/closet/toolcloset,
 /obj/random/tool,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nN" = (
 /obj/machinery/light,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "nO" = (
 /obj/random/maintenance/clean,
@@ -5708,13 +5669,13 @@
 	d2 = 8;
 	icon_state = "1-8"
 	},
-/obj/effect/floor_decal/corner/purple/bordercorner{
+/obj/floor_decal/corner/purple/bordercorner{
 	dir = 1
 	},
 /obj/item/stack/cable_coil/green{
 	amount = 28
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nQ" = (
 /obj/structure/closet/wardrobe/pjs,
@@ -5724,25 +5685,25 @@
 /area/meatstation/dorm)
 "nR" = (
 /obj/random/trash,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nS" = (
 /obj/random/trash,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "nT" = (
 /obj/item/paper,
 /obj/item/paper,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "nU" = (
 /obj/item/stack/material/steel/fifty,
 /obj/random/trash,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nV" = (
 /obj/random/maintenance/clean,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nW" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -5757,7 +5718,7 @@
 	icon_state = "4-8"
 	},
 /obj/random/junk,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "nX" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -5777,7 +5738,7 @@
 	icon_state = "1-2"
 	},
 /obj/random/trash,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "nY" = (
 /obj/structure/closet/wardrobe/pjs,
@@ -5799,7 +5760,7 @@
 /area/meatstation/mess)
 "oc" = (
 /obj/random/maintenance/clean,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/space)
 "od" = (
 /obj/machinery/atmospherics/pipe/manifold4w/hidden/scrubbers,
@@ -5814,8 +5775,8 @@
 	d2 = 4;
 	icon_state = "2-4"
 	},
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "oe" = (
 /obj/random/closet,
@@ -5841,7 +5802,7 @@
 	icon_state = "1-8"
 	},
 /obj/structure/bookcase,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "oh" = (
 /obj/random/maintenance/clean,
@@ -5865,11 +5826,11 @@
 /area/meatstation/storage)
 "ok" = (
 /obj/structure/table/rack,
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 8
 	},
 /obj/item/cell/high,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ol" = (
 /obj/random/maintenance/clean,
@@ -5909,7 +5870,7 @@
 /area/space)
 "or" = (
 /obj/item/inflatable/door,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "os" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -5925,23 +5886,16 @@
 	},
 /obj/structure/table/glass,
 /obj/item/paper_bin,
-/obj/effect/floor_decal/corner/green/diagonal,
+/obj/floor_decal/corner/green/diagonal,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
-"ot" = (
-/obj/effect/floor_decal/corner/black/border{
-	dir = 1
-	},
-/obj/random/single/meatstation/low/wormguard,
-/turf/simulated/floor/tiled,
-/area/meatstation/centerhallway)
 "ou" = (
 /obj/machinery/portable_atmospherics/powered/pump/filled,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "ov" = (
-/obj/effect/decal/cleanable/blood/drip,
-/turf/simulated/floor/airless,
+/obj/decal/cleanable/blood/drip,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "ow" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -5955,7 +5909,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "ox" = (
@@ -5984,7 +5938,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 4
 	},
 /obj/machinery/recharger/wallcharger{
@@ -5996,7 +5950,7 @@
 /area/meatstation/storage)
 "oz" = (
 /obj/structure/table/glass,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /obj/machinery/dnaforensics,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
@@ -6034,12 +5988,12 @@
 /turf/simulated/floor/tiled,
 /area/meatstation/cargo)
 "oE" = (
-/obj/effect/overmap/visitable/sector/meatstation,
+/obj/overmap/visitable/sector/meatstation,
 /turf/space,
 /area/space)
 "oF" = (
-/obj/effect/decal/cleanable/blood,
-/turf/simulated/floor/airless,
+/obj/decal/cleanable/blood,
+/turf/simulated/floor,
 /area/meatstation/centerhallway)
 "oG" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -6050,29 +6004,29 @@
 	icon_state = "1-2"
 	},
 /obj/structure/inflatable/door,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "oH" = (
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "oJ" = (
 /obj/item/book/manual/stasis,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "oK" = (
 /obj/structure/bookcase/manuals/xenoarchaeology,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "oL" = (
 /obj/structure/bookcase,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "oM" = (
 /obj/structure/bed/chair/office/comfy/lime,
 /obj/machinery/light/small/red{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "oN" = (
 /obj/item/book/manual/robotics_cyborgs,
@@ -6084,7 +6038,7 @@
 /area/space)
 "oP" = (
 /obj/structure/bookcase/manuals/research_and_development,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "oQ" = (
 /obj/item/book/manual/hydroponics_pod_people,
@@ -6102,16 +6056,16 @@
 "oT" = (
 /obj/structure/table/standard,
 /obj/item/paper_bin,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "oU" = (
 /obj/structure/table/standard,
 /obj/item/device/flashlight/lamp,
-/turf/simulated/floor/tiled/airless,
+/turf/simulated/floor/tiled,
 /area/meatstation/dorm)
 "oV" = (
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 1
 	},
 /obj/structure/bed/chair,
@@ -6121,7 +6075,7 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 1
 	},
 /obj/structure/bed/chair,
@@ -6139,13 +6093,13 @@
 /area/meatstation/mess)
 "oY" = (
 /obj/item/book/manual/excavation,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "oZ" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/item/book/manual/barman_recipes,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "pa" = (
 /obj/structure/bed/chair{
@@ -6154,7 +6108,7 @@
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "pb" = (
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /obj/structure/bed/chair,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
@@ -6175,7 +6129,7 @@
 	dir = 1;
 	level = 2
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "pe" = (
 /obj/machinery/light/small/red{
@@ -6192,7 +6146,7 @@
 /area/meatstation/cargo)
 "pg" = (
 /obj/structure/girder,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "ph" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
@@ -6238,10 +6192,10 @@
 /turf/space,
 /area/space)
 "pq" = (
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 1
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pr" = (
 /obj/random/tech_supply,
@@ -6258,9 +6212,9 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/mine,
+/obj/structure/mine,
 /obj/item/stack/material/rods,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
 	dir = 4
 	},
@@ -6268,11 +6222,11 @@
 /area/meatstation/swhallway)
 "pu" = (
 /obj/item/paper/meatstation/weapon_note,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "pv" = (
-/obj/effect/paint/meatstation,
-/obj/effect/wallframe_spawn/reinforced,
+/obj/paint/meatstation,
+/obj/wallframe_spawn/reinforced,
 /turf/simulated/floor/plating,
 /area/meatstation/cargooffice)
 "pw" = (
@@ -6287,18 +6241,18 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 1
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "px" = (
 /obj/random/toy,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "py" = (
 /obj/item/storage/box/monkeycubes/farwacubes,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pz" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -6312,22 +6266,22 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "pA" = (
 /obj/structure/reagent_dispensers/fueltank,
-/obj/effect/floor_decal/corner/purple/border,
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/border,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "pB" = (
 /obj/random/maintenance/clean,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pC" = (
 /obj/item/storage/box/monkeycubes/spidercubes,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pD" = (
 /obj/structure/bed/chair,
@@ -6335,50 +6289,50 @@
 /area/meatstation/mess)
 "pE" = (
 /obj/item/storage/box/lights/bulbs,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pF" = (
 /obj/item/storage/box/lights/tubes/random,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pG" = (
 /obj/item/reagent_containers/food/snacks/monkeycube/spidercube,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pH" = (
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pI" = (
 /obj/item/storage/box/lights/tubes/random,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "pJ" = (
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pK" = (
 /obj/structure/table/rack,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pL" = (
 /obj/structure/table/rack,
 /obj/item/storage/box/glasses/cocktail,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pM" = (
 /obj/item/storage/box/beakers,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pN" = (
 /obj/item/storage/box,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pO" = (
 /obj/structure/table/rack,
@@ -6388,7 +6342,7 @@
 /obj/machinery/light/small/red{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 1
 	},
 /obj/item/ammo_magazine/shotholder/shell,
@@ -6411,7 +6365,7 @@
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "pQ" = (
-/obj/effect/mine/dnascramble,
+/obj/structure/mine,
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 1;
 	level = 2
@@ -6420,7 +6374,7 @@
 /area/meatstation/swhallway)
 "pR" = (
 /obj/item/storage/box/botanydisk,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "pS" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -6437,21 +6391,21 @@
 /obj/structure/table/glass,
 /obj/item/sticky_pad/random,
 /obj/item/material/twohanded/fireaxe,
-/obj/effect/floor_decal/corner/green/diagonal,
+/obj/floor_decal/corner/green/diagonal,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "pT" = (
 /obj/machinery/light{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pU" = (
 /obj/item/storage/box/canned_tomato,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "pV" = (
 /obj/item/storage/box/canned_beef,
@@ -6459,7 +6413,7 @@
 /area/space)
 "pW" = (
 /obj/item/storage/box/canned_spinach,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "pX" = (
 /obj/structure/window/reinforced{
@@ -6481,8 +6435,7 @@
 	pixel_x = -23;
 	pixel_y = -3
 	},
-/obj/random/single/meatstation/low/wormguard,
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 8
 	},
 /obj/item/ammo_casing/shotgun/pellet,
@@ -6494,7 +6447,7 @@
 /area/space)
 "qb" = (
 /obj/item/storage/box/glowsticks,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "qc" = (
 /obj/item/storage/box/glowsticks,
@@ -6502,7 +6455,7 @@
 /area/space)
 "qd" = (
 /obj/item/storage/box/detergent,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "qe" = (
 /obj/item/storage/box/freezer,
@@ -6510,26 +6463,26 @@
 /area/space)
 "qf" = (
 /obj/random/maintenance/clean,
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qg" = (
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qh" = (
 /obj/item/storage/box/pillbottles,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qi" = (
 /obj/item/tape_roll,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qj" = (
 /obj/item/tape_roll,
@@ -6541,7 +6494,7 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 4
 	},
 /obj/machinery/power/apc/meatstation{
@@ -6577,7 +6530,7 @@
 /area/space)
 "qo" = (
 /obj/item/towel/random,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qp" = (
 /obj/item/usedcryobag,
@@ -6587,7 +6540,7 @@
 /obj/structure/table/glass,
 /obj/item/storage/firstaid/surgery,
 /obj/item/bodybag/cryobag,
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 10
 	},
 /turf/simulated/floor/tiled/dark,
@@ -6604,7 +6557,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "qs" = (
@@ -6628,7 +6581,7 @@
 /area/meatstation/centerhallway)
 "qt" = (
 /obj/item/storage/backpack/dufflebag,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qu" = (
 /obj/item/shield/riot/metal,
@@ -6641,7 +6594,7 @@
 /area/space)
 "qw" = (
 /obj/item/storage/bag/trash,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qx" = (
 /obj/item/storage/bag/trash,
@@ -6661,32 +6614,32 @@
 /area/meatstation/storage)
 "qz" = (
 /obj/structure/reagent_dispensers/watertank,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qA" = (
-/obj/item/storage/fancy/egg_box,
+/obj/item/storage/fancy/egg_box/full,
 /turf/space,
 /area/space)
 "qB" = (
 /obj/machinery/optable,
-/obj/effect/floor_decal/corner/paleblue/border,
+/obj/floor_decal/corner/paleblue/border,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "qC" = (
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qD" = (
 /obj/item/storage/box/lights/tubes/random,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qE" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 4
 	},
-/obj/structure/stasis_cage,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/machinery/stasis_cage,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qF" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -6696,8 +6649,8 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/structure/stasis_cage,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/machinery/stasis_cage,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qG" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -6718,8 +6671,8 @@
 /area/meatstation/mess)
 "qH" = (
 /obj/item/storage/backpack/dufflebag,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qI" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
@@ -6756,7 +6709,7 @@
 /area/meatstation/mess)
 "qK" = (
 /obj/item/ammo_magazine/shotholder/empty,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qL" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -6783,34 +6736,34 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 1
 	},
 /obj/structure/inflatable/wall,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qN" = (
 /obj/item/clothing/accessory/fire_overpants,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qO" = (
 /obj/item/extinguisher,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qP" = (
 /obj/random/maintenance/clean,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qQ" = (
 /obj/structure/reagent_dispensers/watertank,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qR" = (
 /obj/item/tape_roll,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qS" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -6823,13 +6776,13 @@
 /obj/structure/closet/crate,
 /obj/item/stack/material/rods/fifty,
 /obj/item/stack/material/rods/fifty,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qT" = (
 /obj/structure/closet/crate,
 /obj/item/stack/material/steel/fifty,
 /obj/item/stack/material/steel/fifty,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qU" = (
 /obj/structure/closet/crate,
@@ -6838,14 +6791,14 @@
 /obj/item/stack/material/marble/fifty,
 /obj/item/stack/material/marble/fifty,
 /obj/random/single/meatstation/meatball,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qV" = (
 /obj/structure/reagent_dispensers/fueltank,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "qW" = (
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /obj/structure/bed/chair{
 	dir = 1
 	},
@@ -6863,7 +6816,7 @@
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "qY" = (
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/centerhallway)
 "qZ" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -6877,7 +6830,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/centerhallway)
 "ra" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -6892,7 +6845,7 @@
 	icon_state = "4-8"
 	},
 /obj/structure/inflatable/door,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/centerhallway)
 "rb" = (
 /obj/structure/lattice,
@@ -6903,7 +6856,7 @@
 /obj/item/stack/material/glass/reinforced/fifty,
 /obj/item/stack/material/glass/reinforced/fifty,
 /obj/item/grenade/chem_grenade/metalfoam,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "rd" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -6917,8 +6870,8 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/industrial/warning{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/industrial/warning{
 	dir = 4;
 	icon_state = "warning"
 	},
@@ -6936,7 +6889,7 @@
 	d2 = 8;
 	icon_state = "2-8"
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/centerhallway)
 "rf" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -6946,11 +6899,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/airless,
-/area/meatstation/centerhallway)
-"rg" = (
-/obj/structure/girder,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/centerhallway)
 "rh" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -6964,7 +6913,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 4;
 	icon_state = "warning"
 	},
@@ -6972,12 +6921,12 @@
 /area/meatstation/centerhallway)
 "ri" = (
 /obj/structure/inflatable/wall,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/centerhallway)
 "rj" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /obj/structure/inflatable/wall,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "rk" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -7044,7 +6993,7 @@
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "rq" = (
-/obj/effect/floor_decal/corner/b_green/bordercorner,
+/obj/floor_decal/corner/b_green/bordercorner,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "rr" = (
@@ -7067,12 +7016,12 @@
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "rs" = (
-/obj/effect/floor_decal/corner/black/bordercorner,
+/obj/floor_decal/corner/black/bordercorner,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "rt" = (
 /obj/random/single/meatstation/meatball,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "ru" = (
 /obj/structure/closet/emcloset,
@@ -7080,24 +7029,24 @@
 /area/space)
 "rv" = (
 /obj/machinery/light/small/red,
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "rw" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /obj/machinery/light/small/red{
 	dir = 4
 	},
 /obj/machinery/light/small/red{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "rx" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "ry" = (
@@ -7140,19 +7089,19 @@
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "rB" = (
-/obj/effect/floor_decal/corner/red/border,
+/obj/floor_decal/corner/red/border,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "rC" = (
 /obj/random/junk,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "rD" = (
 /obj/structure/cable/cyan{
 	d2 = 2;
 	icon_state = "0-2"
 	},
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 1
 	},
 /obj/machinery/power/apc/meatstation{
@@ -7181,7 +7130,7 @@
 /area/meatstation/lab)
 "rG" = (
 /obj/item/paper,
-/obj/effect/floor_decal/corner/red/border,
+/obj/floor_decal/corner/red/border,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "rH" = (
@@ -7203,7 +7152,7 @@
 	},
 /obj/random/single/meatstation/wormguard,
 /obj/random/junk,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "rI" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -7221,7 +7170,7 @@
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "rJ" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 6
 	},
 /turf/simulated/floor/tiled,
@@ -7238,8 +7187,8 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/liquid_fuel,
-/turf/simulated/floor/airless,
+/obj/decal/cleanable/liquid_fuel,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "rL" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -7257,18 +7206,18 @@
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "rM" = (
-/obj/effect/decal/cleanable/liquid_fuel,
-/obj/effect/floor_decal/corner/purple/border{
+/obj/decal/cleanable/liquid_fuel,
+/obj/floor_decal/corner/purple/border{
 	dir = 4
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "rN" = (
 /obj/structure/table/rack,
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 8
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "rO" = (
 /obj/random/loot,
@@ -7280,9 +7229,9 @@
 /area/meatstation/lab)
 "rQ" = (
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/brown/border,
+/obj/floor_decal/corner/brown/border,
 /obj/structure/inflatable/wall,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "rR" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -7300,38 +7249,38 @@
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "rS" = (
-/obj/effect/shuttle_landmark/nav_meatstation/nav1,
+/obj/shuttle_landmark/nav_meatstation/nav1,
 /turf/space,
 /area/space)
 "rT" = (
-/obj/effect/shuttle_landmark/nav_meatstation/nav5,
+/obj/shuttle_landmark/nav_meatstation/nav5,
 /turf/space,
 /area/space)
 "rU" = (
-/obj/effect/shuttle_landmark/nav_meatstation/nav2,
+/obj/shuttle_landmark/nav_meatstation/nav2,
 /turf/space,
 /area/space)
 "rV" = (
-/obj/effect/shuttle_landmark/nav_meatstation/nav4,
+/obj/shuttle_landmark/nav_meatstation/nav4,
 /turf/space,
 /area/space)
 "rW" = (
-/obj/effect/shuttle_landmark/nav_meatstation/nav3,
+/obj/shuttle_landmark/nav_meatstation/nav3,
 /turf/space,
 /area/space)
 "rX" = (
-/obj/effect/decal/cleanable/liquid_fuel,
-/turf/simulated/floor/airless,
+/obj/decal/cleanable/liquid_fuel,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "rY" = (
-/obj/effect/decal/cleanable/blood,
-/obj/effect/floor_decal/corner/black/border{
+/obj/decal/cleanable/blood,
+/obj/floor_decal/corner/black/border{
 	dir = 9
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "rZ" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "sa" = (
@@ -7347,11 +7296,11 @@
 	d2 = 4;
 	icon_state = "2-4"
 	},
-/obj/effect/decal/cleanable/vomit,
+/obj/decal/cleanable/vomit,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "sb" = (
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 1;
 	icon_state = "warning"
 	},
@@ -7362,7 +7311,7 @@
 	dir = 1;
 	level = 2
 	},
-/obj/effect/floor_decal/corner/red/border,
+/obj/floor_decal/corner/red/border,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "sd" = (
@@ -7371,60 +7320,60 @@
 /area/meatstation/lab)
 "se" = (
 /obj/structure/barricade/spike,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "sf" = (
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "sg" = (
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 1;
 	icon_state = "warning"
 	},
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "sh" = (
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /obj/random/single/meatstation/low/wormguard,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "si" = (
-/obj/effect/decal/cleanable/cobweb2,
-/obj/effect/floor_decal/industrial/warning{
+/obj/decal/cleanable/cobweb2,
+/obj/floor_decal/industrial/warning{
 	dir = 5
 	},
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "sj" = (
-/obj/effect/decal/cleanable/molten_item,
+/obj/decal/cleanable/molten_item,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "sk" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/red/border,
+/obj/floor_decal/corner/red/border,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "sl" = (
 /obj/random/single/meatstation/meatworm,
-/obj/effect/decal/cleanable/dirt,
+/obj/decal/cleanable/dirt,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "sm" = (
 /obj/structure/mattress/dirty,
-/obj/effect/decal/cleanable/dirt,
+/obj/decal/cleanable/dirt,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "sn" = (
 /obj/random/single/meatstation/low/wormguard,
-/obj/effect/decal/cleanable/dirt,
+/obj/decal/cleanable/dirt,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "so" = (
@@ -7433,18 +7382,18 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/red/bordercorner{
+/obj/floor_decal/corner/red/bordercorner{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "sp" = (
-/obj/effect/decal/cleanable/blood,
-/obj/effect/decal/cleanable/dirt,
+/obj/decal/cleanable/blood,
+/obj/decal/cleanable/dirt,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "sq" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /obj/random/single/meatstation/low/wormscientist,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
@@ -7456,23 +7405,23 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "ss" = (
 /obj/item/paper,
 /obj/item/paper,
 /obj/item/paper,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "st" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "su" = (
-/obj/effect/decal/cleanable/blood,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "sv" = (
@@ -7487,7 +7436,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "sw" = (
@@ -7496,25 +7445,25 @@
 	dir = 1;
 	pixel_y = -22
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "sx" = (
 /obj/item/storage/box/large/foam_gun/revolver,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "sy" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/decal/cleanable/blood/splatter,
-/turf/simulated/floor/airless,
+/obj/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/splatter,
+/turf/simulated/floor,
 /area/meatstation/cargo)
 "sz" = (
 /obj/structure/grille/broken,
 /turf/simulated/floor/plating,
 /area/meatstation/hydroponics)
 "sA" = (
-/obj/effect/mine,
+/obj/structure/mine,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "sB" = (
@@ -7534,8 +7483,8 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/mine/dnascramble,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/structure/mine,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "sC" = (
@@ -7550,7 +7499,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/mine/dnascramble,
+/obj/structure/mine,
 /obj/random/trash,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
@@ -7569,7 +7518,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "sE" = (
@@ -7584,28 +7533,28 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/mine,
+/obj/structure/mine,
 /obj/random/junk,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "sF" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "sG" = (
-/obj/effect/decal/cleanable/dirt,
+/obj/decal/cleanable/dirt,
 /obj/random/single/meatstation/low/wormscientist,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "sH" = (
 /obj/random/trash,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "sI" = (
 /obj/random/single/meatstation/low/wormguard,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "sJ" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -7619,7 +7568,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/mine,
+/obj/structure/mine,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "sK" = (
@@ -7630,7 +7579,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled,
 /area/meatstation/nwhallway)
 "sL" = (
@@ -7650,7 +7599,7 @@
 	d2 = 4;
 	icon_state = "2-4"
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "sM" = (
@@ -7663,18 +7612,18 @@
 /obj/machinery/light/small/red{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "sO" = (
 /obj/random/single/meatstation/low/wormscientist,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/dorm)
 "sP" = (
 /obj/structure/closet/firecloset,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 10
 	},
 /obj/random/single/meatstation/meatball,
@@ -7705,31 +7654,27 @@
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "sT" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /obj/random/single/meatstation/wormscientist,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "sU" = (
 /obj/structure/table/glass,
 /obj/item/storage/firstaid/adv,
-/obj/effect/floor_decal/corner/paleblue/border,
+/obj/floor_decal/corner/paleblue/border,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "sV" = (
 /obj/item/material/shard,
 /obj/random/trash,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
-"sW" = (
-/obj/random/single/meatstation/low/wormguard,
-/turf/space,
-/area/space)
 "sX" = (
 /obj/structure/hygiene/toilet{
 	dir = 8
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /obj/random/single/meatstation/wormscientist,
 /obj/machinery/light/small/red{
 	dir = 4
@@ -7742,7 +7687,7 @@
 	pixel_x = -12;
 	pixel_y = 2
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "sZ" = (
@@ -7771,16 +7716,16 @@
 /area/meatstation/storage)
 "tc" = (
 /obj/random/single/meatstation/meatworm,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "td" = (
 /obj/random/single/meatstation/meatworm,
-/turf/simulated/floor/airless/ceiling,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "te" = (
 /obj/structure/table/glass,
 /obj/item/storage/box/botanydisk,
-/obj/effect/floor_decal/corner/green/diagonal,
+/obj/floor_decal/corner/green/diagonal,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "tf" = (
@@ -7792,14 +7737,14 @@
 	icon_state = "1-2"
 	},
 /obj/random/single/meatstation/meatworm,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "tg" = (
 /obj/structure/table/glass,
 /obj/item/paper,
 /obj/item/toy/therapy_blue,
 /obj/random/junk,
-/obj/effect/floor_decal/corner/green/diagonal,
+/obj/floor_decal/corner/green/diagonal,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "th" = (
@@ -7823,7 +7768,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "tk" = (
@@ -7867,7 +7812,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "tp" = (
@@ -7902,7 +7847,7 @@
 	pixel_x = 6;
 	pixel_y = 30
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "ts" = (
@@ -7939,7 +7884,7 @@
 /turf/simulated/floor/tiled,
 /area/meatstation/nwhallway)
 "tv" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -7948,9 +7893,9 @@
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 8
 	},
-/obj/effect/decal/cleanable/blood,
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/black/border{
+/obj/decal/cleanable/blood,
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -7988,8 +7933,8 @@
 	icon_state = "4-8"
 	},
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "tA" = (
@@ -8009,16 +7954,16 @@
 /obj/structure/hygiene/shower{
 	dir = 1
 	},
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 10;
 	icon_state = "warning"
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/centerhallway)
 "tC" = (
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /obj/random/single/meatstation/low/wormscientist,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "tD" = (
 /obj/random/junk,
@@ -8038,7 +7983,7 @@
 	icon_state = "1-2"
 	},
 /obj/random/single/meatstation/meatworm,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled,
 /area/meatstation/nwhallway)
 "tG" = (
@@ -8053,25 +7998,25 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "tH" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled,
 /area/meatstation/nwhallway)
 "tI" = (
-/obj/effect/decal/cleanable/dirt,
+/obj/decal/cleanable/dirt,
 /obj/item/remains/human,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "tJ" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "tK" = (
-/obj/effect/decal/cleanable/cobweb,
-/obj/effect/floor_decal/industrial/warning{
+/obj/decal/cleanable/cobweb,
+/obj/floor_decal/industrial/warning{
 	dir = 9;
 	icon_state = "warning"
 	},
@@ -8085,9 +8030,9 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/decal/cleanable/blood,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "tM" = (
 /obj/machinery/button/alternate/door/bolts{
@@ -8102,12 +8047,12 @@
 	pixel_x = 6;
 	pixel_y = 30
 	},
-/obj/effect/decal/cleanable/blood,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "tN" = (
-/obj/effect/decal/cleanable/blood,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "tO" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -8118,11 +8063,11 @@
 	icon_state = "1-2"
 	},
 /obj/random/single/meatstation/meatball,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "tP" = (
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "tQ" = (
@@ -8137,7 +8082,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "tR" = (
@@ -8167,12 +8112,12 @@
 	icon_state = "1-4"
 	},
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/armory)
 "tT" = (
 /obj/item/material/shard,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /obj/structure/grille/broken,
 /obj/structure/inflatable/wall,
 /turf/simulated/floor/plating,
@@ -8197,8 +8142,8 @@
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "tW" = (
-/obj/effect/decal/cleanable/filth,
-/obj/effect/floor_decal/corner/black/border{
+/obj/decal/cleanable/filth,
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -8225,7 +8170,7 @@
 "tZ" = (
 /obj/random/trash,
 /obj/machinery/light/small/red,
-/obj/effect/floor_decal/corner/grey/border,
+/obj/floor_decal/corner/grey/border,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/armory)
 "ua" = (
@@ -8244,35 +8189,35 @@
 	d2 = 8;
 	icon_state = "2-8"
 	},
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "uc" = (
-/obj/structure/bed/roller,
-/obj/effect/floor_decal/corner/black/border{
+/obj/structure/roller_bed,
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "ud" = (
 /obj/random/single/meatstation/wormscientist,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "ue" = (
 /obj/random/junk,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "uf" = (
 /obj/machinery/atmospherics/unary/vent_pump/on,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
@@ -8282,25 +8227,25 @@
 /obj/machinery/light/small/red{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "uh" = (
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "ui" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uj" = (
 /obj/structure/table/rack,
 /obj/random/single/meatstation/laser,
-/obj/effect/floor_decal/corner/grey/border,
+/obj/floor_decal/corner/grey/border,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/armory)
 "uk" = (
@@ -8322,11 +8267,11 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "um" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /obj/random/single/meatstation/meatworm,
@@ -8336,7 +8281,7 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -8351,13 +8296,13 @@
 /obj/random/voidsuit,
 /obj/random/tank,
 /obj/random/masks,
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 5
 	},
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/armory)
 "uq" = (
-/obj/effect/floor_decal/corner/paleblue/border{
+/obj/floor_decal/corner/paleblue/border{
 	dir = 6
 	},
 /turf/simulated/floor/tiled/dark,
@@ -8379,7 +8324,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /obj/random/single/meatstation/meatworm,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
@@ -8392,18 +8337,18 @@
 	dir = 1;
 	pixel_y = -24
 	},
-/obj/effect/floor_decal/corner/purple/border,
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/border,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "uw" = (
 /obj/machinery/vending/lavatory,
-/obj/effect/floor_decal/industrial/outline/grey,
+/obj/floor_decal/industrial/outline/grey,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "ux" = (
-/obj/effect/decal/cleanable/blood,
-/obj/effect/floor_decal/corner/black/border{
+/obj/decal/cleanable/blood,
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -8417,7 +8362,7 @@
 	icon_state = "1-2"
 	},
 /obj/structure/inflatable/door,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "uz" = (
 /obj/structure/inflatable/wall,
@@ -8435,11 +8380,11 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uB" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "uC" = (
@@ -8450,8 +8395,8 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uD" = (
 /obj/structure/cable/cyan{
@@ -8468,29 +8413,29 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 1
 	},
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uF" = (
 /obj/item/storage/box/monkeycubes/farwacubes,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uG" = (
 /obj/structure/table/rack,
 /obj/item/storage/box/monkeycubes,
 /obj/item/storage/box/lights/bulbs,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uH" = (
 /obj/structure/table/rack,
 /obj/item/storage/box/canned_beans,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uI" = (
 /obj/structure/table/rack,
@@ -8498,7 +8443,7 @@
 /obj/item/clothing/accessory/arm_guards/riot,
 /obj/item/clothing/accessory/leg_guards/riot,
 /obj/item/shield/riot,
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 1
 	},
 /obj/item/tape_roll,
@@ -8506,23 +8451,23 @@
 /area/meatstation/armory)
 "uJ" = (
 /obj/item/storage/box/glasses,
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uK" = (
 /obj/structure/table/rack,
 /obj/item/storage/box/lights/tubes/random,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uL" = (
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 5
 	},
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uM" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -8532,7 +8477,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "uN" = (
@@ -8541,7 +8486,7 @@
 /obj/random/junk,
 /obj/random/junk,
 /obj/item/storage/bag/trash,
-/obj/effect/floor_decal/corner/b_green/border,
+/obj/floor_decal/corner/b_green/border,
 /obj/item/tape_roll,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
@@ -8554,11 +8499,11 @@
 	icon_state = "1-2"
 	},
 /obj/random/single/meatstation/meatball,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "uP" = (
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 8
 	},
 /turf/simulated/floor/lino,
@@ -8572,7 +8517,7 @@
 	icon_state = "1-2"
 	},
 /obj/random/single/meatstation/meatworm,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "uR" = (
@@ -8587,14 +8532,14 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "uS" = (
 /obj/machinery/light{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 4
 	},
 /turf/simulated/floor/lino,
@@ -8611,14 +8556,14 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "uU" = (
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "uV" = (
@@ -8627,12 +8572,12 @@
 	level = 2
 	},
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/floor_decal/industrial/warning,
+/obj/floor_decal/industrial/warning,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/centerhallway)
 "uW" = (
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "uX" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -8647,7 +8592,7 @@
 	icon_state = "4-8"
 	},
 /obj/random/junk,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "uY" = (
@@ -8660,7 +8605,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "uZ" = (
@@ -8676,12 +8621,12 @@
 	icon_state = "4-8"
 	},
 /obj/random/single/meatstation/meatworm,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "va" = (
 /obj/item/storage/bag/trash,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "vb" = (
@@ -8697,7 +8642,7 @@
 	icon_state = "4-8"
 	},
 /obj/item/material/shard,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "vc" = (
@@ -8705,30 +8650,30 @@
 /obj/structure/barricade/spike{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "vd" = (
 /obj/random/trash,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "ve" = (
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "vf" = (
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 5
 	},
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "vg" = (
-/obj/structure/stasis_cage,
-/obj/effect/decal/cleanable/dirt,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/machinery/stasis_cage,
+/obj/decal/cleanable/dirt,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "vh" = (
@@ -8737,7 +8682,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/white,
@@ -8753,14 +8698,14 @@
 	d2 = 8;
 	icon_state = "1-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "vj" = (
 /obj/structure/closet/crate/secure/biohazard{
 	req_access = null
 	},
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "vk" = (
@@ -8785,12 +8730,12 @@
 /area/meatstation/lab)
 "vl" = (
 /obj/random/single/meatstation/meatworm,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "vm" = (
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "vn" = (
@@ -8818,7 +8763,7 @@
 /obj/random/ammo,
 /obj/random/ammo,
 /obj/item/ammo_magazine/shotholder/flash,
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 8
 	},
 /obj/item/ammo_magazine/shotholder/empty,
@@ -8831,29 +8776,29 @@
 /obj/machinery/light{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 4
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "vr" = (
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 4
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "vs" = (
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 8
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "vt" = (
 /obj/structure/table/rack,
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 10
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "vu" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -8868,20 +8813,20 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/light/small/red,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "vv" = (
 /obj/structure/table/rack,
 /obj/item/storage/box/lights/bulbs,
 /obj/random/maintenance/clean,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "vw" = (
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 8
 	},
 /obj/structure/barricade/spike,
@@ -8917,14 +8862,14 @@
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "vB" = (
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 4;
 	icon_state = "warning"
 	},
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "vC" = (
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 4
 	},
 /obj/structure/barricade/spike,
@@ -9007,7 +8952,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 4;
 	icon_state = "warning"
 	},
@@ -9015,7 +8960,7 @@
 /area/meatstation/storage)
 "vN" = (
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 4
 	},
 /turf/simulated/floor/lino,
@@ -9025,20 +8970,20 @@
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 8
 	},
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "vP" = (
-/obj/item/material/kitchen/utensil/spork,
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/item/material/utensil/spork,
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 4
 	},
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "vQ" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /obj/random/single/meatstation/meatworm,
@@ -9048,18 +8993,18 @@
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/lime/border{
+/obj/floor_decal/corner/lime/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "vS" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/lime/border{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/lime/border{
 	dir = 10
 	},
 /obj/structure/inflatable/wall,
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "vT" = (
 /obj/machinery/light/small/red,
@@ -9070,7 +9015,7 @@
 	convdir = -1;
 	id = "trashconveyor"
 	},
-/obj/effect/floor_decal/corner/b_green/border,
+/obj/floor_decal/corner/b_green/border,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "vV" = (
@@ -9080,7 +9025,7 @@
 /area/meatstation/dorm)
 "vW" = (
 /obj/structure/reagent_dispensers/watertank,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 10
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -9091,12 +9036,12 @@
 	level = 2
 	},
 /obj/machinery/seed_extractor,
-/obj/effect/floor_decal/corner/green/border,
+/obj/floor_decal/corner/green/border,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "vY" = (
 /obj/machinery/honey_extractor,
-/obj/effect/floor_decal/corner/green/border,
+/obj/floor_decal/corner/green/border,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "vZ" = (
@@ -9107,30 +9052,30 @@
 /area/meatstation/hydroponics)
 "wa" = (
 /obj/machinery/biogenerator,
-/obj/effect/floor_decal/corner/green/border,
+/obj/floor_decal/corner/green/border,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "wb" = (
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/paleblue/border,
+/obj/floor_decal/corner/paleblue/border,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/medical)
 "wc" = (
-/obj/effect/mine,
-/obj/effect/mine,
+/obj/structure/mine,
+/obj/structure/mine,
 /obj/machinery/light/small/red,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "wd" = (
-/obj/effect/mine,
-/obj/effect/mine,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/structure/mine,
+/obj/structure/mine,
+/obj/decal/cleanable/blood/drip,
 /obj/random/trash,
 /obj/random/junk,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/swhallway)
 "we" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
@@ -9140,7 +9085,7 @@
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wg" = (
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 8;
 	icon_state = "warning"
 	},
@@ -9165,13 +9110,13 @@
 /obj/structure/table/rack,
 /obj/random/loot,
 /obj/random/trash,
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 9
 	},
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/armory)
 "wj" = (
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
@@ -9182,13 +9127,13 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wl" = (
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/white,
@@ -9217,13 +9162,13 @@
 /obj/machinery/light{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wo" = (
-/obj/effect/floor_decal/corner/red/bordercorner{
+/obj/floor_decal/corner/red/bordercorner{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/white,
@@ -9238,7 +9183,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
@@ -9249,8 +9194,8 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/molten_item,
-/obj/effect/floor_decal/corner/red/border{
+/obj/decal/cleanable/molten_item,
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
@@ -9261,20 +9206,20 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/red/bordercorner{
+/obj/floor_decal/corner/red/bordercorner{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wt" = (
-/obj/effect/decal/cleanable/vomit,
-/obj/effect/floor_decal/corner/red/border{
+/obj/decal/cleanable/vomit,
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wu" = (
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/white,
@@ -9283,7 +9228,7 @@
 /obj/machinery/light{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/white,
@@ -9292,7 +9237,7 @@
 /obj/machinery/recharger/wallcharger{
 	pixel_y = 24
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/white,
@@ -9303,28 +9248,28 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/red/bordercorner{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/red/bordercorner{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wy" = (
 /obj/machinery/portable_atmospherics/powered/scrubber/huge/stationary,
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 5
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wz" = (
 /obj/machinery/atmospherics/unary/vent_pump/on,
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wA" = (
-/obj/effect/floor_decal/corner/red/bordercorner,
+/obj/floor_decal/corner/red/bordercorner,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wB" = (
@@ -9332,18 +9277,18 @@
 	dir = 1
 	},
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/red/border,
+/obj/floor_decal/corner/red/border,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wC" = (
-/obj/effect/floor_decal/corner/red/bordercorner{
+/obj/floor_decal/corner/red/bordercorner{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wD" = (
 /obj/machinery/portable_atmospherics/powered/scrubber/huge/stationary,
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 6
 	},
 /turf/simulated/floor/tiled/white,
@@ -9354,22 +9299,22 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/red/border{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wF" = (
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 4
 	},
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wG" = (
 /obj/machinery/artifact_scanpad,
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
@@ -9378,95 +9323,95 @@
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 8
 	},
-/obj/effect/floor_decal/industrial/hatch/yellow,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/industrial/hatch/yellow,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wI" = (
 /obj/machinery/portable_atmospherics/powered/scrubber/huge/stationary,
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 10
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wJ" = (
-/obj/effect/decal/cleanable/ash,
-/obj/effect/floor_decal/corner/red/bordercorner{
+/obj/decal/cleanable/ash,
+/obj/floor_decal/corner/red/bordercorner{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "wK" = (
 /obj/random/toy,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wL" = (
-/obj/effect/decal/cleanable/blood,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wM" = (
 /obj/item/grenade/chem_grenade/metalfoam,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wN" = (
 /obj/item/storage/box/swabs,
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wO" = (
 /obj/structure/table/rack,
 /obj/item/extinguisher,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wP" = (
 /obj/structure/table/rack,
 /obj/item/storage/box/botanydisk,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wQ" = (
 /obj/item/storage/box/monkeycubes,
 /obj/machinery/light{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wR" = (
 /obj/structure/reagent_dispensers/watertank,
 /obj/machinery/light{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wS" = (
 /obj/item/grenade/chem_grenade/metalfoam,
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wT" = (
 /obj/item/storage/box/monkeycubes/stokcubes,
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wU" = (
 /obj/structure/table/rack,
 /obj/random/mre,
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 10
 	},
 /obj/random/single/meatstation/laser,
@@ -9474,32 +9419,32 @@
 /area/meatstation/armory)
 "wV" = (
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/brown/border,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/border,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wW" = (
-/obj/effect/floor_decal/corner/brown/border,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/border,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wX" = (
 /obj/machinery/portable_atmospherics/powered/pump/filled,
-/obj/effect/floor_decal/corner/brown/border,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/border,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wY" = (
 /obj/item/stack/material/rods,
 /obj/structure/inflatable/wall,
-/obj/effect/floor_decal/corner/brown/border,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/border,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "wZ" = (
-/obj/effect/floor_decal/corner/brown/border{
+/obj/floor_decal/corner/brown/border{
 	dir = 6
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "xa" = (
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 4
 	},
 /obj/random/single/meatstation/meatworm,
@@ -9510,7 +9455,7 @@
 /obj/random/single/lighter,
 /obj/random/gloves,
 /obj/random/accessory,
-/obj/effect/floor_decal/corner/grey/border,
+/obj/floor_decal/corner/grey/border,
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/armory)
 "xc" = (
@@ -9520,24 +9465,24 @@
 /obj/random/trash,
 /obj/random/trash,
 /obj/item/storage/firstaid/combat,
-/obj/effect/floor_decal/corner/grey/border{
+/obj/floor_decal/corner/grey/border{
 	dir = 6
 	},
 /turf/simulated/floor/tiled/dark,
 /area/meatstation/armory)
 "xd" = (
 /obj/machinery/botany/extractor,
-/obj/effect/floor_decal/corner/green/border,
+/obj/floor_decal/corner/green/border,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "xe" = (
 /obj/machinery/botany/editor,
-/obj/effect/floor_decal/corner/green/border,
+/obj/floor_decal/corner/green/border,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "xf" = (
 /obj/random/junk,
-/obj/effect/floor_decal/corner/green/bordercorner{
+/obj/floor_decal/corner/green/bordercorner{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -9545,14 +9490,14 @@
 "xg" = (
 /obj/item/material/shard,
 /obj/item/stack/material/rods,
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/green/border{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/green/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "xh" = (
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -9564,13 +9509,13 @@
 	pixel_y = -3
 	},
 /obj/item/stack/material/wood,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "xj" = (
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -9578,7 +9523,7 @@
 "xk" = (
 /obj/machinery/portable_atmospherics/hydroponics,
 /obj/item/seeds/glowshroom,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 10
 	},
 /turf/simulated/floor/tiled/monotile,
@@ -9587,25 +9532,25 @@
 /obj/machinery/portable_atmospherics/hydroponics,
 /obj/item/seeds/glowshroom,
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/green/border,
+/obj/floor_decal/corner/green/border,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "xm" = (
 /obj/machinery/portable_atmospherics/hydroponics,
 /obj/item/seeds/glowshroom,
-/obj/effect/floor_decal/corner/green/border,
+/obj/floor_decal/corner/green/border,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "xn" = (
 /obj/machinery/portable_atmospherics/hydroponics,
 /obj/item/seeds/glowshroom,
-/obj/effect/floor_decal/corner/green/border{
+/obj/floor_decal/corner/green/border{
 	dir = 6
 	},
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "xo" = (
-/obj/effect/floor_decal/corner/b_green/border,
+/obj/floor_decal/corner/b_green/border,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "xp" = (
@@ -9613,26 +9558,26 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/structure/closet/toolcloset,
 /obj/machinery/door/window/southleft,
-/obj/effect/floor_decal/corner/purple/diagonal,
+/obj/floor_decal/corner/purple/diagonal,
 /obj/item/cell/high,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xq" = (
 /obj/machinery/floodlight,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 10
 	},
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "xr" = (
 /obj/machinery/photocopier,
-/obj/effect/floor_decal/corner/b_green/border,
+/obj/floor_decal/corner/b_green/border,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "xs" = (
 /obj/machinery/vending/fashionvend,
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/b_green/border,
+/obj/floor_decal/corner/b_green/border,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "xu" = (
@@ -9640,7 +9585,7 @@
 /obj/structure/disposalpipe/trunk{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 6
 	},
 /turf/simulated/floor/tiled/dark/monotile,
@@ -9650,36 +9595,36 @@
 	dir = 1
 	},
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/lime/border,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/lime/border,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "xw" = (
 /obj/machinery/smartfridge/drying_rack{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/lime/border,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/lime/border,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "xx" = (
 /obj/machinery/gibber,
-/obj/effect/floor_decal/corner/lime/border,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/lime/border,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "xy" = (
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/lime/border,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/lime/border,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/kitchen)
 "xz" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 8
 	},
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "xA" = (
 /obj/random/maintenance/clean,
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 8
 	},
 /turf/simulated/floor/lino,
@@ -9688,65 +9633,65 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 4
 	},
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "xC" = (
 /obj/structure/flora/pottedplant/drooping,
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 10
 	},
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "xD" = (
-/obj/effect/floor_decal/corner/lightgrey/border,
+/obj/floor_decal/corner/lightgrey/border,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "xE" = (
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/lightgrey/border,
+/obj/floor_decal/corner/lightgrey/border,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "xF" = (
 /obj/item/trash/plate,
-/obj/effect/floor_decal/corner/lightgrey/border{
+/obj/floor_decal/corner/lightgrey/border{
 	dir = 6
 	},
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "xH" = (
-/obj/structure/stasis_cage,
-/obj/effect/floor_decal/industrial/hatch/yellow,
+/obj/machinery/stasis_cage,
+/obj/floor_decal/industrial/hatch/yellow,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "xI" = (
-/obj/structure/stasis_cage,
+/obj/machinery/stasis_cage,
 /obj/machinery/light{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
-/obj/effect/floor_decal/industrial/hatch/yellow,
+/obj/floor_decal/industrial/hatch/yellow,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "xJ" = (
 /obj/machinery/vending/tool,
-/obj/effect/floor_decal/corner/purple/border,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/border,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xK" = (
 /obj/machinery/vending/tool,
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/purple/border,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/border,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xL" = (
-/obj/effect/floor_decal/corner/purple/border,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/border,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xM" = (
 /obj/machinery/portable_atmospherics/canister/oxygen,
@@ -9754,8 +9699,8 @@
 	dir = 8
 	},
 /obj/machinery/door/window/northleft,
-/obj/effect/floor_decal/corner/purple/border,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/border,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xN" = (
 /obj/machinery/suit_storage_unit/standard_unit,
@@ -9764,8 +9709,8 @@
 	},
 /obj/machinery/door/window/northright,
 /obj/machinery/light,
-/obj/effect/floor_decal/corner/purple/border,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/border,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xO" = (
 /obj/machinery/suit_storage_unit/standard_unit,
@@ -9773,8 +9718,8 @@
 	dir = 4
 	},
 /obj/machinery/door/window/northright,
-/obj/effect/floor_decal/corner/purple/border,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/border,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xP" = (
 /obj/machinery/suit_storage_unit/standard_unit,
@@ -9782,10 +9727,10 @@
 	dir = 4
 	},
 /obj/machinery/door/window/northright,
-/obj/effect/floor_decal/corner/purple/border{
+/obj/floor_decal/corner/purple/border{
 	dir = 6
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xQ" = (
 /obj/structure/closet/toolcloset,
@@ -9794,8 +9739,8 @@
 	},
 /obj/machinery/door/window/southleft,
 /obj/item/clothing/ring/material/gold,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xR" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -9810,47 +9755,47 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/pipedispenser,
-/obj/effect/floor_decal/corner/purple/diagonal,
-/turf/simulated/floor/airless,
+/obj/floor_decal/corner/purple/diagonal,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "xS" = (
 /obj/structure/table/glass,
 /obj/item/pen,
 /obj/item/device/flashlight/lamp,
-/obj/effect/floor_decal/corner/green/diagonal,
+/obj/floor_decal/corner/green/diagonal,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "xT" = (
 /obj/structure/table/glass,
 /obj/item/device/flashlight/lamp,
-/obj/effect/floor_decal/corner/green/diagonal,
+/obj/floor_decal/corner/green/diagonal,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "xU" = (
 /obj/structure/reagent_dispensers/fueltank,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "xV" = (
 /obj/structure/closet/crate,
 /obj/item/stack/material/glass/fifty,
 /obj/item/stack/material/glass/fifty,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "xW" = (
 /obj/item/storage/backpack/dufflebag,
 /obj/random/maintenance/clean,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "xX" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/brown/diagonal,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/brown/diagonal,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "xY" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 9
 	},
 /turf/simulated/floor/tiled,
@@ -9859,20 +9804,20 @@
 /obj/machinery/light/small/red{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "ya" = (
 /obj/structure/closet/firecloset,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yb" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
@@ -9886,27 +9831,27 @@
 	icon_state = "1-2"
 	},
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "ye" = (
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yf" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yg" = (
 /obj/random/single/meatstation/low/wormscientist,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
@@ -9915,36 +9860,36 @@
 /obj/structure/barricade/spike{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yi" = (
 /obj/random/junk,
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yj" = (
 /obj/structure/inflatable/wall,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yk" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on,
-/obj/effect/decal/cleanable/blood,
-/obj/effect/floor_decal/corner/black/border{
+/obj/decal/cleanable/blood,
+/obj/floor_decal/corner/black/border{
 	dir = 1
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yl" = (
-/obj/effect/decal/cleanable/vomit,
-/obj/effect/floor_decal/corner/black/border{
+/obj/decal/cleanable/vomit,
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
@@ -9953,7 +9898,7 @@
 /obj/machinery/light/small/red{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
@@ -9962,51 +9907,51 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yo" = (
-/obj/effect/decal/cleanable/blood,
-/obj/effect/floor_decal/corner/black/border{
+/obj/decal/cleanable/blood,
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yq" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 10
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yr" = (
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yt" = (
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yu" = (
 /obj/structure/barricade/spike,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yv" = (
 /obj/random/junk,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yx" = (
 /obj/structure/inflatable/wall,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
@@ -10014,7 +9959,7 @@
 "yz" = (
 /obj/structure/closet/emcloset,
 /obj/machinery/light/small/red,
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yA" = (
@@ -10029,7 +9974,7 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
@@ -10039,43 +9984,43 @@
 /obj/machinery/light/small/red{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yC" = (
-/obj/effect/decal/cleanable/blood,
-/obj/effect/floor_decal/corner/black/border{
+/obj/decal/cleanable/blood,
+/obj/floor_decal/corner/black/border{
 	dir = 10
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yD" = (
 /obj/random/junk,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yE" = (
 /obj/random/single/meatstation/meatworm,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yG" = (
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /obj/random/junk,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yH" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -10092,43 +10037,43 @@
 	d2 = 8;
 	icon_state = "2-8"
 	},
-/obj/effect/floor_decal/corner/black/bordercorner,
+/obj/floor_decal/corner/black/bordercorner,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yK" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 1
 	},
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yL" = (
 /obj/structure/barricade/spike{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yM" = (
 /obj/random/single/meatstation/meatworm,
-/obj/effect/floor_decal/corner/black/border,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yN" = (
-/obj/effect/decal/cleanable/blood,
-/obj/effect/floor_decal/corner/black/border,
+/obj/decal/cleanable/blood,
+/obj/floor_decal/corner/black/border,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yO" = (
-/obj/effect/floor_decal/corner/black/bordercorner,
-/obj/effect/floor_decal/corner/black/bordercorner{
+/obj/floor_decal/corner/black/bordercorner,
+/obj/floor_decal/corner/black/bordercorner{
 	dir = 8
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yP" = (
 /obj/structure/closet/firecloset,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 6
 	},
 /turf/simulated/floor/tiled,
@@ -10141,16 +10086,16 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yR" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -10164,7 +10109,7 @@
 	icon_state = "1-2"
 	},
 /obj/structure/barricade/spike,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
@@ -10173,38 +10118,38 @@
 /obj/machinery/light/small/red{
 	dir = 4
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yU" = (
 /obj/structure/barricade/spike,
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "yV" = (
-/obj/structure/stasis_cage,
-/obj/effect/floor_decal/corner/red/border{
+/obj/machinery/stasis_cage,
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
-/obj/effect/floor_decal/industrial/hatch/yellow,
+/obj/floor_decal/industrial/hatch/yellow,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "yW" = (
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 8;
 	icon_state = "warning"
 	},
-/turf/simulated/floor/tiled/dark/airless,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "yX" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -10228,26 +10173,26 @@
 	d2 = 4;
 	icon_state = "1-4"
 	},
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 8;
 	icon_state = "warning"
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "yY" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/industrial/warning,
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/industrial/warning,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "yZ" = (
-/obj/effect/floor_decal/industrial/warning,
+/obj/floor_decal/industrial/warning,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "za" = (
 /obj/structure/hygiene/shower{
 	dir = 1
 	},
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 6
 	},
 /turf/simulated/floor/tiled/white,
@@ -10256,7 +10201,7 @@
 /obj/structure/closet/l3closet/scientist,
 /obj/random/maintenance/clean,
 /obj/random/maintenance/clean,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 10;
 	icon_state = "warning"
 	},
@@ -10268,27 +10213,27 @@
 	level = 2
 	},
 /obj/machinery/light/small/red,
-/obj/effect/floor_decal/industrial/warning,
+/obj/floor_decal/industrial/warning,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/centerhallway)
 "zd" = (
 /obj/structure/closet/l3closet/scientist,
 /obj/random/maintenance/clean,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 6
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/centerhallway)
 "ze" = (
-/obj/effect/decal/cleanable/blood,
-/obj/effect/floor_decal/industrial/warning{
+/obj/decal/cleanable/blood,
+/obj/floor_decal/industrial/warning{
 	dir = 8;
 	icon_state = "warning"
 	},
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zf" = (
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 6;
 	icon_state = "warning"
 	},
@@ -10296,14 +10241,14 @@
 /area/meatstation/lab)
 "zg" = (
 /obj/item/remains/human,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 10;
 	icon_state = "warning"
 	},
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zh" = (
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 10;
 	icon_state = "warning"
 	},
@@ -10311,45 +10256,45 @@
 /area/meatstation/lab)
 "zi" = (
 /obj/machinery/light,
-/obj/effect/floor_decal/industrial/warning,
+/obj/floor_decal/industrial/warning,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zj" = (
-/obj/effect/floor_decal/industrial/warning,
+/obj/floor_decal/industrial/warning,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zk" = (
-/obj/effect/decal/cleanable/mucus,
-/obj/effect/floor_decal/industrial/warning,
+/obj/decal/cleanable/mucus,
+/obj/floor_decal/industrial/warning,
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zl" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/industrial/warning{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/industrial/warning{
 	dir = 1;
 	icon_state = "warning"
 	},
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zm" = (
-/obj/structure/stasis_cage,
-/obj/effect/decal/cleanable/cobweb2,
-/obj/effect/floor_decal/industrial/warning{
+/obj/machinery/stasis_cage,
+/obj/decal/cleanable/cobweb2,
+/obj/floor_decal/industrial/warning{
 	dir = 5
 	},
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zn" = (
 /obj/structure/mattress/dirty,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 8;
 	icon_state = "warning"
 	},
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zo" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/floor_decal/industrial/warning{
+/obj/decal/cleanable/blood/drip,
+/obj/floor_decal/industrial/warning{
 	dir = 4;
 	icon_state = "warning"
 	},
@@ -10357,7 +10302,7 @@
 /area/meatstation/lab)
 "zp" = (
 /obj/structure/mattress/dirty,
-/obj/effect/floor_decal/industrial/warning{
+/obj/floor_decal/industrial/warning{
 	dir = 4;
 	icon_state = "warning"
 	},
@@ -10385,7 +10330,7 @@
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zu" = (
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -10395,7 +10340,7 @@
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "zv" = (
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -10405,7 +10350,7 @@
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "zw" = (
-/obj/effect/floor_decal/corner/red/border,
+/obj/floor_decal/corner/red/border,
 /obj/machinery/button/alternate/door/bolts{
 	id_tag = "meatstation_swpen";
 	pixel_y = -24
@@ -10413,7 +10358,7 @@
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "zx" = (
-/obj/effect/floor_decal/corner/red/border,
+/obj/floor_decal/corner/red/border,
 /obj/machinery/button/alternate/door/bolts{
 	id_tag = "meatstation_sepen";
 	pixel_y = -24
@@ -10435,7 +10380,7 @@
 /turf/simulated/floor/reinforced,
 /area/meatstation/lab)
 "zB" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -10459,16 +10404,15 @@
 	},
 /obj/machinery/door/airlock/vault/bolted{
 	id_tag = "meatstation_westlabext";
-	name = "Secure Airlock";
-	welded = 0
+	name = "Secure Airlock"
 	},
 /turf/simulated/floor/tiled/white,
 /area/meatstation/centerhallway)
 "zD" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "zE" = (
@@ -10477,7 +10421,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 4
 	},
 /obj/machinery/button/blast_door{
@@ -10493,7 +10437,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /obj/machinery/button/blast_door{
@@ -10509,7 +10453,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 8
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -10521,7 +10465,7 @@
 /area/meatstation/lab)
 "zH" = (
 /obj/structure/window/basic,
-/obj/structure/bed/roller/ironingboard,
+/obj/random/ironing_board_structure,
 /obj/random/maintenance/clean,
 /obj/item/cell/high,
 /turf/simulated/floor/tiled/dark/monotile,
@@ -10531,7 +10475,7 @@
 	d2 = 4;
 	icon_state = "0-4"
 	},
-/obj/effect/floor_decal/solarpanel,
+/obj/floor_decal/solarpanel,
 /obj/machinery/power/solar{
 	id = "meatstation_auxsolars"
 	},
@@ -10545,7 +10489,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 4
 	},
 /obj/machinery/button/alternate/door/bolts{
@@ -10568,14 +10512,14 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/effect/floor_decal/solarpanel,
+/obj/floor_decal/solarpanel,
 /obj/machinery/power/solar{
 	id = "meatstation_auxsolars"
 	},
 /turf/simulated/floor/plating,
 /area/space)
 "zN" = (
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 4
 	},
 /obj/structure/cable/cyan,
@@ -10642,7 +10586,7 @@
 	icon_state = "0-8"
 	},
 /obj/structure/grille/broken,
-/obj/effect/decal/cleanable/blood/drip,
+/obj/decal/cleanable/blood/drip,
 /obj/machinery/door/blast/regular{
 	dir = 4;
 	id_tag = "meatstation_blastdoorint"
@@ -10654,19 +10598,19 @@
 	dir = 1;
 	pixel_y = -24
 	},
-/obj/effect/floor_decal/corner/red/border,
+/obj/floor_decal/corner/red/border,
 /obj/random/single/meatstation/low/wormscientist,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "zU" = (
-/obj/effect/floor_decal/corner/red/bordercorner{
+/obj/floor_decal/corner/red/bordercorner{
 	dir = 4
 	},
 /obj/random/single/meatstation/low/wormscientist,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "zV" = (
-/obj/effect/floor_decal/corner/red/border{
+/obj/floor_decal/corner/red/border{
 	dir = 1
 	},
 /obj/random/single/meatstation/low/wormscientist,
@@ -10677,10 +10621,10 @@
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "zY" = (
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 8
 	},
-/obj/effect/floor_decal/corner/black/border{
+/obj/floor_decal/corner/black/border{
 	dir = 4
 	},
 /obj/random/single/meatstation/low/wormguard,
@@ -10689,7 +10633,7 @@
 "zZ" = (
 /obj/random/maintenance/clean,
 /obj/random/single/meatstation/meatball,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "Aa" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
@@ -10708,9 +10652,9 @@
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "Ab" = (
-/obj/effect/floor_decal/corner/purple/border,
+/obj/floor_decal/corner/purple/border,
 /obj/random/single/meatstation/meatball,
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "Ad" = (
 /obj/structure/cable/cyan{
@@ -10736,7 +10680,7 @@
 	icon_state = "0-8"
 	},
 /obj/machinery/power/tracker,
-/obj/effect/floor_decal/industrial/warning/full,
+/obj/floor_decal/industrial/warning/full,
 /turf/simulated/floor/plating,
 /area/space)
 "Af" = (
@@ -10780,13 +10724,13 @@
 	id_tag = "meatstation_nairlockint";
 	locked = 1
 	},
-/turf/simulated/floor/airless,
+/turf/simulated/floor,
 /area/meatstation/engineering)
 "Ak" = (
 /obj/structure/hygiene/shower{
 	dir = 8
 	},
-/obj/effect/decal/cleanable/blood,
+/obj/decal/cleanable/blood,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "Al" = (
@@ -10801,7 +10745,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "Am" = (
@@ -10816,7 +10760,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/bathroom)
 "An" = (
@@ -10837,15 +10781,14 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/blood/drip,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled,
 /area/meatstation/centerhallway)
 "Ao" = (
 /obj/machinery/door/airlock/vault/bolted{
 	id_tag = "meatstation_westlabint";
-	name = "Secure Airlock";
-	welded = 0
+	name = "Secure Airlock"
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
@@ -10858,7 +10801,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "Ap" = (
@@ -10873,8 +10816,8 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/blood/drip,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled/white,
 /area/meatstation/lab)
 "Aq" = (
@@ -10885,8 +10828,8 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/effect/decal/cleanable/filth,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/filth,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "Ar" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -10897,43 +10840,43 @@
 	icon_state = "1-2"
 	},
 /obj/structure/inflatable/door,
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/lino,
 /area/meatstation/mess)
 "As" = (
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/decal/cleanable/filth,
-/turf/simulated/floor/airless/ceiling,
+/obj/decal/cleanable/blood/drip,
+/obj/decal/cleanable/filth,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "At" = (
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 4
 	},
-/obj/effect/decal/cleanable/filth,
-/turf/simulated/floor/tiled/dark/airless,
+/obj/decal/cleanable/filth,
+/turf/simulated/floor/tiled/dark,
 /area/meatstation/cargo)
 "Av" = (
-/obj/effect/decal/cleanable/filth,
-/turf/simulated/floor/airless/ceiling,
+/obj/decal/cleanable/filth,
+/turf/simulated/floor/ceiling,
 /area/meatstation/kitchen)
 "Aw" = (
 /obj/machinery/door/window/southleft,
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "Ax" = (
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "Ay" = (
 /obj/item/storage/bag/trash,
-/obj/effect/decal/cleanable/blood/drip,
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/blood/drip,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "Az" = (
-/obj/effect/floor_decal/corner/b_green/border,
-/obj/effect/decal/cleanable/filth,
+/obj/floor_decal/corner/b_green/border,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
 "AA" = (
@@ -10948,7 +10891,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/effect/decal/cleanable/filth,
+/obj/decal/cleanable/filth,
 /turf/simulated/floor/tiled/monotile,
 /area/meatstation/hydroponics)
 "AB" = (
@@ -10975,7 +10918,7 @@
 	d2 = 4;
 	icon_state = "0-4"
 	},
-/obj/effect/floor_decal/solarpanel,
+/obj/floor_decal/solarpanel,
 /obj/machinery/power/solar{
 	id = "meatstation_auxsolars"
 	},
@@ -10994,12 +10937,16 @@
 /obj/item/storage/bag/trash,
 /obj/item/storage/bag/trash,
 /obj/random/single/meatstation/low/biocell,
-/obj/effect/floor_decal/corner/b_green/border{
+/obj/floor_decal/corner/b_green/border{
 	dir = 6
 	},
 /obj/item/cell/high,
 /turf/simulated/floor/tiled/dark/monotile,
 /area/meatstation/storage)
+"Ut" = (
+/obj/structure/girder,
+/turf/simulated/floor,
+/area/meatstation/centerhallway)
 
 (1,1,1) = {"
 aa
@@ -23618,7 +23565,7 @@ aa
 fm
 fm
 cK
-eS
+cK
 wf
 fm
 fm
@@ -24424,27 +24371,27 @@ fe
 fe
 fe
 hP
-cv
-cv
-cv
-cv
+cK
+cK
+cK
+cK
 px
-cv
-cv
+cK
+cK
 qt
 pC
-cv
-cv
-cv
+cK
+cK
+cK
 qw
-cv
+cK
 oH
 pW
 pR
 sy
 oH
 oH
-cv
+cK
 wV
 fm
 fm
@@ -24626,8 +24573,8 @@ mb
 aD
 fe
 pq
-cv
-cv
+cK
+cK
 qt
 pK
 qC
@@ -24645,7 +24592,7 @@ pf
 ln
 oH
 oH
-cv
+cK
 oH
 wW
 fm
@@ -24828,9 +24775,9 @@ lo
 aK
 pv
 pq
-cv
-cv
-cv
+cK
+cK
+cK
 pK
 qP
 uG
@@ -24839,7 +24786,7 @@ wL
 pK
 qK
 pE
-cv
+cK
 qC
 qD
 wL
@@ -24847,8 +24794,8 @@ oH
 xU
 xW
 pB
-cv
-mk
+cK
+tP
 wW
 fm
 fm
@@ -25030,9 +24977,9 @@ md
 cm
 co
 bY
-cv
+cK
 eD
-cv
+cK
 pL
 qR
 pK
@@ -25048,7 +24995,7 @@ oH
 sx
 qC
 oH
-cv
+cK
 qV
 ou
 wX
@@ -25232,9 +25179,9 @@ aD
 fq
 fe
 pw
-cv
+cK
 rC
-cv
+cK
 pK
 uF
 uH
@@ -25243,15 +25190,15 @@ wM
 pK
 gq
 pF
-cv
+cK
 qf
 qH
 qC
 qQ
 xV
 xX
-cv
-mk
+cK
+tP
 ou
 wX
 fm
@@ -25434,8 +25381,8 @@ fe
 fe
 fe
 pw
-cv
-cv
+cK
+cK
 cu
 pK
 qC
@@ -25445,7 +25392,7 @@ qC
 pK
 qi
 pN
-cv
+cK
 qC
 qQ
 qC
@@ -25453,7 +25400,7 @@ qC
 qC
 qC
 rc
-cv
+cK
 qi
 wY
 fm
@@ -25636,27 +25583,27 @@ cd
 cJ
 eh
 qM
-cv
+cK
 qE
-cv
-cv
+cK
+cK
 py
-cv
-cv
+cK
+cK
 qO
-cv
-cv
+cK
+cK
 qU
 qt
-cv
+cK
 qh
 qo
-cv
+cK
 eD
 qV
-cv
+cK
 At
-cv
+cK
 rj
 tT
 cl
@@ -25664,7 +25611,7 @@ pn
 jg
 mi
 ml
-mn
+sA
 mq
 sA
 jt
@@ -25865,7 +25812,7 @@ eo
 pt
 mh
 mj
-mm
+mY
 mo
 mY
 sB
@@ -26042,23 +25989,23 @@ fm
 uE
 uW
 wH
-mk
+tP
 cu
-cv
-cv
-cv
+cK
+cK
+cK
 cc
-cv
+cK
 tC
-cv
-cv
-cv
+cK
+cK
+cK
 sI
-cv
+cK
 qz
 hO
 qt
-cv
+cK
 dw
 qT
 rQ
@@ -26273,7 +26220,7 @@ aa
 aa
 aA
 sE
-mn
+sA
 aA
 aA
 aa
@@ -26475,7 +26422,7 @@ aa
 aa
 aA
 sJ
-mn
+sA
 aA
 aA
 aa
@@ -27274,7 +27221,7 @@ ah
 ah
 ah
 ah
-rg
+Ut
 ah
 ah
 ah
@@ -28293,7 +28240,7 @@ ah
 aV
 gR
 sQ
-tX
+mL
 op
 sT
 cE
@@ -28454,7 +28401,7 @@ ah
 ah
 ah
 ah
-ot
+yb
 bh
 rv
 ah
@@ -31476,7 +31423,7 @@ aa
 as
 ap
 as
-mM
+bz
 ae
 aa
 aa
@@ -31507,7 +31454,7 @@ vL
 ac
 wv
 kp
-kc
+tU
 hi
 lm
 uB
@@ -31677,7 +31624,7 @@ lY
 aa
 nr
 ae
-mL
+as
 bz
 ae
 aa
@@ -31704,7 +31651,7 @@ ac
 hL
 bI
 qr
-sd
+bD
 kx
 ac
 ww
@@ -33712,7 +33659,7 @@ bQ
 hS
 aa
 aa
-sW
+aa
 bx
 sb
 bC
@@ -33907,7 +33854,7 @@ lX
 bs
 jB
 aa
-rg
+Ut
 rm
 qZ
 ri
@@ -35124,7 +35071,7 @@ aa
 aQ
 aa
 aa
-rg
+Ut
 ah
 ah
 ah
@@ -35523,7 +35470,7 @@ jA
 bs
 aa
 aa
-rg
+Ut
 qY
 re
 rf

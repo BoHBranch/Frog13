@@ -11,7 +11,7 @@
 /obj/structure/filingcabinet
 	name = "filing cabinet"
 	desc = "A large cabinet with drawers."
-	icon = 'icons/obj/bureaucracy.dmi'
+	icon = 'icons/obj/structures/drawers.dmi'
 	icon_state = "filingcabinet"
 	density = TRUE
 	anchored = TRUE
@@ -19,7 +19,7 @@
 	obj_flags = OBJ_FLAG_ANCHORABLE
 	var/list/can_hold = list(
 		/obj/item/paper,
-		/obj/item/folder,
+		/obj/item/material/folder,
 		/obj/item/photo,
 		/obj/item/paper_bundle,
 		/obj/item/sample)
@@ -46,26 +46,33 @@
 			I.forceMove(src)
 	. = ..()
 
-/obj/structure/filingcabinet/attackby(obj/item/P as obj, mob/user as mob)
-	if(is_type_in_list(P, can_hold))
-		if(!user.unEquip(P, src))
+
+/obj/structure/filingcabinet/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Any item - Attempt to put in cabinet
+	if (is_type_in_list(tool, can_hold))
+		if (!user.unEquip(tool, src))
+			FEEDBACK_UNEQUIP_FAILURE(tool, user)
 			return
-		add_fingerprint(user)
-		to_chat(user, "<span class='notice'>You put [P] in [src].</span>")
-		flick("[initial(icon_state)]-open",src)
+		flick("[initial(icon_state)]-open", src)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] puts \a [tool] in \the [src]."),
+			SPAN_NOTICE("You put \the [tool] in \the [src].")
+		)
 		updateUsrDialog()
-	else
-		..()
+		return TRUE
+
+	return ..()
+
 
 /obj/structure/filingcabinet/attack_hand(mob/user as mob)
-	if(contents.len <= 0)
-		to_chat(user, "<span class='notice'>\The [src] is empty.</span>")
+	if(length(contents) <= 0)
+		to_chat(user, SPAN_NOTICE("\The [src] is empty."))
 		return
 
 	user.set_machine(src)
 	var/dat = list("<center><table>")
 	for(var/obj/item/P in src)
-		dat += "<tr><td><a href='?src=\ref[src];retrieve=\ref[P]'>[P.name]</a></td></tr>"
+		dat += "<tr><td><a href='byond://?src=\ref[src];retrieve=\ref[P]'>[P.name]</a></td></tr>"
 	dat += "</table></center>"
 	show_browser(user, "<html><head><title>[name]</title></head><body>[jointext(dat,null)]</body></html>", "window=filingcabinet;size=350x300")
 

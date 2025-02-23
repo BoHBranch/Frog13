@@ -37,6 +37,7 @@
 	var/min_pilot_size = MOB_SMALL
 	var/max_pilot_size = MOB_LARGE
 	has_hardpoints = list(HARDPOINT_BACK, HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
+	var/damage_sound = 'sound/effects/bang.ogg'
 	var/climb_time = 25
 
 /obj/item/mech_component/chassis/New()
@@ -143,25 +144,32 @@
 	cell = new /obj/item/cell/high(src)
 	cell.charge = cell.maxcharge
 
-/obj/item/mech_component/chassis/attackby(obj/item/thing, mob/user)
+/obj/item/mech_component/chassis/use_tool(obj/item/thing, mob/living/user, list/click_params)
 	if(istype(thing,/obj/item/robot_parts/robot_component/diagnosis_unit))
 		if(diagnostics)
 			to_chat(user, SPAN_WARNING("\The [src] already has a diagnostic system installed."))
-			return
-		if(install_component(thing, user)) diagnostics = thing
+			return TRUE
+		if(install_component(thing, user))
+			diagnostics = thing
+			return TRUE
+
 	else if(istype(thing, /obj/item/cell))
 		if(cell)
 			to_chat(user, SPAN_WARNING("\The [src] already has a cell installed."))
-			return
-		if(install_component(thing,user)) cell = thing
+			return TRUE
+		if(install_component(thing,user))
+			cell = thing
+			return TRUE
+
 	else if(istype(thing, /obj/item/robot_parts/robot_component/armour/exosuit))
 		if(m_armour)
 			to_chat(user, SPAN_WARNING("\The [src] already has armour installed."))
-			return
+			return TRUE
 		if(install_component(thing, user))
 			m_armour = thing
-	else
-		return ..()
+			return TRUE
+
+	return ..()
 
 /obj/item/mech_component/chassis/MouseDrop_T(atom/dropping, mob/user)
 	var/obj/machinery/portable_atmospherics/canister/C = dropping
@@ -240,6 +248,7 @@
 	max_damage = 50
 	power_use = 5
 	has_hardpoints = list(HARDPOINT_BACK, HARDPOINT_LEFT_SHOULDER)
+	damage_sound = 'sound/effects/glass_crack1.ogg'
 	desc = "The Veymed Odysseus series cockpits combine ultralight materials and clear aluminum laminates to provide an optimized cockpit experience."
 	climb_time = 15
 

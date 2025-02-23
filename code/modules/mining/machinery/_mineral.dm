@@ -1,8 +1,8 @@
 /obj/machinery/mineral
-	icon = 'icons/obj/machines/mining_machines.dmi'
+	icon = 'icons/obj/machines/mining/mining_machines.dmi'
 	density =  TRUE
 	anchored = TRUE
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 	uncreated_component_parts = null
 	stat_immune = 0
 
@@ -25,7 +25,7 @@
 	find_console()
 	. = ..()
 
-/obj/machinery/mineral/state_transition(decl/machine_construction/default/new_state)
+/obj/machinery/mineral/state_transition(singleton/machine_construction/default/new_state)
 	. = ..()
 	if(istype(new_state))
 		updateUsrDialog()
@@ -46,7 +46,7 @@
 		. += "<b>Output</b>: [dir2text(get_dir(src, output_turf))]."
 	else
 		. += "<b>Output</b>: disabled."
-	. += "<br><a href='?src=\ref[src];configure_input_output=1'>Configure</a>"
+	. += "<br><a href='byond://?src=\ref[src];configure_input_output=1'>Configure</a>"
 
 /obj/machinery/mineral/CanUseTopic(mob/user)
 	return max(..(), (console && console.CanUseTopic(user)))
@@ -99,7 +99,7 @@
 
 	if(choice == "Input")
 		set_input(dchoice ? _dirs[dchoice] : null)
-		to_chat(user, "<span class='notice'>You [input_turf ? "configure" : "disable"] \the [src]'s input system.</span>")
+		to_chat(user, SPAN_NOTICE("You [input_turf ? "configure" : "disable"] \the [src]'s input system."))
 	else
 		set_output(dchoice ? _dirs[dchoice] : null)
-		to_chat(user, "<span class='notice'>You [output_turf ? "configure" : "disable"] \the [src]'s output system.</span>")
+		to_chat(user, SPAN_NOTICE("You [output_turf ? "configure" : "disable"] \the [src]'s output system."))

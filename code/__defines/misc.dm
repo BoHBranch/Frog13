@@ -11,6 +11,7 @@
 #define INVISIBILITY_LIGHTING    20
 #define INVISIBILITY_LEVEL_ONE   35
 #define INVISIBILITY_LEVEL_TWO   45
+#define INVISIBILITY_OVERMAP     50
 #define INVISIBILITY_OBSERVER    60
 #define INVISIBILITY_EYE         61
 #define INVISIBILITY_SYSTEM      99
@@ -103,22 +104,19 @@
 #define CUSTOM_ITEM_SYNTH_CONFIG "config/custom_sprites.txt"
 #endif
 #ifndef CUSTOM_ITEM_OBJ
-#define CUSTOM_ITEM_OBJ 'icons/obj/custom_items_obj.dmi'
+#define CUSTOM_ITEM_OBJ 'icons/obj/unused.dmi'
 #endif
 #ifndef CUSTOM_ITEM_MOB
-#define CUSTOM_ITEM_MOB 'icons/mob/custom_items_mob.dmi'
+#define CUSTOM_ITEM_MOB 'icons/obj/unused.dmi'
 #endif
 #ifndef CUSTOM_ITEM_SYNTH
-#define CUSTOM_ITEM_SYNTH 'icons/mob/custom_synthetic.dmi'
+#define CUSTOM_ITEM_SYNTH 'icons/obj/unused.dmi'
 #endif
 
 #define WALL_CAN_OPEN 1
 #define WALL_OPENING 2
 
-#define BOMBCAP_DVSTN_RADIUS (config.max_explosion_range / 4)
-#define BOMBCAP_HEAVY_RADIUS (config.max_explosion_range / 2)
-#define BOMBCAP_LIGHT_RADIUS (config.max_explosion_range)
-#define BOMBCAP_FLASH_RADIUS (config.max_explosion_range * 1.5)
+#define BOMBCAP_RADIUS (config.max_explosion_range * 1.75)
 									// NTNet module-configuration values. Do not change these. If you need to add another use larger number (5..6..7 etc)
 #define NTNET_SOFTWAREDOWNLOAD 1 	// Downloads of software from NTNet
 #define NTNET_PEERTOPEER 2			// P2P transfers of files between devices
@@ -137,6 +135,7 @@
 #define PROGRAM_TABLET        FLAG(2)
 #define PROGRAM_TELESCREEN    FLAG(3)
 #define PROGRAM_PDA           FLAG(4)
+#define PROGRAM_NO_KILL       FLAG(5) //Not included in PROGRAM_ALL
 #define PROGRAM_ALL ( PROGRAM_CONSOLE | PROGRAM_LAPTOP | PROGRAM_TABLET | PROGRAM_TELESCREEN | PROGRAM_PDA )
 
 #define PROGRAM_STATE_KILLED 0
@@ -260,10 +259,13 @@
 //Lying animation
 #define ANIM_LYING_TIME 2
 
-//Planet habitability class
-#define HABITABILITY_IDEAL  1
-#define HABITABILITY_OKAY  2
-#define HABITABILITY_BAD  3
+
+//Planet habitability weight
+#define HABITABILITY_LOCKED			1
+#define HABITABILITY_TYPICAL		2
+#define HABITABILITY_BAD 			3
+#define HABITABILITY_EXTREME		4
+
 
 #ifndef WINDOWS_HTTP_POST_DLL_LOCATION
 #define WINDOWS_HTTP_POST_DLL_LOCATION "lib/byhttp.dll"
@@ -280,13 +282,11 @@
 //Misc text define. Does 4 spaces. Used as a makeshift tabulator.
 #define FOURSPACES "&nbsp;&nbsp;&nbsp;&nbsp;"
 
-#define INCREMENT_WORLD_Z_SIZE world.maxz++; if (SSzcopy.zlev_maximums.len) { SSzcopy.calculate_zstack_limits() }
+#define INCREMENT_WORLD_Z_SIZE world.maxz++; if (length(SSzcopy.zlev_maximums)) { SSzcopy.calculate_zstack_limits() }
 
 //-- Masks for /atom/var/init_flags --
 //- machinery
-#define INIT_MACHINERY_PROCESS_SELF       FLAG(0)
-#define INIT_MACHINERY_PROCESS_COMPONENTS FLAG(1)
-#define INIT_MACHINERY_PROCESS_ALL ( INIT_MACHINERY_PROCESS_SELF | INIT_MACHINERY_PROCESS_COMPONENTS )
+#define INIT_MACHINERY_START_PROCESSING FLAG(0)
 //--
 
 
@@ -305,3 +305,41 @@
 #define EX_ACT_DEVASTATING 1 // Within devastation range - Destructive/deadly, unlikely to survive.
 #define EX_ACT_HEAVY 2 // Within heavy range - Heavy damage, very dangerous
 #define EX_ACT_LIGHT 3 // Within light range - Minor damage.
+
+#define EX_ACT_TO_STRING(X) (X == EX_ACT_DEVASTATING ? "Devastating" : X == EX_ACT_HEAVY ? "Heavy" : "Light")
+
+
+// Atom layering/visibility levels on turfs. See `/atom/var/level`.
+#define ATOM_LEVEL_UNDER_TILE 1 // Hidden under floor tiles, visible on plating
+#define ATOM_LEVEL_OVER_TILE 2 // Visible on all turf tiles
+
+
+// Atom flourescence
+#define ATOM_FLOURESCENCE_NONE 0 // Not flourescent
+#define ATOM_FLOURESCENCE_INACTIVE 1 // Flourescent but not actively lit
+#define ATOM_FLOURESCENCE_ACTVE 2 // Flourescent and actively lit. Helps prevent repeated processing on a flourescent atom by multiple UV lights
+
+
+// Helper macro for generating stringified name text for IDs located inside objects, i.e. PDAs or wallets. Used for feedback and interaction messages.
+#define GET_ID_NAME(ID, HOLDER) (ID == HOLDER ? "\the [ID]" : "\the [ID] in \the [HOLDER]")
+
+
+// Flags for `use_sanity_check()`
+/// Do not display user feedback messages.
+#define SANITY_CHECK_SILENT FLAG(0)
+/// Verify the tool can be unequipped from user. Ignored if the tool is not an item.
+#define SANITY_CHECK_TOOL_UNEQUIP FLAG(1)
+/// Verify the target can be unequipped from user. Includes `target.loc == src` check to allow items the user isn't holding.
+#define SANITY_CHECK_TARGET_UNEQUIP FLAG(2)
+/// Verify the target and tool are adjacent to eachother. Ignored if there is no tool or if tool is held by user.
+#define SANITY_CHECK_BOTH_ADJACENT FLAG(3)
+/// Verify the tool is in the user's active hand. Ignored if the tool is not an item.
+#define SANITY_CHECK_TOOL_IN_HAND FLAG(4)
+/// Check `CanInteractWith(target, user)`. Only use this for Topic() revalidation. Functionally exclusive with `SANITY_CHECK_TOPIC_PHYSICALLY_INTERACT`.
+#define SANITY_CHECK_TOPIC_INTERACT FLAG(5)
+/// Check `CanPhysicallyInteractWith(target, user)`. Only use this for Topic() revalidation. Functionally exclusive with `SANITY_CHECK_TOPIC_INTERACT`.
+#define SANITY_CHECK_TOPIC_PHYSICALLY_INTERACT FLAG(6)
+
+#define SANITY_CHECK_DEFAULT (SANITY_CHECK_TOOL_IN_HAND | SANITY_CHECK_BOTH_ADJACENT)
+
+#define Z_ALL_TURFS(Z) block(locate(1, 1, Z), locate(world.maxx, world.maxy, Z))

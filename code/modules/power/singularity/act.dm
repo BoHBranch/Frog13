@@ -1,8 +1,14 @@
 #define I_SINGULO "singulo"
 
+/**
+ * Called when a singularity interacts with the atom.
+ */
 /atom/proc/singularity_act()
 	return
 
+/**
+ * Called when a singularity attempts to pull the atom toward it.
+ */
 /atom/proc/singularity_pull(S, current_size)
 	return
 
@@ -22,7 +28,7 @@
 				step_towards(item, S)
 				to_chat(src, SPAN_WARNING("\The [S] pulls \the [item] from your grip!"))
 		if(!lying && (!shoes || !(shoes.item_flags & ITEM_FLAG_NOSLIP)) && (!species || !(species.check_no_slip(src))) && prob(current_size*5))
-			to_chat(src, "<span class='danger'>A strong gravitational force slams you to the ground!</span>")
+			to_chat(src, SPAN_DANGER("A strong gravitational force slams you to the ground!"))
 			Weaken(current_size)
 	..()
 
@@ -37,10 +43,10 @@
 	if(simulated && !anchored)
 		step_towards(src, S)
 
-/obj/effect/beam/singularity_pull()
+/obj/beam/singularity_pull()
 	return
 
-/obj/effect/overlay/singularity_pull()
+/obj/overlay/singularity_pull()
 	return
 
 /obj/item/singularity_pull(S, current_size)
@@ -73,15 +79,15 @@
 
 /obj/item/storage/backpack/holding/singularity_act(S, current_size)
 	var/dist = max((current_size - 2), 1)
-	explosion(src.loc,(dist),(dist*2),(dist*4))
+	explosion(src.loc, dist * 9)
 	return 1000
 
 /turf/singularity_act(S, current_size)
 	if(!is_plating())
 		for(var/obj/O in contents)
-			if(O.level != 1)
+			if(O.level != ATOM_LEVEL_UNDER_TILE)
 				continue
-			if(O.invisibility == 101)
+			if(O.invisibility == INVISIBILITY_ABSTRACT)
 				O.singularity_act(src, current_size)
 	ChangeTurf(get_base_turf_by_area(src))
 	return 2
@@ -92,6 +98,11 @@
 /*******************
 * Nar-Sie Act/Pull *
 *******************/
+/**
+ * Whether or not a singularity can consume the atom.
+ *
+ *  Returns boolean.
+ */
 /atom/proc/singuloCanEat()
 	return 1
 

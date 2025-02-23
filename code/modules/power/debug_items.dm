@@ -1,5 +1,5 @@
 /obj/machinery/power/debug_items
-	icon = 'icons/obj/power.dmi'
+	icon = 'icons/obj/machines/power/solar_panels.dmi'
 	icon_state = "tracker"
 	anchored = TRUE
 	density = TRUE
@@ -19,13 +19,13 @@
 	to_chat(user, "Available power: [num2text(powernet.avail, 20)] W")
 	to_chat(user, "Load: [num2text(powernet.viewload, 20)] W")
 	to_chat(user, "Has alert: [powernet.problem ? "YES" : "NO"]")
-	to_chat(user, "Cables: [powernet.cables.len]")
-	to_chat(user, "Nodes: [powernet.nodes.len]")
+	to_chat(user, "Cables: [length(powernet.cables)]")
+	to_chat(user, "Nodes: [length(powernet.nodes)]")
 
 
 // An infinite power generator. Adds energy to connected cable.
 /obj/machinery/power/debug_items/infinite_generator
-	name = "Fractal Energy Reactor"
+	name = "fractal energy reactor"
 	desc = "An experimental power generator."
 	var/power_generation_rate = 1000000
 
@@ -39,7 +39,7 @@
 
 // A cable powersink, without the explosion/network alarms normal powersink causes.
 /obj/machinery/power/debug_items/infinite_cable_powersink
-	name = "Null Point Core"
+	name = "null point core"
 	desc = "An experimental device that disperses energy, used for grid testing purposes."
 	var/power_usage_rate = 0
 	var/last_used = 0
@@ -54,7 +54,7 @@
 
 
 /obj/machinery/power/debug_items/infinite_apc_powersink
-	name = "APC Dummy Load"
+	name = "\improper APC dummy load"
 	desc = "A dummy load that connects to an APC, used for load testing purposes."
 	use_power = POWER_USE_ACTIVE
 	active_power_usage = 0

@@ -29,7 +29,7 @@
 			continue
 		if(M.buckled)
 			M.buckled.unbuckle_mob()
-		if(toggle && transformed_dudes.len && stop_transformation(M))
+		if(toggle && length(transformed_dudes) && stop_transformation(M))
 			continue
 		var/new_mob = pick(possible_transformations)
 
@@ -50,21 +50,21 @@
 			M.mind.transfer_to(trans)
 		else
 			trans.key = M.key
-		new /obj/effect/temporary(get_turf(M), 5, 'icons/effects/effects.dmi', "summoning")
+		new /obj/temporary(get_turf(M), 5, 'icons/effects/effects.dmi', "summoning")
 
 		M.forceMove(trans) //move inside the new dude to hide him.
 		M.status_flags |= GODMODE //don't want him to die or breathe or do ANYTHING
 		transformed_dudes[trans] = M
-		GLOB.death_event.register(trans,src,/spell/targeted/shapeshift/proc/stop_transformation)
-		GLOB.destroyed_event.register(trans,src,/spell/targeted/shapeshift/proc/stop_transformation)
-		GLOB.destroyed_event.register(M, src, /spell/targeted/shapeshift/proc/destroyed_transformer)
+		GLOB.death_event.register(trans, src, PROC_REF(stop_transformation))
+		GLOB.destroyed_event.register(trans, src, PROC_REF(stop_transformation))
+		GLOB.destroyed_event.register(M, src, PROC_REF(destroyed_transformer))
 		if(duration)
 			spawn(duration)
 				stop_transformation(trans)
 
 /spell/targeted/shapeshift/proc/destroyed_transformer(mob/target) //Juuuuust in case
 	var/mob/current = transformed_dudes[target]
-	to_chat(current, "<span class='danger'>You suddenly feel as if this transformation has become permanent...</span>")
+	to_chat(current, SPAN_DANGER("You suddenly feel as if this transformation has become permanent..."))
 	remove_target(target)
 
 /spell/targeted/shapeshift/proc/stop_transformation(mob/living/target)
@@ -75,7 +75,7 @@
 	if(share_damage)
 		var/ratio = target.health/target.maxHealth
 		var/damage = transformer.maxHealth - round(transformer.maxHealth*(ratio))
-		for(var/i in 1 to Ceil(damage/10))
+		for(var/i in 1 to ceil(damage/10))
 			transformer.adjustBruteLoss(10)
 	if(target.mind)
 		target.mind.transfer_to(transformer)
@@ -142,6 +142,9 @@
 	level_max = list(Sp_TOTAL = 1, Sp_SPEED = 1, Sp_POWER = 0)
 	hud_state = "wiz_parrot"
 
+/spell/targeted/shapeshift/avian/check_valid_targets(list/targets)
+	return TRUE
+
 /spell/targeted/shapeshift/corrupt_form
 	name = "Corrupt Form"
 	desc = "This spell shapes the wizard into a terrible, terrible beast."
@@ -164,6 +167,9 @@
 
 	hud_state = "wiz_corrupt"
 	cast_sound = 'sound/magic/disintegrate.ogg'
+
+/spell/targeted/shapeshift/corrupt_form/check_valid_targets(list/targets)
+	return TRUE
 
 /spell/targeted/shapeshift/corrupt_form/empower_spell()
 	if(!..())
@@ -197,3 +203,6 @@
 	toggle = 1
 
 	hud_state = "wiz_carp"
+
+/spell/targeted/shapeshift/familiar/check_valid_targets(list/targets)
+	return TRUE

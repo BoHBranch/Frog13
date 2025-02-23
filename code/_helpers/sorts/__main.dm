@@ -15,7 +15,7 @@ var/global/datum/sortInstance/sortInstance = new()
 	var/list/L
 
 	//The comparator proc-reference
-	var/cmp = /proc/cmp_numeric_asc
+	var/cmp = GLOBAL_PROC_REF(cmp_numeric_asc)
 
 	//whether we are sorting list keys (0: L[i]) or associated values (1: L[L[i]])
 	var/associative = 0
@@ -33,6 +33,7 @@ var/global/datum/sortInstance/sortInstance = new()
 
 
 /datum/sortInstance/proc/timSort(start, end)
+	RETURN_TYPE(/list)
 	runBases.Cut()
 	runLens.Cut()
 
@@ -76,7 +77,7 @@ var/global/datum/sortInstance/sortInstance = new()
 		//Merge all remaining runs to complete sort
 	//ASSERT(start == end)
 	mergeForceCollapse();
-	//ASSERT(runBases.len == 1)
+	//ASSERT(length(runBases) == 1)
 
 		//reset minGallop, for successive calls
 	minGallop = MIN_GALLOP
@@ -178,8 +179,8 @@ reverse a descending sequence without violating stability.
 //This method is called each time a new run is pushed onto the stack.
 //So the invariants are guaranteed to hold for i<stackSize upon entry to the method
 /datum/sortInstance/proc/mergeCollapse()
-	while(runBases.len >= 2)
-		var/n = runBases.len - 1
+	while(length(runBases) >= 2)
+		var/n = length(runBases) - 1
 		if(n > 1 && runLens[n-1] <= runLens[n] + runLens[n+1])
 			if(runLens[n-1] < runLens[n+1])
 				--n
@@ -193,8 +194,8 @@ reverse a descending sequence without violating stability.
 //Merges all runs on the stack until only one remains.
 //Called only once, to finalise the sort
 /datum/sortInstance/proc/mergeForceCollapse()
-	while(runBases.len >= 2)
-		var/n = runBases.len - 1
+	while(length(runBases) >= 2)
+		var/n = length(runBases) - 1
 		if(n > 1 && runLens[n-1] < runLens[n+1])
 			--n
 		mergeAt(n)
@@ -204,9 +205,9 @@ reverse a descending sequence without violating stability.
 //Run i must be the penultimate or antepenultimate run on the stack
 //In other words, i must be equal to stackSize-2 or stackSize-3
 /datum/sortInstance/proc/mergeAt(i)
-	//ASSERT(runBases.len >= 2)
+	//ASSERT(length(runBases) >= 2)
 	//ASSERT(i >= 1)
-	//ASSERT(i == runBases.len - 1 || i == runBases.len - 2)
+	//ASSERT(i == length(runBases) - 1 || i == length(runBases) - 2)
 
 	var/base1 = runBases[i]
 	var/base2 = runBases[i+1]
@@ -571,6 +572,7 @@ reverse a descending sequence without violating stability.
 
 
 /datum/sortInstance/proc/mergeSort(start, end)
+	RETURN_TYPE(/list)
 	var/remaining = end - start
 
 	//If array is small, do an insertion sort
@@ -596,8 +598,8 @@ reverse a descending sequence without violating stability.
 
 	while(remaining > 0)
 
-	while(runBases.len >= 2)
-		var/n = runBases.len - 1
+	while(length(runBases) >= 2)
+		var/n = length(runBases) - 1
 		if(n > 1 && runLens[n-1] <= runLens[n] + runLens[n+1])
 			if(runLens[n-1] < runLens[n+1])
 				--n
@@ -607,8 +609,8 @@ reverse a descending sequence without violating stability.
 		else
 			break	//Invariant is established
 
-	while(runBases.len >= 2)
-		var/n = runBases.len - 1
+	while(length(runBases) >= 2)
+		var/n = length(runBases) - 1
 		if(n > 1 && runLens[n-1] < runLens[n+1])
 			--n
 		mergeAt2(n)

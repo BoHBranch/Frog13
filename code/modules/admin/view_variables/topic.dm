@@ -29,7 +29,7 @@
 		if(!istype(H))
 			to_chat(usr, "This can only be used on instances of type /mob/living/carbon/human")
 			return
-		var/decl/hierarchy/outfit/outfit = input("Select outfit.", "Select equipment.") as null|anything in outfits()
+		var/singleton/hierarchy/outfit/outfit = input("Select outfit.", "Select equipment.") as null|anything in outfits()
 		if(!outfit)
 			return
 
@@ -81,9 +81,9 @@
 		if(D && watched_variables[D])
 			watched_variables[D] -= href_list["varnameunwatch"]
 			var/list/datums_watched_vars = watched_variables[D]
-			if(!datums_watched_vars.len)
+			if(!length(datums_watched_vars))
 				watched_variables -= D
-		if(!watched_variables.len && watched_variables_window.is_processing)
+		if(!length(watched_variables) && watched_variables_window.is_processing)
 			STOP_PROCESSING(SSprocessing, watched_variables_window)
 
 	else if(href_list["mob_player_panel"])
@@ -201,7 +201,7 @@
 					to_chat(usr, "No objects of this type exist")
 					return
 				log_admin("[key_name(usr)] deleted all objects of type [O_type] ([i] objects deleted)")
-				message_admins("<span class='notice'>[key_name(usr)] deleted all objects of type [O_type] ([i] objects deleted)</span>")
+				message_admins(SPAN_NOTICE("[key_name(usr)] deleted all objects of type [O_type] ([i] objects deleted)"))
 			if("Type and subtypes")
 				var/i = 0
 				for(var/obj/Obj in world)
@@ -212,7 +212,7 @@
 					to_chat(usr, "No objects of this type exist")
 					return
 				log_admin("[key_name(usr)] deleted all objects of type or subtype of [O_type] ([i] objects deleted)")
-				message_admins("<span class='notice'>[key_name(usr)] deleted all objects of type or subtype of [O_type] ([i] objects deleted)</span>")
+				message_admins(SPAN_NOTICE("[key_name(usr)] deleted all objects of type or subtype of [O_type] ([i] objects deleted)"))
 
 	else if(href_list["explode"])
 		if(!check_rights(R_DEBUG|R_FUN))	return
@@ -324,7 +324,7 @@
 			to_chat(usr, "This can only be done to instances of type /mob/living/carbon/human")
 			return
 
-		var/new_species = input("Please choose a new species.","Species",null) as null|anything in all_species
+		var/new_species = input("Please choose a new species.","Species",null) as null | anything in GLOB.species_by_name
 
 		if(!H)
 			to_chat(usr, "Mob doesn't exist anymore")
@@ -365,7 +365,7 @@
 			to_chat(usr, "This can only be done to instances of type /mob")
 			return
 
-		if(!H.languages.len)
+		if(!length(H.languages))
 			to_chat(usr, "This mob knows no languages.")
 			return
 
@@ -530,7 +530,7 @@
 
 		if(amount != 0)
 			log_admin("[key_name(usr)] dealt [amount] amount of [Text] damage to [L]")
-			message_admins("<span class='notice'>[key_name(usr)] dealt [amount] amount of [Text] damage to [L]</span>")
+			message_admins(SPAN_NOTICE("[key_name(usr)] dealt [amount] amount of [Text] damage to [L]"))
 			href_list["datumrefresh"] = href_list["mobToDamage"]
 
 	else if(href_list["call_proc"])
@@ -563,6 +563,70 @@
 			return
 		var/mob/living/L = locate(href_list["debug_mob_ai"])
 		log_debug("AI Debugging toggled [L.ai_holder.debug() ? "ON" : "OFF"] for \the [L]")
+
+	else if (href_list["settrait"])
+		if (!check_rights(R_DEBUG|R_ADMIN|R_FUN))	return
+		var/mob/living/target = locate(href_list["settrait"])
+		if (!istype(target))
+			to_chat(usr, SPAN_WARNING("This can only be done to instances of /mob/living."))
+			return
+
+		var/list/trait_list = GET_SINGLETON_SUBTYPE_LIST(/singleton/trait)
+		var/singleton/trait/selected = input("Select a trait to apply to \the [target].", "Add Trait") as null | anything in trait_list
+
+		if (!selected || !istype(selected) || QDELETED(target))
+			return
+
+		var/selected_level
+		if (length(selected.levels) > 1)
+			var/list/letterized_levels = list()
+			for (var/severity in selected.levels)
+				LAZYSET(letterized_levels, LetterizeSeverity(severity), severity)
+			var/letter_level = input("Select the trait's level to apply to \the [target].", "Select Level") as null | anything in letterized_levels
+			selected_level = letterized_levels[letter_level]
+		else
+			selected_level = selected.levels[1]
+
+		if (QDELETED(target))
+			return
+
+		var/additional_data
+		if (length(selected.metaoptions))
+			var/list/sanitized_metaoptions
+			for (var/atom/option as anything in selected.metaoptions)
+				var/named_option = initial(option.name)
+				LAZYSET(sanitized_metaoptions, named_option, option)
+			var/sanitized_additional = input("[selected.addprompt]", "Select Option") as null | anything in sanitized_metaoptions
+			additional_data = sanitized_metaoptions[sanitized_additional]
+
+		if (target.SetTrait(selected.type, selected_level, additional_data))
+			to_chat(usr, SPAN_NOTICE("Successfuly set \the [selected.name] in \the [target]."))
+		else
+			to_chat(usr, SPAN_WARNING("Failed to set \the [selected.name] in \the [target]."))
+		return
+
+	else if (href_list["removetrait"])
+		if (!check_rights(R_DEBUG|R_ADMIN|R_FUN))	return
+		var/mob/living/target = locate(href_list["removetrait"])
+		if (!istype(target))
+			to_chat(usr, SPAN_WARNING("This can only be done to instances of /mob/living."))
+			return
+		var/input = input("Select a trait to remove from \the [target].", "Remove Trait") as null | anything in target.traits
+		var/singleton/trait/selected = GET_SINGLETON(input)
+		if (!selected || !istype(selected) || QDELETED(target))
+			return
+
+		var/additional_option
+		if (length(selected.metaoptions))
+			var/list/interim = target.traits[selected.type]
+			additional_option = input("[selected.remprompt]", "Select Option") as null | anything in interim
+			if (!additional_option)
+				return
+
+		target.RemoveTrait(selected.type, additional_option)
+		to_chat(usr, SPAN_NOTICE("Successfuly removed \the [selected.name] in \the [target]."))
+		return
+
 
 	else if (href_list["addmovementhandler"])
 		if (!check_rights(R_DEBUG))

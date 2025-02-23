@@ -16,9 +16,11 @@
 
 	// Add to player list if missing
 	if (!GLOB.player_list.Find(src))
-		ADD_SORTED(GLOB.player_list, src, /proc/cmp_mob_key)
+		ADD_SORTED(GLOB.player_list, src, GLOBAL_PROC_REF(cmp_mob_key))
 
 	new_player_panel()
+
+	AddDefaultRenderers()
 
 	if(!SScharacter_setup.initialized)
 		SScharacter_setup.newplayers_requiring_init += src
@@ -31,13 +33,12 @@
 /mob/new_player/proc/deferred_login()
 	if(client)
 		client.playtitlemusic()
-		maybe_send_staffwarns("connected as new player")
 		if(client.get_preference_value(/datum/client_preference/goonchat) == GLOB.PREF_YES)
 			client.chatOutput.start()
 
-	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
-	var/decl/security_level/SL = security_state.current_security_level
+	var/singleton/security_state/security_state = GET_SINGLETON(GLOB.using_map.security_state)
+	var/singleton/security_level/SL = security_state.current_security_level
 	var/alert_desc = ""
 	if(SL.up_description)
 		alert_desc = SL.up_description
-	to_chat(src, "<span class='notice'>The alert level on the [station_name()] is currently: <font color=[SL.light_color_alarm]><B>[SL.name]</B></font>. [alert_desc]</span>")
+	to_chat(src, SPAN_NOTICE("The alert level on the [station_name()] is currently: [SPAN_COLOR(SL.light_color_alarm, "<B>[SL.name]</B>")]. [alert_desc]"))

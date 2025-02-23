@@ -8,11 +8,11 @@
 	)
 	pattern = "locate"
 	req_access = list(list(access_network, access_network_admin))
-	skill_needed = SKILL_PROF
+	skill_needed = SKILL_MASTER
 
 /datum/terminal_command/locate/proper_input_entered(text, mob/user, datum/terminal/terminal)
 	var/list/arguments = get_arguments(text)
-	if(isnull(arguments) || arguments.len != 1)
+	if(isnull(arguments) || length(arguments) != 1)
 		return syntax_error()
 	if(!terminal.computer.get_ntnet_status())
 		return network_error()

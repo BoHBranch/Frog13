@@ -10,7 +10,7 @@
 	throw_range = 7
 	layer = BELOW_OBJ_LAYER
 	var/amount = 30					//How much paper is in the bin.
-	var/list/papers = new/list()	//List of papers put in the bin for reference.
+	var/list/papers = list()	//List of papers put in the bin for reference.
 
 
 /obj/item/paper_bin/MouseDrop(mob/user as mob)
@@ -23,10 +23,10 @@
 				if (H.hand)
 					temp = H.organs_by_name[BP_L_HAND]
 				if(temp && !temp.is_usable())
-					to_chat(user, "<span class='notice'>You try to move your [temp.name], but cannot!</span>")
+					to_chat(user, SPAN_NOTICE("You try to move your [temp.name], but cannot!"))
 					return
 
-				to_chat(user, "<span class='notice'>You pick up the [src].</span>")
+				to_chat(user, SPAN_NOTICE("You pick up the [src]."))
 				user.put_in_hands(src)
 
 	return
@@ -38,10 +38,10 @@
 		if (H.hand)
 			temp = H.organs_by_name[BP_L_HAND]
 		if(temp && !temp.is_usable())
-			to_chat(user, "<span class='notice'>You try to move your [temp.name], but cannot!</span>")
+			to_chat(user, SPAN_NOTICE("You try to move your [temp.name], but cannot!"))
 			return
 	var/response = ""
-	if(!papers.len > 0)
+	if(!length(papers) > 0)
 		response = alert(user, "Do you take regular paper, or Carbon copy paper?", "Paper type request", "Regular", "Carbon-Copy", "Cancel")
 		if (response != "Regular" && response != "Carbon-Copy")
 			add_fingerprint(user)
@@ -52,8 +52,8 @@
 			update_icon()
 
 		var/obj/item/paper/P
-		if(papers.len > 0)	//If there's any custom paper on the stack, use that instead of creating a new paper.
-			P = papers[papers.len]
+		if(length(papers) > 0)	//If there's any custom paper on the stack, use that instead of creating a new paper.
+			P = papers[length(papers)]
 			papers.Remove(P)
 		else
 			if(response == "Regular")
@@ -61,24 +61,27 @@
 			else if (response == "Carbon-Copy")
 				P = new /obj/item/paper/carbon
 		user.put_in_hands(P)
-		to_chat(user, "<span class='notice'>You take [P] out of the [src].</span>")
+		to_chat(user, SPAN_NOTICE("You take [P] out of the [src]."))
 	else
-		to_chat(user, "<span class='notice'>[src] is empty!</span>")
+		to_chat(user, SPAN_NOTICE("[src] is empty!"))
 
 	add_fingerprint(user)
 	return
 
 
-/obj/item/paper_bin/attackby(obj/item/i as obj, mob/user as mob)
+/obj/item/paper_bin/use_tool(obj/item/i, mob/living/user, list/click_params)
 	if(istype(i, /obj/item/paper))
 		if(!user.unEquip(i, src))
-			return
-		to_chat(user, "<span class='notice'>You put [i] in [src].</span>")
+			FEEDBACK_UNEQUIP_FAILURE(user, i)
+			return TRUE
+		to_chat(user, SPAN_NOTICE("You put \the [i] in \the [src]."))
 		papers.Add(i)
 		update_icon()
 		amount++
-	else if(istype(i, /obj/item/paper_bundle))
-		to_chat(user, "<span class='notice'>You loosen \the [i] and add its papers into \the [src].</span>")
+		return TRUE
+
+	if (istype(i, /obj/item/paper_bundle))
+		to_chat(user, SPAN_NOTICE("You loosen \the [i] and add its papers into \the [src]."))
 		var/was_there_a_photo = 0
 		for(var/obj/item/bundleitem in i) //loop through items in bundle
 			if(istype(bundleitem, /obj/item/paper)) //if item is paper, add into the bin
@@ -91,16 +94,19 @@
 				bundleitem.reset_plane_and_layer()
 		qdel(i)
 		if(was_there_a_photo)
-			to_chat(user, "<span class='notice'>The photo cannot go into \the [src].</span>")
+			to_chat(user, SPAN_NOTICE("The photo cannot go into \the [src]."))
+		return TRUE
+
+	return ..()
 
 
 /obj/item/paper_bin/examine(mob/user, distance)
 	. = ..()
 	if(distance <= 1)
 		if(amount)
-			to_chat(user, "<span class='notice'>There " + (amount > 1 ? "are [amount] papers" : "is one paper") + " in the bin.</span>")
+			to_chat(user, SPAN_NOTICE("There " + (amount > 1 ? "are [amount] papers" : "is one paper") + " in the bin."))
 		else
-			to_chat(user, "<span class='notice'>There are no papers in the bin.</span>")
+			to_chat(user, SPAN_NOTICE("There are no papers in the bin."))
 
 
 /obj/item/paper_bin/on_update_icon()

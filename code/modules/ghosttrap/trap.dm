@@ -4,11 +4,13 @@
 var/global/list/ghost_traps
 
 /proc/get_ghost_trap(trap_key)
+	RETURN_TYPE(/datum/ghosttrap)
 	if(!ghost_traps)
 		populate_ghost_traps()
 	return ghost_traps[trap_key]
 
 /proc/get_ghost_traps()
+	RETURN_TYPE(/list)
 	if(!ghost_traps)
 		populate_ghost_traps()
 	return ghost_traps
@@ -28,7 +30,7 @@ var/global/list/ghost_traps
 	var/can_set_own_name = TRUE
 
 	var/list/request_timeouts
-	var/datum/species/species_whitelist // If defined, this is the species whitelist required to join
+	var/singleton/species/species_whitelist // If defined, this is the species whitelist required to join
 
 /datum/ghosttrap/New()
 	request_timeouts = list()
@@ -36,6 +38,10 @@ var/global/list/ghost_traps
 
 // Check for bans, proper atom types, etc.
 /datum/ghosttrap/proc/assess_candidate(mob/observer/ghost/candidate, mob/target, feedback = TRUE)
+	if (!target)
+		to_chat(candidate, "This occupation request is no longer valid.")
+		return FALSE
+
 	if(!candidate.MayRespawn(feedback, minutes_since_death))
 		return FALSE
 
@@ -58,7 +64,7 @@ var/global/list/ghost_traps
 
 	if (!assess_whitelist(candidate))
 		if (feedback)
-			var/datum/species/S = new species_whitelist()
+			var/singleton/species/S = new species_whitelist()
 			to_chat(candidate, "You require \a [S] whitelist to play as \a [object].")
 		return FALSE
 	return TRUE
@@ -67,7 +73,7 @@ var/global/list/ghost_traps
 	. = TRUE
 	if (!species_whitelist)
 		return
-	var/datum/species/S = new species_whitelist()
+	var/singleton/species/S = new species_whitelist()
 	if (!is_alien_whitelisted(candidate, S))
 		. = FALSE
 
@@ -75,19 +81,22 @@ var/global/list/ghost_traps
 /datum/ghosttrap/proc/request_player(mob/target, request_string, request_timeout)
 	if(request_timeout)
 		request_timeouts[target] = world.time + request_timeout
-		GLOB.destroyed_event.register(target, src, /datum/ghosttrap/proc/unregister_target)
+		GLOB.destroyed_event.register(target, src, PROC_REF(unregister_target))
 	else
 		unregister_target(target)
 
 	for(var/mob/observer/ghost/O in GLOB.player_list)
+		if (O.client.get_preference_value(/datum/client_preference/notify_ghost_trap) == GLOB.PREF_NO)
+			return
 		if(!assess_candidate(O, target, FALSE))
 			continue
 		if(O.client)
-			to_chat(O, "[request_string] <a href='?src=\ref[src];candidate=\ref[O];target=\ref[target]'>(Occupy)</a> ([ghost_follow_link(target, O)])")
+			to_chat(O, SPAN_BOLD(FONT_LARGE("[request_string] <a href='byond://?src=\ref[src];candidate=\ref[O];target=\ref[target]'>(Occupy)</a> ([ghost_follow_link(target, O)])")))
+			sound_to(O, 'sound/effects/ding2.ogg')
 
 /datum/ghosttrap/proc/unregister_target(target)
 	request_timeouts -= target
-	GLOB.destroyed_event.unregister(target, src, /datum/ghosttrap/proc/unregister_target)
+	GLOB.destroyed_event.unregister(target, src, PROC_REF(unregister_target))
 
 // Handles a response to request_player().
 /datum/ghosttrap/Topic(href, href_list)
@@ -153,7 +162,7 @@ var/global/list/ghost_traps
 		return
 	P.visible_message(SPAN_ITALIC("The [P] chimes quietly."), range = 3)
 	deltimer(P.searching)
-	P.searching = TIMER_ID_NULL
+	P.searching = null
 	P.update_icon()
 
 /datum/ghosttrap/positronic/set_new_name(mob/target)
@@ -171,10 +180,10 @@ var/global/list/ghost_traps
 	ban_checks = list("Dionaea")
 	ghost_trap_message = "They are occupying a living plant now."
 	ghost_trap_role = "Plant"
-	species_whitelist = /datum/species/diona
+	species_whitelist = /singleton/species/diona
 
 /datum/ghosttrap/plant/welcome_candidate(mob/target)
-	to_chat(target, "<span class='alium'><B>You awaken slowly, stirring into sluggish motion as the air caresses you.</B></span>")
+	to_chat(target, SPAN_CLASS("alium", "<B>You awaken slowly, stirring into sluggish motion as the air caresses you.</B>"))
 	// This is a hack, replace with some kind of species blurb proc.
 	if(istype(target,/mob/living/carbon/alien/diona))
 		to_chat(target, "<B>You are \a [target], one of a race of drifting interstellar plantlike creatures that sometimes share their seeds with human traders.</B>")
@@ -190,7 +199,7 @@ var/global/list/ghost_traps
 	can_set_own_name = FALSE
 
 /datum/ghosttrap/borer/welcome_candidate(mob/target)
-	to_chat(target, "<span class='notice'>You are a cortical borer!</span> You are a brain slug that worms its way \
+	to_chat(target, "[SPAN_NOTICE("You are a cortical borer!")] You are a brain slug that worms its way \
 	into the head of its victim. Use stealth, persuasion and your powers of mind control to keep you, \
 	your host and your eventual spawn safe and warm.")
 	to_chat(target, "You can speak to your victim with <b>say</b>, to other borers with <b>say [target.get_language_prefix()]x</b>, and use your Abilities tab to access powers.")

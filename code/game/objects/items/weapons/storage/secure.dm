@@ -15,38 +15,45 @@
 	max_w_class = ITEM_SIZE_SMALL
 	max_storage_space = DEFAULT_BOX_STORAGE
 
-
-/obj/item/storage/secure/attackby(obj/item/W, mob/user)
+/obj/item/storage/secure/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if (!locked)
 		return ..()
+
 	if (istype(W, /obj/item/melee/energy/blade) && emag_act(INFINITY, user, "You slice through the lock of \the [src]"))
-		var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
+		var/datum/effect/spark_spread/spark_system = new /datum/effect/spark_spread()
 		spark_system.set_up(5, 0, loc)
 		spark_system.start()
 		playsound(loc, 'sound/weapons/blade1.ogg', 50, 1)
 		playsound(loc, "sparks", 50, 1)
-		return
-	if (isScrewdriver(W))
-		if (do_after(user, 2 SECONDS, src, DO_REPAIR_CONSTRUCT))
+		return TRUE
+
+	else if (isScrewdriver(W))
+		if (do_after(user, (W.toolspeed * 2) SECONDS, src, DO_REPAIR_CONSTRUCT))
 			open = ! open
-			user.show_message(text("<span class='notice'>You [] the service panel.</span>", (src.open ? "open" : "close")))
-		return
-	if (isMultitool(W) && (open == 1)&& (!l_hacking))
-		user.show_message("<span class='notice'>Now attempting to reset internal memory, please hold.</span>", 1)
+			user.show_message(SPAN_NOTICE("You [open ? "open" : "close"] the service panel."))
+		return TRUE
+
+	else if (isMultitool(W) && (open == 1)&& (!l_hacking))
+		user.show_message(SPAN_NOTICE("Now attempting to reset internal memory, please hold."), 1)
 		l_hacking = 1
-		if (do_after(usr, 10 SECONDS, src, DO_REPAIR_CONSTRUCT))
+		if (do_after(usr, (W.toolspeed * 10) SECONDS, src, DO_REPAIR_CONSTRUCT))
 			if (prob(40))
 				l_setshort = 1
 				l_set = 0
-				user.show_message("<span class='notice'>Internal memory reset. Please give it a few seconds to reinitialize.</span>", 1)
+				user.show_message(SPAN_NOTICE("Internal memory reset. Please give it a few seconds to reinitialize."), 1)
 				sleep(80)
 				l_setshort = 0
 				l_hacking = 0
 			else
-				user.show_message("<span class='warning'>Unable to reset internal memory.</span>", 1)
+				user.show_message(SPAN_WARNING("Unable to reset internal memory."), 1)
 				l_hacking = 0
 		else
 			l_hacking = 0
+		return TRUE
+
+	else
+		to_chat(user, SPAN_WARNING("\The [src] is locked and cannot be opened!"))
+		return TRUE
 
 
 /obj/item/storage/secure/MouseDrop(over_object, src_location, over_location)
@@ -63,13 +70,13 @@
 	if ((l_set == 0) && (!emagged) && (!l_setshort))
 		dat += text("<p>\n<b>5-DIGIT PASSCODE NOT SET.<br>ENTER NEW PASSCODE.</b>")
 	if (emagged)
-		dat += text("<p>\n<font color=red><b>LOCKING SYSTEM ERROR - 1701</b></font>")
+		dat += text("<p>\n[SPAN_COLOR("red", "<b>LOCKING SYSTEM ERROR - 1701</b>")]")
 	if (l_setshort)
-		dat += text("<p>\n<font color=red><b>ALERT: MEMORY SYSTEM ERROR - 6040 201</b></font>")
+		dat += text("<p>\n[SPAN_COLOR("red", "<b>ALERT: MEMORY SYSTEM ERROR - 6040 201</b>")]")
 	message = text("[]", src.code)
 	if (!locked)
 		message = "*****"
-	dat += text("<HR>\n>[]<BR>\n<A href='?src=\ref[];type=1'>1</A>-<A href='?src=\ref[];type=2'>2</A>-<A href='?src=\ref[];type=3'>3</A><BR>\n<A href='?src=\ref[];type=4'>4</A>-<A href='?src=\ref[];type=5'>5</A>-<A href='?src=\ref[];type=6'>6</A><BR>\n<A href='?src=\ref[];type=7'>7</A>-<A href='?src=\ref[];type=8'>8</A>-<A href='?src=\ref[];type=9'>9</A><BR>\n<A href='?src=\ref[];type=R'>R</A>-<A href='?src=\ref[];type=0'>0</A>-<A href='?src=\ref[];type=E'>E</A><BR>\n</TT>", message, src, src, src, src, src, src, src, src, src, src, src, src)
+	dat += text("<HR>\n>[]<BR>\n<A href='byond://?src=\ref[];type=1'>1</A>-<A href='byond://?src=\ref[];type=2'>2</A>-<A href='byond://?src=\ref[];type=3'>3</A><BR>\n<A href='byond://?src=\ref[];type=4'>4</A>-<A href='byond://?src=\ref[];type=5'>5</A>-<A href='byond://?src=\ref[];type=6'>6</A><BR>\n<A href='byond://?src=\ref[];type=7'>7</A>-<A href='byond://?src=\ref[];type=8'>8</A>-<A href='byond://?src=\ref[];type=9'>9</A><BR>\n<A href='byond://?src=\ref[];type=R'>R</A>-<A href='byond://?src=\ref[];type=0'>0</A>-<A href='byond://?src=\ref[];type=E'>E</A><BR>\n</TT>", message, src, src, src, src, src, src, src, src, src, src, src, src)
 	show_browser(user, dat, "window=caselock;size=300x280")
 
 
@@ -84,15 +91,15 @@
 				l_set = 1
 			else if ((code == l_code) && (!emagged) && (l_set == 1))
 				locked = 0
-				overlays.Cut()
-				overlays += image('icons/obj/storage.dmi', icon_opened)
+				ClearOverlays()
+				AddOverlays(image(icon, icon_opened))
 				code = null
 			else
 				code = "ERROR"
 		else
 			if ((href_list["type"] == "R") && (!emagged) && (!l_setshort))
 				locked = 1
-				overlays.Cut()
+				ClearOverlays()
 				code = null
 				close(usr)
 			else
@@ -115,10 +122,10 @@
 	if (emagged)
 		return
 	emagged = TRUE
-	src.overlays += image('icons/obj/storage.dmi', icon_sparking)
+	AddOverlays(icon_sparking)
 	sleep(6)
-	overlays.Cut()
-	overlays += image('icons/obj/storage.dmi', icon_locking)
+	ClearOverlays()
+	AddOverlays(icon_locking)
 	locked = 0
 	to_chat(user, (feedback ? feedback : "You short out the lock of \the [src]."))
 	return TRUE
@@ -126,7 +133,7 @@
 
 /obj/item/storage/secure/briefcase
 	name = "secure briefcase"
-	icon = 'icons/obj/storage.dmi'
+	icon = 'icons/obj/briefcases.dmi'
 	icon_state = "secure"
 	item_state = "sec-case"
 	desc = "A large briefcase with a digital locking system."
@@ -142,7 +149,7 @@
 
 /obj/item/storage/secure/briefcase/attack_hand(mob/user)
 	if ((loc == user) && (locked == 1))
-		to_chat(usr, "<span class='warning'>[src] is locked and cannot be opened!</span>")
+		to_chat(usr, SPAN_WARNING("[src] is locked and cannot be opened!"))
 	else if ((loc == user) && (!locked))
 		open(usr)
 	else
@@ -155,7 +162,7 @@
 
 /obj/item/storage/secure/safe
 	name = "secure safe"
-	icon = 'icons/obj/storage.dmi'
+	icon = 'icons/obj/structures/safe.dmi'
 	icon_state = "safe"
 	icon_opened = "safe0"
 	icon_locking = "safeb"
@@ -166,7 +173,7 @@
 	max_storage_space = 56
 	anchored = TRUE
 	density = FALSE
-	cant_hold = list(/obj/item/storage/secure/briefcase)
+	contents_banned = list(/obj/item/storage/secure/briefcase)
 	startswith = list(
 		/obj/item/paper = 1,
 		/obj/item/pen = 1
@@ -179,5 +186,5 @@
 
 /obj/item/storage/secure/AltClick(/mob/user)
 	if (locked)
-		return
-	..()
+		return FALSE
+	return ..()

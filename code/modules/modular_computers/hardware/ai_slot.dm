@@ -19,15 +19,16 @@
 		power_usage = power_usage_occupied
 	..()
 
-/obj/item/stock_parts/computer/ai_slot/attackby(obj/item/W, mob/user)
-	if(..())
+/obj/item/stock_parts/computer/ai_slot/use_tool(obj/item/W, mob/living/user, list/click_params)
+	if ((. = ..()))
 		return TRUE
 	if(istype(W, /obj/item/aicard))
 		if(stored_card)
 			to_chat(user, "\The [src] is already occupied.")
-			return
+			return TRUE
 		if(!user.unEquip(W, src))
-			return
+			FEEDBACK_UNEQUIP_FAILURE(user, W)
+			return TRUE
 		do_insert_ai(user, W)
 		return TRUE
 	if(isScrewdriver(W) && stored_card)
@@ -49,7 +50,7 @@
 		user = usr
 
 	if(!CanPhysicallyInteract(user))
-		to_chat(user, "<span class='warning'>You can't reach it.</span>")
+		to_chat(user, SPAN_WARNING("You can't reach it."))
 		return
 
 	var/obj/item/stock_parts/computer/ai_slot/device = src

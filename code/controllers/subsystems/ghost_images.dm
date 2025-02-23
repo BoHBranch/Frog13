@@ -3,7 +3,7 @@ SUBSYSTEM_DEF(ghost_images)
 	flags = SS_NO_INIT
 	priority = SS_PRIORITY_GHOST_IMAGES
 	wait = 1
-	runlevels = RUNLEVELS_DEFAULT | RUNLEVEL_LOBBY
+	runlevels = RUNLEVELS_PREGAME | RUNLEVELS_GAME
 
 	/// When true, queues all ghosts for update.
 	var/static/queue_all = FALSE
@@ -15,14 +15,14 @@ SUBSYSTEM_DEF(ghost_images)
 /datum/controller/subsystem/ghost_images/UpdateStat(time)
 	if (PreventUpdateStat(time))
 		return ..()
-	..("Queue: [queue.len]")
+	..("Queue: [length(queue)]")
 
 
 /datum/controller/subsystem/ghost_images/fire(resumed, no_mc_tick)
 	if (!resumed && queue_all)
 		queue = GLOB.ghost_mobs.Copy()
 		queue_all = FALSE
-	if (!queue.len)
+	if (!length(queue))
 		return
 	var/cut_until = 1
 	for (var/mob/observer/ghost/ghost as anything in queue)

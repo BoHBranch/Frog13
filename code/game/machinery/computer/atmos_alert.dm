@@ -15,7 +15,7 @@ var/global/list/minor_air_alarms = list()
 
 /obj/machinery/computer/atmos_alert/Initialize()
 	. = ..()
-	GLOB.atmosphere_alarm.register_alarm(src, /atom/proc/update_icon)
+	GLOB.atmosphere_alarm.register_alarm(src, TYPE_PROC_REF(/atom, update_icon))
 
 /obj/machinery/computer/atmos_alert/Destroy()
 	GLOB.atmosphere_alarm.unregister_alarm(src)
@@ -31,10 +31,10 @@ var/global/list/minor_air_alarms = list()
 	var/minor_alarms[0]
 
 	for(var/datum/alarm/alarm in GLOB.atmosphere_alarm.major_alarms(get_z(src)))
-		major_alarms[++major_alarms.len] = list("name" = sanitize(alarm.alarm_name()), "ref" = "\ref[alarm]")
+		major_alarms[LIST_PRE_INC(major_alarms)] = list("name" = sanitize(alarm.alarm_name()), "ref" = "\ref[alarm]")
 
 	for(var/datum/alarm/alarm in GLOB.atmosphere_alarm.minor_alarms(get_z(src)))
-		minor_alarms[++minor_alarms.len] = list("name" = sanitize(alarm.alarm_name()), "ref" = "\ref[alarm]")
+		minor_alarms[LIST_PRE_INC(minor_alarms)] = list("name" = sanitize(alarm.alarm_name()), "ref" = "\ref[alarm]")
 
 	data["priority_alarms"] = major_alarms
 	data["minor_alarms"] = minor_alarms

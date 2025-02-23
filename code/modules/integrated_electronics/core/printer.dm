@@ -37,7 +37,7 @@
 	if(!cloning)
 		return
 
-	visible_message("<span class='notice'>[src] has finished printing its assembly!</span>")
+	visible_message(SPAN_NOTICE("[src] has finished printing its assembly!"))
 	playsound(src, 'sound/items/poster_being_created.ogg', 50, TRUE)
 	var/obj/item/device/electronic_assembly/assembly = SScircuit.load_electronic_assembly(get_turf(src), program)
 	assembly.creator = key_name(user)
@@ -50,82 +50,135 @@
 		if(materials[material] + O.matter[material] > metal_max)
 			var/material/material_datum = SSmaterials.get_material_by_name(material)
 			if(material_datum)
-				to_chat(user, "<span class='notice'>[src] can't hold any more [material_datum.display_name]!</span>")
+				to_chat(user, SPAN_NOTICE("[src] can't hold any more [material_datum.display_name]!"))
 			return
 	for(var/material in O.matter)
 		materials[material] += O.matter[material]
 	if(assembly)
 		assembly.remove_component(O)
 	if(user)
-		to_chat(user, "<span class='notice'>You recycle [O]!</span>")
+		to_chat(user, SPAN_NOTICE("You recycle [O]!"))
 	qdel(O)
 	return TRUE
 
-/obj/item/device/integrated_circuit_printer/attackby(obj/item/O, mob/user)
-	if(istype(O, /obj/item/stack/material))
-		var/obj/item/stack/material/M = O
-		var/amt = M.amount
-		if(amt * SHEET_MATERIAL_AMOUNT + materials[M.material.name] > metal_max)
-			amt = -round(-(metal_max - materials[M.material.name]) / SHEET_MATERIAL_AMOUNT) //round up
-		if(M.use(amt))
-			materials[M.material.name] = min(metal_max, materials[M.material.name] + amt * SHEET_MATERIAL_AMOUNT)
-			to_chat(user, "<span class='warning'>You insert [M.material.display_name] into \the [src].</span>")
-			if(user)
-				attack_self(user) // We're really bad at refreshing the UI, so this is the best we've got.
-	if(istype(O, /obj/item/disk/integrated_circuit/upgrade/advanced))
-		if(upgraded)
-			to_chat(user, "<span class='warning'>[src] already has this upgrade. </span>")
+
+/obj/item/device/integrated_circuit_printer/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Electronic Assembly - Recycle assembly
+	if (istype(tool, /obj/item/device/electronic_assembly))
+		var/obj/item/device/electronic_assembly/assembly = tool
+		if (assembly.battery)
+			USE_FEEDBACK_FAILURE("You must remove \the [tool]'s power cell before it can be recycled.")
 			return TRUE
-		to_chat(user, "<span class='notice'>You install [O] into [src]. </span>")
+		if (recycling)
+			USE_FEEDBACK_FAILURE("\The [src] is already busy recycling.")
+			return TRUE
+		if (!length(assembly.assembly_components))
+			recycle(assembly)
+			return TRUE
+		if (!assembly.opened)
+			USE_FEEDBACK_FAILURE("\The [tool]'s panel needs to be open before you can recycle the components.")
+			return TRUE
+		for (var/obj/item/integrated_circuit/component as anything in assembly.assembly_components)
+			if (!component.removable)
+				USE_FEEDBACK_FAILURE(SPAN_WARNING("\The [tool] has an unremovable [component.name] in the casing, preventing you from recycling it."))
+				return TRUE
+		playsound(src, 'sound/items/electronic_assembly_emptying.ogg', 50, TRUE)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] starts recycling \a [tool] with \a [src]."),
+			SPAN_NOTICE("You start recycling \the [tool] with \the [src].")
+		)
+		if (!do_after(user, 3 SECONDS, src, DO_PUBLIC_UNIQUE) || !user.use_sanity_check(src, tool))
+			return TRUE
+		if (assembly.battery)
+			USE_FEEDBACK_FAILURE("You must remove \the [tool]'s power cell before it can be recycled.")
+			return TRUE
+		if (recycling)
+			USE_FEEDBACK_FAILURE("\The [src] is already busy recycling.")
+			return TRUE
+		if (!length(assembly.assembly_components))
+			USE_FEEDBACK_FAILURE("\The [src] no longer has components to recycle.")
+			return TRUE
+		if (!assembly.opened)
+			USE_FEEDBACK_FAILURE("\The [tool]'s panel needs to be open before you can recycle the components.")
+			return TRUE
+		for (var/obj/item/integrated_circuit/component as anything in assembly.assembly_components)
+			if (!component.removable)
+				USE_FEEDBACK_FAILURE(SPAN_WARNING("\The [tool] has an unremovable [component.name] in the casing, preventing you from recycling it."))
+				return TRUE
+		recycling = TRUE
+		for (var/component as anything in assembly.assembly_components)
+			recycle(component, null, assembly)
+		recycling = FALSE
+		playsound(src, 'sound/items/electronic_assembly_empty.ogg', 50, TRUE)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] recycles \a [tool]'s components with \a [src]."),
+			SPAN_NOTICE("You recycle \the [tool]'s components with \the [src].")
+		)
+		return TRUE
+
+	// Integrated Circuit - Recycle circuit
+	if (istype(tool, /obj/item/integrated_circuit))
+		recycle(tool, user)
+		return TRUE
+
+	// Integrated Circuit Printer Advanced Upgrade Disk - Upgrade printer
+	if (istype(tool, /obj/item/disk/integrated_circuit/upgrade/advanced))
+		if (upgraded)
+			USE_FEEDBACK_FAILURE("\The [src] already has the advanced designs upgrade.")
+			return TRUE
+		if (!user.unEquip(tool, src))
+			FEEDBACK_UNEQUIP_FAILURE(user, tool)
+			return TRUE
 		upgraded = TRUE
-		if(user)
-			attack_self(user)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] installs \a [tool] into \a [src]."),
+			SPAN_NOTICE("You install \the [tool] into \the [src].")
+		)
+		attack_self(user)
+		qdel(tool)
 		return TRUE
 
-	if(istype(O, /obj/item/disk/integrated_circuit/upgrade/clone))
-		if(fast_clone)
-			to_chat(user, "<span class='warning'>[src] already has this upgrade. </span>")
+	// Integrated Circuit Printer Clone Upgrade Disk - Upgrade printer
+	if (istype(tool, /obj/item/disk/integrated_circuit/upgrade/clone))
+		if (fast_clone)
+			USE_FEEDBACK_FAILURE("\The [src] already has the instant cloner upgrade.")
 			return TRUE
-		to_chat(user, "<span class='notice'>You install [O] into [src]. Circuit cloning will now be instant. </span>")
+		if (!user.unEquip(tool, src))
+			FEEDBACK_UNEQUIP_FAILURE(user, tool)
+			return TRUE
 		fast_clone = TRUE
-		if(user)
-			attack_self(user)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] installs \a [tool] into \a [src]."),
+			SPAN_NOTICE("You install \the [tool] into \the [src].")
+		)
+		attack_self(user)
+		qdel(tool)
 		return TRUE
 
-	if(istype(O, /obj/item/device/electronic_assembly))
-		var/obj/item/device/electronic_assembly/EA = O //microtransactions not included
-		if(EA.battery)
-			to_chat(user, "<span class='warning'>Remove [EA]'s power cell first!</span>")
-			return
-		if(EA.assembly_components.len)
-			if(recycling)
-				return
-			if(!EA.opened)
-				to_chat(user, "<span class='warning'>You can't reach [EA]'s components to remove them!</span>")
-				return
-			for(var/V in EA.assembly_components)
-				var/obj/item/integrated_circuit/IC = V
-				if(!IC.removable)
-					to_chat(user, "<span class='warning'>[EA] has irremovable components in the casing, preventing you from emptying it.</span>")
-					return
-			to_chat(user, "<span class='notice'>You begin recycling [EA]'s components...</span>")
-			playsound(src, 'sound/items/electronic_assembly_emptying.ogg', 50, TRUE)
-			if (!do_after(user, 3 SECONDS, src, DO_PUBLIC_UNIQUE) || recycling) //short channel so you don't accidentally start emptying out a complex assembly
-				return
-			recycling = TRUE
-			for(var/V in EA.assembly_components)
-				recycle(V, null, EA)
-			to_chat(user, "<span class='notice'>You recycle all the components[EA.assembly_components.len ? " you could " : " "]from [EA]!</span>")
-			playsound(src, 'sound/items/electronic_assembly_empty.ogg', 50, TRUE)
-			recycling = FALSE
+	// Material Stack - Add material
+	if (istype(tool, /obj/item/stack/material))
+		var/obj/item/stack/material/material_stack = tool
+		var/stack_amount = material_stack.amount
+		var/material_amount = stack_amount * SHEET_MATERIAL_AMOUNT
+		var/remaining_space = metal_max - materials[material_stack.get_material_name()]
+		// Limit inserted material to max or below
+		if (material_amount > remaining_space)
+			stack_amount = floor(remaining_space / SHEET_MATERIAL_AMOUNT)
+			material_amount = stack_amount * SHEET_MATERIAL_AMOUNT
+		// Insert material
+		if (!material_stack.use(stack_amount))
+			USE_FEEDBACK_STACK_NOT_ENOUGH(material_stack, stack_amount, "to load \the [src].")
 			return TRUE
-		else
-			return recycle(EA, user)
-
-	if(istype(O, /obj/item/integrated_circuit))
-		return recycle(O, user)
+		materials[material_stack.get_material_name()] += material_amount
+		user.visible_message(
+			SPAN_NOTICE("\The [user] loads [material_stack.get_vague_name(stack_amount > 1)] into \a [src]."),
+			SPAN_NOTICE("You load [material_stack.get_exact_name(stack_amount)] into \the [src].")
+		)
+		attack_self(user)
+		return TRUE
 
 	return ..()
+
 
 /obj/item/device/integrated_circuit_printer/attack_self(mob/user)
 	interact(user)
@@ -164,21 +217,21 @@
 	if((can_clone && config.allow_ic_printing) || debug)
 		HTML += "Here you can load script for your assembly.<br>"
 		if(!cloning)
-			HTML += " <A href='?src=\ref[src];print=load'>{Load Program}</a> "
+			HTML += " <A href='byond://?src=\ref[src];print=load'>{Load Program}</a> "
 		else
 			HTML += " {Load Program}"
 		if(!program)
 			HTML += " {[fast_clone ? "Print" : "Begin Printing"] Assembly}"
 		else if(cloning)
-			HTML += " <A href='?src=\ref[src];print=cancel'>{Cancel Print}</a>"
+			HTML += " <A href='byond://?src=\ref[src];print=cancel'>{Cancel Print}</a>"
 		else
-			HTML += " <A href='?src=\ref[src];print=print'>{[fast_clone ? "Print" : "Begin Printing"] Assembly}</a>"
+			HTML += " <A href='byond://?src=\ref[src];print=print'>{[fast_clone ? "Print" : "Begin Printing"] Assembly}</a>"
 
 		HTML += "<br><hr>"
 	HTML += "Categories:"
 	for(var/category in SScircuit.circuit_fabricator_recipe_list)
 		if(category != current_category)
-			HTML += " <a href='?src=\ref[src];category=[category]'>\[[category]\]</a> "
+			HTML += " <a href='byond://?src=\ref[src];category=[category]'>\[[category]\]</a> "
 		else // Bold the button if it's already selected.
 			HTML += " <b>\[[category]\]</b> "
 	HTML += "<hr>"
@@ -193,11 +246,11 @@
 			if((initial(IC.spawn_flags) & IC_SPAWN_RESEARCH) && (!(initial(IC.spawn_flags) & IC_SPAWN_DEFAULT)) && !upgraded)
 				can_build = FALSE
 		if(can_build)
-			HTML += "<A href='?src=\ref[src];build=\ref[path]'>\[[initial(O.name)]\]</A>: [initial(O.desc)]<br>"
+			HTML += "<A href='byond://?src=\ref[src];build=\ref[path]'>\[[initial(O.name)]\]</A>: [initial(O.desc)]<br>"
 		else
 			HTML += "<s>\[[initial(O.name)]\]</s>: [initial(O.desc)]<br>"
 
-	popup.set_content(JOINTEXT(HTML))
+	popup.set_content(jointext(HTML, null))
 	popup.open()
 
 /obj/item/device/integrated_circuit_printer/Topic(href, href_list)
@@ -236,15 +289,15 @@
 			E.creator = key_name(usr)
 			E.opened = TRUE
 			E.update_icon()
-		to_chat(usr, "<span class='notice'>[capitalize(built.name)] printed.</span>")
+		to_chat(usr, SPAN_NOTICE("[capitalize(built.name)] printed."))
 		playsound(src, 'sound/items/jaws_pry.ogg', 50, TRUE)
 
 	if(href_list["print"])
 		if(!config.allow_ic_printing && !debug)
-			to_chat(usr, "<span class='warning'>Your facility has disabled printing of custom circuitry due to recent allegations of copyright infringement.</span>")
+			to_chat(usr, SPAN_WARNING("Your facility has disabled printing of custom circuitry due to recent allegations of copyright infringement."))
 			return
 		if(!can_clone) // Copying and printing ICs is cloning
-			to_chat(usr, "<span class='warning'>This printer does not have the cloning upgrade.</span>")
+			to_chat(usr, SPAN_WARNING("This printer does not have the cloning upgrade."))
 			return
 		switch(href_list["print"])
 			if("load")
@@ -261,31 +314,31 @@
 
 				// Validation error codes are returned as text.
 				if(istext(validation))
-					to_chat(usr, "<span class='warning'>Error: [validation]</span>")
+					to_chat(usr, SPAN_WARNING("Error: [validation]"))
 					return
 				else if(islist(validation))
 					program = validation
-					to_chat(usr, "<span class='notice'>This is a valid program for [program["assembly"]["type"]].</span>")
+					to_chat(usr, SPAN_NOTICE("This is a valid program for [program["assembly"]["type"]]."))
 					if(program["requires_upgrades"])
 						if(upgraded)
-							to_chat(usr, "<span class='notice'>It uses advanced component designs.</span>")
+							to_chat(usr, SPAN_NOTICE("It uses advanced component designs."))
 						else
-							to_chat(usr, "<span class='warning'>It uses unknown component designs. Printer upgrade is required to proceed.</span>")
+							to_chat(usr, SPAN_WARNING("It uses unknown component designs. Printer upgrade is required to proceed."))
 					if(program["unsupported_circuit"])
-						to_chat(usr, "<span class='warning'>This program uses components not supported by the specified assembly. Please change the assembly type in the save file to a supported one.</span>")
-					to_chat(usr, "<span class='notice'>Used space: [program["used_space"]]/[program["max_space"]].</span>")
-					to_chat(usr, "<span class='notice'>Complexity: [program["complexity"]]/[program["max_complexity"]].</span>")
-					to_chat(usr, "<span class='notice'>Cost: [json_encode(program["cost"])].</span>")
+						to_chat(usr, SPAN_WARNING("This program uses components not supported by the specified assembly. Please change the assembly type in the save file to a supported one."))
+					to_chat(usr, SPAN_NOTICE("Used space: [program["used_space"]]/[program["max_space"]]."))
+					to_chat(usr, SPAN_NOTICE("Complexity: [program["complexity"]]/[program["max_complexity"]]."))
+					to_chat(usr, SPAN_NOTICE("Cost: [json_encode(program["cost"])]."))
 
 			if("print")
 				if(!program || cloning)
 					return
 
 				if(program["requires_upgrades"] && !upgraded && !debug)
-					to_chat(usr, "<span class='warning'>This program uses unknown component designs. Printer upgrade is required to proceed.</span>")
+					to_chat(usr, SPAN_WARNING("This program uses unknown component designs. Printer upgrade is required to proceed."))
 					return
 				if(program["unsupported_circuit"] && !debug)
-					to_chat(usr, "<span class='warning'>This program uses components not supported by the specified assembly. Please change the assembly type in the save file to a supported one.</span>")
+					to_chat(usr, SPAN_WARNING("This program uses components not supported by the specified assembly. Please change the assembly type in the save file to a supported one."))
 					return
 				else if(fast_clone)
 					var/list/cost = program["cost"]
@@ -302,16 +355,16 @@
 					cloning_time = round(cloning_time/15)
 					cloning_time = min(cloning_time, MAX_CIRCUIT_CLONE_TIME)
 					cloning = TRUE
-					to_chat(usr, "<span class='notice'>You begin printing a custom assembly. This will take approximately [round(cloning_time/10)] seconds. You can still print \
-					off normal parts during this time.</span>")
+					to_chat(usr, SPAN_NOTICE("You begin printing a custom assembly. This will take approximately [round(cloning_time/10)] seconds. You can still print \
+					off normal parts during this time."))
 					playsound(src, 'sound/items/poster_being_created.ogg', 50, TRUE)
-					addtimer(CALLBACK(src, .proc/print_program, usr), cloning_time)
+					addtimer(new Callback(src, PROC_REF(print_program), usr), cloning_time)
 
 			if("cancel")
 				if(!cloning || !program)
 					return
 
-				to_chat(usr, "<span class='notice'>Cloning has been canceled. Cost has been refunded.</span>")
+				to_chat(usr, SPAN_NOTICE("Cloning has been canceled. Cost has been refunded."))
 				cloning = FALSE
 				var/cost = program["cost"]
 				for(var/material in cost)
@@ -323,7 +376,7 @@
 	for(var/material in cost)
 		if(materials[material] < cost[material])
 			var/material/material_datum = SSmaterials.get_material_by_name(material)
-			to_chat(user, "<span class='warning'>You need [cost[material]] [material_datum.display_name] to build that!</span>")
+			to_chat(user, SPAN_WARNING("You need [cost[material]] [material_datum.display_name] to build that!"))
 			return FALSE
 	for(var/material in cost) //Iterate twice to make sure it's going to work before deducting
 		materials[material] -= cost[material]

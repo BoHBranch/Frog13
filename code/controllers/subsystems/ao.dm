@@ -2,7 +2,7 @@ SUBSYSTEM_DEF(ao)
 	name = "Ambient Occlusion"
 	init_order = SS_INIT_MISC_LATE
 	wait = 1
-	runlevels = RUNLEVELS_DEFAULT | RUNLEVEL_LOBBY
+	runlevels = RUNLEVELS_PREGAME | RUNLEVELS_GAME
 	flags = SS_NO_INIT
 	var/static/list/image_cache = list()
 	var/static/list/turf/queue = list()
@@ -11,11 +11,11 @@ SUBSYSTEM_DEF(ao)
 /datum/controller/subsystem/ao/UpdateStat(time)
 	if (PreventUpdateStat(time))
 		return ..()
-	..("Queue: [queue.len]")
+	..("Queue: [length(queue)]")
 
 
 /datum/controller/subsystem/ao/fire(resume, no_mc_tick)
-	if (!queue.len)
+	if (!length(queue))
 		return
 	var/cut_until = 1
 	for (var/turf/turf as anything in queue)

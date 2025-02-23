@@ -1,20 +1,20 @@
 /obj/machinery/recharge_station
 	name = "cyborg recharging station"
 	desc = "A heavy duty rapid charging system, designed to quickly recharge cyborg power reserves."
-	icon = 'icons/obj/objects.dmi'
-	icon_state = "borgcharger0"
+	icon = 'icons/obj/machines/robot_charger.dmi'
+	icon_state = "borgcharger"
 	density = TRUE
 	anchored = TRUE
 	idle_power_usage = 50
 	base_type = /obj/machinery/recharge_station
 	uncreated_component_parts = null
 	stat_immune = 0
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 
 	machine_name = "cyborg recharging station"
 	machine_desc = "A station for recharging robots, cyborgs, and silicon-based humanoids such as IPCs and full-body prosthetics."
 
-	var/overlay_icon = 'icons/obj/objects.dmi'
+	var/overlay_icon = 'icons/obj/machines/robot_charger.dmi'
 	var/mob/living/occupant = null
 	var/charging = 0
 	var/last_overlay_state
@@ -63,7 +63,7 @@
 			R.module.respawn_consumable(R, charging_power * CELLRATE / 250) //consumables are magical, apparently
 		// If we are capable of repairing damage, reboot destroyed components and allow them to be repaired for very large power spike.
 		var/list/damaged = R.get_damaged_components(1,1,1)
-		if(damaged.len && wire_rate && weld_rate)
+		if(length(damaged) && wire_rate && weld_rate)
 			for(var/datum/robot_component/C in damaged)
 				if((C.installed == -1) && use_power_oneoff(100 KILOWATTS, LOCAL) <= 0)
 					C.repair()
@@ -151,20 +151,22 @@
 
 /obj/machinery/recharge_station/on_update_icon()
 	..()
-	if(MACHINE_IS_BROKEN(src))
-		icon_state = "borgcharger0"
-		return
+	ClearOverlays()
+
+	if(panel_open)
+		AddOverlays("[icon_state]_panel")
 
 	if(occupant)
-		if(!is_powered())
-			icon_state = "borgcharger2"
-		else
-			icon_state = "borgcharger1"
+		icon_state = "borgcharger_closed"
+		if(is_powered())
+			AddOverlays("borgcharger_lights_working")
+			AddOverlays(emissive_appearance(icon, "borgcharger_lights_working"))
 	else
-		icon_state = "borgcharger0"
+		icon_state = "borgcharger"
 
 	last_overlay_state = overlay_state()
-	overlays = list(image(overlay_icon, overlay_state()))
+	AddOverlays(list(image(overlay_icon, overlay_state())))
+	AddOverlays(emissive_appearance(icon, "statn_c100"))
 
 /obj/machinery/recharge_station/Bumped(mob/living/silicon/robot/R)
 	go_in(R)

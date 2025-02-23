@@ -4,6 +4,7 @@
 	singular_name = "rod"
 	plural_name = "rods"
 	icon_state = "rod"
+	base_state = "rod"
 	plural_icon_state = "rod-mult"
 	max_icon_state = "rod-max"
 	w_class = ITEM_SIZE_LARGE
@@ -40,31 +41,38 @@
 	throwforce = round(0.25*material.get_edge_damage())
 	force = round(0.5*material.get_blunt_damage())
 
-/obj/item/stack/material/rods/attackby(obj/item/W as obj, mob/user as mob)
+/obj/item/stack/material/rods/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(isWelder(W))
 		var/obj/item/weldingtool/WT = W
 
-		if(!can_use(2))
-			to_chat(user, "<span class='warning'>You need at least two rods to do this.</span>")
-			return
+		if(material.ignition_point)
+			to_chat(user, SPAN_WARNING("You can't weld this material into sheets."))
+			return TRUE
 
-		if(WT.remove_fuel(0,user))
-			var/obj/item/stack/material/steel/new_item = new(usr.loc)
+		if(!can_use(2))
+			to_chat(user, SPAN_WARNING("You need at least two rods to do this."))
+			return TRUE
+
+		if(WT.remove_fuel(1,user))
+			var/obj/item/stack/material/new_item = material.place_sheet(usr.loc)
 			new_item.add_to_stacks(usr)
-			for (var/mob/M in viewers(src))
-				M.show_message("<span class='notice'>[src] is shaped into metal by [user.name] with the weldingtool.</span>", 3, "<span class='notice'>You hear welding.</span>", 2)
+			user.visible_message(
+				SPAN_NOTICE("\The [user] welds \the [src] into \a [material.sheet_singular_name]."),
+				SPAN_NOTICE("You weld \the [src] into \a [material.sheet_singular_name].")
+				)
 			var/obj/item/stack/material/rods/R = src
 			src = null
 			var/replace = (user.get_inactive_hand()==R)
 			R.use(2)
 			if (!R && replace)
 				user.put_in_hands(new_item)
-		return
-	..()
+			return TRUE
+
+	return ..()
 
 /obj/item/stack/material/rods/attack_self(mob/user as mob)
 	src.add_fingerprint(user)
 
-	if(!istype(user.loc,/turf)) return 0
+	if(!isturf(user.loc)) return 0
 
 	place_grille(user, user.loc, src)

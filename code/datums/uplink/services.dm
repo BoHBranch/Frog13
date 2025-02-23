@@ -52,7 +52,7 @@
 	name = "tiny device"
 	desc = "Press button to activate. Can be done once and only once."
 	w_class = ITEM_SIZE_TINY
-	icon = 'icons/obj/flash_synthetic.dmi'
+	icon = 'icons/obj/tools/flash_synthetic.dmi'
 	icon_state = "sflash"
 	var/state = AWAITING_ACTIVATION
 	var/service_label = "Unnamed Service"
@@ -76,9 +76,9 @@
 
 /obj/item/device/uplink_service/attack_self(mob/user)
 	if(state != AWAITING_ACTIVATION)
-		to_chat(user, "<span class='warning'>\The [src] won't activate again.</span>")
+		to_chat(user, SPAN_WARNING("\The [src] won't activate again."))
 		return
-	var/obj/effect/overmap/visitable/O = map_sectors["[get_z(src)]"]
+	var/obj/overmap/visitable/O = map_sectors["[get_z(src)]"]
 	var/choice = alert(user, "This will only affect your current location[istype(O) ? " ([O])" : ""]. Proceed?","Confirmation", "Yes", "No")
 	if(choice != "Yes")
 		return
@@ -86,11 +86,11 @@
 		return
 	state = CURRENTLY_ACTIVE
 	update_icon()
-	user.visible_message("<span class='notice'>\The [user] activates \the [src].</span>", "<span class='notice'>You activate \the [src].</span>")
+	user.visible_message(SPAN_NOTICE("\The [user] activates \the [src]."), SPAN_NOTICE("You activate \the [src]."))
 	log_and_message_admins("has activated the service '[service_label]'", user)
 
 	if(service_duration)
-		addtimer(CALLBACK(src,/obj/item/device/uplink_service/proc/deactivate), service_duration)
+		addtimer(new Callback(src, PROC_REF(deactivate)), service_duration)
 	else
 		deactivate()
 
@@ -101,7 +101,7 @@
 	state = HAS_BEEN_ACTIVATED
 	update_icon()
 	playsound(loc, "sparks", 50, 1)
-	visible_message("<span class='warning'>\The [src] shuts down with a spark.</span>")
+	visible_message(SPAN_WARNING("\The [src] shuts down with a spark."))
 
 /obj/item/device/uplink_service/on_update_icon()
 	switch(state)
@@ -288,7 +288,7 @@
 
 	var/datum/computer_file/report/crew_record/random_record
 	var/obj/item/card/id/I = user.GetIdCard()
-	if(GLOB.all_crew_records.len)
+	if(length(GLOB.all_crew_records))
 		random_record = pick(GLOB.all_crew_records)
 	var/datum/computer_file/report/crew_record/new_record = CreateModularRecord(user)
 	if(I)
@@ -315,11 +315,11 @@
 	var/datum/job/job = SSjobs.get_by_title(new_record.get_job())
 	if(job)
 		var/skills = list()
-		for(var/decl/hierarchy/skill/S in GLOB.skills)
+		for(var/singleton/hierarchy/skill/S in GLOB.skills)
 			var/level = job.min_skill[S.type]
 			if(prob(10))
 				level = min(rand(1,3), job.max_skill[S.type])
-			if(level > SKILL_NONE)
+			if(level > SKILL_UNSKILLED)
 				skills += "[S.name], [S.levels[level]]"
 		new_record.set_skillset(jointext(skills,"\n"))
 

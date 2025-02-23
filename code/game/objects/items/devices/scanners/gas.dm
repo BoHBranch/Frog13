@@ -1,7 +1,7 @@
 /obj/item/device/scanner/gas
 	name = "gas analyzer"
 	desc = "A hand-held environmental scanner which reports current gas levels. Has a button to cycle modes."
-	icon = 'icons/obj/atmos_analyzer.dmi'
+	icon = 'icons/obj/tools/atmos_analyzer.dmi'
 	icon_state = "atmos"
 	item_state = "analyzer"
 
@@ -61,12 +61,12 @@
 					traits += "contaminates clothing with toxic residue"
 				if(gas_data.flags[mix] & XGM_GAS_FUSION_FUEL)
 					traits += "can be used to fuel fusion reaction"
-				if (traits.len)
+				if (length(traits))
 					text_details += "<li>This gas [english_list(traits)]</li>"
 				text_details += "</ul></dd>"
 			text_details += "</dl>"
 
-		if (summary_gasses.len)
+		if (length(summary_gasses))
 			text_summary += "<li>Composition: [english_list(summary_gasses)]</li>"
 		text_summary += "</ul>"
 		. += "[text_summary][text_details]"

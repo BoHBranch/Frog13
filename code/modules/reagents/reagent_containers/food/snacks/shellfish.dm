@@ -2,7 +2,7 @@
 	abstract_type = /obj/item/shellfish
 	name = "shellfish"
 	desc = "You shouldn't be seeing this."
-	icon = 'icons/obj/food_shellfish.dmi'
+	icon = 'icons/obj/food/food_shellfish.dmi'
 	icon_state = "clam"
 	w_class = ITEM_SIZE_SMALL
 	throwforce = 0
@@ -13,13 +13,13 @@
 	var/snack_path
 
 
-/obj/item/shellfish/attackby(obj/item/item, mob/living/user)
+/obj/item/shellfish/use_tool(obj/item/item, mob/living/user, list/click_params)
 	if (!item.sharp)
 		return ..()
 	to_chat(user, SPAN_NOTICE("You start to pry open \the [src]."))
-	if (!user.do_skilled(2 SECONDS, SKILL_COOKING, user))
+	if (!user.do_skilled((item.toolspeed * 2) SECONDS, SKILL_COOKING, user))
 		return TRUE
-	if (!prob(user.skill_fail_chance(SKILL_COOKING, 80, SKILL_ADEPT)))
+	if (!prob(user.skill_fail_chance(SKILL_COOKING, 80, SKILL_TRAINED)))
 		to_chat(user, SPAN_NOTICE("You carefully clean and open \the [src]."))
 		new snack_path (get_turf(src))
 		qdel(src)
@@ -80,12 +80,12 @@
 	abstract_type = /obj/item/reagent_containers/food/snacks/shellfish
 	name = "raw shellfish"
 	desc = "You shouldn't be seeing this."
-	icon = 'icons/obj/food_shellfish.dmi'
+	icon = 'icons/obj/food/food_shellfish.dmi'
 	icon_state = "clam_open"
 	filling_color = "#f6db93"
 	bitesize = 4
 	center_of_mass = "x=16;y=16"
-	trash = /obj/item/shell
+	sushi_overlay = "fish"
 
 
 /obj/item/reagent_containers/food/snacks/shellfish/clam
@@ -132,6 +132,7 @@
 	desc = "A tasty shrimp, ready to use. Eat too much and you'll get sick."
 	icon_state = "shrimp_meat"
 	filling_color = "#ffdfc5"
+	sushi_overlay = "shrimp"
 
 
 /obj/item/reagent_containers/food/snacks/shellfish/shrimp/Initialize()
@@ -145,6 +146,7 @@
 	icon_state = "crab_meat"
 	filling_color = "#e8d9c8"
 	bitesize = 3
+	sushi_overlay = "crab"
 
 
 /obj/item/reagent_containers/food/snacks/shellfish/crab/Initialize()
@@ -156,7 +158,7 @@
 	abstract_type = /obj/item/shell
 	name = "shell"
 	desc = "An empty shell."
-	icon = 'icons/obj/food_shellfish.dmi'
+	icon = 'icons/obj/food/food_shellfish.dmi'
 	icon_state = "clam_empty"
 	w_class = ITEM_SIZE_TINY
 	throw_speed = 4

@@ -1,9 +1,8 @@
-/datum/species/unathi
+/singleton/species/unathi
 	name = SPECIES_UNATHI
 	name_plural = SPECIES_UNATHI
-	icon_template = 'icons/mob/human_races/species/template_tall.dmi'
-	icobase = 'icons/mob/human_races/species/unathi/body.dmi'
-	deform = 'icons/mob/human_races/species/unathi/deformed_body.dmi'
+	icobase = 'icons/mob/human_races/species/unathi/skin.dmi'
+	deform = 'icons/mob/human_races/species/unathi/deformed.dmi'
 	husk_icon = 'icons/mob/human_races/species/unathi/husk.dmi'
 	preview_icon = 'icons/mob/human_races/species/unathi/preview.dmi'
 	bandages_icon = 'icons/mob/bandage.dmi'
@@ -13,6 +12,7 @@
 	tail_blend = ICON_MULTIPLY
 	hidden_from_codex = FALSE
 	skin_material =   MATERIAL_SKIN_LIZARD
+	icon_template = 'icons/mob/human_races/species/unathi/template.dmi'
 
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/tail, /datum/unarmed_attack/claws, /datum/unarmed_attack/punch, /datum/unarmed_attack/bite/sharp)
 	primitive_form = "Stok"
@@ -57,7 +57,7 @@
 	blood_color = "#f24b2e"
 	organs_icon = 'icons/mob/human_races/species/unathi/organs.dmi'
 
-	move_trail = /obj/effect/decal/cleanable/blood/tracks/claw
+	move_trail = /obj/decal/cleanable/blood/tracks/claw
 
 	heat_discomfort_level = 320
 	heat_discomfort_strings = list(
@@ -136,9 +136,9 @@
 		TAG_RELIGION  = RELIGION_OTHER
 	)
 	pain_emotes_with_pain_level = list(
-			list(/decl/emote/audible/wheeze, /decl/emote/audible/roar, /decl/emote/audible/bellow, /decl/emote/audible/howl) = 80,
-			list(/decl/emote/audible/grunt, /decl/emote/audible/groan, /decl/emote/audible/wheeze, /decl/emote/audible/hiss) = 50,
-			list(/decl/emote/audible/grunt, /decl/emote/audible/groan, /decl/emote/audible/hiss) = 20,
+			list(/singleton/emote/audible/wheeze, /singleton/emote/audible/roar, /singleton/emote/audible/bellow, /singleton/emote/audible/howl) = 80,
+			list(/singleton/emote/audible/grunt, /singleton/emote/audible/groan, /singleton/emote/audible/wheeze, /singleton/emote/audible/hiss) = 50,
+			list(/singleton/emote/audible/grunt, /singleton/emote/audible/groan, /singleton/emote/audible/hiss) = 20,
 		)
 
 	exertion_effect_chance = 10
@@ -146,22 +146,28 @@
 	exertion_reagent_scale = 5
 	exertion_reagent_path = /datum/reagent/lactate
 	exertion_emotes_biological = list(
-		/decl/emote/exertion/biological,
-		/decl/emote/exertion/biological/breath,
-		/decl/emote/exertion/biological/pant
+		/singleton/emote/exertion/biological,
+		/singleton/emote/exertion/biological/breath,
+		/singleton/emote/exertion/biological/pant
 	)
 
 	ingest_amount = 20
 
 	traits = list(
-		/decl/trait/boon/filtered_blood = TRAIT_LEVEL_EXISTS,
-		/decl/trait/boon/cast_iron_stomach = TRAIT_LEVEL_EXISTS,
-		/decl/trait/malus/sugar = TRAIT_LEVEL_MAJOR
+		/singleton/trait/boon/filtered_blood = TRAIT_LEVEL_EXISTS,
+		/singleton/trait/boon/cast_iron_stomach = TRAIT_LEVEL_EXISTS,
+		/singleton/trait/malus/sugar = TRAIT_LEVEL_MAJOR
 	)
 
-/datum/species/unathi/equip_survival_gear(mob/living/carbon/human/H)
+	footwear_trail_overrides = list(
+		/obj/item/clothing = /obj/decal/cleanable/blood/tracks/claw // Needs to apply to both shoes and space suits.
+	)
+
+	show_age_to_other_species = TRUE
+
+/singleton/species/unathi/equip_survival_gear(mob/living/carbon/human/H)
 	..()
 	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/sandal(H),slot_shoes)
 
-/datum/species/unathi/get_bodytype(mob/living/carbon/human/H)
+/singleton/species/unathi/get_bodytype(mob/living/carbon/human/H)
 	return SPECIES_UNATHI

@@ -3,7 +3,7 @@
 /obj/item/material/knife/folding
 	name = "pocketknife"
 	desc = "A small folding knife."
-	icon = 'icons/obj/folding_knife.dmi'
+	icon = 'icons/obj/weapons/folding_knife.dmi'
 	icon_state = "knife_preview"
 	item_state = null
 	force = 0.2 //force of folded obj
@@ -40,10 +40,10 @@
 	update_force()
 	update_icon()
 	if(open)
-		user.visible_message("<span class='warning'>\The [user] opens \the [src].</span>")
+		user.visible_message(SPAN_WARNING("\The [user] opens \the [src]."))
 		playsound(user, 'sound/weapons/flipblade.ogg', 15, 1)
 	else
-		user.visible_message("<span class='notice'>\The [user] closes \the [src].</span>")
+		user.visible_message(SPAN_NOTICE("\The [user] closes \the [src]."))
 	add_fingerprint(user)
 
 /obj/item/material/knife/folding/update_force()
@@ -68,15 +68,15 @@
 
 /obj/item/material/knife/folding/on_update_icon()
 	if(open)
-		overlays.Cut()
-		overlays += overlay_image(icon, hardware_open, flags=RESET_COLOR)
+		ClearOverlays()
+		AddOverlays(overlay_image(icon, hardware_open, flags=RESET_COLOR))
 		item_state = "knife"
 	else
-		overlays.Cut()
-		overlays += overlay_image(icon, hardware_closed, flags=RESET_COLOR)
+		ClearOverlays()
+		AddOverlays(overlay_image(icon, hardware_closed, flags=RESET_COLOR))
 		item_state = initial(item_state)
 	if(blood_overlay)
-		overlays += blood_overlay
+		AddOverlays(blood_overlay)
 
 //Subtypes
 /obj/item/material/knife/folding/wood

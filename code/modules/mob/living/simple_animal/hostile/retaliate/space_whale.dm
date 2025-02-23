@@ -3,6 +3,7 @@
 	desc = "A majestic spaceborne cetacean. A true sight to behold."
 	icon = 'icons/mob/simple_animal/space_whale.dmi'
 	icon_state = "alive"
+	icon_living = "alive"
 	icon_dead = "dead"
 
 	health = 250
@@ -73,7 +74,7 @@
 // 	if(istype(M, /mob/living/simple_animal/passive/juvenile_space_whale))
 // 		return FALSE
 
-/mob/living/simple_animal/hostile/retaliate/space_whale/Allow_Spacemove()
+/mob/living/simple_animal/hostile/retaliate/space_whale/Process_Spacemove(allow_movement)
 	return TRUE
 
 /datum/say_list/space_whale

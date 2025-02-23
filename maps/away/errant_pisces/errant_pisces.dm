@@ -1,6 +1,6 @@
 #include "errant_pisces_areas.dm"
 
-/obj/effect/overmap/visitable/ship/errant_pisces
+/obj/overmap/visitable/ship/errant_pisces
 	name = "XCV Ahab's Harpoon"
 	desc = "Sensors detect civilian vessel with unusual signs of life aboard."
 	color = "#bd6100"
@@ -24,7 +24,8 @@
 	icon_state = "net_f"
 	anchored = TRUE
 	layer = CATWALK_LAYER//probably? Should cover cables, pipes and the rest of objects that are secured on the floor
-	var/health = 100
+	health_max = 100
+	health_min_damage = 10
 
 /obj/structure/net/Initialize(mapload)
 	. = ..()
@@ -37,48 +38,53 @@
 					continue
 				N.update_connections()
 
-/obj/structure/net/examine(mob/user)
-	. = ..()
-	if (health < 20)
-		to_chat(user, "\The [src] is barely hanging on a few last threads.")
-	else if (health < 50)
-		to_chat(user, "Many ribbons of \the [src] are cut away.")
-	else if (health < 90)
-		to_chat(user, "Few ribbons of \the [src] are cut away.")
 
-/obj/structure/net/attackby(obj/item/W as obj, mob/user as mob)
-	if (istype(W, /obj/item/material)) //sharp objects can cut thorugh
-		var/obj/item/material/SH = W
-		if (!(SH.sharp) || (SH.sharp && SH.force < 10))//is not sharp enough or at all
-			to_chat(user,"<span class='warning'>You can't cut throught \the [src] with \the [W], it's too dull.</span>")
-			return
-		visible_message("<span class='warning'>[user] starts to cut through \the [src] with \the [W]!</span>")
-		while (health > 0)
-			if (!do_after(user, 2 SECONDS, src, DO_PUBLIC_UNIQUE))
-				visible_message("<span class='warning'>[user] stops cutting through \the [src] with \the [W]!</span>")
-				return
-			health -= 20 * (1 + (SH.force-10)/10)//the sharper the faster, every point of force above 10 adds 10 % to damage
-		visible_message("<span class='warning'>[user] cuts through \the [src]!</span>")
-		new /obj/item/stack/net(src.loc)
-		qdel(src)
+/obj/structure/net/use_weapon(obj/item/weapon, mob/user, list/click_params)
+	SHOULD_CALL_PARENT(FALSE)
+	// Sharp Object - Cut through net
+	if (!is_sharp(weapon) || weapon.force < 10)
+		USE_FEEDBACK_FAILURE("\The [weapon] isn't sharp enough to cut \the [src].")
+		return TRUE
+	user.visible_message(
+		SPAN_NOTICE("\The [user] starts cutting through \the [src] with \a [weapon]."),
+		SPAN_NOTICE("You start cutting through \the [src] with \the [weapon].")
+	)
+	while (!health_dead())
+		if (!do_after(user, 2 SECONDS, src, DO_PUBLIC_UNIQUE) || !user.use_sanity_check(src, weapon))
+			return TRUE
+		user.visible_message(
+			SPAN_NOTICE("\The [user] makes some progress cutting through \the [src]..."),
+			SPAN_NOTICE("You make some progress cutting through \the [src]...")
+		)
+		if (damage_health(20 * (1 + (weapon.force - 10) / 10), weapon.damtype, weapon.damage_flags()))
+			user.visible_message(
+				SPAN_NOTICE("\The [user] cuts through \the [src] with \a [weapon]."),
+				SPAN_NOTICE("You cut through \the [src] with \the [weapon].")
+			)
+			break
+	return TRUE
+
+
+/obj/structure/net/on_death()
+	. = ..()
+	new /obj/item/stack/net(loc)
+	qdel_self()
+
 
 /obj/structure/net/bullet_act(obj/item/projectile/P)
 	. = PROJECTILE_CONTINUE //few cloth ribbons won't stop bullet or energy ray
 	if (P.damage_type != DAMAGE_BURN)//beams, lasers, fire. Bullets won't make a lot of damage to the few hanging belts.
 		return
-	visible_message("<span class='warning'>\The [P] hits \the [src] and tears it!</span>")
-	health -= P.damage
-	if (health < 0)
-		visible_message("<span class='warning'>\The [src] is torn apart!</span>")
-		qdel(src)
+	visible_message(SPAN_WARNING("\The [P] hits \the [src] and tears it!"))
+	damage_health(P.damage, P.damage_type)
 
 /obj/structure/net/update_connections()//maybe this should also be called when any of the walls nearby is removed but no idea how I can make it happen
-	overlays.Cut()
+	ClearOverlays()
 	var/turf/T = get_turf(src)
 	for (var/turf/AT in T.CardinalTurfs(FALSE))
 		if ( (locate(/obj/structure/net) in AT) || (!istype(AT, /turf/simulated/open) && !istype(AT, /turf/space)) || (locate(/obj/structure/lattice) in AT) )//connects to another net objects or walls/floors or lattices
 			var/image/I = image(icon,"[icon_state]_ol_[get_dir(src,AT)]")
-			overlays += I
+			AddOverlays(I)
 
 /obj/structure/net/net_wall
 	icon_state = "net_w"
@@ -96,12 +102,12 @@
 
 
 /obj/structure/net/net_wall/update_connections()//this is different for net-walls because they only connect to walls and net-walls
-	overlays.Cut()
+	ClearOverlays()
 	var/turf/T = get_turf(src)
 	for (var/turf/AT in T.CardinalTurfs(FALSE))
 		if ((locate(/obj/structure/net/net_wall) in AT) || istype(AT, /turf/simulated/wall)  || istype(AT, /turf/unsimulated/wall) || istype(AT, /turf/simulated/mineral))//connects to another net-wall objects or walls
 			var/image/I = image(icon,"[icon_state]_ol_[get_dir(src,AT)]")
-			overlays += I
+			AddOverlays(I)
 
 /obj/item/stack/net
 	name = "industrial net roll"
@@ -133,8 +139,7 @@
 		icon_state = "net_roll"
 
 /obj/item/stack/net/proc/attach_wall_check()//checks if wall can be attached to something vertical such as walls or another net-wall
-	var/area/A = get_area(src)
-	if (!A.has_gravity)
+	if (!has_gravity())
 		return 1
 	var/turf/T = get_turf(src)
 	for (var/turf/AT in T.CardinalTurfs(FALSE))
@@ -145,11 +150,11 @@
 /obj/item/stack/net/attack_self(mob/user)//press while holding to lay one. If there's net already, place wall
 	var/turf/T = get_turf(user)
 	if (locate(/obj/structure/net/net_wall) in T)
-		to_chat(user, "<span class='warning'>Net wall is already placed here!</span>")
+		to_chat(user, SPAN_WARNING("Net wall is already placed here!"))
 		return
 	if (locate(/obj/structure/net) in T)//if there's already layed "floor" net
 		if (!attach_wall_check())
-			to_chat(user, "<span class='warning'>You try to place net wall but it falls on the floor. Try to attach it to something vertical and stable.</span>")
+			to_chat(user, SPAN_WARNING("You try to place net wall but it falls on the floor. Try to attach it to something vertical and stable."))
 			return
 		new /obj/structure/net/net_wall(T)
 		//update_adjacent_nets(1)//since net-wall was added we also update adjacent wall-nets
@@ -168,23 +173,23 @@
 	icon = 'maps/away/errant_pisces/errant_pisces_sprites.dmi'
 	item_icons = list(slot_w_uniform_str = 'maps/away/errant_pisces/errant_pisces_sprites.dmi')
 
-/obj/effect/landmark/corpse/carp_fisher
+/obj/landmark/corpse/carp_fisher
 	name = "carp fisher"
-	corpse_outfits = list(/decl/hierarchy/outfit/corpse/carp_fisher)
+	corpse_outfits = list(/singleton/hierarchy/outfit/corpse/carp_fisher)
 	species = list(SPECIES_HUMAN = 70, SPECIES_IPC = 20, SPECIES_UNATHI = 10)
 
-/decl/hierarchy/outfit/corpse/carp_fisher
+/singleton/hierarchy/outfit/corpse/carp_fisher
 	name = "Dead carp fisher"
 	uniform = /obj/item/clothing/under/color/green
 	suit = /obj/item/clothing/suit/apron/overalls
 	belt = /obj/item/material/knife/combat
 	shoes = /obj/item/clothing/shoes/jackboots
-	head = /obj/item/clothing/head/hardhat/dblue
+	head = /obj/item/clothing/head/hardhat/blue
 
-/obj/effect/computer_file_creator/ahabs_harpoon01
+/obj/computer_file_creator/ahabs_harpoon01
 	name = "ahab's harpoon file spawner - sensor dump"
 
-/obj/effect/computer_file_creator/ahabs_harpoon01/Initialize()
+/obj/computer_file_creator/ahabs_harpoon01/Initialize()
 	var/i_month = max(text2num(time2text(world.timeofday, "MM")) - 1, 1) // Prevent month from going below 1
 	var/i_day = max(text2num(time2text(world.timeofday, "DD")) - 5, 1)
 	file_name = "NETMON_SENSORDUMP-BLACKBOX"
@@ -218,18 +223,18 @@
 	"
 	. = ..()
 
-/obj/effect/computer_file_creator/ahabs_harpoon02
+/obj/computer_file_creator/ahabs_harpoon02
 	name = "ahab's harpoon file spawner - black box"
 	file_name = "NETMON_BLACKBOX"
 	file_info = "<p><i>This is the flight recorder data for the XCV Ahab's Harpoon. Its callsign and flight registration indicate that this is a medium size, long-haul commerical space carp fishing vessel, owned by Xynergy. The data recording here only includes hourly status reports, but they indicate that the ship went from nominal function at 09:00 to red alert and critical crew status by 10:00, before continuing at these levels for most of the day until SMES power failed.</i></p>\
 	\
 	<p><i>This data contains a wealth of information about the ship's records, manifest, and specifications, but nothing immediately useful about the events that happened on board. You may be able to glean further information if you could find more complete records.</i></p>"
 
-/obj/effect/computer_file_creator/ahabs_harpoon03
+/obj/computer_file_creator/ahabs_harpoon03
 	name = "ahab's harpoon file spawner - captain's log"
 	file_name = "captainslog"
 
-/obj/effect/computer_file_creator/ahabs_harpoon03/Initialize()
+/obj/computer_file_creator/ahabs_harpoon03/Initialize()
 	var/captain_name = "[capitalize(pick(GLOB.first_names_male + GLOB.first_names_female))] [capitalize(pick(GLOB.last_names))]"
 	file_info = "<p><i>This is the captain's log of the XCV Ahab's Harpoon, authored by Xynergy general manager [captain_name]. According to the log's contents, the ship embarked on its final voyage six months ago. All entries except the last one seem mundane - routine checks, inventory reports, flight path, and so on. The final entry seems to have been written in a hurry, with several typos that didn't get caught by the autocorrect:</i></p>\
 	\

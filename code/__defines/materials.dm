@@ -4,6 +4,7 @@
 #define MATERIAL_GLASS                   "glass"
 #define MATERIAL_GOLD                    "gold"
 #define MATERIAL_SILVER                  "silver"
+#define MATERIAL_ELECTRUM                "electrum"
 #define MATERIAL_DIAMOND                 "diamond"
 #define MATERIAL_PHORON                  "phoron"
 #define MATERIAL_URANIUM                 "uranium"
@@ -13,8 +14,8 @@
 #define MATERIAL_IRON                    "iron"
 #define MATERIAL_PLATINUM                "platinum"
 #define MATERIAL_BRONZE                  "bronze"
-#define MATERIAL_PHORON_GLASS            "phglass"
-#define MATERIAL_REINFORCED_PHORON_GLASS "rphglass"
+#define MATERIAL_BORAX                   "borax"
+#define MATERIAL_BORON_GLASS             "borosilicate glass"
 #define MATERIAL_MARBLE                  "marble"
 #define MATERIAL_CULT                    "cult"
 #define MATERIAL_REINFORCED_CULT         "cult2"
@@ -128,6 +129,7 @@
 #define USE_MATERIAL_COLOR            FLAG(0)
 #define USE_MATERIAL_SINGULAR_NAME    FLAG(1)
 #define USE_MATERIAL_PLURAL_NAME      FLAG(2)
+#define USE_MATERIAL_ICON             FLAG(3)
 
 //Arbitrary hardness thresholds
 #define  MATERIAL_SOFT   10
@@ -135,3 +137,10 @@
 #define  MATERIAL_RIGID  40
 #define  MATERIAL_HARD  60
 #define  MATERIAL_VERY_HARD  80
+
+//Wall & Airlock layering flags
+#define MATERIAL_PAINTABLE_MAIN FLAG(0)
+#define MATERIAL_PAINTABLE_STRIPE FLAG(1)
+#define MATERIAL_PAINTABLE_DETAIL FLAG(2)
+#define MATERIAL_PAINTABLE_WINDOW FLAG(3)
+#define MATERIAL_WALL_HAS_EDGES FLAG(4)

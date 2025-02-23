@@ -8,8 +8,8 @@
 	active_power_usage = 2000
 	anchored = TRUE
 	density = FALSE
-	level = 1
-	construct_state = /decl/machine_construction/default/panel_closed
+	level = ATOM_LEVEL_UNDER_TILE
+	construct_state = /singleton/machine_construction/default/panel_closed
 	uncreated_component_parts = null
 	stat_immune = 0
 
@@ -30,7 +30,7 @@
 		return
 	for(var/direction in GLOB.cardinal)
 		var/turf/simulated/shielded_tile = get_step(get_turf(src), direction)
-		for(var/obj/effect/shield/S in shielded_tile)
+		for(var/obj/shield/S in shielded_tile)
 			S.diffuse(5)
 
 /obj/machinery/shield_diffuser/on_update_icon()

@@ -1,6 +1,6 @@
 /obj/item/pinpointer
 	name = "pinpointer"
-	icon = 'icons/obj/pinpointer.dmi'
+	icon = 'icons/obj/tools/pinpointer.dmi'
 	icon_state = "pinoff"
 	obj_flags = OBJ_FLAG_CONDUCTIBLE
 	slot_flags = SLOT_BELT
@@ -74,31 +74,31 @@
 		beeping--
 
 /obj/item/pinpointer/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 	if(!active)
 		return
 	if(!target || !target.resolve())
-		overlays += image(icon,"pin_invalid")
+		AddOverlays(image(icon,"pin_invalid"))
 		return
 
 	var/turf/here = get_turf(src)
 	var/turf/there = get_turf(target.resolve())
 	if(!istype(there))
-		overlays += image(icon,"pin_invalid")
+		AddOverlays(image(icon,"pin_invalid"))
 		return
 
 	if(here == there)
-		overlays += image(icon,"pin_here")
+		AddOverlays(image(icon,"pin_here"))
 		return
 
 	if(!(there.z in GetConnectedZlevels(here.z)))
-		overlays += image(icon,"pin_invalid")
+		AddOverlays(image(icon,"pin_invalid"))
 		return
 	if(here.z > there.z)
-		overlays += image(icon,"pin_down")
+		AddOverlays(image(icon,"pin_down"))
 		return
 	if(here.z < there.z)
-		overlays += image(icon,"pin_up")
+		AddOverlays(image(icon,"pin_up"))
 		return
 
 	dir = get_dir(here,there)
@@ -110,7 +110,7 @@
 		pointer.color = COLOR_RED
 	else
 		pointer.color = COLOR_YELLOW
-	overlays += pointer
+	AddOverlays(pointer)
 
 //Nuke ops locator
 /obj/item/pinpointer/nukeop
@@ -126,7 +126,7 @@
 		new_mode = "Authentication Disk Locator"
 	if(new_mode)
 		playsound(loc, 'sound/machines/twobeep.ogg', 50, 1)
-		visible_message("<span class='notice'>[new_mode] active.</span>")
+		visible_message(SPAN_NOTICE("[new_mode] active."))
 		target = acquire_target()
 	..()
 

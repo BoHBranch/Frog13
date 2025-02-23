@@ -13,13 +13,12 @@
 	stat_immune = 0
 	wires =           /datum/wires/fabricator
 	base_type =       /obj/machinery/fabricator
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 
 	machine_name = "autolathe"
 	machine_desc = "Autolathes can produce a very wide array of useful objects from raw materials."
 
 	var/has_recycler = TRUE
-	var/list/material_overlays = list()
 	var/base_icon_state = "autolathe"
 	var/image/panel_image
 
@@ -77,7 +76,7 @@
 				var/datum/reagent/reg = mat
 				stored_substances_to_names[mat] = initial(reg.name)
 
-/obj/machinery/fabricator/state_transition(decl/machine_construction/default/new_state)
+/obj/machinery/fabricator/state_transition(singleton/machine_construction/default/new_state)
 	. = ..()
 	if(istype(new_state))
 		updateUsrDialog()
@@ -99,21 +98,18 @@
 		update_current_build(wait)
 
 /obj/machinery/fabricator/on_update_icon()
-	overlays.Cut()
-	if(!is_powered())
-		icon_state = "[base_icon_state]_d"
-	else if(currently_building)
-		icon_state = "[base_icon_state]_p"
-	else
-		icon_state = base_icon_state
-
-	var/list/new_overlays = material_overlays.Copy()
+	ClearOverlays()
 	if(panel_open)
-		new_overlays += panel_image
-	overlays = new_overlays
+		AddOverlays("[icon_state]_panel")
+	if(currently_building)
+		AddOverlays(emissive_appearance(icon, "[icon_state]_lights_working"))
+		AddOverlays("[icon_state]_lights_working")
+	else if(is_powered())
+		AddOverlays(emissive_appearance(icon, "[icon_state]_lights"))
+		AddOverlays("[icon_state]_lights")
 
 /obj/machinery/fabricator/proc/remove_mat_overlay(mat_overlay)
-	material_overlays -= mat_overlay
+	CutOverlays(mat_overlay)
 	update_icon()
 
 //Updates overall lathe storage size.

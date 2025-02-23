@@ -42,6 +42,7 @@
 //	The primary helper proc.
 //
 /proc/test_air_in_area(test_area, expectation = UT_NORMAL)
+	RETURN_TYPE(/list)
 	var/test_result = list("result" = FAILURE, "msg"    = "")
 
 	var/area/A = locate(test_area)
@@ -52,14 +53,23 @@
 		test_result["result"] = FAILURE
 		return test_result
 
+	// Airless areas are skipped
+	if (initial(A.turfs_airless))
+		test_result["result"] = SUCCESS
+		test_result["msg"] = "Area flagged airless. Skipped."
+
 	var/list/GM_checked = list()
 
 	for(var/turf/simulated/T in A)
 
-		if(!istype(T) || isnull(T.zone) || istype(T, /turf/simulated/floor/airless))
+		if(!istype(T) || isnull(T.zone))
 			continue
 		if(T.zone.air in GM_checked)
 			continue
+		var/turf/simulated/floor/floor = T
+		if (istype(floor) && floor.map_airless)
+			continue
+
 
 		var/t_msg = "Turf: [T] |  Location: [T.x] // [T.y] // [T.z]"
 
@@ -94,9 +104,9 @@
 
 		GM_checked.Add(GM)
 
-	if(GM_checked.len)
+	if(length(GM_checked))
 		test_result["result"] = SUCCESS
-		test_result["msg"] = "Checked [GM_checked.len] zones"
+		test_result["msg"] = "Checked [length(GM_checked)] zones"
 	else
 		test_result["msg"] = "No zones checked."
 
@@ -121,7 +131,7 @@
 	if(!SSshuttle)
 		fail("Shuttle Controller not setup at time of test.")
 		return 1
-	if(!SSshuttle.shuttles.len)
+	if(!length(SSshuttle.shuttles))
 		skip("No shuttles have been setup for this map.")
 		return 1
 

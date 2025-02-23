@@ -33,7 +33,7 @@
 /obj/item/gun/energy/laser/practice/emag_act(remaining_charges, mob/user, emag_source)
 	if(hacked())
 		return NO_EMAG_ACT
-	to_chat(user, "<span class='warning'>You disable the safeties on [src] and crank the output to the lethal levels.</span>")
+	to_chat(user, SPAN_WARNING("You disable the safeties on [src] and crank the output to the lethal levels."))
 	desc += " Its safeties are disabled and output is set to dangerous levels."
 	projectile_type = /obj/item/projectile/beam/midlaser
 	charge_cost = 20
@@ -45,7 +45,7 @@
 	if(hacked())
 		max_shots--
 		if(!max_shots) //uh hoh gig is up
-			to_chat(user, "<span class='danger'>\The [src] sizzles in your hands, acrid smoke rising from the firing end!</span>")
+			to_chat(user, SPAN_DANGER("\The [src] sizzles in your hands, acrid smoke rising from the firing end!"))
 			desc += " The optical pathway is melted and useless."
 			projectile_type = null
 
@@ -78,7 +78,8 @@
 /obj/item/gun/energy/lasercannon
 	name = "laser cannon"
 	desc = "With the laser cannon, the lasing medium is enclosed in a tube lined with uranium-235 and subjected to high neutron flux in a nuclear reactor core. This incredible technology may help YOU achieve high excitation rates with small laser volumes!"
-	icon_state = "lasercannon"
+	icon_state = "lasercannon100"
+	modifystate = "lasercannon"
 	icon = 'icons/obj/guns/laser_cannon.dmi'
 	item_state = null
 	origin_tech = list(TECH_COMBAT = 4, TECH_MATERIAL = 3, TECH_POWER = 3)
@@ -137,14 +138,14 @@
 	item_state = "laser"
 	origin_tech = list(TECH_COMBAT = 6, TECH_MATERIAL = 5, TECH_POWER = 4)
 	projectile_type = /obj/item/projectile/beam/sniper
-	one_hand_penalty = 5 // The weapon itself is heavy, and the long barrel makes it hard to hold steady with just one hand.
+	one_hand_penalty = 8 // The weapon itself is heavy, and the long barrel makes it hard to hold steady with just one hand.
 	slot_flags = SLOT_BACK
 	charge_cost = 40
 	max_shots = 8
-	fire_delay = 35
+	fire_delay = 30
 	force = 10
 	w_class = ITEM_SIZE_HUGE
-	accuracy = -2 //shooting at the hip
+	accuracy = -4 //shooting at the hip
 	scoped_accuracy = 9
 	scope_zoom = 2
 	wielded_item_state = "gun_wielded"
@@ -170,7 +171,7 @@
 /obj/item/gun/energy/lasertag/special_check(mob/living/carbon/human/M)
 	if(ishuman(M))
 		if(!istype(M.wear_suit, required_vest))
-			to_chat(M, "<span class='warning'>You need to be wearing your laser tag vest!</span>")
+			to_chat(M, SPAN_WARNING("You need to be wearing your laser tag vest!"))
 			return 0
 	return ..()
 

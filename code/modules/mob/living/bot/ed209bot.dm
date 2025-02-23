@@ -20,14 +20,30 @@
 	var/shot_delay = 4
 	var/last_shot = 0
 
+
+/mob/living/bot/secbot/ed209/get_construction_info()
+	return list(
+		"Use <b>5 Sheets of Steel</b> on a <b>Standard Robot Frame</b> that has no other parts installed.",
+		"Add a robotic <b>Left Leg</b> and a robotic <b>Right Leg</b>.",
+		"Add an <b>Armor Plate</b>.",
+		"Use a <b>Welding Tool</b> to secure the armor plating.",
+		"Add a <b>Helmet</b>.",
+		"Add a <b>Proximity Sensor</b>.",
+		"Add <b>1 Length of Cable Coil</b>.",
+		"Add an <b>Electrolaser</b>.",
+		"Use a <b>Screwdriver</b> to secure the taser in place.",
+		"Add a <p>Power Cell</p> to complete the ED-209."
+	)
+
+
 /mob/living/bot/secbot/ed209/update_icons()
 	icon_state = "ed2090"
 
 /mob/living/bot/secbot/ed209/explode()
-	visible_message("<span class='warning'>[src] blows apart!</span>")
+	visible_message(SPAN_WARNING("[src] blows apart!"))
 	var/turf/Tsec = get_turf(src)
 
-	var/obj/item/gun/energy/taser/G = new /obj/item/gun/energy/taser(Tsec)
+	var/obj/item/gun/energy/stunrevolver/G = new /obj/item/gun/energy/stunrevolver(Tsec)
 	G.power_supply.charge = 0
 	if(prob(50))
 		new /obj/item/robot_parts/l_leg(Tsec)
@@ -39,11 +55,11 @@
 		else
 			new /obj/item/clothing/suit/armor/vest(Tsec)
 
-	var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+	var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 	s.set_up(3, 1, src)
 	s.start()
 
-	new /obj/effect/decal/cleanable/blood/oil(Tsec)
+	new /obj/decal/cleanable/blood/oil(Tsec)
 	qdel(src)
 
 /mob/living/bot/secbot/ed209/handleRangedTarget()

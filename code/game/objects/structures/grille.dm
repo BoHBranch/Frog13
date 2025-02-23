@@ -1,17 +1,18 @@
 /obj/structure/grille
 	name = "grille"
-	desc = "A flimsy lattice of metal rods, with screws to secure it to the floor."
-	icon = 'icons/obj/grille.dmi'
+	desc = "A flimsy lattice of metal rods, with bolts to secure it to the floor."
+	icon = 'icons/obj/structures/grille.dmi'
 	icon_state = "grille"
 	color = COLOR_STEEL
 	density = TRUE
 	anchored = TRUE
-	obj_flags = OBJ_FLAG_CONDUCTIBLE
+	obj_flags = OBJ_FLAG_CONDUCTIBLE | OBJ_FLAG_ANCHORABLE
 	layer = BELOW_OBJ_LAYER
 	explosion_resistance = 1
 	rad_resistance_modifier = 0.1
 	health_max = 10
 	damage_hitsound = 'sound/effects/grillehit.ogg'
+	attacked_verb = "kicks"
 	var/init_material = MATERIAL_STEEL
 
 	blend_objects = list(/obj/machinery/door, /turf/simulated/wall) // Objects which to blend with
@@ -19,7 +20,7 @@
 
 /obj/structure/grille/broken
 	name = "broken grille"
-	desc = "The remains of a flimsy lattice of metal rods, with screws to secure it to the floor."
+	desc = "The remains of a flimsy lattice of metal rods, with bolts to secure it to the floor."
 	icon_state = "broken"
 	density = FALSE
 	health_max = 6
@@ -57,7 +58,7 @@
 /obj/structure/grille/on_update_icon()
 	var/on_frame = is_on_frame()
 
-	overlays.Cut()
+	ClearOverlays()
 	if (is_broken())
 		if(on_frame)
 			icon_state = "broken_onframe"
@@ -72,41 +73,22 @@
 					I = image(icon, "grille_other_onframe[connections[i]]", dir = SHIFTL(1, i - 1))
 				else
 					I = image(icon, "grille_onframe[connections[i]]", dir = SHIFTL(1, i - 1))
-				overlays += I
+				AddOverlays(I)
 		else
 			for(var/i = 1 to 4)
 				if(other_connections[i] != "0")
 					I = image(icon, "grille_other[connections[i]]", dir = SHIFTL(1, i - 1))
 				else
 					I = image(icon, "grille[connections[i]]", dir = SHIFTL(1, i - 1))
-				overlays += I
+				AddOverlays(I)
 
 /obj/structure/grille/Bumped(atom/user)
 	if(ismob(user)) shock(user, 70)
 
 /obj/structure/grille/attack_hand(mob/user as mob)
-
-	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
-	playsound(loc, 'sound/effects/grillehit.ogg', 80, 1)
-	user.do_attack_animation(src)
-
-	var/damage_dealt = 1
-	var/attack_message = "kicks"
-	if(istype(user,/mob/living/carbon/human))
-		var/mob/living/carbon/human/H = user
-		if(H.species.can_shred(H))
-			attack_message = "mangles"
-			damage_dealt = 5
-
-	if(shock(user, 70))
+	if ((. = ..()))
+		shock(user, 70)
 		return
-
-	if(MUTATION_HULK in user.mutations)
-		damage_dealt += 5
-	else
-		damage_dealt += 1
-
-	attack_generic(user,damage_dealt,attack_message)
 
 /obj/structure/grille/CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
 	if(air_group || (height==0)) return 1
@@ -151,40 +133,68 @@
 
 	damage_health(damage, Proj.damage_type)
 
-/obj/structure/grille/attackby(obj/item/W as obj, mob/user as mob)
-	if (user.a_intent == I_HURT)
-		if (!(W.obj_flags & OBJ_FLAG_CONDUCTIBLE) || !shock(user, 70))
-			..()
+
+/obj/structure/grille/can_use_item(obj/item/tool, mob/user, click_params)
+	. = ..()
+	if (!.)
 		return
 
-	if(isWirecutter(W))
-		if(!shock(user, 100))
-			playsound(loc, 'sound/items/Wirecutter.ogg', 100, 1)
-			new /obj/item/stack/material/rods(get_turf(src), is_broken() ? 1 : 2, material.name)
-			qdel(src)
-		return
+	// Shock Check
+	var/shock_chance = 70
+	// 100% shock chance to remove or move
+	if (isWirecutter(tool) || isWrench(tool))
+		shock_chance = 100
+	// Plasmacutter shouldn't need to touch the grille
+	if (istype(tool, /obj/item/gun/energy/plasmacutter))
+		shock_chance = 0
+	if (HAS_FLAGS(tool.obj_flags, OBJ_FLAG_CONDUCTIBLE) && shock_chance && shock(user, shock_chance))
+		return FALSE
 
-	if((isScrewdriver(W)) && (istype(loc, /turf/simulated) || anchored))
-		if(!shock(user, 90))
-			playsound(loc, 'sound/items/Screwdriver.ogg', 100, 1)
-			anchored = !anchored
-			user.visible_message("<span class='notice'>[user] [anchored ? "fastens" : "unfastens"] the grille.</span>", \
-								 "<span class='notice'>You have [anchored ? "fastened the grille to" : "unfastened the grill from"] the floor.</span>")
-			update_connections(1)
-			update_icon()
-		return
 
-//window placing
-	if(istype(W,/obj/item/stack/material))
-		var/obj/item/stack/material/ST = W
-		if(ST.material.opacity > 0.7)
-			return 0
+/obj/structure/grille/post_anchor_change()
+	..()
+	update_connections(TRUE)
 
-		place_window(user, loc, ST)
-		return
 
-	if (!(W.obj_flags & OBJ_FLAG_CONDUCTIBLE) || !shock(user, 70))
-		..()
+/obj/structure/grille/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Plasma Cutter - Cut grille
+	if (istype(tool, /obj/item/gun/energy/plasmacutter))
+		var/obj/item/gun/energy/plasmacutter/plasmacutter = tool
+		if (!plasmacutter.slice(user))
+			return TRUE
+		playsound(src, 'sound/items/Welder.ogg', 50, TRUE)
+		dismantle()
+		user.visible_message(
+			SPAN_NOTICE("\The [user] cuts \the [src] apart with \a [tool]."),
+			SPAN_NOTICE("You cut \the [src] apart with \the [tool].")
+		)
+		return TRUE
+
+	// Wirecutter - Cut grille
+	if (isWirecutter(tool))
+		playsound(src, 'sound/items/Wirecutter.ogg', 50, TRUE)
+		dismantle()
+		user.visible_message(
+			SPAN_NOTICE("\The [user] cuts \the [src] apart with \a [tool]."),
+			SPAN_NOTICE("You cut \the [src] apart with \the [tool].")
+		)
+		return TRUE
+
+	// Material Stack - Place window
+	if (istype(tool, /obj/item/stack/material))
+		var/obj/item/stack/material/stack = tool
+		if (stack.material.opacity > 0.7)
+			USE_FEEDBACK_FAILURE("\The [tool] cannot be used to make a window.")
+			return TRUE
+		place_window(user, loc, tool)
+		return TRUE
+
+	return ..()
+
+
+/obj/structure/grille/proc/dismantle()
+	new /obj/item/stack/material/rods(get_turf(src), is_broken() ? 1 : 2, material.name)
+	qdel(src)
 
 /obj/structure/grille/on_death(new_death_state)
 	visible_message(SPAN_WARNING("\The [src] falls to pieces!"))
@@ -215,7 +225,7 @@
 		if(electrocute_mob(user, C, src))
 			if(C.powernet)
 				C.powernet.trigger_warning()
-			var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+			var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 			s.set_up(3, 1, src)
 			s.start()
 			if(user.stunned)
@@ -223,11 +233,6 @@
 		else
 			return 0
 	return 0
-
-/obj/structure/grille/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
-	if (!is_broken() && exposed_temperature > material.melting_point)
-		damage_health(1, DAMAGE_BURN)
-	..()
 
 /obj/structure/grille/cult
 	name = "cult grille"
@@ -246,10 +251,13 @@
 /proc/place_grille(mob/user, loc, obj/item/stack/material/rods/ST)
 	if(ST.in_use)
 		return
-	if(ST.get_amount() < 2)
-		to_chat(user, "<span class='warning'>You need at least two rods to do this.</span>")
+	if(locate(/obj/structure/grille) in loc)
+		USE_FEEDBACK_FAILURE("There is another grille here!")
 		return
-	to_chat(user, "<span class='notice'>Assembling grille...</span>")
+	if(ST.get_amount() < 2)
+		to_chat(user, SPAN_WARNING("You need at least two rods to do this."))
+		return
+	to_chat(user, SPAN_NOTICE("Assembling grille..."))
 	ST.in_use = 1
 	if (!do_after(user, 1 SECOND, loc, DO_REPAIR_CONSTRUCT))
 		ST.in_use = 0
@@ -257,6 +265,6 @@
 	if(!ST.use(2))
 		return
 	var/obj/structure/grille/F = new /obj/structure/grille(loc, ST.material.name)
-	to_chat(user, "<span class='notice'>You assemble a grille</span>")
+	to_chat(user, SPAN_NOTICE("You assemble a grille"))
 	ST.in_use = 0
 	F.add_fingerprint(user)

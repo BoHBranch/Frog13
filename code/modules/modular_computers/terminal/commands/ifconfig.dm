@@ -8,7 +8,7 @@
 		"Returns network adaptor information."
 	)
 	pattern = "^ifconfig"
-	skill_needed = SKILL_EXPERT
+	skill_needed = SKILL_BASIC
 
 /datum/terminal_command/ifconfig/proper_input_entered(text, mob/user, datum/terminal/terminal)
 	var/command = copytext(text, 1, length(name) + 2)
@@ -33,7 +33,7 @@
 				var/obj/item/stock_parts/computer/network_card/remote_nc = rt.computer.get_component(PART_NETWORK)
 				if(origin_nc && remote_nc)
 					remote_connections += "[origin_nc.get_network_tag()] -> [remote_nc.get_network_tag_direct()]"
-			if(remote_connections.len)
+			if(length(remote_connections))
 				. += ""
 				. += "Active ssh sessions:"
 				. += remote_connections

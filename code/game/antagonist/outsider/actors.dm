@@ -1,4 +1,4 @@
-GLOBAL_DATUM_INIT(actor, /datum/antagonist/actor, new)
+GLOBAL_TYPED_NEW(actor, /datum/antagonist/actor)
 
 /datum/antagonist/actor
 	id = MODE_ACTOR
@@ -35,8 +35,8 @@ GLOBAL_DATUM_INIT(actor, /datum/antagonist/actor, new)
 
 	return 1
 
-/client/verb/join_as_actor()
-	set category = "IC"
+/mob/observer/ghost/verb/join_as_actor()
+	set category = "Ghost"
 	set name = "Join as Actor"
 	set desc = "Join as an Actor to entertain the crew through television!"
 
@@ -48,7 +48,7 @@ GLOBAL_DATUM_INIT(actor, /datum/antagonist/actor, new)
 		return
 
 	if(isghostmind(usr.mind) || isnewplayer(usr))
-		if(GLOB.actor.current_antagonists.len >= GLOB.actor.hard_cap)
+		if(length(GLOB.actor.current_antagonists) >= GLOB.actor.hard_cap)
 			to_chat(usr, "No more actors may spawn at the current time.")
 			return
 		GLOB.actor.create_default(usr)

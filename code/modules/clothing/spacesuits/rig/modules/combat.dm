@@ -11,6 +11,8 @@
  * /obj/item/rig_module/mounted/energy_blade
  * /obj/item/rig_module/fabricator
  * /obj/item/rig_module/fabricator/wf_sign
+ * /obj/item/rig_module/mounted/arm_blade
+ * /obj/item/rig_module/mounted/power_fist
  */
 
 /obj/item/rig_module/device/flash
@@ -56,7 +58,7 @@
 		return 0
 
 	if(!holder.cell.check_charge(use_power_cost * CELLRATE))
-		to_chat(holder.wearer,"<span class='warning'>Not enough stored power.</span>")
+		to_chat(holder.wearer,SPAN_WARNING("Not enough stored power."))
 		return 0
 
 	if(!target)
@@ -67,7 +69,7 @@
 	if(!target.Adjacent(holder.wearer) || !ismob(target))
 		return 0
 
-	var/resolved = target.attackby(device,holder.wearer)
+	var/resolved = device.resolve_attackby(target,holder.wearer)
 	if(resolved)
 		holder.cell.use(use_power_cost * CELLRATE)
 	return resolved
@@ -77,7 +79,7 @@
 		return
 
 	to_chat(holder.wearer, SPAN_NOTICE("Your hardsuit gauntlets heat up and lock into place, ready to be used."))
-	playsound(src.loc, 'sound/items/goggles_charge.ogg', 20, 1)
+	playsound(src.loc, 'sound/machines/boop1.ogg', 20, 1)
 	active = 1
 
 /obj/item/rig_module/grenade_launcher
@@ -117,10 +119,10 @@
 		return 0
 
 	if(accepted_item.charges >= 5)
-		to_chat(user, "<span class='danger'>Another grenade of that type will not fit into the module.</span>")
+		to_chat(user, SPAN_DANGER("Another grenade of that type will not fit into the module."))
 		return 0
 
-	to_chat(user, "<span class='info'><b>You slot \the [input_device] into the suit module.</b></span>")
+	to_chat(user, SPAN_INFO("<b>You slot \the [input_device] into the suit module.</b>"))
 	qdel(input_device)
 	accepted_item.charges++
 	return 1
@@ -136,7 +138,7 @@
 	var/mob/living/carbon/human/H = holder.wearer
 
 	if(!charge_selected)
-		to_chat(H, "<span class='danger'>You have not selected a grenade type.</span>")
+		to_chat(H, SPAN_DANGER("You have not selected a grenade type."))
 		return 0
 
 	var/datum/rig_charge/charge = charges[charge_selected]
@@ -145,13 +147,13 @@
 		return 0
 
 	if(charge.charges <= 0)
-		to_chat(H, "<span class='danger'>Insufficient grenades!</span>")
+		to_chat(H, SPAN_DANGER("Insufficient grenades!"))
 		return 0
 
 	charge.charges--
 	var/obj/item/grenade/new_grenade = new charge.product_type(get_turf(H))
-	H.visible_message("<span class='danger'>[H] launches \a [new_grenade]!</span>")
-	log_and_message_admins("fired a grenade ([new_grenade.name]) from a rigsuit grenade launcher.")
+	H.visible_message(SPAN_DANGER("[H] launches \a [new_grenade]!"))
+	log_and_message_admins("fired a grenade ([new_grenade.name]) from a rigsuit grenade launcher.", H)
 	new_grenade.activate(H)
 	new_grenade.throw_at(target,fire_force,fire_distance)
 
@@ -191,10 +193,10 @@
 		list("illumination grenade",   "illumination grenade",   /obj/item/grenade/light,  6),
 		)
 
-/obj/item/rig_module/mounted
+/obj/item/rig_module/mounted ///Separated into energy and ballistics to allow their respective interactions
 
 	name = "mounted gun"
-	desc = "Somesort of mounted gun."
+	desc = "Some sort of mounted gun."
 	selectable = 1
 	usable = 1
 	module_cooldown = 0
@@ -205,29 +207,66 @@
 	engage_string = "Configure"
 
 	interface_name = "mounted gun"
-	interface_desc = "A shoulder-mounted cell-powered laser gun."
+	interface_desc = "A suit mounted gun."
 
-	var/obj/item/gun/gun
 
-/obj/item/rig_module/mounted/Initialize()
+/obj/item/rig_module/mounted/energy
+	abstract_type = /obj/item/rig_module/mounted/energy
+	var/obj/item/gun/energy/laser
+
+/obj/item/rig_module/mounted/energy/Initialize()
 	. = ..()
-	if(ispath(gun))
-		gun = new gun(src)
-		gun.canremove = 0
+	if (ispath(laser))
+		laser = new laser(src)
+		laser.canremove = FALSE
 
-/obj/item/rig_module/mounted/engage(atom/target)
+/obj/item/rig_module/mounted/energy/engage(atom/target)
 
-	if(!..() || !gun)
-		return 0
+	if (!..() || !laser)
+		return FALSE
 
-	if(!target)
-		gun.attack_self(holder.wearer)
+	if (!target)
+		laser.attack_self(holder.wearer)
 		return
 
-	gun.Fire(target,holder.wearer)
-	return 1
+	laser.Fire(target,holder.wearer)
+	return TRUE
 
-/obj/item/rig_module/mounted/lcannon
+/obj/item/rig_module/mounted/ballistic
+	abstract_type = /obj/item/rig_module/mounted/ballistic
+	var/obj/item/gun/projectile/ballistic
+
+/obj/item/rig_module/mounted/ballistic/Initialize()
+	. = ..()
+	if (ispath(ballistic))
+		ballistic = new ballistic(src)
+		ballistic.canremove = FALSE
+
+/obj/item/rig_module/mounted/ballistic/engage(atom/target)
+
+	if (!..() || !ballistic)
+		return FALSE
+
+	if (!target)
+		ballistic.attack_self(holder.wearer)
+		return
+
+	ballistic.Fire(target,holder.wearer)
+	return TRUE
+
+/obj/item/rig_module/mounted/ballistic/accepts_item(obj/item/input, mob/living/user)
+	var/obj/item/rig/rig = get_rig(src)
+
+	if (!istype(input) || !istype(user) || !rig)
+		return FALSE
+
+	if (ismagazine(input) && ballistic.ammo_magazine) /// Weapon will attempt to eject the current magazine/ammo if it is loaded when a new magazine is used on it.
+		ballistic.unload_ammo(user, FALSE)
+
+	else /// Weapon will load normally if no magazine is present
+		ballistic.load_ammo(input, user)
+
+/obj/item/rig_module/mounted/energy/lcannon
 
 	name = "mounted laser cannon"
 	desc = "A shoulder-mounted battery-powered laser cannon mount."
@@ -235,10 +274,23 @@
 
 	interface_name = "mounted laser cannon"
 	interface_desc = "A shoulder-mounted cell-powered laser cannon."
+	origin_tech = list(TECH_POWER = 6, TECH_COMBAT = 6, TECH_ENGINEERING = 6)
 
-	gun = /obj/item/gun/energy/lasercannon/mounted
+	laser = /obj/item/gun/energy/lasercannon/mounted
 
-/obj/item/rig_module/mounted/egun
+/obj/item/rig_module/mounted/energy/ion
+
+	name = "mounted ion gun"
+	desc = "A shoulder-mounted battery-powered ion gun mount."
+	usable = 0
+
+	interface_name = "mounted ion gun"
+	interface_desc = "A shoulder-mounted cell-powered ion gun."
+	origin_tech = list(TECH_POWER = 6, TECH_COMBAT = 6, TECH_ENGINEERING = 6)
+
+	laser = /obj/item/gun/energy/ionrifle/mounted
+
+/obj/item/rig_module/mounted/energy/egun
 
 	name = "mounted energy gun"
 	desc = "A shoulder-mounted energy projector."
@@ -250,9 +302,9 @@
 	interface_desc = "A shoulder-mounted suit-powered energy gun."
 	origin_tech = list(TECH_POWER = 6, TECH_COMBAT = 6, TECH_ENGINEERING = 6)
 
-	gun = /obj/item/gun/energy/gun/mounted
+	laser = /obj/item/gun/energy/gun/mounted
 
-/obj/item/rig_module/mounted/taser
+/obj/item/rig_module/mounted/energy/taser
 
 	name = "mounted electrolaser"
 	desc = "A shoulder-mounted nonlethal energy projector."
@@ -265,9 +317,9 @@
 	interface_desc = "A shoulder-mounted, cell-powered electrolaser."
 	origin_tech = list(TECH_POWER = 5, TECH_COMBAT = 5, TECH_ENGINEERING = 6)
 
-	gun = /obj/item/gun/energy/taser/mounted
+	laser = /obj/item/gun/energy/taser/mounted
 
-/obj/item/rig_module/mounted/plasmacutter
+/obj/item/rig_module/mounted/energy/plasmacutter
 
 	name = "mounted plasma cutter"
 	desc = "A forearm-mounted plasma cutter."
@@ -280,23 +332,23 @@
 	interface_desc = "A forearm-mounted suit-powered plasma cutter."
 	origin_tech = list(TECH_MATERIAL = 5, TECH_PHORON = 4, TECH_ENGINEERING = 7, TECH_COMBAT = 5)
 
-	gun = /obj/item/gun/energy/plasmacutter/mounted
+	laser = /obj/item/gun/energy/plasmacutter/mounted
 
-/obj/item/rig_module/mounted/plasmacutter/engage(atom/target)
+/obj/item/rig_module/mounted/energy/plasmacutter/engage(atom/target)
 
-	if(!check() || !gun)
+	if(!check() || !laser)
 		return 0
 
 	if(holder.wearer.a_intent == I_HURT || !target.Adjacent(holder.wearer))
-		gun.Fire(target,holder.wearer)
+		laser.Fire(target,holder.wearer)
 		return 1
 	else
-		var/resolved = target.attackby(gun,holder.wearer)
-		if(!resolved && gun && target)
-			gun.afterattack(target,holder.wearer,1)
+		var/resolved = laser.resolve_attackby(target, holder.wearer)
+		if(!resolved && laser && target)
+			laser.afterattack(target,holder.wearer,1)
 			return 1
 
-/obj/item/rig_module/mounted/energy_blade
+/obj/item/rig_module/mounted/energy/energy_blade
 
 	name = "energy blade projector"
 	desc = "A powerful cutting beam projector."
@@ -317,9 +369,9 @@
 	active_power_cost = 0.5 KILOWATTS
 	passive_power_cost = 0
 
-	gun = /obj/item/gun/energy/crossbow/ninja/mounted
+	laser = /obj/item/gun/energy/crossbow/ninja/mounted
 
-/obj/item/rig_module/mounted/energy_blade/Process()
+/obj/item/rig_module/mounted/energy/energy_blade/Process()
 
 	if(holder && holder.wearer)
 		if(!(locate(/obj/item/melee/energy/blade) in holder.wearer))
@@ -328,11 +380,11 @@
 
 	return ..()
 
-/obj/item/rig_module/mounted/energy_blade/activate()
+/obj/item/rig_module/mounted/energy/energy_blade/activate()
 	var/mob/living/M = holder.wearer
 
 	if (!M.HasFreeHand())
-		to_chat(M, "<span class='danger'>Your hands are full.</span>")
+		to_chat(M, SPAN_DANGER("Your hands are full."))
 		deactivate()
 		return
 
@@ -340,10 +392,10 @@
 	blade.creator = M
 	M.put_in_hands(blade)
 
-	if(!..() || !gun)
+	if(!..() || !laser)
 		return 0
 
-/obj/item/rig_module/mounted/energy_blade/deactivate()
+/obj/item/rig_module/mounted/energy/energy_blade/deactivate()
 
 	..()
 
@@ -354,6 +406,20 @@
 
 	for(var/obj/item/melee/energy/blade/blade in M.contents)
 		qdel(blade)
+
+/obj/item/rig_module/mounted/ballistic/minigun
+
+	name = "mounted minigun"
+	desc = "An arm-mounted minigun. Reloading this looks like a pain."
+	icon_state = "egun"
+
+	suit_overlay_active = "mounted-taser"
+
+	interface_name = "mounted minigun"
+	interface_desc = "An arm-mounted minigun. While it carries a large amount of ammo, reloading it takes a very long time. Use an ammo box on your suit control module to reload."
+	origin_tech = list(TECH_POWER = 4, TECH_COMBAT = 8, TECH_ENGINEERING = 6)
+
+	ballistic = /obj/item/gun/projectile/automatic/minigun/mounted ///Reloading handled in automatic.dm
 
 /obj/item/rig_module/fabricator
 
@@ -383,15 +449,15 @@
 	if(target)
 		var/obj/item/firing = new fabrication_type()
 		firing.dropInto(loc)
-		H.visible_message("<span class='danger'>[H] launches \a [firing]!</span>")
+		H.visible_message(SPAN_DANGER("[H] launches \a [firing]!"))
 		firing.throw_at(target,fire_force,fire_distance)
 	else
 		if (!H.HasFreeHand())
-			to_chat(H, "<span class='danger'>Your hands are full.</span>")
+			to_chat(H, SPAN_DANGER("Your hands are full."))
 		else
 			var/obj/item/new_weapon = new fabrication_type()
 			new_weapon.forceMove(H)
-			to_chat(H, "<span class='info'><b>You quickly fabricate \a [new_weapon].</b></span>")
+			to_chat(H, SPAN_INFO("<b>You quickly fabricate \a [new_weapon].</b>"))
 			H.put_in_hands(new_weapon)
 
 	return 1
@@ -405,3 +471,116 @@
 	interface_desc = "An integrated microfactory that produces wet floor signs from thin air and electricity."
 
 	fabrication_type = /obj/item/caution
+
+
+/obj/item/rig_module/mounted/arm_blade
+
+	name = "forearm-mounted armblades"
+	desc = "A pair of steel armblades to be mounted onto a hardsuit."
+	icon_state = "module"
+
+	suit_overlay_active = null
+
+	activate_string = "Extend Blade"
+	deactivate_string = "Retract Blade"
+
+	interface_name = "forearm-mounted blade"
+	interface_desc = "A pair of steel armblades built into each forearm of your hardsuit."
+
+	usable = 0
+	selectable = 0
+	toggleable = 1
+	use_power_cost = 10 KILOWATTS
+	active_power_cost = 0.5 KILOWATTS
+	passive_power_cost = 0
+
+/obj/item/rig_module/mounted/arm_blade/Process()
+
+	if(holder && holder.wearer)
+		if(!(locate(/obj/item/material/armblade) in holder.wearer))
+			deactivate()
+			return 0
+
+	return ..()
+
+/obj/item/rig_module/mounted/arm_blade/activate()
+	var/mob/living/M = holder.wearer
+
+	if (!M.HasFreeHand())
+		to_chat(M, SPAN_DANGER("Your hands are full."))
+		deactivate()
+		return
+
+	var/obj/item/material/armblade/mounted/blade = new(M)
+	M.put_in_hands(blade)
+
+	if(!..())
+		return 0
+
+/obj/item/rig_module/mounted/arm_blade/deactivate()
+
+	..()
+
+	var/mob/living/M = holder.wearer
+
+	if(!M)
+		return
+
+	for(var/obj/item/material/armblade/mounted/blade in M.contents)
+		qdel(blade)
+
+/obj/item/rig_module/mounted/power_fist
+
+	name = "hand-mounted powerfists"
+	desc = "A pair of heavy powerfists to be installed into a hardsuit gauntlets."
+	icon_state = "powerfist"
+
+	suit_overlay_active = null
+
+	activate_string = "Power up Fist"
+	deactivate_string = "Power off Fist"
+
+	interface_name = "hand-mounted powerfists"
+	interface_desc = "A pair of heavy powerfists to be installed into a hardsuit gauntlets."
+
+	usable = 0
+	selectable = 0
+	toggleable = 1
+	use_power_cost = 10 KILOWATTS
+	active_power_cost = 5 KILOWATTS
+	passive_power_cost = 0
+
+/obj/item/rig_module/mounted/power_fist/Process()
+
+	if(holder && holder.wearer)
+		if(!(locate(/obj/item/melee/powerfist/mounted) in holder.wearer))
+			deactivate()
+			return 0
+
+	return ..()
+
+/obj/item/rig_module/mounted/power_fist/activate()
+	var/mob/living/M = holder.wearer
+
+	if (!M.HasFreeHand())
+		to_chat(M, SPAN_DANGER("Your hands are full."))
+		deactivate()
+		return
+
+	var/obj/item/melee/powerfist/mounted/blade = new(M)
+	M.put_in_hands(blade)
+
+	if(!..())
+		return 0
+
+/obj/item/rig_module/mounted/power_fist/deactivate()
+
+	..()
+
+	var/mob/living/M = holder.wearer
+
+	if(!M)
+		return
+
+	for(var/obj/item/melee/powerfist/mounted/blade in M.contents)
+		qdel(blade)

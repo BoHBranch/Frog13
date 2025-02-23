@@ -7,14 +7,15 @@
 				list(/obj/item/clothing/under/rank/medical/scrubs/lilac, /obj/item/clothing/head/surgery/lilac), \
 				list(/obj/item/clothing/under/rank/medical/scrubs/teal, /obj/item/clothing/head/surgery/teal), \
 				list(/obj/item/clothing/under/rank/medical/scrubs/heliodor, /obj/item/clothing/head/surgery/heliodor), \
-				list(/obj/item/clothing/under/rank/medical/scrubs/navyblue, /obj/item/clothing/head/surgery/navyblue)\
+				list(/obj/item/clothing/under/rank/medical/scrubs/navyblue, /obj/item/clothing/head/surgery/navyblue), \
+				list(/obj/item/clothing/under/rank/medical/scrubs/lavender, /obj/item/clothing/head/surgery/lavender) \
 			) \
 		)
 
 /obj/structure/closet/secure_closet/medical1
 	name = "medical equipment closet"
 	desc = "Filled with medical junk."
-	closet_appearance = /decl/closet_appearance/secure_closet/medical
+	closet_appearance = /singleton/closet_appearance/secure_closet/medical
 	req_access = list(access_medical_equip)
 
 /obj/structure/closet/secure_closet/medical1/WillContain()
@@ -27,7 +28,7 @@
 		/obj/item/reagent_containers/glass/bottle/antitoxin = 2,
 		/obj/random/firstaid,
 		/obj/item/storage/box/masks,
-		/obj/item/storage/box/gloves
+		/obj/item/storage/box/latexgloves
 	)
 
 /obj/structure/closet/secure_closet/medical2
@@ -44,7 +45,7 @@
 /obj/structure/closet/secure_closet/medical3
 	name = "medical doctor's locker"
 	req_access = list(access_medical_equip)
-	closet_appearance = /decl/closet_appearance/secure_closet/medical/alt
+	closet_appearance = /singleton/closet_appearance/secure_closet/medical/alt
 
 /obj/structure/closet/secure_closet/medical3/WillContain()
 	return list(
@@ -68,7 +69,7 @@
 /obj/structure/closet/secure_closet/paramedic
 	name = "paramedic locker"
 	desc = "Supplies for a first responder."
-	closet_appearance = /decl/closet_appearance/secure_closet/medical
+	closet_appearance = /singleton/closet_appearance/secure_closet/medical
 	req_access = list(access_medical_equip)
 
 /obj/structure/closet/secure_closet/paramedic/WillContain()
@@ -97,7 +98,7 @@
 /obj/structure/closet/secure_closet/CMO
 	name = "chief medical officer's locker"
 	req_access = list(access_cmo)
-	closet_appearance = /decl/closet_appearance/secure_closet/cmo
+	closet_appearance = /singleton/closet_appearance/secure_closet/cmo
 
 /obj/structure/closet/secure_closet/CMO/WillContain()
 	return list(
@@ -120,7 +121,7 @@
 /obj/structure/closet/secure_closet/chemical
 	name = "chemical closet"
 	desc = "Store dangerous chemicals in here."
-	closet_appearance = /decl/closet_appearance/secure_closet/medical
+	closet_appearance = /singleton/closet_appearance/secure_closet/medical
 	req_access = list(access_chemistry)
 
 /obj/structure/closet/secure_closet/chemical/WillContain()
@@ -133,7 +134,7 @@
 /obj/structure/closet/secure_closet/medical_wall
 	name = "first aid closet"
 	desc = "It's a secure wall-mounted storage unit for first aid supplies."
-	closet_appearance = /decl/closet_appearance/wall/medical
+	closet_appearance = /singleton/closet_appearance/wall/medical
 	anchored = TRUE
 	density = FALSE
 	wall_mounted = TRUE
@@ -142,7 +143,7 @@
 
 /obj/structure/closet/secure_closet/counselor
 	name = "counselor's locker"
-	closet_appearance = /decl/closet_appearance/secure_closet/medical
+	closet_appearance = /singleton/closet_appearance/secure_closet/medical
 	req_access = list(access_psychiatrist)
 
 /obj/structure/closet/secure_closet/counselor/WillContain()
@@ -154,8 +155,8 @@
 		/obj/item/clothing/shoes/white,
 		/obj/item/storage/pill_bottle/citalopram,
 		/obj/item/storage/pill_bottle/methylphenidate,
-		/obj/item/material/clipboard,
-		/obj/item/folder/white,
+		/obj/item/material/folder/clipboard,
+		/obj/item/material/folder/white,
 		/obj/item/device/taperecorder,
 		/obj/item/device/tape/random = 3,
 		/obj/item/device/camera,
@@ -165,7 +166,7 @@
 
 /obj/structure/closet/secure_closet/virology
 	name = "virologist's locker"
-	closet_appearance = /decl/closet_appearance/secure_closet/medical/virology
+	closet_appearance = /singleton/closet_appearance/secure_closet/medical/virology
 
 	req_access = list(access_virology)
 
@@ -180,7 +181,7 @@
 		/obj/item/reagent_containers/syringe/antiviral,
 		/obj/item/reagent_containers/glass/bottle/antitoxin,
 		/obj/item/storage/box/masks,
-		/obj/item/storage/box/gloves,
+		/obj/item/storage/box/latexgloves,
 		/obj/item/clothing/under/rank/virologist,
 		/obj/item/clothing/shoes/white,
 		/obj/item/clothing/suit/storage/toggle/labcoat/virologist,
@@ -192,7 +193,7 @@
 /obj/structure/closet/secure_closet/psychiatry
 	name = "Psychiatrist's locker"
 	desc = "Everything you need to keep the lunatics at bay."
-	closet_appearance = /decl/closet_appearance/secure_closet/medical/alt
+	closet_appearance = /singleton/closet_appearance/secure_closet/medical/alt
 	req_access = list(access_psychiatrist)
 
 /obj/structure/closet/secure_closet/psychiatry/WillContain()

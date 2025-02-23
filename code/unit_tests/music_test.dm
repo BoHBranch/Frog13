@@ -4,16 +4,16 @@
 
 /datum/unit_test/audio_track_validate/start_test()
 	var/list/failed = list()
-	var/list/available = decls_repository.get_decls_of_subtype(/decl/audio/track)
+	var/list/available = GET_SINGLETON_SUBTYPE_MAP(/singleton/audio/track)
 	for (var/key in available)
-		var/decl/audio/track/track = available[key]
+		var/singleton/audio/track/track = available[key]
 		if (!isfile(track.source))
 			failed |= track
 			log_bad("Invalid Audio Track [track.type]: Invalid Source")
 		if (!istext(track.title))
 			failed |= track
 			log_bad("Invalid Audio Track [track.type]: Invalid Title")
-		if (!istype(track.license, /decl/license))
+		if (!istype(track.license, /singleton/license))
 			failed |= track
 			log_bad("Invalid Audio Track [track.type]: Invalid License")
 		else if (track.license.attribution_mandatory)
@@ -37,9 +37,9 @@
 
 /datum/unit_test/jukebox_validate/start_test()
 	var/list/failed = list()
-	for (var/jukebox/jukebox)
+	for (var/datum/jukebox/jukebox)
 		for (var/entry in jukebox.tracks)
-			var/jukebox_track/track = entry
+			var/datum/jukebox_track/track = entry
 			if (!track.title || !isfile(track.source))
 				log_bad("Invalid Jukebox Track: [log_info_line(jukebox)]")
 				failed += jukebox

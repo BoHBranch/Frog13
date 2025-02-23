@@ -299,6 +299,9 @@
 	if(boozed)
 		M.add_chemical_effect(CE_ALCOHOL_TOXIC, 1)
 		M.add_chemical_effect(CE_BREATHLOSS, 0.1 * boozed) //drinking and opiating makes breathing kinda hard
+	if(isfast(M))
+		M.add_chemical_effect(CE_BREATHLOSS, 0.5)
+		M.add_chemical_effect(CE_SLOWDOWN, 2) //hyperzine reacts negatively with opiates
 
 /datum/reagent/tramadol/overdose(mob/living/carbon/M)
 	..()
@@ -308,6 +311,10 @@
 	M.add_chemical_effect(CE_BREATHLOSS, 0.6) //Have trouble breathing, need more air
 	if(isboozed(M))
 		M.add_chemical_effect(CE_BREATHLOSS, 0.2) //Don't drink and OD on opiates folks
+	if(isfast(M))
+		M.add_chemical_effect(CE_NOPULSE, 1)
+		var/obj/item/organ/internal/heart = M.internal_organs_by_name[BP_HEART] //heart damage + arrest
+		heart.take_internal_damage(heart.max_damage * 0.045)
 
 /datum/reagent/tramadol/proc/isboozed(mob/living/carbon/M)
 	. = 0
@@ -320,6 +327,16 @@
 			. = 1
 			if(booze.strength < 40) //liquor stuff hits harder
 				return 2
+
+/datum/reagent/tramadol/proc/isfast(mob/living/carbon/M)
+	. = FALSE
+	var/datum/reagents/ingested = M.get_ingested_reagents()
+	if(!ingested)
+		return FALSE
+	var/list/pool = M.reagents.reagent_list | ingested.reagent_list
+	for(var/datum/reagent/hyperzine/fast in pool)
+		if(M.chem_doses[fast.type])
+			return TRUE
 
 /datum/reagent/tramadol/oxycodone
 	name = "Oxycodone"
@@ -349,7 +366,7 @@
 	if(prob(75))
 		H.drowsyness++
 	if(prob(25))
-		H.confused++
+		H.mod_confused(1)
 
 /datum/reagent/deletrathol/overdose(mob/living/carbon/M)
 	..()
@@ -415,7 +432,7 @@
 	M.add_chemical_effect(CE_BRAIN_REGEN, 1)
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
-		H.confused++
+		H.mod_confused(1)
 		H.drowsyness++
 
 /datum/reagent/imidazoline
@@ -445,6 +462,7 @@
 	taste_description = "bitterness"
 	reagent_state = LIQUID
 	color = "#561ec3"
+	metabolism = REM * 0.5
 	overdose = 10
 	scannable = 1
 	flags = IGNORE_MOB_SIZE
@@ -457,12 +475,12 @@
 			if(!BP_IS_ROBOTIC(I))
 				if(I.organ_tag == BP_BRAIN)
 					// if we have located an organic brain, apply side effects
-					H.confused++
+					H.mod_confused(1)
 					H.drowsyness++
 					// peridaxon only heals minor brain damage
 					if(I.damage >= I.min_bruised_damage)
 						continue
-				I.heal_damage(removed)
+				I.heal_damage(3 * removed)
 
 /datum/reagent/ryetalyn
 	name = "Ryetalyn"
@@ -475,7 +493,7 @@
 	value = 3.6
 
 /datum/reagent/ryetalyn/affect_blood(mob/living/carbon/M, removed)
-	var/needs_update = M.mutations.len > 0
+	var/needs_update = length(M.mutations) > 0
 
 	M.disabilities = 0
 	M.sdisabilities = 0
@@ -487,7 +505,7 @@
 
 /datum/reagent/hyperzine
 	name = "Hyperzine"
-	description = "Hyperzine is a highly effective, long lasting, muscle stimulant."
+	description = "Hyperzine is a highly effective, long lasting, muscle stimulant. Do not mix with opiates!"
 	taste_description = "acid"
 	reagent_state = LIQUID
 	color = "#ff3300"
@@ -519,7 +537,7 @@
 	M.dizziness = 0
 	M.drowsyness = 0
 	M.stuttering = 0
-	M.confused = 0
+	M.clear_confused()
 	var/datum/reagents/ingested = M.get_ingested_reagents()
 	if(ingested)
 		for(var/datum/reagent/R in ingested.reagent_list)
@@ -554,7 +572,6 @@
 
 /datum/reagent/arithrazine/affect_blood(mob/living/carbon/M, removed)
 	M.radiation = max(M.radiation - 70 * removed, 0)
-	M.adjustToxLoss(-10 * removed)
 	if(prob(60))
 		M.take_organ_damage(4 * removed, 0, ORGAN_DAMAGE_FLESH_ONLY)
 
@@ -610,7 +627,7 @@
 	T.germ_level -= min(volume*20, T.germ_level)
 	for(var/obj/item/I in T.contents)
 		I.was_bloodied = null
-	for(var/obj/effect/decal/cleanable/blood/B in T)
+	for(var/obj/decal/cleanable/blood/B in T)
 		qdel(B)
 
 /datum/reagent/leporazine
@@ -683,11 +700,11 @@
 		return
 	if(volume <= 0.1 && M.chem_doses[type] >= 0.5 && world.time > data + ANTIDEPRESSANT_MESSAGE_DELAY)
 		data = world.time
-		to_chat(M, "<span class='warning'>You lose focus...</span>")
+		to_chat(M, SPAN_WARNING("You lose focus..."))
 	else
 		if(world.time > data + ANTIDEPRESSANT_MESSAGE_DELAY)
 			data = world.time
-			to_chat(M, "<span class='notice'>Your mind feels focused and undivided.</span>")
+			to_chat(M, SPAN_NOTICE("Your mind feels focused and undivided."))
 
 /datum/reagent/citalopram
 	name = "Citalopram"
@@ -705,12 +722,12 @@
 		return
 	if(volume <= 0.1 && M.chem_doses[type] >= 0.5 && world.time > data + ANTIDEPRESSANT_MESSAGE_DELAY)
 		data = world.time
-		to_chat(M, "<span class='warning'>Your mind feels a little less stable...</span>")
+		to_chat(M, SPAN_WARNING("Your mind feels a little less stable..."))
 	else
 		M.add_chemical_effect(CE_MIND, 1)
 		if(world.time > data + ANTIDEPRESSANT_MESSAGE_DELAY)
 			data = world.time
-			to_chat(M, "<span class='notice'>Your mind feels stable... a little stable.</span>")
+			to_chat(M, SPAN_NOTICE("Your mind feels stable... a little stable."))
 
 /datum/reagent/paroxetine
 	name = "Paroxetine"
@@ -727,15 +744,15 @@
 		return
 	if(volume <= 0.1 && M.chem_doses[type] >= 0.5 && world.time > data + ANTIDEPRESSANT_MESSAGE_DELAY)
 		data = world.time
-		to_chat(M, "<span class='warning'>Your mind feels much less stable...</span>")
+		to_chat(M, SPAN_WARNING("Your mind feels much less stable..."))
 	else
 		M.add_chemical_effect(CE_MIND, 2)
 		if(world.time > data + ANTIDEPRESSANT_MESSAGE_DELAY)
 			data = world.time
 			if(prob(90))
-				to_chat(M, "<span class='notice'>Your mind feels much more stable.</span>")
+				to_chat(M, SPAN_NOTICE("Your mind feels much more stable."))
 			else
-				to_chat(M, "<span class='warning'>Your mind breaks apart...</span>")
+				to_chat(M, SPAN_WARNING("Your mind breaks apart..."))
 				M.hallucination(200, 100)
 
 /datum/reagent/nicotine
@@ -757,11 +774,11 @@
 		M.add_chemical_effect(CE_PULSE, 1)
 	if(volume <= 0.02 && M.chem_doses[type] >= 0.05 && world.time > data + ANTIDEPRESSANT_MESSAGE_DELAY * 0.3)
 		data = world.time
-		to_chat(M, "<span class='warning'>You feel antsy, your concentration wavers...</span>")
+		to_chat(M, SPAN_WARNING("You feel antsy, your concentration wavers..."))
 	else
 		if(world.time > data + ANTIDEPRESSANT_MESSAGE_DELAY * 0.3)
 			data = world.time
-			to_chat(M, "<span class='notice'>You feel invigorated and calm.</span>")
+			to_chat(M, SPAN_NOTICE("You feel invigorated and calm."))
 
 /datum/reagent/nicotine/overdose(mob/living/carbon/M)
 	..()
@@ -797,7 +814,7 @@
 	taste_description = "acrid smoke"
 	value = 0
 	scent = "acrid tobacco smoke"
-	scent_intensity = /decl/scent_intensity/strong
+	scent_intensity = /singleton/scent_intensity/strong
 	scent_descriptor = SCENT_DESC_HAZE
 
 /datum/reagent/tobacco/liquid
@@ -828,7 +845,7 @@
 		return
 	if(world.time > data + ANTIDEPRESSANT_MESSAGE_DELAY * 0.35)
 		data = world.time
-		to_chat(M, "<span class='notice'>You feel faintly sore in the throat.</span>")
+		to_chat(M, SPAN_NOTICE("You feel faintly sore in the throat."))
 
 /datum/reagent/rezadone
 	name = "Rezadone"
@@ -866,7 +883,9 @@
 
 /datum/reagent/noexcutite/affect_blood(mob/living/carbon/M, removed)
 	if (IS_METABOLICALLY_INERT(M))
-		M.make_jittery(-50)
+		return
+
+	M.make_jittery(-50)
 
 /datum/reagent/antidexafen
 	name = "Antidexafen"
@@ -915,8 +934,8 @@
 	M.add_chemical_effect(CE_STIMULANT, 2)
 	if(M.chem_doses[type] > 10)
 		M.make_jittery(5)
-	if(volume >= 5 && M.is_asystole())
-		remove_self(5)
+	if(volume >= 4 && M.is_asystole())
+		remove_self(4)
 		if(M.resuscitate())
 			var/obj/item/organ/internal/heart = M.internal_organs_by_name[BP_HEART]
 			heart.take_internal_damage(heart.max_damage * 0.075)
@@ -985,7 +1004,7 @@
 	if(dosage >= 1)
 		if(prob(5)) M.Sleeping(3)
 		M.dizziness =  max(M.dizziness, 3)
-		M.confused =   max(M.confused, 3)
+		M.set_confused(3)
 	if(dosage >= 0.3)
 		if(prob(5)) M.Paralyse(1)
 		M.drowsyness = max(M.drowsyness, 3)

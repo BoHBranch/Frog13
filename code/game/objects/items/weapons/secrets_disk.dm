@@ -1,7 +1,7 @@
 /obj/item/disk/secret_project
 	name = "'classified' project data disk"
 	desc = "A special disk for storing massive amounts of data. It is marked as classified, and has an ID card slot on top."
-	icon = 'icons/obj/cloning.dmi'
+	icon = 'icons/obj/datadisks.dmi'
 	icon_state = "datadisk0"
 	item_state = "card-id"
 	w_class = ITEM_SIZE_SMALL
@@ -32,25 +32,25 @@
 	. = ..()
 	if(!locked)
 		to_chat(user, "With the disk's classified contents unlocked, \
-		you peer into its preview screen and see <span class='notice'>[subject]</span>.")
+		you peer into its preview screen and see [SPAN_NOTICE("[subject]")].")
 	else
 		to_chat(user, "The disk is locked, you cannot see its contents.")
 
 /obj/item/disk/secret_project/emag_act(remaining_charges, mob/user)
-	to_chat(user, "<span class='warning'>The cryptographic lock on this disk is far too complex. \
-	Your sequencer can't break the code.</span>")
+	to_chat(user, SPAN_WARNING("The cryptographic lock on this disk is far too complex. \
+	Your sequencer can't break the code."))
 	return 0
 
-/obj/item/disk/secret_project/attackby(obj/item/W as obj, mob/user as mob)
+/obj/item/disk/secret_project/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(istype(W,/obj/item/card/id))
 		var/obj/item/card/id/ID = W
 		if(check_access(ID))
 			locked = !locked
-			to_chat(user, "<span class='notice'>You swipe your card and [locked ? "lock":"unlock"] the disk.</span>")
+			to_chat(user, SPAN_NOTICE("You swipe your card and [locked ? "lock":"unlock"] the disk."))
 		else
-			to_chat(user, "<span class='warning'>The disk's screen flashes 'Access Denied'.</span>")
-		return
-	. = ..()
+			to_chat(user, SPAN_WARNING("The disk's screen flashes 'Access Denied'."))
+		return TRUE
+	return ..()
 
 /obj/item/disk/secret_project/verb/change_codename()
 	set name = "Change project codename"
@@ -63,7 +63,7 @@
 			return
 		SetName("'[input]' project data disk")
 	else
-		to_chat(usr, "<span class='warning'>The disk's screen flashes 'Access Denied'. It is locked.</span>")
+		to_chat(usr, SPAN_WARNING("The disk's screen flashes 'Access Denied'. It is locked."))
 
 /obj/item/storage/box/secret_project_disks
 	name = "box of classified data disks"

@@ -12,7 +12,7 @@
 	death_msg = "expires with a pitiful chirrup..."
 	health = 60
 	maxHealth = 60
-	available_maneuvers = list(/decl/maneuver/leap)
+	available_maneuvers = list(/singleton/maneuver/leap)
 	status_flags = NO_ANTAG
 	density = FALSE
 
@@ -28,20 +28,21 @@
 	can_pull_size = ITEM_SIZE_SMALL
 	can_pull_mobs = MOB_PULL_SMALLER
 
+	ai_holder = /datum/ai_holder/alien/passive/diona
+	say_list_type = /datum/say_list/diona
+
 	holder_type = /obj/item/holder/diona
-	possession_candidate = 1
+	possession_candidate = TRUE
 	atom_flags = ATOM_FLAG_NO_TEMP_CHANGE | ATOM_FLAG_NO_REACT
 	hud_type = /datum/hud/diona_nymph
 
-	var/emote_prob = 1
-	var/wander_prob = 33
 	var/obj/item/hat
 	var/obj/item/holding_item
 	var/mob/living/carbon/alien/diona/next_nymph
 	var/mob/living/carbon/alien/diona/previous_nymph
-	var/tmp/image/flower
-	var/tmp/image/eyes
-	var/tmp/last_glow
+	var/image/flower
+	var/image/eyes
+	var/last_glow
 
 /mob/living/carbon/alien/diona/get_jump_distance()
 	return 3
@@ -58,15 +59,14 @@
 
 /mob/living/carbon/alien/diona/sterile
 	name = "sterile nymph"
-	emote_prob =  0
-	wander_prob = 0
+	ai_holder = /datum/ai_holder/alien/passive/diona/sterile
 
 /mob/living/carbon/alien/diona/sterile/Initialize(mapload)
 	. = ..(mapload, 0)
 
 /mob/living/carbon/alien/diona/Initialize(mapload, flower_chance = 15)
 
-	species = all_species[SPECIES_DIONA]
+	species = GLOB.species_by_name[SPECIES_DIONA]
 	add_language(LANGUAGE_ROOTGLOBAL)
 	add_language(LANGUAGE_HUMAN_EURO, 0)
 
@@ -78,7 +78,7 @@
 		flower = image(icon = icon, icon_state = "flower_back")
 		var/image/I = image(icon = icon, icon_state = "flower_fore")
 		I.color = get_random_colour(1)
-		flower.overlays += I
+		flower.AddOverlays(I)
 
 	update_icons()
 
@@ -87,20 +87,12 @@
 /mob/living/carbon/alien/diona/examine(mob/user)
 	. = ..()
 	if(holding_item)
-		to_chat(user, "<span class='notice'>It is holding [icon2html(holding_item, user)] \a [holding_item].</span>")
+		to_chat(user, SPAN_NOTICE("It is holding [icon2html(holding_item, user)] \a [holding_item]."))
 	if(hat)
-		to_chat(user, "<span class='notice'>It is wearing [icon2html(hat, user)] \a [hat].</span>")
+		to_chat(user, SPAN_NOTICE("It is wearing [icon2html(hat, user)] \a [hat]."))
 
 /mob/living/carbon/alien/diona/IsAdvancedToolUser()
 	return FALSE
-
-/mob/living/carbon/alien/diona/proc/handle_npc(mob/living/carbon/alien/diona/D)
-	if(D.stat != CONSCIOUS)
-		return
-	if(prob(wander_prob) && isturf(D.loc) && !D.pulledby) //won't move if being pulled
-		SelfMove(pick(GLOB.cardinal))
-	if(prob(emote_prob))
-		D.emote(pick("scratch","jump","chirp","tail"))
 
 /proc/split_into_nymphs(mob/living/carbon/human/donor, dying)
 
@@ -118,7 +110,7 @@
 			available_nymphs += nymph
 
 	// Make sure there's a home for the player
-	if(!available_nymphs.len)
+	if(!length(available_nymphs))
 		available_nymphs += new /mob/living/carbon/alien/diona/sterile(donor.loc)
 
 	// Link availalbe nymphs together
@@ -131,7 +123,7 @@
 			nymph.set_previous_nymph(last_nymph)
 			last_nymph.set_next_nymph(nymph)
 		last_nymph = nymph
-	if(available_nymphs.len > 1)
+	if(length(available_nymphs) > 1)
 		first_nymph.set_previous_nymph(last_nymph)
 		last_nymph.set_next_nymph(first_nymph)
 
@@ -148,6 +140,18 @@
 	for(var/obj/item/W in donor)
 		donor.drop_from_inventory(W)
 
-	donor.visible_message("<span class='warning'>\The [donor] quivers slightly, then splits apart with a wet slithering noise.</span>")
+	donor.visible_message(SPAN_WARNING("\The [donor] quivers slightly, then splits apart with a wet slithering noise."))
 	if (!dying)
 		qdel(donor)
+
+/datum/say_list/diona
+	emote_predef = list("chirp","scratch","jump","tail")
+
+/datum/ai_holder/alien/passive/diona
+	speak_chance = 2
+	wander_chance = 33
+
+/datum/ai_holder/alien/passive/diona/sterile
+	can_flee = FALSE
+	speak_chance =  0
+	wander_chance = 0

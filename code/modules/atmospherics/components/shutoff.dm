@@ -11,20 +11,20 @@
 	clickvol = 20
 	var/close_on_leaks = TRUE	// If false it will be always open
 	var/shutoff_state = 0
-	level = 1
 	connect_types = CONNECT_TYPE_REGULAR
 	build_icon_state = "svalve"
+	level = ATOM_LEVEL_UNDER_TILE
 
 /obj/machinery/atmospherics/valve/shutoff/on_update_icon()
 	icon_state = "vclamp[icon_connect_type]"
-	overlays.Cut()
+	ClearOverlays()
 	if (!close_on_leaks)
-		overlays += image('icons/atmos/clamp.dmi', "override[icon_connect_type]")
+		AddOverlays(image('icons/atmos/clamp.dmi', "override[icon_connect_type]"))
 		return
 	if (shutoff_state & NODE1_CLOSED)
-		overlays += image('icons/atmos/clamp.dmi', "closed1[icon_connect_type]")
+		AddOverlays(image('icons/atmos/clamp.dmi', "closed1[icon_connect_type]"))
 	if (shutoff_state & NODE2_CLOSED)
-		overlays += image('icons/atmos/clamp.dmi', "closed2[icon_connect_type]")
+		AddOverlays(image('icons/atmos/clamp.dmi', "closed2[icon_connect_type]"))
 
 /obj/machinery/atmospherics/valve/shutoff/examine(mob/user)
 	. = ..()
@@ -52,7 +52,7 @@
 
 /obj/machinery/atmospherics/valve/shutoff/hide(do_hide)
 	if(istype(loc, /turf/simulated))
-		set_invisibility(do_hide ? 101 : 0)
+		set_invisibility(do_hide ? INVISIBILITY_ABSTRACT : 0)
 	update_underlays()
 
 /obj/machinery/atmospherics/valve/shutoff/Process()
@@ -60,9 +60,9 @@
 
 	var/new_shutoff_state = 0
 	if (close_on_leaks)
-		if (!network_node1 || network_node1.leaks.len)
+		if (!network_node1 || length(network_node1.leaks))
 			new_shutoff_state |= NODE1_CLOSED
-		if (!network_node2 || network_node2.leaks.len)
+		if (!network_node2 || length(network_node2.leaks))
 			new_shutoff_state |= NODE2_CLOSED
 
 	if (shutoff_state == new_shutoff_state)

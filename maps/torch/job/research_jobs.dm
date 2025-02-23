@@ -13,7 +13,7 @@
 	ideal_character_age = 50
 	alt_titles = list(
 		"Research Supervisor")
-	outfit_type = /decl/hierarchy/outfit/job/torch/crew/research/senior_scientist
+	outfit_type = /singleton/hierarchy/outfit/job/torch/crew/research/senior_scientist
 	allowed_branches = list(
 		/datum/mil_branch/expeditionary_corps
 	)
@@ -26,21 +26,23 @@
 		access_mining_station, access_xenobiology, access_xenoarch, access_nanotrasen, access_solgov_crew,
 		access_expedition_shuttle, access_guppy, access_hangar, access_petrov, access_petrov_helm, access_guppy_helm,
 		access_petrov_analysis, access_petrov_phoron, access_petrov_toxins, access_petrov_chemistry, access_petrov_control,
-		access_petrov_maint, access_torch_fax, access_radio_sci, access_radio_exp, access_research_storage
+		access_petrov_maint, access_torch_fax, access_radio_sci, access_radio_exp, access_research_storage, access_fabrication
 	)
 
-	min_skill = list(   SKILL_BUREAUCRACY = SKILL_BASIC,
-	                    SKILL_COMPUTER    = SKILL_BASIC,
-	                    SKILL_FINANCE     = SKILL_BASIC,
-	                    SKILL_BOTANY      = SKILL_BASIC,
-	                    SKILL_ANATOMY     = SKILL_BASIC,
-	                    SKILL_DEVICES     = SKILL_ADEPT,
-	                    SKILL_SCIENCE     = SKILL_ADEPT)
+	skill_points = 26
+	min_skill = list( // 16 points
+		SKILL_BUREAUCRACY = SKILL_BASIC, // 1 point
+		SKILL_COMPUTER = SKILL_BASIC, // 1 point
+		SKILL_FINANCE = SKILL_BASIC, // 1 point
+		SKILL_BOTANY = SKILL_BASIC, // 1 point
+		SKILL_ANATOMY = SKILL_BASIC, // 4 points
+		SKILL_DEVICES = SKILL_TRAINED, // 4 points
+		SKILL_SCIENCE = SKILL_TRAINED // 4 points
+	)
 
 	max_skill = list(   SKILL_ANATOMY     = SKILL_MAX,
 	                    SKILL_DEVICES     = SKILL_MAX,
 	                    SKILL_SCIENCE     = SKILL_MAX)
-	skill_points = 20
 	possible_goals = list(/datum/goal/achievement/notslimefodder)
 
 /datum/job/scientist
@@ -59,16 +61,19 @@
 		"Xenobiologist",
 		"Xenobotanist"
 	)
-	min_skill = list(   SKILL_BUREAUCRACY = SKILL_BASIC,
-	                    SKILL_COMPUTER    = SKILL_BASIC,
-	                    SKILL_DEVICES     = SKILL_BASIC,
-	                    SKILL_SCIENCE     = SKILL_ADEPT)
+	skill_points = 26
+	min_skill = list( // 6 points
+		SKILL_BUREAUCRACY = SKILL_BASIC, // 1 point
+		SKILL_COMPUTER = SKILL_BASIC, // 1 point
+		SKILL_DEVICES = SKILL_BASIC, // 2 points
+		SKILL_SCIENCE = SKILL_TRAINED // 2 points
+	)
 
 	max_skill = list(   SKILL_ANATOMY     = SKILL_MAX,
 	                    SKILL_DEVICES     = SKILL_MAX,
 	                    SKILL_SCIENCE     = SKILL_MAX)
 
-	outfit_type = /decl/hierarchy/outfit/job/torch/crew/research/scientist
+	outfit_type = /singleton/hierarchy/outfit/job/torch/crew/research/scientist
 	allowed_branches = list(
 		/datum/mil_branch/civilian,
 		/datum/mil_branch/solgov,
@@ -76,8 +81,8 @@
 	)
 	allowed_ranks = list(
 		/datum/mil_rank/ec/o1,
-		/datum/mil_rank/civ/contractor = /decl/hierarchy/outfit/job/torch/passenger/research/scientist,
-		/datum/mil_rank/sol/scientist = /decl/hierarchy/outfit/job/torch/passenger/research/scientist/solgov
+		/datum/mil_rank/civ/contractor = /singleton/hierarchy/outfit/job/torch/passenger/research/scientist,
+		/datum/mil_rank/sol/scientist = /singleton/hierarchy/outfit/job/torch/passenger/research/scientist/solgov
 	)
 
 	access = list(
@@ -85,9 +90,8 @@
 		access_mining_office, access_mining_station, access_xenobiology, access_guppy_helm,
 		access_xenoarch, access_nanotrasen, access_solgov_crew, access_expedition_shuttle, access_guppy, access_hangar,
 		access_petrov_analysis, access_petrov_phoron, access_petrov_toxins, access_petrov_chemistry, access_petrov_control, access_torch_fax,
-		access_petrov_maint, access_radio_sci, access_radio_exp, access_research_storage
+		access_petrov_maint, access_radio_sci, access_radio_exp, access_research_storage, access_fabrication
 	)
-	skill_points = 20
 	possible_goals = list(/datum/goal/achievement/notslimefodder)
 
 /datum/job/scientist_assistant
@@ -102,13 +106,12 @@
 	minimum_character_age = list(SPECIES_HUMAN = 18)
 	ideal_character_age = 30
 	alt_titles = list(
-		"Custodian" = /decl/hierarchy/outfit/job/torch/passenger/research/assist/janitor,
-		"Testing Assistant" = /decl/hierarchy/outfit/job/torch/passenger/research/assist/testsubject,
+		"Testing Assistant",
 		"Intern",
 		"Clerk",
 		"Field Assistant")
 
-	outfit_type = /decl/hierarchy/outfit/job/torch/crew/research
+	outfit_type = /singleton/hierarchy/outfit/job/torch/crew/research
 	allowed_branches = list(
 		/datum/mil_branch/civilian,
 		/datum/mil_branch/solgov,
@@ -117,8 +120,8 @@
 	allowed_ranks = list(
 		/datum/mil_rank/ec/e3,
 		/datum/mil_rank/ec/e5,
-		/datum/mil_rank/civ/contractor = /decl/hierarchy/outfit/job/torch/passenger/research/assist,
-		/datum/mil_rank/sol/scientist = /decl/hierarchy/outfit/job/torch/passenger/research/assist/solgov
+		/datum/mil_rank/civ/contractor = /singleton/hierarchy/outfit/job/torch/passenger/research/assist,
+		/datum/mil_rank/sol/scientist = /singleton/hierarchy/outfit/job/torch/passenger/research/assist/solgov
 	)
 	max_skill = list(   SKILL_ANATOMY     = SKILL_MAX,
 	                    SKILL_DEVICES     = SKILL_MAX,
@@ -129,6 +132,6 @@
 		access_mining_office, access_mining_station, access_xenobiology, access_guppy_helm,
 		access_xenoarch, access_nanotrasen, access_solgov_crew, access_expedition_shuttle, access_guppy, access_hangar,
 		access_petrov_analysis, access_petrov_phoron, access_petrov_toxins, access_petrov_chemistry, access_petrov_control,
-		access_radio_sci, access_radio_exp, access_research_storage
+		access_radio_sci, access_radio_exp, access_research_storage, access_fabrication
 	)
 	possible_goals = list(/datum/goal/achievement/notslimefodder)

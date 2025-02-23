@@ -105,7 +105,7 @@
 
 	var/list/signature_and_data = splittext(Ps, ":")
 
-	if(signature_and_data.len < 2)
+	if(length(signature_and_data) < 2)
 		return
 
 	var/signature = signature_and_data[1]
@@ -119,16 +119,16 @@
 	if(Pl&&islist(Pl))
 		idc.access = Pl
 	var/turf/a_loc = get_turf(assembly)
-	var/list/P = AStar(a_loc, locate(get_pin_data(IC_INPUT, 1), get_pin_data(IC_INPUT, 2), a_loc.z), /turf/proc/CardinalTurfsWithAccess, /turf/proc/Distance, 0, 200, id=idc, exclude=get_turf(get_pin_data_as_type(IC_INPUT, 3, /atom)))
+	var/list/P = AStar(a_loc, locate(get_pin_data(IC_INPUT, 1), get_pin_data(IC_INPUT, 2), a_loc.z), TYPE_PROC_REF(/turf, CardinalTurfsWithAccess), TYPE_PROC_REF(/turf, Distance), 0, 200, id=idc, exclude=get_turf(get_pin_data_as_type(IC_INPUT, 3, /atom)))
 
 	if(!P)
 		activate_pin(3)
 		return
 	else
-		var/list/Xn =  new/list(P.len)
-		var/list/Yn =  new/list(P.len)
+		var/list/Xn =  new(length(P))
+		var/list/Yn =  new(length(P))
 		var/turf/T
-		for(var/i =1 to P.len)
+		for(var/i =1 to length(P))
 			T=P[i]
 			Xn[i] = T.x
 			Yn[i] = T.y

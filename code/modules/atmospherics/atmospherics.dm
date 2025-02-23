@@ -19,6 +19,7 @@ Pipelines + Other Objects -> Pipe network
 	var/power_rating //the maximum amount of power the machine can use to do work, affects how powerful the machine is, in Watts
 
 	layer = EXPOSED_PIPE_LAYER
+	var/hidden_layer = PIPE_LAYER
 
 	var/connect_types = CONNECT_TYPE_REGULAR
 	var/connect_dir_type = SOUTH // Assume your dir is SOUTH. What dirs should you connect to?
@@ -32,7 +33,7 @@ Pipelines + Other Objects -> Pipe network
 	var/obj/machinery/atmospherics/node2
 
 	var/atmos_initalized = FALSE
-	var/build_icon = 'icons/obj/pipe-item.dmi'
+	var/build_icon = 'icons/obj/atmospherics/pipe-item.dmi'
 	var/build_icon_state = "buildpipe"
 	var/colorable = FALSE
 
@@ -57,19 +58,14 @@ Pipelines + Other Objects -> Pipe network
 	atmos_initalized = TRUE
 
 /obj/machinery/atmospherics/hide(do_hide)
-	if(do_hide && level == 1)
-		layer = PIPE_LAYER
+	if(do_hide && level == ATOM_LEVEL_UNDER_TILE)
+		layer = hidden_layer
 	else
 		reset_plane_and_layer()
 
-/obj/machinery/atmospherics/attackby(atom/A, mob/user as mob)
-	if(istype(A, /obj/item/device/scanner/gas))
-		return
-	..()
-
 /obj/machinery/atmospherics/proc/add_underlay(turf/T, obj/machinery/atmospherics/node, direction, icon_connect_type)
 	if(node)
-		if(!T.is_plating() && node.level == 1 && istype(node, /obj/machinery/atmospherics/pipe))
+		if(!T.is_plating() && node.level == ATOM_LEVEL_UNDER_TILE && istype(node, /obj/machinery/atmospherics/pipe))
 			underlays += icon_manager.get_atmos_icon("underlay", direction, color_cache_name(node), "down" + icon_connect_type)
 		else
 			underlays += icon_manager.get_atmos_icon("underlay", direction, color_cache_name(node), "intact" + icon_connect_type)
@@ -169,4 +165,4 @@ Pipelines + Other Objects -> Pipe network
 /obj/machinery/proc/set_initial_level()
 	var/turf/T = get_turf(src)
 	if(T)
-		level = (!T.is_plating() ? 2 : 1)
+		level = (!T.is_plating() ? ATOM_LEVEL_OVER_TILE : ATOM_LEVEL_UNDER_TILE)

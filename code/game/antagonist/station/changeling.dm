@@ -1,4 +1,4 @@
-GLOBAL_DATUM_INIT(changelings, /datum/antagonist/changeling, new)
+GLOBAL_TYPED_NEW(changelings, /datum/antagonist/changeling)
 
 /datum/antagonist/changeling
 	id = MODE_CHANGELING
@@ -6,15 +6,16 @@ GLOBAL_DATUM_INIT(changelings, /datum/antagonist/changeling, new)
 	role_text_plural = "Changelings"
 	feedback_tag = "changeling_objective"
 	blacklisted_jobs = list(/datum/job/ai, /datum/job/cyborg, /datum/job/submap)
-	protected_jobs = list(/datum/job/officer, /datum/job/warden, /datum/job/detective, /datum/job/captain, /datum/job/hos)
+	restricted_jobs = list(/datum/job/officer, /datum/job/warden, /datum/job/detective, /datum/job/captain, /datum/job/hos)
 	welcome_text = "Use say \"%LANGUAGE_PREFIX%g message\" to communicate with your fellow changelings. Remember: you get all of their absorbed DNA if you absorb them."
 	flags = ANTAG_SUSPICIOUS | ANTAG_RANDSPAWN | ANTAG_VOTABLE
 	antaghud_indicator = "hudchangeling"
+	skill_setter = /datum/antag_skill_setter/station
 
 	faction = "changeling"
 
 /datum/antagonist/changeling/get_welcome_text(mob/recipient)
-	return replacetext(welcome_text, "%LANGUAGE_PREFIX%", recipient?.get_prefix_key(/decl/prefix/language) || ",")
+	return replacetext(welcome_text, "%LANGUAGE_PREFIX%", recipient?.get_prefix_key(/singleton/prefix/language) || ",")
 
 /datum/antagonist/changeling/get_special_objective_text(datum/mind/player)
 	return "<br><b>Changeling ID:</b> [player.changeling.changelingID].<br><b>Genomes Absorbed:</b> [player.changeling.absorbedcount]"
@@ -27,7 +28,7 @@ GLOBAL_DATUM_INIT(changelings, /datum/antagonist/changeling, new)
 	. = ..()
 	if(. && player && player.current)
 		player.current.remove_changeling_powers()
-		player.current.verbs -= /datum/changeling/proc/EvolutionMenu
+		player.current.verbs -= /datum/changeling/proc/EvolutionTree
 		QDEL_NULL(player.changeling)
 
 /datum/antagonist/changeling/create_objectives(datum/mind/changeling)
@@ -72,15 +73,15 @@ GLOBAL_DATUM_INIT(changelings, /datum/antagonist/changeling, new)
 		if(player.current)
 			if(ishuman(player.current))
 				var/mob/living/carbon/human/H = player.current
-				if(H.isSynthetic())
+				if(H.isSynthetic() || H.isFBP())
 					return 0
-				if(H.species.species_flags & SPECIES_FLAG_NO_SCAN)
+				if(H.species.species_flags & (SPECIES_FLAG_NO_SCAN|SPECIES_FLAG_NEED_DIRECT_ABSORB))
 					return 0
 				return 1
 			else if(isnewplayer(player.current))
 				if(player.current.client && player.current.client.prefs)
-					var/datum/species/S = all_species[player.current.client.prefs.species]
-					if(S && (S.species_flags & SPECIES_FLAG_NO_SCAN))
+					var/singleton/species/S = GLOB.species_by_name[player.current.client.prefs.species]
+					if(S?.species_flags & SPECIES_FLAG_NO_SCAN|SPECIES_FLAG_NEED_DIRECT_ABSORB)
 						return 0
 					if(player.current.client.prefs.organ_data[BP_CHEST] == "cyborg") // Full synthetic.
 						return 0

@@ -66,13 +66,13 @@ Targeted spells have two useful flags: INCLUDEUSER and SELECTABLE. These are exp
 					continue
 				if((spell_flags & NONONFACTION) && user.faction != M.faction)
 					continue
-				if(compatible_mobs && compatible_mobs.len)
+				if(compatible_mobs && length(compatible_mobs))
 					if(!is_type_in_list(M, compatible_mobs)) continue
-				if(compatible_mobs && compatible_mobs.len && !is_type_in_list(M, compatible_mobs))
+				if(compatible_mobs && length(compatible_mobs) && !is_type_in_list(M, compatible_mobs))
 					continue
 				possible_targets += M
 
-			if(possible_targets.len)
+			if(length(possible_targets))
 				if(spell_flags & SELECTABLE) //if we are allowed to choose. see setup.dm for details
 					var/mob/temp_target = input(user, "Choose the target for the spell.", "Targeting") as null|mob in possible_targets
 					if(temp_target)
@@ -100,7 +100,7 @@ Targeted spells have two useful flags: INCLUDEUSER and SELECTABLE. These are exp
 
 		if(spell_flags & SELECTABLE)
 			for(var/i = 1; i<=max_targets, i++)
-				if(!possible_targets.len)
+				if(!length(possible_targets))
 					break
 				var/mob/M = input(user, "Choose the target for the spell.", "Targeting") as null|mob in possible_targets
 				if(!M)
@@ -112,7 +112,7 @@ Targeted spells have two useful flags: INCLUDEUSER and SELECTABLE. These are exp
 				possible_targets -= M
 		else
 			for(var/i=1,i<=max_targets,i++)
-				if(!possible_targets.len)
+				if(!length(possible_targets))
 					break
 				if(target_ignore_prev)
 					var/target = pick(possible_targets)
@@ -124,7 +124,7 @@ Targeted spells have two useful flags: INCLUDEUSER and SELECTABLE. These are exp
 	if(!(spell_flags & INCLUDEUSER) && (user in targets))
 		targets -= user
 
-	if(compatible_mobs && compatible_mobs.len)
+	if(compatible_mobs && length(compatible_mobs))
 		for(var/mob/living/target in targets) //filters out all the non-compatible mobs
 			if(!is_type_in_list(target, compatible_mobs))
 				targets -= target
@@ -168,8 +168,8 @@ Targeted spells have two useful flags: INCLUDEUSER and SELECTABLE. These are exp
 	target.eye_blind += amt_eye_blind
 	target.eye_blurry += amt_eye_blurry
 	target.dizziness += amt_dizziness
-	target.confused += amt_confused
+	target.mod_confused(amt_confused)
 	target.stuttering += amt_stuttering
 	if(effect_state)
-		var/obj/o = new /obj/effect/temporary(get_turf(target), effect_duration, 'icons/effects/effects.dmi', effect_state)
+		var/obj/o = new /obj/temporary(get_turf(target), effect_duration, 'icons/effects/effects.dmi', effect_state)
 		o.color = effect_color

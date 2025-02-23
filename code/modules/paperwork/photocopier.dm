@@ -1,6 +1,6 @@
 /obj/machinery/photocopier
 	name = "photocopier"
-	icon = 'icons/obj/bureaucracy.dmi'
+	icon = 'icons/obj/machines/bureaucracy/photocopier.dmi'
 	icon_state = "photocopier"
 	var/insert_anim = "photocopier_animation"
 	anchored = TRUE
@@ -54,12 +54,12 @@
 				sleep(15)
 			else if (istype(copyitem, /obj/item/paper_bundle))
 				var/obj/item/paper_bundle/B = bundlecopy(copyitem)
-				sleep(15*B.pages.len)
+				sleep(15*length(B.pages))
 			else if (istype(copyitem, /obj/item/sample/print))
 				fpcopy(copyitem)
 				sleep(15)
 			else
-				to_chat(user, "<span class='warning'>\The [copyitem] can't be copied by \the [src].</span>")
+				to_chat(user, SPAN_WARNING("\The [copyitem] can't be copied by \the [src]."))
 				break
 
 			use_power_oneoff(active_power_usage)
@@ -104,32 +104,36 @@
 /obj/machinery/photocopier/proc/OnRemove(mob/user)
 	if(copyitem)
 		user.put_in_hands(copyitem)
-		to_chat(user, "<span class='notice'>You take \the [copyitem] out of \the [src].</span>")
+		to_chat(user, SPAN_NOTICE("You take \the [copyitem] out of \the [src]."))
 		copyitem = null
 
-/obj/machinery/photocopier/attackby(obj/item/O as obj, mob/user as mob)
+/obj/machinery/photocopier/use_tool(obj/item/O, mob/living/user, list/click_params)
 	if(istype(O, /obj/item/paper) || istype(O, /obj/item/photo) || istype(O, /obj/item/paper_bundle) || istype(O, /obj/item/sample/print))
 		if(!copyitem)
 			if(!user.unEquip(O, src))
-				return
+				return TRUE
 			copyitem = O
-			to_chat(user, "<span class='notice'>You insert \the [O] into \the [src].</span>")
+			to_chat(user, SPAN_NOTICE("You insert \the [O] into \the [src]."))
 			flick(insert_anim, src)
 			updateUsrDialog()
 		else
-			to_chat(user, "<span class='notice'>There is already something in \the [src].</span>")
-	else if(istype(O, /obj/item/device/toner))
+			to_chat(user, SPAN_NOTICE("There is already something in \the [src]."))
+		return TRUE
+
+	if (istype(O, /obj/item/device/toner))
 		if(toner <= 10) //allow replacing when low toner is affecting the print darkness
 			if(!user.unEquip(O, src))
-				return
-			to_chat(user, "<span class='notice'>You insert the toner cartridge into \the [src].</span>")
+				return TRUE
+			to_chat(user, SPAN_NOTICE("You insert the toner cartridge into \the [src]."))
 			var/obj/item/device/toner/T = O
 			toner += T.toner_amount
 			qdel(O)
 			updateUsrDialog()
 		else
-			to_chat(user, "<span class='notice'>This cartridge is not yet ready for replacement! Use up the rest of the toner.</span>")
-	else ..()
+			to_chat(user, SPAN_NOTICE("This cartridge is not yet ready for replacement! Use up the rest of the toner."))
+		return TRUE
+
+	return ..()
 
 /obj/machinery/photocopier/ex_act(severity)
 	switch(severity)
@@ -140,12 +144,12 @@
 				qdel(src)
 			else
 				if(toner > 0)
-					new /obj/effect/decal/cleanable/blood/oil(get_turf(src))
+					new /obj/decal/cleanable/blood/oil(get_turf(src))
 					toner = 0
 		else
 			if(prob(50))
 				if(toner > 0)
-					new /obj/effect/decal/cleanable/blood/oil(get_turf(src))
+					new /obj/decal/cleanable/blood/oil(get_turf(src))
 					toner = 0
 	return
 
@@ -154,19 +158,16 @@
 	if (istype(copy, /obj/item/paper/admin) && !copy_admin) // Edge case for admin faxes so that they don't show the editing form
 		copy_type = /obj/item/paper
 
-	var/obj/item/paper/c = new copy_type(loc, copy.text, copy.name, copy.metadata )
+	var/obj/item/paper/c = new copy_type(loc, copy.text, copy.name, copy.metadata, copy.language)
 
 	c.color = COLOR_WHITE
 
-	if(toner > 10)	//lots of toner, make it dark
-		c.info = "<font color = #101010>"
-	else			//no toner? shitty copies for you!
-		c.info = "<font color = #808080>"
+	c.info = "<span style='color: [toner > 10 ? "#101010" : "#808080"]'>"
 	var/copied = copy.info
-	copied = replacetext(copied, "<font face=\"[c.deffont]\" color=", "<font face=\"[c.deffont]\" nocolor=")	//state of the art techniques in action
-	copied = replacetext(copied, "<font face=\"[c.crayonfont]\" color=", "<font face=\"[c.crayonfont]\" nocolor=")	//This basically just breaks the existing color tag, which we need to do because the innermost tag takes priority.
+	copied = replacetext(copied, "<span style='font-family: [c.deffont]; color:", "<span style='font-family: [c.deffont]; nocolor:")	//state of the art techniques in action
+	copied = replacetext(copied, "<span style='font-family: [c.crayonfont]; color:", "<span style='font-family: [c.crayonfont]; nocolor:")	//This basically just breaks the existing color tag, which we need to do because the innermost tag takes priority.
 	c.info += copied
-	c.info += "</font>"//</font>
+	c.info += "</span>"
 	c.SetName(copy.name) // -- Doohl
 	c.fields = copy.fields
 	c.stamps = copy.stamps
@@ -174,9 +175,9 @@
 	c.ico = copy.ico
 	c.offset_x = copy.offset_x
 	c.offset_y = copy.offset_y
-	var/list/temp_overlays = copy.overlays       //Iterates through stamps
 	var/image/img                                //and puts a matching
-	for (var/j = 1, j <= min(temp_overlays.len, copy.ico.len), j++) //gray overlay onto the copy
+
+	for (var/j = 1 to min(length(copy.overlays), length(copy.ico))) //gray overlay onto the copy
 		if (findtext(copy.ico[j], "cap") || findtext(copy.ico[j], "cent"))
 			img = image('icons/obj/bureaucracy.dmi', "paper_stamp-circle")
 		else if (findtext(copy.ico[j], "deny"))
@@ -185,12 +186,12 @@
 			img = image('icons/obj/bureaucracy.dmi', "paper_stamp-dots")
 		img.pixel_x = copy.offset_x[j]
 		img.pixel_y = copy.offset_y[j]
-		c.overlays += img
+		c.AddOverlays(img)
 	c.updateinfolinks()
 	if(need_toner)
 		toner--
 	if(toner == 0)
-		visible_message("<span class='notice'>A red light on \the [src] flashes, indicating that it is out of toner.</span>")
+		visible_message(SPAN_NOTICE("A red light on \the [src] flashes, indicating that it is out of toner."))
 	c.update_icon()
 	return c
 
@@ -208,7 +209,7 @@
 		toner -= 5	//photos use a lot of ink!
 	if(toner < 0)
 		toner = 0
-		visible_message("<span class='notice'>A red light on \the [src] flashes, indicating that it is out of toner.</span>")
+		visible_message(SPAN_NOTICE("A red light on \the [src] flashes, indicating that it is out of toner."))
 
 	return p
 
@@ -218,13 +219,13 @@
 	for(var/obj/item/W in bundle.pages)
 		if(toner <= 0 && need_toner)
 			toner = 0
-			visible_message("<span class='notice'>A red light on \the [src] flashes, indicating that it is out of toner.</span>")
+			visible_message(SPAN_NOTICE("A red light on \the [src] flashes, indicating that it is out of toner."))
 			break
 
 		if(istype(W, /obj/item/paper))
-			W = copy(W)
+			W = copy(W, need_toner)
 		else if(istype(W, /obj/item/photo))
-			W = photocopy(W)
+			W = photocopy(W, need_toner)
 		W.forceMove(p)
 		p.pages += W
 

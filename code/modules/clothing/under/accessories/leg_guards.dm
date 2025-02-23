@@ -14,9 +14,13 @@
 		energy = ARMOR_ENERGY_SMALL,
 		bomb = ARMOR_BOMB_PADDED
 	)
-	slot = ACCESSORY_SLOT_ARMOR_L
+	slot = ACCESSORY_SLOT_ARMOR_LEGS
 	body_location = LEGS
 	flags_inv = CLOTHING_BULKY
+
+	sprite_sheets = list(
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_modular_armor_unathi.dmi'
+		)
 
 
 /obj/item/clothing/accessory/leg_guards/blue

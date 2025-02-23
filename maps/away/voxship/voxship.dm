@@ -17,12 +17,12 @@
 	area_usage_test_exempted_root_areas = list(/area/voxship)
 	spawn_weight = 0.67
 
-/obj/effect/overmap/visitable/sector/vox_scav_ship
+/obj/overmap/visitable/sector/vox_scav_ship
 	name = "small asteroid cluster"
 	desc = "Sensor array detects a small asteroid cluster."
-	in_space = TRUE
 	icon_state = "meteor4"
 	hide_from_reports = TRUE
+	sensor_visibility = 10
 	initial_generic_waypoints = list(
 		"nav_voxbase_1"
 	)
@@ -48,7 +48,7 @@
 	ceiling_type = /turf/simulated/floor/shuttle_ceiling
 	defer_initialisation = TRUE
 
-/obj/effect/shuttle_landmark/vox_base/hangar/vox_ship
+/obj/shuttle_landmark/vox_base/hangar/vox_ship
 	name = "Vox Ship Docked"
 	landmark_tag = "nav_hangar_voxship"
 
@@ -57,13 +57,12 @@
 	shuttle_tag = "Vox Scavenger Ship"
 	req_access = list(access_voxship)
 
-/obj/effect/overmap/visitable/ship/landable/vox_ship
+/obj/overmap/visitable/ship/landable/vox_ship
 	name = "Alien Vessel"
 	shuttle = "Vox Scavenger Ship"
 	desc = "Sensor array detects a medium-sized vessel of irregular shape. Unknown origin."
 	color = "#233012"
 	icon_state = "ship"
-	moving_state = "ship_moving"
 	fore_dir = WEST
 	vessel_size = SHIP_SIZE_SMALL
 
@@ -81,7 +80,7 @@
 	defer_initialisation = TRUE
 	mothershuttle = "Vox Scavenger Ship"
 
-/obj/effect/shuttle_landmark/vox_base/hangar/vox_scavshuttle
+/obj/shuttle_landmark/vox_base/hangar/vox_scavshuttle
 	name = "Dock"
 	landmark_tag = "nav_hangar_scavshuttle"
 	base_area = /area/voxship/scavship
@@ -92,15 +91,15 @@
 	shuttle_tag = "Vox Scavenger Shuttle"
 	req_access = list(access_voxship)
 
-/obj/effect/overmap/visitable/ship/landable/vox_scavshuttle
+/obj/overmap/visitable/ship/landable/vox_scavshuttle
 	name = "Unmarked shuttle"
 	shuttle = "Vox Scavenger Shuttle"
 	desc = "Sensor array detects a small, unmarked vessel."
 	fore_dir = WEST
 	vessel_size = SHIP_SIZE_TINY
 
-/obj/effect/submap_landmark/joinable_submap/voxship/scavship
-	archetype = /decl/submap_archetype/derelict/voxship
+/obj/submap_landmark/joinable_submap/voxship/scavship
+	archetype = /singleton/submap_archetype/derelict/voxship
 	movable_flags = MOVABLE_FLAG_EFFECTMOVE
 
 //shuttle APC terminal kept being deleted by z level changes
@@ -108,15 +107,15 @@
 	cell_type = /obj/item/cell/infinite
 	req_access = list(access_voxship)
 
-/obj/effect/submap_landmark/joinable_submap/voxship/scavship/New()
+/obj/submap_landmark/joinable_submap/voxship/scavship/New()
 	var/datum/language/vox/pidgin = all_languages[LANGUAGE_VOX]
 	name = "[pidgin.get_random_name()]-[pidgin.get_random_name()]"
 	..()
 
-/decl/webhook/submap_loaded/vox
+/singleton/webhook/submap_loaded/vox
 	id = WEBHOOK_SUBMAP_LOADED_VOX
 
-/decl/submap_archetype/derelict/voxship
+/singleton/submap_archetype/derelict/voxship
 	descriptor = "Shoal Scavenger Vessel"
 	map = "Vox Scavenger Ship"
 	crew_jobs = list(
@@ -158,5 +157,24 @@
 	_input_on = TRUE
 	_output_on = TRUE
 	_fully_charged = TRUE
+
+
+/singleton/closet_appearance/crate/vox_uranium
+	color = COLOR_OLIVE
+	extra_decals = list(
+		"crate_radiation_left" = COLOR_YELLOW,
+		"crate_radiation_right" = COLOR_YELLOW,
+		"lid_stripes" = COLOR_VIOLET
+	)
+
+
+/obj/structure/closet/crate/vox_uranium
+	name = "fissibles crate"
+	closet_appearance = /singleton/closet_appearance/crate/vox_uranium
+
+
+/obj/structure/closet/crate/vox_uranium/WillContain()
+	return list(/obj/item/stack/material/uranium/fifty = 4)
+
 
 #undef WEBHOOK_SUBMAP_LOADED_VOX

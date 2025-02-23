@@ -6,14 +6,6 @@
 	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
 	restricted_software = list(MECH_SOFTWARE_WEAPONS)
 
-/obj/item/mech_equipment/mounted_system/taser/MouseDragInteraction(src_object, over_object, src_location, over_location, src_control, over_control, params, mob/user)
-	. = ..()
-
-	if(over_object)
-		var/obj/item/gun/gun = holding
-		if(istype(gun) && gun.can_autofire())
-			gun.Fire(get_turf(over_object), owner, params, (get_dist(over_object, owner) <= 1), FALSE)
-
 /obj/item/mech_equipment/mounted_system/taser/ion
 	name = "mounted ion rifle"
 	desc = "An exosuit-mounted ion rifle. Handle with care."
@@ -118,7 +110,6 @@
 	..()
 
 /obj/item/mech_equipment/shields/on_update_icon()
-	. = ..()
 	if(!aura)
 		return
 	if(aura.active)
@@ -164,7 +155,7 @@
 	. = ..()
 	target.vis_contents += src
 	set_dir()
-	GLOB.dir_set_event.register(user, src, /obj/aura/mechshield/proc/update_dir)
+	GLOB.dir_set_event.register(user, src, PROC_REF(update_dir))
 
 /obj/aura/mechshield/proc/update_dir(user, old_dir, dir)
 	set_dir(dir)
@@ -177,7 +168,7 @@
 
 /obj/aura/mechshield/Destroy()
 	if(user)
-		GLOB.dir_set_event.unregister(user, src, /obj/aura/mechshield/proc/update_dir)
+		GLOB.dir_set_event.unregister(user, src, PROC_REF(update_dir))
 		user.vis_contents -= src
 	shields = null
 	. = ..()
@@ -194,41 +185,34 @@
 
 
 /obj/aura/mechshield/on_update_icon()
-	. = ..()
 	if(active)
 		icon_state = "shield"
 	else
 		icon_state = "shield_null"
 
-/obj/aura/mechshield/bullet_act(obj/item/projectile/P, def_zone)
-	if(!active)
-		return
-	if(shields)
-		if(shields.charge)
-			P.damage = shields.stop_damage(P.damage)
-			user.visible_message(SPAN_WARNING("\The [shields.owner]'s shields flash and crackle."))
-			flick("shield_impact", src)
-			playsound(user,'sound/effects/basscannon.ogg',35,1)
-			//light up the night.
-			new /obj/effect/effect/smoke/illumination(user.loc, 5, 4, 1, "#ffffff")
-			if(P.damage <= 0)
-				return AURA_FALSE|AURA_CANCEL
-
-			var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-			spark_system.set_up(5, 0, user)
-			spark_system.start()
-			playsound(loc, "sparks", 25, 1)
-
-/obj/aura/mechshield/hitby(atom/movable/M, datum/thrownthing/TT)
-	. = ..()
-	if(!active)
-		return
-	if(shields.charge && TT.speed <= 5)
-		user.visible_message(SPAN_WARNING("\The [shields.owner]'s shields flash briefly as they deflect \the [M]."))
+/obj/aura/mechshield/aura_check_bullet(obj/item/projectile/proj, def_zone)
+	if (active && shields?.charge)
+		proj.damage = shields.stop_damage(proj.damage)
+		user.visible_message(SPAN_WARNING("\The [shields.owner]'s shields flash and crackle."))
 		flick("shield_impact", src)
-		playsound(user,'sound/effects/basscannon.ogg',10,1)
+		playsound(user,'sound/effects/basscannon.ogg',35,1)
+		new /obj/effect/smoke/illumination(user.loc, 5, 4, 1, "#ffffff")
+		if (proj.damage <= 0)
+			return AURA_FALSE|AURA_CANCEL
+
+		var/datum/effect/spark_spread/spark_system = new /datum/effect/spark_spread()
+		spark_system.set_up(5, 0, user)
+		spark_system.start()
+		playsound(loc, "sparks", 25, 1)
+	return EMPTY_BITFIELD
+
+/obj/aura/mechshield/aura_check_thrown(atom/movable/thrown_atom, datum/thrownthing/thrown_datum)
+	. = ..()
+	if (active && shields?.charge && thrown_datum.speed <= 5)
+		user.visible_message(SPAN_WARNING("\The [shields.owner]'s shields flash briefly as they deflect \the [thrown_atom]."))
+		flick("shield_impact", src)
+		playsound(user, 'sound/effects/basscannon.ogg', 10, TRUE)
 		return AURA_FALSE|AURA_CANCEL
-	//Too fast!
 
 //Melee! As a general rule I would recommend using regular objects and putting logic in them.
 /obj/item/mech_equipment/mounted_system/melee
@@ -236,14 +220,14 @@
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 
 /obj/item/material/hatchet/machete/mech
-	name = "Mechete"
+	name = "mechete"
 	desc = "That thing was too big to be called a machete. Too big, too thick, too heavy, and too rough, it was more like a large hunk of iron."
 	w_class = ITEM_SIZE_GARGANTUAN
 	slot_flags = 0
 	default_material = MATERIAL_STEEL
 	base_parry_chance = 0 //Irrelevant for exosuits, revise if this changes
-	max_force = 25
-	force_multiplier = 0.75 // Equals 20 AP with 25 force
+	max_force = 35 // If we want to edit the force, use this number! The one below is prone to be changed when anything material gets modified.
+	force_multiplier = 0.75 // Equals 20 AP with 45 force with hardness 60 (Steel)
 	unbreakable = TRUE //Else we need a whole system for replacement blades
 	attack_cooldown_modifier = 10
 
@@ -253,16 +237,6 @@
 		do_attack_effect(target, "smash")
 		if (target.mob_size < user.mob_size) //Damaging attacks overwhelm smaller mobs
 			target.throw_at(get_edge_target_turf(target,get_dir(user, target)),1, 1)
-
-/obj/item/material/hatchet/machete/mech/resolve_attackby(atom/A, mob/user, click_params)
-	//Case 1: Default, you are hitting something that isn't a mob. Just do whatever, this isn't dangerous or op.
-	if (!istype(A, /mob/living))
-		return ..()
-
-	if (user.a_intent == I_HURT)
-		user.visible_message(SPAN_DANGER("\The [user] swings \the [src] at \the [A]!"))
-		playsound(user, 'sound/mecha/mechmove03.ogg', 35, 1)
-		return ..()
 
 /obj/item/material/hatchet/machete/mech/attack_self(mob/living/user)
 	. = ..()
@@ -275,12 +249,12 @@
 		if (E)
 			E.setClickCooldown(1.35 SECONDS)
 			E.visible_message(SPAN_DANGER("\The [E] swings \the [src] back, preparing for an attack!"), blind_message = SPAN_DANGER("You hear the loud hissing of hydraulics!"))
-			playsound(E, 'sound/mecha/mechmove03.ogg', 35, 1)
+			playsound(E, 'sound/mecha/mech_punch_fast.ogg', 35, 1)
 			if (do_after(E, 1.2 SECONDS, get_turf(user), DO_DEFAULT | DO_USER_UNIQUE_ACT | DO_PUBLIC_PROGRESS) && E && MC)
 				for (var/mob/living/M in orange(1, E))
-					attack(M, E, E.zone_sel.selecting, FALSE)
+					M.use_weapon(src, E)
 				E.spin(0.65 SECONDS, 0.125 SECONDS)
-				playsound(E, 'sound/weapons/blade1.ogg', 40, 1)
+				playsound(E, 'sound/mecha/mechstep01.ogg', 40, 1)
 
 /obj/item/mech_equipment/mounted_system/melee/mechete
 	icon_state = "mech_blade"
@@ -329,7 +303,7 @@
 						for(var/mob/living/M in T)
 							if (!M.Adjacent(owner))
 								continue
-							M.attack_generic(owner, (owner.arms ? owner.arms.melee_damage * 1.2 : 0), "slammed")
+							M.attack_generic(owner, (owner.arms ? owner.arms.melee_damage * 0.2 : 0), "slammed")
 							M.throw_at(get_edge_target_turf(owner ,owner.dir),5, 2)
 						do_attack_effect(T, "smash")
 
@@ -405,52 +379,50 @@
 				icon_state = "mech_shield_[hardpoint]"
 				var/image/I = image(icon, "[icon_state]_over")
 				I.layer = ABOVE_HUMAN_LAYER
-				overlays.Add(I)
+				AddOverlays(I)
 
 /obj/aura/mech_ballistic/added_to(mob/living/target)
 	. = ..()
 	target.vis_contents += src
 	set_dir()
-	GLOB.dir_set_event.register(user, src, /obj/aura/mech_ballistic/proc/update_dir)
+	GLOB.dir_set_event.register(user, src, PROC_REF(update_dir))
 
 /obj/aura/mech_ballistic/proc/update_dir(user, old_dir, dir)
 	set_dir(dir)
 
 /obj/aura/mech_ballistic/Destroy()
 	if (user)
-		GLOB.dir_set_event.unregister(user, src, /obj/aura/mech_ballistic/proc/update_dir)
+		GLOB.dir_set_event.unregister(user, src, PROC_REF(update_dir))
 		user.vis_contents -= src
 	shield = null
 	. = ..()
 
-/obj/aura/mech_ballistic/bullet_act(obj/item/projectile/P, def_zone)
+/obj/aura/mech_ballistic/aura_check_bullet(obj/item/projectile/proj, def_zone)
 	. = ..()
-	if (shield)
-		if (prob(shield.block_chance(P.damage, P.armor_penetration, source = P)))
-			user.visible_message(SPAN_WARNING("\The [P] is blocked by \the [user]'s [shield]."))
-			user.bullet_impact_visuals(P, def_zone, 0)
-			return AURA_FALSE|AURA_CANCEL
+	if (shield && prob(shield.block_chance(proj.damage, proj.armor_penetration, source = proj)))
+		user.visible_message(SPAN_WARNING("\The [proj] is blocked by \the [user]'s [shield]."))
+		user.bullet_impact_visuals(proj, def_zone, 0)
+		return AURA_FALSE|AURA_CANCEL
 
-/obj/aura/mech_ballistic/hitby(atom/movable/M, datum/thrownthing/TT)
+/obj/aura/mech_ballistic/aura_check_thrown(atom/movable/thrown_atom, datum/thrownthing/thrown_datum)
 	. = ..()
 	if (shield)
 		var/throw_damage = 0
-		if (isobj(M))
-			var/obj/O = M
-			throw_damage = O.throwforce*(TT.speed/THROWFORCE_SPEED_DIVISOR)
+		if (isobj(thrown_atom))
+			var/obj/object = thrown_atom
+			throw_damage = object.throwforce * (thrown_datum.speed / THROWFORCE_SPEED_DIVISOR)
 
-		if (prob(shield.block_chance(throw_damage, 0, source = M, attacker = TT.thrower)))
-			user.visible_message(SPAN_WARNING("\The [M] bounces off \the [user]'s [shield]."))
+		if (prob(shield.block_chance(throw_damage, 0, source = thrown_atom, attacker = thrown_datum.thrower)))
+			user.visible_message(SPAN_WARNING("\The [thrown_atom] bounces off \the [user]'s [shield]."))
 			playsound(user.loc, 'sound/weapons/Genhit.ogg', 50, 1)
 			return AURA_FALSE|AURA_CANCEL
 
-/obj/aura/mech_ballistic/attackby(obj/item/I, mob/user)
+/obj/aura/mech_ballistic/aura_check_weapon(obj/item/weapon, mob/attacker, click_params)
 	. = ..()
-	if (shield)
-		if (prob(shield.block_chance(I.force, I.armor_penetration, source = I, attacker = user)))
-			user.visible_message(SPAN_WARNING("\The [I] is blocked by \the [user]'s [shield]."))
-			playsound(user.loc, 'sound/weapons/Genhit.ogg', 50, 1)
-			return AURA_FALSE|AURA_CANCEL
+	if (shield && prob(shield.block_chance(weapon.force, weapon.armor_penetration, source = weapon, attacker = user)))
+		user.visible_message(SPAN_WARNING("\The [weapon] is blocked by \the [user]'s [shield]."))
+		playsound(user.loc, 'sound/weapons/Genhit.ogg', 50, TRUE)
+		return AURA_FALSE|AURA_CANCEL
 
 /obj/item/mech_equipment/flash
 	name = "exosuit flash"
@@ -489,7 +461,7 @@
 			if(!O.blinded)
 				O.flash_eyes(FLASH_PROTECTION_MODERATE - protection)
 				O.eye_blurry += flash_time
-				O.confused += (flash_time + 2)
+				O.mod_confused(flash_time + 2)
 
 /obj/item/mech_equipment/flash/attack_self(mob/user)
 	. = ..()
@@ -535,7 +507,7 @@
 			if(!O.blinded)
 				O.flash_eyes(FLASH_PROTECTION_MAJOR - protection)
 				O.eye_blurry += flash_time
-				O.confused += (flash_time + 2)
+				O.mod_confused(flash_time + 2)
 
 				if(isanimal(O)) //Hit animals a bit harder
 					O.Stun(flash_time)
@@ -574,8 +546,8 @@
 	if(owner && holding)
 		update_icon()
 
-/obj/item/mech_equipment/mounted_system/flamethrower/attackby(obj/item/W as obj, mob/user as mob)
-	if(!CanPhysicallyInteract(user))	return
+/obj/item/mech_equipment/mounted_system/flamethrower/use_tool(obj/item/W, mob/living/user, list/click_params)
+	if(!CanPhysicallyInteract(user))	return ..()
 
 	var/obj/item/flamethrower/full/mech/FM = holding
 	if(istype(FM))
@@ -584,20 +556,19 @@
 				user.visible_message(SPAN_NOTICE("\The [user] pries out \the [FM.beaker] using \the [W]."))
 				FM.beaker.dropInto(get_turf(user))
 				FM.beaker = null
-			return
+				return TRUE
 
 		if (istype(W, /obj/item/reagent_containers) && W.is_open_container() && (W.w_class <= FM.max_beaker))
 			if(FM.beaker)
 				to_chat(user, SPAN_NOTICE("There is already a tank inserted!"))
-				return
+				return TRUE
 			if(user.unEquip(W, FM))
 				user.visible_message(SPAN_NOTICE("\The [user] inserts \the [W] inside \the [src]."))
 				FM.beaker = W
-			return
-	..()
+			return TRUE
+	return ..()
 
 /obj/item/mech_equipment/mounted_system/flamethrower/on_update_icon()
-	. = ..()
 	if(owner && holding)
 		var/obj/item/flamethrower/full/mech/FM = holding
 		if(istype(FM))

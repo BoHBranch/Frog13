@@ -6,7 +6,7 @@
 	var/turn_delay = 5
 	var/obj/item/robot_parts/robot_component/actuator/motivator
 	power_use = 50
-	var/max_fall_damage = 30
+	var/max_fall_damage = 90
 
 	var/mech_turn_sound = 'sound/mecha/mechmove01.ogg'
 	var/mech_step_sound = 'sound/mecha/mechstep01.ogg'
@@ -25,12 +25,14 @@
 /obj/item/mech_component/propulsion/update_components()
 	motivator = locate() in src
 
-/obj/item/mech_component/propulsion/attackby(obj/item/thing, mob/user)
+/obj/item/mech_component/propulsion/use_tool(obj/item/thing, mob/living/user, list/click_params)
 	if(istype(thing,/obj/item/robot_parts/robot_component/actuator))
 		if(motivator)
 			to_chat(user, SPAN_WARNING("\The [src] already has an actuator installed."))
-			return
-		if(install_component(thing, user)) motivator = thing
+			return TRUE
+		if(install_component(thing, user))
+			motivator = thing
+			return TRUE
 	else
 		return ..()
 
@@ -88,7 +90,7 @@
 	max_fall_damage = 0
 
 	mech_turn_sound = 'sound/mecha/mechmove02.ogg'
-	mech_step_sound = 'sound/mecha/mechstep02.ogg'
+	mech_step_sound = 'sound/mecha/mechstep01.ogg'
 
 /obj/item/mech_component/propulsion/light/handle_vehicle_fall()
 	..()
@@ -105,6 +107,7 @@
 	power_use = 25
 
 	mech_turn_sound = 'sound/mecha/mechmove03.ogg'
+	mech_step_sound = 'sound/mecha/mechstep02.ogg'
 
 /obj/item/mech_component/propulsion/tracks
 	name = "tracks"

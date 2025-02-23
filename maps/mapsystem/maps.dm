@@ -90,12 +90,14 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 
 	var/list/lobby_screens = list('icons/default_lobby.png')    // The list of lobby screen images to pick() from.
 	var/current_lobby_screen
-	var/decl/audio/track/lobby_track                     // The track that will play in the lobby screen.
-	var/list/lobby_tracks = list()                  // The list of lobby tracks to pick() from. If left unset will randomly select among all available decl/audio/track subtypes.
-	var/welcome_sound = 'sound/AI/welcome.ogg'		// Sound played on roundstart
+	var/singleton/audio/track/lobby_track                     // The track that will play in the lobby screen.
+	var/list/lobby_tracks = list()                  // The list of lobby tracks to pick() from. If left unset will randomly select among all available singleton/audio/track subtypes.
+
+	/// The sound to play at roundstart, if any. Null, a file path, or a list of file paths.
+	var/list/welcome_sound = 'sound/AI/welcome.ogg' // Classic
 
 	var/default_law_type = /datum/ai_laws/nanotrasen  // The default lawset use by synth units, if not overriden by their laws var.
-	var/security_state = /decl/security_state/default // The default security state system to use.
+	var/security_state = /singleton/security_state/default // The default security state system to use.
 
 	var/id_hud_icons = 'icons/mob/hud.dmi' // Used by the ID HUD (primarily sechud) overlay.
 
@@ -118,6 +120,9 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 	var/local_currency_name_singular = "thaler"
 	var/local_currency_name_short = "T"
 
+	//Whether or not the map should include the Interlude in teleports and the BSD event as a possibility.
+	var/use_bluespace_interlude = FALSE
+
 	var/game_year
 
 	var/list/available_cultural_info = list(
@@ -127,8 +132,10 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 			HOME_SYSTEM_EARTH,
 			HOME_SYSTEM_VENUS,
 			HOME_SYSTEM_CERES,
-			HOME_SYSTEM_PLUTO,
+			HOME_SYSTEM_KUIPERB,
+			HOME_SYSTEM_KUIPERD,
 			HOME_SYSTEM_TAU_CETI,
+			HOME_SYSTEM_MAGNITKA,
 			HOME_SYSTEM_HELIOS,
 			HOME_SYSTEM_TERRA,
 			HOME_SYSTEM_SAFFAR,
@@ -165,15 +172,35 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 			CULTURE_HUMAN_VENUSIAN,
 			CULTURE_HUMAN_VENUSLOW,
 			CULTURE_HUMAN_BELTER,
-			CULTURE_HUMAN_PLUTO,
+			CULTURE_HUMAN_KUIPERI,
+			CULTURE_HUMAN_KUIPERO,
+			CULTURE_HUMAN_MAGNITKA,
 			CULTURE_HUMAN_EARTH,
-			CULTURE_HUMAN_CETI,
+			CULTURE_HUMAN_CETIN,
+			CULTURE_HUMAN_CETIS,
+			CULTURE_HUMAN_CETII,
 			CULTURE_HUMAN_SPACER,
-			CULTURE_HUMAN_SPAFRO,
-			CULTURE_HUMAN_CONFED,
+			CULTURE_HUMAN_OFFWORLD,
+			CULTURE_HUMAN_FOSTER,
+			CULTURE_HUMAN_PIRXL,
+			CULTURE_HUMAN_PIRXB,
+			CULTURE_HUMAN_PIRXF,
+			CULTURE_HUMAN_TADMOR,
+			CULTURE_HUMAN_IOLAUS,
+			CULTURE_HUMAN_BRAHE,
+			CULTURE_HUMAN_EOS,
+			CULTURE_HUMAN_THEIA,
+			CULTURE_HUMAN_CONFED_TERRA,
+			CULTURE_HUMAN_CONFED_ZEMLYA,
+			CULTURE_HUMAN_CONFED_SESTRIS,
+			CULTURE_HUMAN_CONFED_PUTKARI,
+			CULTURE_HUMAN_CONFED_ALTAIR,
+			CULTURE_HUMAN_CONFED_PENGLAI,
+			CULTURE_HUMAN_CONFED_PROVIDENCE,
+			CULTURE_HUMAN_CONFED_VALY,
+			CULTURE_HUMAN_CONFEDO,
 			CULTURE_HUMAN_GAIAN,
-			CULTURE_HUMAN_OTHER,
-			CULTURE_OTHER
+			CULTURE_HUMAN_OTHER
 		),
 		TAG_RELIGION = list(
 			RELIGION_UNSTATED,
@@ -237,19 +264,19 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 
 
 /datum/map/proc/get_lobby_track(banned)
-	var/path = /decl/audio/track/absconditus
+	var/path = /singleton/audio/track/absconditus
 	var/count = length(lobby_tracks)
 	if (count != 1)
 		var/allowed
 		if (count > 1)
 			allowed = lobby_tracks - banned
 		if (!length(allowed))
-			allowed = subtypesof(/decl/audio/track) - banned
+			allowed = subtypesof(/singleton/audio/track) - banned
 		if (length(allowed))
 			path = pickweight(allowed)
 	else
 		path = lobby_tracks[1]
-	return decls_repository.get_decl(path)
+	return GET_SINGLETON(path)
 
 
 /datum/map/proc/setup_config(name, value, filename)
@@ -303,9 +330,13 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 /datum/map/proc/perform_map_generation()
 	return
 
+/datum/map/proc/ship_jump()
+	return
+
 
 /* It is perfectly possible to create loops with TEMPLATE_FLAG_ALLOW_DUPLICATES and force/allow. Don't. */
 /proc/resolve_site_selection(datum/map_template/ruin/away_site/site, list/selected, list/available, list/unavailable, list/by_type)
+	RETURN_TYPE(/list)
 	var/spawn_cost = 0
 	var/player_cost = 0
 	if (site in selected)
@@ -400,8 +431,8 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 		return
 
 	for(var/i = 0, i < num_exoplanets, i++)
-		var/exoplanet_type = pick(subtypesof(/obj/effect/overmap/visitable/sector/exoplanet))
-		var/obj/effect/overmap/visitable/sector/exoplanet/new_planet = new exoplanet_type(null, planet_size[1], planet_size[2])
+		var/exoplanet_type = pick(subtypesof(/obj/overmap/visitable/sector/exoplanet))
+		var/obj/overmap/visitable/sector/exoplanet/new_planet = new exoplanet_type(null, planet_size[1], planet_size[2])
 		new_planet.build_level()
 
 // Used to apply various post-compile procedural effects to the map.
@@ -426,12 +457,12 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 	var/list/candidates = GLOB.using_map.accessible_z_levels.Copy()
 	candidates.Remove(num2text(current_z_level))
 
-	if(!candidates.len)
+	if(!length(candidates))
 		return current_z_level
 	return text2num(pickweight(candidates))
 
 /datum/map/proc/get_empty_zlevel()
-	if(empty_levels == null)
+	if(isnull(empty_levels))
 		INCREMENT_WORLD_Z_SIZE
 		empty_levels = list(world.maxz)
 	return pick(empty_levels)
@@ -443,8 +474,8 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 
 	for(var/loc_type in typesof(/datum/trade_destination) - /datum/trade_destination)
 		var/datum/trade_destination/D = new loc_type
-		weighted_randomevent_locations[D] = D.viable_random_events.len
-		weighted_mundaneevent_locations[D] = D.viable_mundane_events.len
+		weighted_randomevent_locations[D] = length(D.viable_random_events)
+		weighted_mundaneevent_locations[D] = length(D.viable_mundane_events)
 
 	if(!station_account)
 		station_account = create_account("[station_name()] Primary Account", "[station_name()]", starting_money, ACCOUNT_TYPE_DEPARTMENT)
@@ -520,26 +551,26 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 				var/turf/playerTurf = get_turf(Player)
 				if(evacuation_controller.round_over() && evacuation_controller.emergency_evacuation)
 					if(isStationLevel(playerTurf.z))
-						to_chat(Player, "<span class='info'><b>You managed to survive, but were left behind on [station_name()] as [Player.real_name]...</b></span>")
+						to_chat(Player, SPAN_INFO("<b>You managed to survive, but were left behind on [station_name()] as [Player.real_name]...</b>"))
 					else if (isEscapeLevel(playerTurf.z))
-						to_chat(Player, "<font color='green'><b>You managed to survive the events on [station_name()] as [Player.real_name].</b></font>")
+						to_chat(Player, SPAN_COLOR("green", "<b>You managed to survive the events on [station_name()] as [Player.real_name].</b>"))
 					else
-						to_chat(Player, "<span class='info'><b>You managed to survive, but were lost far from [station_name()] as [Player.real_name]...</b></span>")
+						to_chat(Player, SPAN_INFO("<b>You managed to survive, but were lost far from [station_name()] as [Player.real_name]...</b>"))
 				else if(isAdminLevel(playerTurf.z))
-					to_chat(Player, "<font color='green'><b>You successfully underwent crew transfer after events on [station_name()] as [Player.real_name].</b></font>")
+					to_chat(Player, SPAN_COLOR("green", "<b>You successfully underwent crew transfer after events on [station_name()] as [Player.real_name].</b>"))
 				else if(issilicon(Player))
-					to_chat(Player, "<font color='green'><b>You remain operational after the events on [station_name()] as [Player.real_name].</b></font>")
+					to_chat(Player, SPAN_COLOR("green", "<b>You remain operational after the events on [station_name()] as [Player.real_name].</b>"))
 				else if (isNotStationLevel(playerTurf.z))
-					to_chat(Player, "<span class='info'><b>You managed to survive, but were lost far from [station_name()] as [Player.real_name]...</b></span>")
+					to_chat(Player, SPAN_INFO("<b>You managed to survive, but were lost far from [station_name()] as [Player.real_name]...</b>"))
 				else
-					to_chat(Player, "<span class='info'><b>You got through just another workday on [station_name()] as [Player.real_name].</b></span>")
+					to_chat(Player, SPAN_INFO("<b>You got through just another workday on [station_name()] as [Player.real_name].</b>"))
 			else
 				if(isghost(Player))
 					var/mob/observer/ghost/O = Player
 					if(!O.started_as_observer)
-						to_chat(Player, "<font color='red'><b>You did not survive the events on [station_name()]...</b></font>")
+						to_chat(Player, SPAN_COLOR("red", "<b>You did not survive the events on [station_name()]...</b>"))
 				else
-					to_chat(Player, "<font color='red'><b>You did not survive the events on [station_name()]...</b></font>")
+					to_chat(Player, SPAN_COLOR("red", "<b>You did not survive the events on [station_name()]...</b>"))
 
 /datum/map/proc/roundend_statistics()
 	var/data = list()
@@ -590,5 +621,8 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 		desc += "There were <b>no survivors</b>, <b>[data["offship_players"]] off-ship player(s)</b>, (<b>[data["ghosts"]] ghosts</b>)."
 
 	return desc
+
+/datum/map/proc/do_interlude_teleport(atom/movable/target, atom/destination, duration, precision, type)
+	return
 
 #undef DEFAULT_GAME_YEAR_OFFSET

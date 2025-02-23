@@ -69,43 +69,43 @@
 			return meteors_minor
 
 var/global/list/meteors_minor = list(
-	/obj/effect/meteor/medium     = 80,
-	/obj/effect/meteor/dust       = 30,
-	/obj/effect/meteor/irradiated = 30,
-	/obj/effect/meteor/big        = 30,
-	/obj/effect/meteor/flaming    = 10,
-	/obj/effect/meteor/golden     = 10,
-	/obj/effect/meteor/silver     = 10,
+	/obj/meteor/medium     = 80,
+	/obj/meteor/dust       = 30,
+	/obj/meteor/irradiated = 30,
+	/obj/meteor/big        = 30,
+	/obj/meteor/flaming    = 10,
+	/obj/meteor/golden     = 10,
+	/obj/meteor/silver     = 10,
 )
 
 var/global/list/meteors_moderate = list(
-	/obj/effect/meteor/medium     = 80,
-	/obj/effect/meteor/big        = 30,
-	/obj/effect/meteor/dust       = 30,
-	/obj/effect/meteor/irradiated = 30,
-	/obj/effect/meteor/flaming    = 10,
-	/obj/effect/meteor/golden     = 10,
-	/obj/effect/meteor/silver     = 10,
-	/obj/effect/meteor/emp        = 10,
+	/obj/meteor/medium     = 80,
+	/obj/meteor/big        = 30,
+	/obj/meteor/dust       = 30,
+	/obj/meteor/irradiated = 30,
+	/obj/meteor/flaming    = 10,
+	/obj/meteor/golden     = 10,
+	/obj/meteor/silver     = 10,
+	/obj/meteor/emp        = 10,
 )
 
 var/global/list/meteors_major = list(
-	/obj/effect/meteor/medium     = 80,
-	/obj/effect/meteor/big        = 30,
-	/obj/effect/meteor/dust       = 30,
-	/obj/effect/meteor/irradiated = 30,
-	/obj/effect/meteor/emp        = 30,
-	/obj/effect/meteor/flaming    = 10,
-	/obj/effect/meteor/golden     = 10,
-	/obj/effect/meteor/silver     = 10,
-	/obj/effect/meteor/tunguska   = 1,
+	/obj/meteor/medium     = 80,
+	/obj/meteor/big        = 30,
+	/obj/meteor/dust       = 30,
+	/obj/meteor/irradiated = 30,
+	/obj/meteor/emp        = 30,
+	/obj/meteor/flaming    = 10,
+	/obj/meteor/golden     = 10,
+	/obj/meteor/silver     = 10,
+	/obj/meteor/tunguska   = 1,
 )
 
 /datum/event/meteor_wave/overmap
 	next_meteor_lower = 5
 	next_meteor_upper = 10
 	next_meteor = 0
-	var/obj/effect/overmap/visitable/ship/victim
+	var/obj/overmap/visitable/ship/victim
 
 /datum/event/meteor_wave/overmap/Destroy()
 	victim = null
@@ -114,7 +114,7 @@ var/global/list/meteors_major = list(
 /datum/event/meteor_wave/overmap/tick()
 	if(!victim)
 		return
-	if (victim.is_still() || victim.get_helm_skill() >= SKILL_ADEPT) //Unless you're standing or good at your job..
+	if (!victim.is_moving() || victim.get_helm_skill() >= SKILL_TRAINED) //Unless you're standing or good at your job..
 		start_side = pick(GLOB.cardinal)
 	else //..Meteors mostly fly in your face
 		start_side = prob(90) ? victim.fore_dir : pick(GLOB.cardinal)
@@ -126,13 +126,13 @@ var/global/list/meteors_major = list(
 		return
 	var/skill = victim.get_helm_skill()
 	var/speed = victim.get_speed()
-	if (skill < SKILL_EXPERT)
-		if(victim.is_still() || speed < SHIP_SPEED_SLOW) //Standing still or being slow means less shit flies your way
+	if (skill < SKILL_EXPERIENCED)
+		if(!victim.is_moving() || speed < SHIP_SPEED_SLOW) //Standing still or being slow means less shit flies your way
 			. = round(. * 0.7)
 		if(speed > SHIP_SPEED_FAST) //Sanic stahp
 			. *= 2
-	if (skill == SKILL_EXPERT)
-		if (victim.is_still())
+	if (skill == SKILL_EXPERIENCED)
+		if (!victim.is_moving())
 			. = round(. * 0.2)
 		if (speed < SHIP_SPEED_SLOW)
 			. = round(. * 0.5)
@@ -140,8 +140,8 @@ var/global/list/meteors_major = list(
 			. = round(. * 0.7)
 		if (speed > SHIP_SPEED_FAST)
 			. = round(. * 1.2)
-	if (skill > SKILL_EXPERT)
-		if (victim.is_still())
+	if (skill > SKILL_EXPERIENCED)
+		if (!victim.is_moving())
 			. = round(. * 0.1)
 		if (speed < SHIP_SPEED_SLOW)
 			. = round(. * 0.2)
@@ -150,9 +150,9 @@ var/global/list/meteors_major = list(
 
 	//Smol ship evasion
 	if(victim.vessel_size < SHIP_SIZE_LARGE && speed < SHIP_SPEED_FAST)
-		var/skill_needed = SKILL_PROF
+		var/skill_needed = SKILL_MASTER
 		if(speed < SHIP_SPEED_SLOW)
-			skill_needed = SKILL_ADEPT
+			skill_needed = SKILL_TRAINED
 		if(victim.vessel_size < SHIP_SIZE_SMALL)
 			skill_needed = skill_needed - 1
 		if(skill >= max(skill_needed, victim.skill_needed))

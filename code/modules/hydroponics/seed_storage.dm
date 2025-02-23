@@ -20,17 +20,19 @@
 /obj/machinery/seed_storage
 	name = "Seed storage"
 	desc = "It stores, sorts, and dispenses seeds."
-	icon = 'icons/obj/vending.dmi'
+	icon = 'icons/obj/machines/vending.dmi'
 	icon_state = "seeds"
 	density = TRUE
 	anchored = TRUE
 	idle_power_usage = 100
+	obj_flags = OBJ_FLAG_ANCHORABLE
 
 	var/list/datum/seed_pile/piles = list()
 	var/list/starting_seeds = list(
 		/obj/item/seeds/affelerin = 15,
 		/obj/item/seeds/aghrassh = 15,
 		/obj/item/seeds/algaeseed = 15,
+		/obj/item/seeds/almondseed = 15,
 		/obj/item/seeds/ambrosiavulgarisseed = 15,
 		/obj/item/seeds/appleseed = 15,
 		/obj/item/seeds/bamboo = 15,
@@ -156,8 +158,8 @@
 	user.set_machine(src)
 
 	var/dat = "<center><h1>Seed storage contents</h1></center>"
-	if (piles.len == 0)
-		dat += "<font color='red'>No seeds</font>"
+	if (length(piles) == 0)
+		dat += SPAN_COLOR("red", "No seeds")
 	else
 		dat += "<table style='text-align:center;border-style:solid;border-width:1px;padding:4px'><tr><td>Name</td>"
 		dat += "<td>Variety</td>"
@@ -212,12 +214,12 @@
 				if(1)
 					dat += "CARN "
 				if(2)
-					dat	+= "<font color='red'>CARN </font>"
+					dat	+= SPAN_COLOR("red", "CARN ")
 			switch(seed.get_trait(TRAIT_SPREAD))
 				if(1)
 					dat += "VINE "
 				if(2)
-					dat	+= "<font color='red'>VINE </font>"
+					dat	+= SPAN_COLOR("red", "VINE ")
 			if ("pressure" in scanner)
 				if(seed.get_trait(TRAIT_LOWKPA_TOLERANCE) < 20)
 					dat += "LP "
@@ -276,7 +278,7 @@
 				if (O)
 					--N.amount
 					N.seeds -= O
-					if (N.amount <= 0 || N.seeds.len <= 0)
+					if (N.amount <= 0 || length(N.seeds) <= 0)
 						piles -= N
 						qdel(N)
 					flick("[initial(icon_state)]-vend", src)
@@ -292,13 +294,14 @@
 			break
 	updateUsrDialog()
 
-/obj/machinery/seed_storage/attackby(obj/item/O as obj, mob/user as mob)
+/obj/machinery/seed_storage/use_tool(obj/item/O, mob/living/user, list/click_params)
 	if (istype(O, /obj/item/seeds))
 		add(O)
 		sort_piles()
 		user.visible_message("[user] puts \the [O.name] into \the [src].", "You put \the [O] into \the [src].")
-		return
-	else if (istype(O, /obj/item/storage/plants))
+		return TRUE
+
+	if (istype(O, /obj/item/storage/plants))
 		var/obj/item/storage/P = O
 		var/loaded = 0
 		for(var/obj/item/seeds/G in P.contents)
@@ -310,16 +313,13 @@
 			sort_piles()
 			user.visible_message("[user] puts the seeds from \the [O.name] into \the [src].", "You put the seeds from \the [O.name] into \the [src].")
 		else
-			to_chat(user, "<span class='notice'>There are no seeds in \the [O.name].</span>")
-		return
-	else if(isWrench(O))
-		playsound(loc, 'sound/items/Ratchet.ogg', 50, 1)
-		anchored = !anchored
-		to_chat(user, "You [anchored ? "wrench" : "unwrench"] \the [src].")
+			to_chat(user, SPAN_NOTICE("There are no seeds in \the [O.name]."))
+		return TRUE
+	return ..()
 
 /obj/machinery/seed_storage/proc/add(obj/item/seeds/O, bypass_removal = 0)
 	if(!bypass_removal)
-		if (istype(O.loc, /mob))
+		if (ismob(O.loc))
 			var/mob/user = O.loc
 			if(!user.unEquip(O, src))
 				return

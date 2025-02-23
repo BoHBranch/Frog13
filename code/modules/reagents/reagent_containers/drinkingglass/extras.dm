@@ -1,28 +1,36 @@
-/obj/item/reagent_containers/food/drinks/glass2/attackby(obj/item/I as obj, mob/user as mob)
-	if(extras.len >= 2) return ..() // max 2 extras, one on each side of the drink
+/obj/item/reagent_containers/food/drinks/glass2/use_tool(obj/item/I, mob/living/user, list/click_params)
+	if(length(extras) >= 2)
+		return ..() // max 2 extras, one on each side of the drink
 
 	if(istype(I, /obj/item/glass_extra))
 		var/obj/item/glass_extra/GE = I
 		if(can_add_extra(GE))
 			extras += GE
 			if(!user.unEquip(GE, src))
-				return
-			to_chat(user, "<span class=notice>You add \the [GE] to \the [src].</span>")
+				FEEDBACK_UNEQUIP_FAILURE(user, GE)
+				return TRUE
+			to_chat(user, SPAN_NOTICE("You add \the [GE] to \the [src]."))
 			update_icon()
+			return TRUE
 		else
-			to_chat(user, "<span class=warning>There's no space to put \the [GE] on \the [src]!</span>")
+			to_chat(user, SPAN_WARNING("There's no space to put \the [GE] on \the [src]!"))
+			return TRUE
+
 	else if(istype(I, /obj/item/reagent_containers/food/snacks/fruit_slice))
 		if(!rim_pos)
-			to_chat(user, "<span class=warning>There's no space to put \the [I] on \the [src]!</span>")
-			return
+			to_chat(user, SPAN_WARNING("There's no space to put \the [I] on \the [src]!"))
+			return TRUE
 		var/obj/item/reagent_containers/food/snacks/fruit_slice/FS = I
 		extras += FS
 		if(!user.unEquip(FS, src))
-			return
+			FEEDBACK_UNEQUIP_FAILURE(user, FS)
+			return TRUE
 		FS.pixel_x = 0 // Reset its pixel offsets so the icons work!
 		FS.pixel_y = 0
-		to_chat(user, "<span class=notice>You add \the [FS] to \the [src].</span>")
+		to_chat(user, SPAN_NOTICE("You add \the [FS] to \the [src]."))
 		update_icon()
+		return TRUE
+
 	else
 		return ..()
 
@@ -30,8 +38,8 @@
 	if(src != user.get_inactive_hand())
 		return ..()
 
-	if(!extras.len)
-		to_chat(user, "<span class=warning>There's nothing on the glass to remove!</span>")
+	if(!length(extras))
+		to_chat(user, SPAN_WARNING("There's nothing on the glass to remove!"))
 		return
 
 	var/choice = input(user, "What would you like to remove from the glass?") as null|anything in extras
@@ -39,10 +47,10 @@
 		return
 
 	if(user.put_in_active_hand(choice))
-		to_chat(user, "<span class=notice>You remove \the [choice] from \the [src].</span>")
+		to_chat(user, SPAN_NOTICE("You remove \the [choice] from \the [src]."))
 		extras -= choice
 	else
-		to_chat(user, "<span class=warning>Something went wrong, please try again.</span>")
+		to_chat(user, SPAN_WARNING("Something went wrong, please try again."))
 
 	update_icon()
 
@@ -52,7 +60,7 @@
 	var/glass_addition
 	var/glass_desc
 	w_class = ITEM_SIZE_TINY
-	icon = 'icons/obj/drink_glasses/extras.dmi'
+	icon = 'icons/obj/food/drink_glasses/extras.dmi'
 
 /obj/item/glass_extra/stick
 	name = "stick"
@@ -61,7 +69,7 @@
 	glass_desc = "There is a stick in the glass."
 	icon_state = "stick"
 	color = COLOR_BLACK
-	
+
 /obj/item/glass_extra/stick/Initialize()
 	. = ..()
 	if(prob(50))

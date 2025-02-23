@@ -14,7 +14,6 @@
 	harm_intent_damage = 5
 	natural_weapon = /obj/item/natural_weapon/bite/strong
 	break_stuff_probability = 35
-	faction = "shark"
 	special_attack_min_range = 0
 	special_attack_max_range = 2
 	special_attack_cooldown = 15 SECONDS
@@ -50,4 +49,4 @@
 		var/datum/gas_mixture/sharkmaw_phoron = new
 		sharkmaw_phoron.adjust_gas(GAS_PHORON,  10)
 		environment.merge(sharkmaw_phoron)
-		visible_message("<span class='warning'>\The [src]'s body releases some gas from the gills with a quiet fizz!</span>")
+		visible_message(SPAN_WARNING("\The [src]'s body releases some gas from the gills with a quiet fizz!"))

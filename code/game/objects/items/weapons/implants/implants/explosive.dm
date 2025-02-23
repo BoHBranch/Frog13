@@ -115,15 +115,15 @@
 
 	var/turf/T = get_turf(src)
 	if(T)
-		T.hotspot_expose(3500,125)
+		T.hotspot_expose(3500)
 
 	playsound(loc, 'sound/items/countdown.ogg', 75, 1, -3)
 	if(ismob(imp_in))
-		imp_in.audible_message("<span class='warning'>Something beeps inside [imp_in][part ? "'s [part.name]" : ""]!</span>")
-		log_and_message_admins("Explosive implant triggered in [imp_in] ([imp_in.key]). (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[imp_in.x];Y=[imp_in.y];Z=[imp_in.z]'>JMP</a>) ")
+		imp_in.audible_message(SPAN_WARNING("Something beeps inside [imp_in][part ? "'s [part.name]" : ""]!"))
+		log_and_message_admins("Explosive implant triggered in [imp_in] ([imp_in.key])", null, imp_in)
 	else
-		audible_message("<span class='warning'>[src] beeps omniously!</span>")
-		log_and_message_admins("Explosive implant triggered in [T.loc]. (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[T.x];Y=[T.y];Z=[T.z]'>JMP</a>) ")
+		audible_message(SPAN_WARNING("[src] beeps omniously!"))
+		log_and_message_admins("Explosive implant triggered in [T.loc]", null, imp_in)
 
 	if(!elevel)
 		elevel = "Full Explosion"
@@ -135,13 +135,13 @@
 					part.take_external_damage(60, used_weapon = "Explosion")
 				else
 					part.droplimb(0,DROPLIMB_BLUNT)
-			explosion(T, -1, -1, 2, 3)
+			explosion(T, 2, EX_ACT_LIGHT)
 		if ("Destroy Body")
-			explosion(T, -1, 0, 1, 6)
+			explosion(T, 1, EX_ACT_LIGHT)
 			if(ismob(imp_in))
 				imp_in.gib()
 		if ("Full Explosion")
-			explosion(T, 0, 1, 3, 6)
+			explosion(T, 4, EX_ACT_HEAVY)
 			if(ismob(imp_in))
 				imp_in.gib()
 	qdel(src)
@@ -155,7 +155,7 @@
 		return
 
 	var/memo = "Explosive implant in [target] can be activated by saying something containing the phrase ''[phrase]'', <B>say [phrase]</B> to attempt to activate. It can also be triggered with a radio signal on frequency <b>[format_frequency(src.frequency)]</b> with code <b>[code]</b>."
-	usr.StoreMemory(memo, /decl/memory_options/system)
+	usr.StoreMemory(memo, /singleton/memory_options/system)
 	to_chat(usr, memo)
 	return TRUE
 

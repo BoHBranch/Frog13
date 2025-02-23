@@ -5,7 +5,7 @@
 	name = "manual switching valve"
 	desc = "A pipe valve."
 
-	level = 1
+	level = ATOM_LEVEL_OVER_TILE
 	dir = SOUTH
 	initialize_directions = SOUTH|NORTH|WEST
 
@@ -264,57 +264,59 @@
 
 	return null
 
-/obj/machinery/atmospherics/tvalve/attackby(obj/item/W as obj, mob/user as mob)
+/obj/machinery/atmospherics/tvalve/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(!isWrench(W))
 		return ..()
+
 	var/datum/gas_mixture/int_air = return_air()
 	var/datum/gas_mixture/env_air = loc.return_air()
 	if ((int_air.return_pressure()-env_air.return_pressure()) > 2*ONE_ATMOSPHERE)
-		to_chat(user, "<span class='warnng'>You cannot unwrench \the [src], it too exerted due to internal pressure.</span>")
-		add_fingerprint(user)
-		return 1
+		to_chat(user, SPAN_WARNING("You cannot unwrench \the [src], it too exerted due to internal pressure."))
+		return TRUE
 	playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
-	to_chat(user, "<span class='notice'>You begin to unfasten \the [src]...</span>")
-	if (do_after(user, 4 SECONDS, src, DO_REPAIR_CONSTRUCT))
-		user.visible_message( \
-			"<span class='notice'>\The [user] unfastens \the [src].</span>", \
-			"<span class='notice'>You have unfastened \the [src].</span>", \
-			"You hear a ratchet.")
-		new /obj/item/pipe(loc, src)
-		qdel(src)
+	to_chat(user, SPAN_NOTICE("You begin to unfasten \the [src]..."))
+	if (!do_after(user, (W.toolspeed * 4) SECONDS, src, DO_REPAIR_CONSTRUCT))
+		return TRUE
+	user.visible_message( \
+		SPAN_NOTICE("\The [user] unfastens \the [src]."), \
+		SPAN_NOTICE("You have unfastened \the [src]."), \
+		"You hear a ratchet.")
+	new /obj/item/pipe(loc, src)
+	qdel(src)
+	return TRUE
 
-/decl/public_access/public_variable/tvalve_state
+/singleton/public_access/public_variable/tvalve_state
 	expected_type = /obj/machinery/atmospherics/tvalve
 	name = "valve state"
 	desc = "If true, the output is diverted to the side; if false, the output goes straight."
 	can_write = FALSE
 	has_updates = FALSE
 
-/decl/public_access/public_variable/tvalve_state/access_var(obj/machinery/atmospherics/tvalve/tvalve)
+/singleton/public_access/public_variable/tvalve_state/access_var(obj/machinery/atmospherics/tvalve/tvalve)
 	return tvalve.state
 
-/decl/public_access/public_method/tvalve_go_straight
+/singleton/public_access/public_method/tvalve_go_straight
 	name = "valve go straight"
 	desc = "Sets the valve to send output straight."
-	call_proc = /obj/machinery/atmospherics/tvalve/proc/go_straight
+	call_proc = TYPE_PROC_REF(/obj/machinery/atmospherics/tvalve, go_straight)
 
-/decl/public_access/public_method/tvalve_go_side
+/singleton/public_access/public_method/tvalve_go_side
 	name = "valve go side"
 	desc = "Redirects output to the side."
-	call_proc = /obj/machinery/atmospherics/tvalve/proc/go_to_side
+	call_proc = TYPE_PROC_REF(/obj/machinery/atmospherics/tvalve, go_to_side)
 
-/decl/public_access/public_method/tvalve_toggle
+/singleton/public_access/public_method/tvalve_toggle
 	name = "valve toggle"
 	desc = "Toggles the output direction."
-	call_proc = /obj/machinery/atmospherics/tvalve/proc/toggle
+	call_proc = TYPE_PROC_REF(/obj/machinery/atmospherics/tvalve, toggle)
 
-/decl/stock_part_preset/radio/receiver/tvalve
+/singleton/stock_part_preset/radio/receiver/tvalve
 	frequency = FUEL_FREQ
 	filter = RADIO_ATMOSIA
 	receive_and_call = list(
-		"valve_open" = /decl/public_access/public_method/tvalve_go_side,
-		"valve_close" = /decl/public_access/public_method/tvalve_go_straight,
-		"valve_toggle" = /decl/public_access/public_method/tvalve_toggle
+		"valve_open" = /singleton/public_access/public_method/tvalve_go_side,
+		"valve_close" = /singleton/public_access/public_method/tvalve_go_straight,
+		"valve_toggle" = /singleton/public_access/public_method/tvalve_toggle
 	)
 
 //Mirrored editions
@@ -357,13 +359,13 @@
 		/obj/item/stock_parts/radio/receiver,
 		/obj/item/stock_parts/power/apc
 	)
-	public_variables = list(/decl/public_access/public_variable/tvalve_state)
+	public_variables = list(/singleton/public_access/public_variable/tvalve_state)
 	public_methods = list(
-		/decl/public_access/public_method/tvalve_go_side,
-		/decl/public_access/public_method/tvalve_go_straight,
-		/decl/public_access/public_method/tvalve_toggle
+		/singleton/public_access/public_method/tvalve_go_side,
+		/singleton/public_access/public_method/tvalve_go_straight,
+		/singleton/public_access/public_method/tvalve_toggle
 	)
-	stock_part_presets = list(/decl/stock_part_preset/radio/receiver/tvalve = 1)
+	stock_part_presets = list(/singleton/stock_part_preset/radio/receiver/tvalve = 1)
 
 /obj/machinery/atmospherics/tvalve/digital/on_update_icon()
 	..()
@@ -392,13 +394,13 @@
 		/obj/item/stock_parts/radio/receiver,
 		/obj/item/stock_parts/power/apc
 	)
-	public_variables = list(/decl/public_access/public_variable/tvalve_state)
+	public_variables = list(/singleton/public_access/public_variable/tvalve_state)
 	public_methods = list(
-		/decl/public_access/public_method/tvalve_go_side,
-		/decl/public_access/public_method/tvalve_go_straight,
-		/decl/public_access/public_method/tvalve_toggle
+		/singleton/public_access/public_method/tvalve_go_side,
+		/singleton/public_access/public_method/tvalve_go_straight,
+		/singleton/public_access/public_method/tvalve_toggle
 	)
-	stock_part_presets = list(/decl/stock_part_preset/radio/receiver/tvalve = 1)
+	stock_part_presets = list(/singleton/stock_part_preset/radio/receiver/tvalve = 1)
 
 /obj/machinery/atmospherics/tvalve/mirrored/digital/on_update_icon()
 	..()

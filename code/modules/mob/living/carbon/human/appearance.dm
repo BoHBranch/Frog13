@@ -1,5 +1,5 @@
-/mob/living/carbon/human/proc/change_appearance(flags, species, mob/user = src, datum/topic_state/state = GLOB.default_state)
-	var/datum/nano_module/appearance_changer/changer = new(src, flags, species)
+/mob/living/carbon/human/proc/change_appearance(flags, mob/user = src, datum/topic_state/state = GLOB.default_state)
+	var/datum/nano_module/appearance_changer/changer = new(src, flags)
 	changer.ui_interact(user, state = state)
 
 /mob/living/carbon/human/proc/change_species(new_species)
@@ -9,7 +9,7 @@
 	if(species == new_species)
 		return
 
-	if(!(new_species in all_species))
+	if(!(new_species in GLOB.species_by_name))
 		return
 
 	set_species(new_species)
@@ -23,15 +23,28 @@
 /mob/living/carbon/human/proc/change_gender(gender)
 	if(src.gender == gender)
 		return
-
 	src.gender = gender
+
 	reset_hair()
+	force_update_limbs()
 	update_body()
 	update_dna()
+	src.sync_organ_dna()
+	if(src.gender == MALE)
+		src.UpdateAppearance()
 	return 1
 
 /mob/living/carbon/human/proc/randomize_gender()
 	change_gender(pick(species.genders))
+
+/mob/living/carbon/human/proc/change_pronouns(pronouns)
+	if(src.pronouns == pronouns)
+		return
+	src.pronouns = pronouns
+	return 1
+
+/mob/living/carbon/human/proc/randomize_pronouns()
+	change_pronouns(pick(species.pronouns))
 
 /mob/living/carbon/human/proc/change_hair(new_head_hair_style)
 	if(!new_head_hair_style)
@@ -67,13 +80,13 @@
 	var/list/valid_hairstyles = generate_valid_hairstyles()
 	var/list/valid_facial_hairstyles = generate_valid_facial_hairstyles()
 
-	if(valid_hairstyles.len)
+	if(length(valid_hairstyles))
 		head_hair_style = pick(valid_hairstyles)
 	else
 		//this shouldn't happen
 		head_hair_style = "Bald"
 
-	if(valid_facial_hairstyles.len)
+	if(length(valid_facial_hairstyles))
 		facial_hair_style = pick(valid_facial_hairstyles)
 	else
 		//this shouldn't happen
@@ -134,7 +147,7 @@
 /mob/living/carbon/human/proc/generate_valid_languages()
 	var/list/result = list()
 	for (var/cult_key in cultural_info)
-		var/decl/cultural_info/culture = cultural_info[cult_key]
+		var/singleton/cultural_info/culture = cultural_info[cult_key]
 		if (!istype(culture))
 			continue
 		if (culture.language)
@@ -149,24 +162,28 @@
 			result[lang_key] = all_languages[lang_key]
 	return result
 
-/mob/living/carbon/human/proc/generate_valid_species(check_whitelist = 1, list/whitelist = list(), list/blacklist = list())
-	var/list/valid_species = new()
-	for(var/current_species_name in all_species)
-		var/datum/species/current_species = all_species[current_species_name]
 
-		if(check_whitelist) //If we're using the whitelist, make sure to check it!
-			if((current_species.spawn_flags & SPECIES_IS_RESTRICTED) && !check_rights(R_ADMIN, 0, src))
-				continue
-			if(!is_alien_whitelisted(src, current_species))
-				continue
-		if(whitelist.len && !(current_species_name in whitelist))
+/mob/living/carbon/human/proc/generate_valid_species(appearance_flags, list/allow, list/deny)
+	var/list/result = list()
+	for (var/name in GLOB.species_by_name)
+		if (name in deny)
 			continue
-		if(blacklist.len && (current_species_name in blacklist))
+		if (!appearance_flags)
+			result += name
 			continue
+		if (name in allow)
+			result += name
+			continue
+		var/singleton/species/species = GLOB.species_by_name[name]
+		if (!(appearance_flags & APPEARANCE_SKIP_RESTRICTED_CHECK))
+			if (species.spawn_flags & SPECIES_IS_RESTRICTED)
+				continue
+		if (!(appearance_flags & APPEARANCE_SKIP_ALLOW_LIST_CHECK))
+			if (!is_alien_whitelisted(src, species))
+				continue
+		result += name
+	return result
 
-		valid_species += current_species_name
-
-	return valid_species
 
 /mob/living/carbon/human/proc/generate_valid_hairstyles(check_gender = 1)
 	. = list()

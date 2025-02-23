@@ -1,7 +1,7 @@
 /obj/machinery/cablelayer
 	name = "automatic cable layer"
 
-	icon = 'icons/obj/stationobjs.dmi'
+	icon = 'icons/obj/machines/pipe_dispenser.dmi'
 	icon_state = "pipe_d"
 	density = TRUE
 	var/obj/structure/cable/last_piece
@@ -20,21 +20,20 @@
 
 /obj/machinery/cablelayer/physical_attack_hand(mob/user)
 	if(!cable && !on)
-		to_chat(user, "<span class='warning'>\The [src] doesn't have any cable loaded.</span>")
+		to_chat(user, SPAN_WARNING("\The [src] doesn't have any cable loaded."))
 		return TRUE
 	on = !on
 	user.visible_message("\The [user] [!on?"dea":"a"]ctivates \the [src].", "You switch [src] [on? "on" : "off"]")
 	return TRUE
 
-/obj/machinery/cablelayer/attackby(obj/item/O as obj, mob/user as mob)
+/obj/machinery/cablelayer/use_tool(obj/item/O, mob/living/user, list/click_params)
 	if(istype(O, /obj/item/stack/cable_coil))
-
 		var/result = load_cable(O)
 		if(!result)
-			to_chat(user, "<span class='warning'>\The [src]'s cable reel is full.</span>")
+			to_chat(user, SPAN_WARNING("\The [src]'s cable reel is full."))
 		else
 			to_chat(user, "You load [result] lengths of cable into [src].")
-		return
+		return TRUE
 
 	if(isWirecutter(O))
 		if(cable && cable.amount)
@@ -47,7 +46,9 @@
 				var/obj/item/stack/cable_coil/CC = new (get_turf(src))
 				CC.amount = m
 		else
-			to_chat(usr, "<span class='warning'>There's no more cable on the reel.</span>")
+			to_chat(usr, SPAN_WARNING("There's no more cable on the reel."))
+		return TRUE
+	return ..()
 
 /obj/machinery/cablelayer/examine(mob/user)
 	. = ..()
@@ -102,7 +103,7 @@
 	if(!use_cable(1))
 		return reset()
 	var/obj/structure/cable/NC = new(new_turf)
-	NC.cableColor("red")
+	NC.set_color(COLOR_MAROON)
 	NC.d1 = 0
 	NC.d2 = fdirn
 	NC.update_icon()

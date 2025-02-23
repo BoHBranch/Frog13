@@ -14,18 +14,21 @@
 /obj/item/clothing/head/hairflower
 	name = "hair flower pin"
 	icon_state = "hairflower"
-	desc = "Smells nice."
+	desc = "A floral pin with a clip on the back to attach to hair."
 	slot_flags = SLOT_HEAD | SLOT_EARS
 	body_parts_covered = 0
 
+/obj/item/clothing/head/hairflower/red
+	color = COLOR_RED
+
 /obj/item/clothing/head/hairflower/blue
-	icon_state = "hairflower_blue"
+	color = COLOR_BLUE
 
 /obj/item/clothing/head/hairflower/pink
-	icon_state = "hairflower_pink"
+	color = COLOR_PINK
 
 /obj/item/clothing/head/hairflower/yellow
-	icon_state = "hairflower_yellow"
+	color = COLOR_YELLOW
 
 /obj/item/clothing/head/hairflower/bow
 	icon_state = "bow"
@@ -39,7 +42,7 @@
 	item_state = "pwig"
 
 /obj/item/clothing/head/that
-	name = "top-hat"
+	name = "tophat"
 	desc = "It's an amish looking hat."
 	icon_state = "tophat"
 	item_state = "tophat"
@@ -59,7 +62,7 @@
 	body_parts_covered = 0
 
 /obj/item/clothing/head/plaguedoctorhat
-	name = "plague doctor's hat"
+	name = "plague doctor hat"
 	desc = "These were once used by Plague doctors. They're pretty much useless."
 	icon_state = "plaguedoctor"
 	permeability_coefficient = 0.01
@@ -115,28 +118,9 @@
 	. = ..()
 	set_extension(src, /datum/extension/appearance/cardborg)
 
-/obj/item/clothing/head/justice
-	name = "justice hat"
-	desc = "fight for what's righteous!"
-	icon_state = "justicered"
-	flags_inv = BLOCKHAIR
-	body_parts_covered = HEAD|EYES
-
-/obj/item/clothing/head/justice/blue
-	icon_state = "justiceblue"
-
-/obj/item/clothing/head/justice/yellow
-	icon_state = "justiceyellow"
-
-/obj/item/clothing/head/justice/green
-	icon_state = "justicegreen"
-
-/obj/item/clothing/head/justice/pink
-	icon_state = "justicepink"
-
 /obj/item/clothing/head/rabbitears
 	name = "rabbit ears"
-	desc = "Wearing these makes you looks useless, and only good for your sex appeal."
+	desc = "Nyaaaaaaa, what's up doc?"
 	icon_state = "bunny"
 	body_parts_covered = 0
 
@@ -172,19 +156,8 @@
 /obj/item/clothing/head/bandana
 	name = "pirate bandana"
 	desc = "Yarr."
-	icon_state = "bandana"
+	icon_state = "pirate_bandana"
 	body_parts_covered = 0
-
-/obj/item/clothing/head/bandana/green
-	name = "green bandana"
-	desc = "It's a green bandana with some fine nanotech lining."
-	icon_state = "greenbandana"
-	item_state = "greenbandana"
-
-/obj/item/clothing/head/bandana/orange //themij: Taryn Kifer
-	name = "orange bandana"
-	desc = "An orange piece of cloth, worn on the head."
-	icon_state = "orange_bandana"
 
 /obj/item/clothing/head/bowler
 	name = "bowler-hat"
@@ -394,33 +367,29 @@
 	desc = "A helmet with ear protection and a visor, used in hangars on many ships."
 	icon_state = "deckcrew"
 	flags_inv = BLOCKHEADHAIR
+	volume_multiplier = 0.1
 
 /obj/item/clothing/head/deckcrew/green
 	name = "green deck crew helmet"
 	desc = "A helmet with ear protection and a visor, used by support staff in Fleet hangars."
 	icon_state = "deckcrew_g"
-	flags_inv = BLOCKHEADHAIR
 
 /obj/item/clothing/head/deckcrew/blue
 	name = "blue deck crew helmet"
 	desc = "A helmet with ear protection and a visor, used by tug operators in Fleet hangars."
 	icon_state = "deckcrew_b"
-	flags_inv = BLOCKHEADHAIR
 
 /obj/item/clothing/head/deckcrew/yellow
 	name = "yellow deck crew helmet"
 	desc = "A helmet with ear protection and a visor, used by traffic control in Fleet hangars."
 	icon_state = "deckcrew_y"
-	flags_inv = BLOCKHEADHAIR
 
 /obj/item/clothing/head/deckcrew/purple
 	name = "purple deck crew helmet"
 	desc = "A helmet with ear protection and a visor, used by fueling personnel in Fleet hangars."
 	icon_state = "deckcrew_p"
-	flags_inv = BLOCKHEADHAIR
 
 /obj/item/clothing/head/deckcrew/red
 	name = "red deck crew helmet"
 	desc = "A helmet with ear protection and a visor, used by munitions handlers in Fleet hangars."
 	icon_state = "deckcrew_r"
-	flags_inv = BLOCKHEADHAIR

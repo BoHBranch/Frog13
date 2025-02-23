@@ -1,11 +1,11 @@
 #include "smugglers_areas.dm"
 #include "../mining/mining_areas.dm"
 
-/obj/effect/overmap/visitable/sector/smugglers
+/obj/overmap/visitable/sector/smugglers
 	name = "asteroid station"
 	desc = "A small station built into an asteroid. No radio traffic detected."
 	icon_state = "object"
-	known = FALSE
+
 
 	initial_generic_waypoints = list(
 		"nav_smugglers",
@@ -26,11 +26,11 @@
 		/area/smugglers/office = NO_SCRUBBER|NO_VENT
 	)
 
-/obj/effect/shuttle_landmark/nav_asteroid_base/nav1
+/obj/shuttle_landmark/nav_asteroid_base/nav1
 	name = "Abandoned Asteroid Base Navpoint #1"
 	landmark_tag = "nav_smugglers"
 
-/obj/effect/shuttle_landmark/nav_asteroid_base/nav2
+/obj/shuttle_landmark/nav_asteroid_base/nav2
 	name = "Abandoned Asteroid Base Navpoint #2"
 	landmark_tag = "nav_smugglers_antag"
 	flags = SLANDMARK_FLAG_AUTOSET
@@ -95,7 +95,7 @@
 /obj/random/ammo_magazine_smug
 	name = "Random Ammo Magazine"
 	desc = "This is smuggler's random ammo magazine."
-	icon = 'icons/obj/ammo.dmi'
+	icon = 'icons/obj/weapons/ammo.dmi'
 	icon_state = "magnum"
 
 /obj/random/ammo_magazine_smug/spawn_choices()
@@ -103,12 +103,12 @@
 		/obj/item/ammo_magazine/pistol,
 		/obj/item/ammo_magazine/speedloader,
 		/obj/item/ammo_magazine/rifle,
-		/obj/item/ammo_magazine/mil_rifle)
+		/obj/item/ammo_magazine/mil_rifle/heavy)
 
 /obj/structure/closet/crate/plastic_smug_ammo
 	name = "dirty plastic crate"
 	desc = "Dirty and scrtached plastic crate."
-	closet_appearance = /decl/closet_appearance/crate/plastic
+	closet_appearance = /singleton/closet_appearance/crate/plastic
 
 /obj/structure/closet/crate/plastic_smug_ammo/WillContain()
 	return list(
@@ -121,7 +121,7 @@
 /obj/structure/closet/crate/plastic_smug_weapons
 	name = "dirty plastic crate"
 	desc = "Dirty and scrtached plastic crate."
-	closet_appearance = /decl/closet_appearance/crate/plastic
+	closet_appearance = /singleton/closet_appearance/crate/plastic
 
 /obj/structure/closet/crate/plastic_smug_weapons/WillContain()
 	return list(

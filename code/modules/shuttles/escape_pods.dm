@@ -116,7 +116,7 @@ var/global/list/escape_pods_by_name = list()
 
 /obj/machinery/embedded_controller/radio/simple_docking_controller/escape_pod_berth/emag_act(remaining_charges, mob/user)
 	if (!emagged)
-		to_chat(user, "<span class='notice'>You emag the [src], arming the escape pod!</span>")
+		to_chat(user, SPAN_NOTICE("You emag the [src], arming the escape pod!"))
 		emagged = TRUE
 		if (istype(program, /datum/computer/file/embedded_program/docking/simple/escape_pod_berth))
 			var/datum/computer/file/embedded_program/docking/simple/escape_pod_berth/P = program
@@ -177,8 +177,9 @@ var/global/list/escape_pods_by_name = list()
 	signal.data = list(
 		"tag" = tag_pump,
 		"sigtype" = "command",
-		"power" = 1,
-		"direction" = 1,
+		//"status" = TRUE,
+		"set_power" = 1,
+		"set_direction" = 1,
 		"set_external_pressure" = ONE_ATMOSPHERE
 	)
 	post_signal(signal)

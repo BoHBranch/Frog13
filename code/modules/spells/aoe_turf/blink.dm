@@ -16,7 +16,7 @@
 	cast_sound = 'sound/magic/blink.ogg'
 
 /spell/aoe_turf/blink/cast(list/targets, mob/user)
-	if(!targets.len)
+	if(!length(targets))
 		return
 
 	var/turf/T = pick(targets)
@@ -26,7 +26,7 @@
 			user.buckled = null
 		user.forceMove(T)
 
-		var/datum/effect/effect/system/smoke_spread/smoke = new /datum/effect/effect/system/smoke_spread()
+		var/datum/effect/smoke_spread/smoke = new /datum/effect/smoke_spread()
 		smoke.set_up(3, 0, starting)
 		smoke.start()
 

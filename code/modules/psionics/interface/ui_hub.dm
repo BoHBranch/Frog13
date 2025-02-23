@@ -8,13 +8,13 @@
 	var/image/on_cooldown
 	var/list/components
 
-/obj/screen/psi/hub/New(mob/living/_owner)
+/obj/screen/psi/hub/Initialize(mapload)
+	. = ..()
 	on_cooldown = image(icon, "cooldown")
 	components = list(
-		new /obj/screen/psi/armour(_owner),
-		new /obj/screen/psi/toggle_psi_menu(_owner, src)
-		)
-	..()
+		new /obj/screen/psi/armour(owner),
+		new /obj/screen/psi/toggle_psi_menu(owner, src)
+	)
 	START_PROCESSING(SSprocessing, src)
 
 /obj/screen/psi/hub/on_update_icon()
@@ -24,9 +24,9 @@
 
 	icon_state = owner.psi.suppressed ? "psi_suppressed" : "psi_active"
 	if(world.time < owner.psi.next_power_use)
-		overlays |= on_cooldown
+		AddOverlays(on_cooldown)
 	else
-		overlays.Cut()
+		ClearOverlays()
 	var/offset = 1
 	for(var/thing in components)
 		var/obj/screen/psi/component = thing
@@ -50,18 +50,18 @@
 	maptext = "[round((owner.psi.stamina/owner.psi.max_stamina)*100)]%"
 	update_icon()
 
-/obj/screen/psi/hub/Click(location, control, params)
-	var/list/click_params = params2list(params)
-	if(click_params["shift"])
+/obj/screen/psi/hub/Click(location, control, click_params)
+	var/list/params = params2list(click_params)
+	if(params["shift"])
 		owner.show_psi_assay(owner)
 		return
 
 	if(owner.psi.suppressed && owner.psi.stun)
-		to_chat(owner, "<span class='warning'>You are dazed and reeling, and cannot muster enough focus to do that!</span>")
+		to_chat(owner, SPAN_WARNING("You are dazed and reeling, and cannot muster enough focus to do that!"))
 		return
 
 	owner.psi.suppressed = !owner.psi.suppressed
-	to_chat(owner, "<span class='notice'>You are <b>[owner.psi.suppressed ? "now suppressing" : "no longer suppressing"]</b> your psi-power.</span>")
+	to_chat(owner, SPAN_NOTICE("You are <b>[owner.psi.suppressed ? "now suppressing" : "no longer suppressing"]</b> your psi-power."))
 	if(owner.psi.suppressed)
 		owner.psi.cancel()
 		owner.psi.hide_auras()

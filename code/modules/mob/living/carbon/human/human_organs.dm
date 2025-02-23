@@ -34,7 +34,7 @@
 	handle_stance()
 	handle_grasp()
 
-	if(!force_process && !bad_external_organs.len)
+	if(!force_process && !length(bad_external_organs))
 		return
 
 	for(var/obj/item/organ/external/E in bad_external_organs)
@@ -48,7 +48,7 @@
 
 			if (!lying && !buckled && world.time - l_move_time < 15)
 			//Moving around with fractured ribs won't do you any good
-				if (prob(10) && !stat && can_feel_pain() && chem_effects[CE_PAINKILLER] < 50 && E.is_broken() && E.internal_organs.len)
+				if (prob(10) && !stat && can_feel_pain() && chem_effects[CE_PAINKILLER] < 50 && E.is_broken() && length(E.internal_organs))
 					custom_pain("Pain jolts through your broken [E.encased ? E.encased : E.name], staggering you!", 50, affecting = E)
 					unequip_item(loc)
 					Stun(2)
@@ -82,8 +82,7 @@
 		return
 
 	// Can't fall if nothing pulls you down
-	var/area/area = get_area(src)
-	if (!area || !area.has_gravity())
+	if(!has_gravity())
 		return
 
 	var/limb_pain
@@ -96,7 +95,7 @@
 			stance_damage += 2
 			if(prob(10))
 				visible_message("\The [src]'s [E.name] [pick("twitches", "shudders")] and sparks!")
-				var/datum/effect/effect/system/spark_spread/spark_system = new ()
+				var/datum/effect/spark_spread/spark_system = new ()
 				spark_system.set_up(5, 0, src)
 				spark_system.attach(src)
 				spark_system.start()
@@ -158,7 +157,7 @@
 		for(var/limb_tag in list(BP_L_HAND, BP_L_ARM))
 			var/obj/item/organ/external/E = get_organ(limb_tag)
 			if(!E)
-				visible_message("<span class='danger'>Lacking a functioning left hand, \the [src] drops \the [l_hand].</span>")
+				visible_message(SPAN_DANGER("Lacking a functioning left hand, \the [src] drops \the [l_hand]."))
 				drop_from_inventory(l_hand)
 				break
 
@@ -166,7 +165,7 @@
 		for(var/limb_tag in list(BP_R_HAND, BP_R_ARM))
 			var/obj/item/organ/external/E = get_organ(limb_tag)
 			if(!E)
-				visible_message("<span class='danger'>Lacking a functioning right hand, \the [src] drops \the [r_hand].</span>")
+				visible_message(SPAN_DANGER("Lacking a functioning right hand, \the [src] drops \the [r_hand]."))
 				drop_from_inventory(r_hand)
 				break
 
@@ -218,9 +217,10 @@
 		return
 
 	if(BP_IS_ROBOTIC(affected))
-		visible_message("<B>\The [src]</B> drops what they were holding, \his [affected.name] malfunctioning!")
+		var/datum/pronouns/pronouns = choose_from_pronouns()
+		visible_message("<B>\The [src]</B> drops what they were holding, [pronouns.his] [affected.name] malfunctioning!")
 
-		var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
+		var/datum/effect/spark_spread/spark_system = new /datum/effect/spark_spread()
 		spark_system.set_up(5, 0, src)
 		spark_system.attach(src)
 		spark_system.start()
@@ -229,7 +229,7 @@
 
 	else
 		var/grasp_name = affected.name
-		if((affected.body_part in list(ARM_LEFT, ARM_RIGHT)) && affected.children.len)
+		if((affected.body_part in list(ARM_LEFT, ARM_RIGHT)) && length(affected.children))
 			var/obj/item/organ/external/hand = pick(affected.children)
 			grasp_name = hand.name
 

@@ -4,10 +4,11 @@
 	var/fire_mult = 1
 	var/tox_mult = 1
 
-/obj/aura/regenerating/life_tick()
+/obj/aura/regenerating/aura_check_life()
 	user.adjustBruteLoss(-brute_mult)
 	user.adjustFireLoss(-fire_mult)
 	user.adjustToxLoss(-tox_mult)
+	return EMPTY_BITFIELD
 
 /obj/aura/regenerating/human
 	var/nutrition_damage_mult = 1 //How much nutrition it takes to heal regular damage
@@ -24,15 +25,15 @@
 /obj/aura/regenerating/human/proc/external_regeneration_effect(obj/item/organ/external/O, mob/living/carbon/human/H)
 	return
 
-/obj/aura/regenerating/human/life_tick()
+/obj/aura/regenerating/human/aura_check_life()
 	var/mob/living/carbon/human/H = user
 	if(!istype(H))
 		CRASH("Someone gave [user.type] a [src.type] aura. This is invalid.")
 	if(!innate_heal || H.InStasis() || H.stat == DEAD)
-		return 0
+		return EMPTY_BITFIELD
 	if(H.nutrition < nutrition_damage_mult)
 		low_nut_warning()
-		return 0
+		return EMPTY_BITFIELD
 
 	if(brute_mult && H.getBruteLoss())
 		H.adjustBruteLoss(-brute_mult * config.organ_regeneration_multiplier)
@@ -44,8 +45,6 @@
 		H.adjustToxLoss(-tox_mult * config.organ_regeneration_multiplier)
 		H.adjust_nutrition(-nutrition_damage_mult)
 
-	if(!can_regenerate_organs())
-		return 1
 	if(organ_mult)
 		if(prob(10) && H.nutrition >= 150 && !H.getBruteLoss() && !H.getFireLoss())
 			var/obj/item/organ/external/head/D = H.organs_by_name["head"]
@@ -92,11 +91,11 @@
 				for(var/datum/wound/W in E.wounds)
 					if(W.wound_damage() == 0 && prob(50))
 						qdel(W)
-	return 1
+	return AURA_CANCEL
 
 /obj/aura/regenerating/human/proc/low_nut_warning(wound_type)
 	if (last_nutrition_warning + 1 MINUTE < world.time)
-		to_chat(user, "<span class='warning'>You need more energy to regenerate your [wound_type || "wounds"].</span>")
+		to_chat(user, SPAN_WARNING("You need more energy to regenerate your [wound_type || "wounds"]."))
 		last_nutrition_warning = world.time
 		return 1
 	return 0
@@ -111,50 +110,54 @@
 	return TRUE
 
 /obj/aura/regenerating/human/unathi
-	nutrition_damage_mult = 2
-	brute_mult = 2
-	organ_mult = 4
+	brute_mult = 0
+	fire_mult = 0
+	tox_mult = 0
+	organ_mult = 0
 	regen_message = "<span class='warning'>You feel a soothing sensation as your ORGAN mends...</span>"
 	grow_chance = 2
 	grow_threshold = 150
 	ignore_tag = BP_HEAD
-	innate_heal = FALSE
 	var/toggle_blocked_until = 0 // A time
 
-/obj/aura/regenerating/human/unathi/toggle()
-	..()
-	toggle_blocked_until = max(world.time + 2 MINUTES, toggle_blocked_until)
-
 /obj/aura/regenerating/human/unathi/can_toggle()
-	if(world.time < toggle_blocked_until)
-		return FALSE
-	return ..()
-
-// Default return; we're just logging.
-/obj/aura/regenerating/human/unathi/attackby()
-	toggle_blocked_until = max(world.time + 1 MINUTE, toggle_blocked_until)
-
-/obj/aura/regenerating/human/unathi/hitby()
-	toggle_blocked_until = max(world.time + 1 MINUTE, toggle_blocked_until)
-
-/obj/aura/regenerating/human/unathi/bullet_act()
-	toggle_blocked_until = max(world.time + 1 MINUTE, toggle_blocked_until)
-
-/obj/aura/regenerating/human/unathi/life_tick()
-	var/mob/living/carbon/human/H = user
-	if(innate_heal && istype(H) && H.stat != DEAD && H.nutrition < 50)
-		H.apply_damage(5, DAMAGE_TOXIN)
-		H.adjust_nutrition(3)
-		return 1
-	return ..()
+	return FALSE
 
 /obj/aura/regenerating/human/unathi/can_regenerate_organs()
 	return can_toggle()
 
+// Default return; we're just logging.
+/obj/aura/regenerating/human/unathi/aura_check_weapon(obj/item/weapon, mob/attacker, click_params)
+	toggle_blocked_until = max(world.time + 1 MINUTE, toggle_blocked_until)
+	return EMPTY_BITFIELD
+
+/obj/aura/regenerating/human/unathi/aura_check_thrown(atom/movable/thrown_atom, datum/thrownthing/thrown_datum)
+	toggle_blocked_until = max(world.time + 1 MINUTE, toggle_blocked_until)
+	return EMPTY_BITFIELD
+
+/obj/aura/regenerating/human/unathi/aura_check_bullet(obj/item/projectile/proj, def_zone)
+	toggle_blocked_until = max(world.time + 1 MINUTE, toggle_blocked_until)
+	return EMPTY_BITFIELD
+
+/obj/aura/regenerating/human/unathi/aura_check_life()
+	var/mob/living/carbon/human/H = user
+	if (!istype(H) || H.stat == DEAD)
+		return AURA_CANCEL
+	if (H.stasis_value)
+		return AURA_FALSE
+	if (H.nutrition < 50)
+		H.apply_damage(5, DAMAGE_TOXIN)
+		H.adjust_nutrition(3)
+		return AURA_FALSE
+
+	return ..()
+
+
 /obj/aura/regenerating/human/unathi/external_regeneration_effect(obj/item/organ/external/O, mob/living/carbon/human/H)
-	to_chat(H, "<span class='danger'>With a shower of fresh blood, a new [O.name] forms.</span>")
-	H.visible_message("<span class='danger'>With a shower of fresh blood, a length of biomass shoots from [H]'s [O.amputation_point], forming a new [O.name]!</span>")
+	to_chat(H, SPAN_DANGER("With a shower of fresh blood, a new [O.name] forms."))
+	H.visible_message(SPAN_DANGER("With a shower of fresh blood, a length of biomass shoots from [H]'s [O.amputation_point], forming a new [O.name]!"))
 	H.adjust_nutrition(-external_nutrition_mult)
+	H.adjustHalLoss(10)
 	var/datum/reagent/blood/B = locate(/datum/reagent/blood) in H.vessel.reagent_list
 	blood_splatter(H,B,1)
 	O.set_dna(H.dna)
@@ -172,10 +175,5 @@
 	external_nutrition_mult = 60
 
 /obj/aura/regenerating/human/diona/external_regeneration_effect(obj/item/organ/external/O, mob/living/carbon/human/H)
-	to_chat(H, "<span class='warning'>Some of your nymphs split and hurry to reform your [O.name].</span>")
+	to_chat(H, SPAN_WARNING("Some of your nymphs split and hurry to reform your [O.name]."))
 	H.adjust_nutrition(-external_nutrition_mult)
-
-/obj/aura/regenerating/human/unathi/yeosa
-	brute_mult = 1.5
-	organ_mult = 3
-	tox_mult = 2

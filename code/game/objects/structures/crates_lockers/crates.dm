@@ -1,8 +1,9 @@
 /obj/structure/closet/crate
 	name = "crate"
 	desc = "A rectangular steel crate."
-	closet_appearance = /decl/closet_appearance/crate
+	closet_appearance = /singleton/closet_appearance/crate
 	atom_flags = ATOM_FLAG_NO_TEMP_CHANGE | ATOM_FLAG_CLIMBABLE
+	obj_flags = OBJ_FLAG_CAN_TABLE
 	setup = 0
 	storage_types = CLOSET_STORAGE_ITEMS
 	var/points_per_crate = 5
@@ -14,7 +15,7 @@
 	. = ..()
 	if(.)
 		if(rigged)
-			visible_message("<span class='danger'>There are wires attached to the lid of [src]...</span>")
+			visible_message(SPAN_DANGER("There are wires attached to the lid of [src]..."))
 			for(var/obj/item/device/assembly_holder/H in src)
 				H.process_activation(usr)
 			for(var/obj/item/device/assembly/A in src)
@@ -30,41 +31,67 @@
 			devices += A
 		to_chat(user,"There are some wires attached to the lid, connected to [english_list(devices)].")
 
-/obj/structure/closet/crate/attackby(obj/item/W as obj, mob/user as mob)
-	if(opened)
+
+/obj/structure/closet/crate/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Below interactions only apply if the crate is closed
+	if (opened)
 		return ..()
-	else if(istype(W, /obj/item/stack/package_wrap))
-		return
-	else if(istype(W, /obj/item/stack/cable_coil))
-		var/obj/item/stack/cable_coil/C = W
-		if(rigged)
-			to_chat(user, "<span class='notice'>[src] is already rigged!</span>")
-			return
-		if (C.use(1))
-			to_chat(user, "<span class='notice'>You rig [src].</span>")
-			rigged = 1
-			return
-	else if(istype(W, /obj/item/device/assembly_holder) || istype(W, /obj/item/device/assembly))
-		if(rigged)
-			if(!user.unEquip(W, src))
-				return
-			to_chat(user, "<span class='notice'>You attach [W] to [src].</span>")
-			return
-	else if(isWirecutter(W))
-		if(rigged)
-			to_chat(user, "<span class='notice'>You cut away the wiring.</span>")
-			playsound(loc, 'sound/items/Wirecutter.ogg', 100, 1)
-			rigged = 0
-			return
-	else
-		return ..()
+
+	// Assembly - Attach to rigged crate
+	if (istype(tool, /obj/item/device/assembly_holder) || istype(tool, /obj/item/device/assembly))
+		if (!rigged)
+			USE_FEEDBACK_FAILURE("\The [src] needs to be rigged with wiring before you can attach \the [tool].")
+			return TRUE
+		if (!user.unEquip(tool, src))
+			FEEDBACK_UNEQUIP_FAILURE(user, tool)
+			return TRUE
+		user.visible_message(
+			SPAN_NOTICE("\The [user] attaches \a [tool] to \the [src]."),
+			SPAN_NOTICE("You attach \the [tool] to \the [src].")
+		)
+		return TRUE
+
+	// Cable Coil - Rig crate
+	if (isCoil(tool))
+		if (rigged)
+			USE_FEEDBACK_FAILURE("\The [src] is already rigged.")
+			return TRUE
+		var/obj/item/stack/cable_coil/cable = tool
+		if (!cable.use(1))
+			USE_FEEDBACK_STACK_NOT_ENOUGH(cable, 1, "to rig \the [src].")
+			return TRUE
+		rigged = TRUE
+		user.visible_message(
+			SPAN_NOTICE("\The [user] adds some wiring to \the [src] with [cable.get_vague_name(FALSE)]."),
+			SPAN_NOTICE("You rig \the [src] with [cable.get_exact_name(1)].")
+		)
+		return TRUE
+
+	// Wirecutters - Remove wiring
+	if (isWirecutter(tool))
+		if (!rigged)
+			USE_FEEDBACK_FAILURE("\The [src] has no wiring to cut.")
+			return TRUE
+		rigged = FALSE
+		new /obj/item/stack/cable_coil(loc, 1)
+		playsound(src, 'sound/items/Wirecutter.ogg', 50, TRUE)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] cuts \the [src]'s wiring with \a [tool]."),
+			SPAN_NOTICE("You cuts \the [src]'s wiring with \the [tool].")
+		)
+		return TRUE
+
+	return ..()
+
 
 /obj/structure/closet/crate/secure
 	desc = "A secure crate."
-	name = "Secure crate"
-	closet_appearance = /decl/closet_appearance/crate/secure
+	name = "secure crate"
+	closet_appearance = /singleton/closet_appearance/crate/secure
 	setup = CLOSET_HAS_LOCK
 	locked = TRUE
+	health_max = 200
+	health_min_damage = 5
 
 /obj/structure/closet/crate/secure/Initialize()
 	. = ..()
@@ -74,7 +101,7 @@
 	name = "plastic crate"
 	desc = "A rectangular plastic crate."
 	points_per_crate = 1
-	closet_appearance = /decl/closet_appearance/crate/plastic
+	closet_appearance = /singleton/closet_appearance/crate/plastic
 	material = MATERIAL_PLASTIC
 
 /obj/structure/closet/crate/internals
@@ -82,7 +109,7 @@
 	desc = "A internals crate."
 
 /obj/structure/closet/crate/internals/fuel
-	name = "\improper Fuel tank crate"
+	name = "fuel tank crate"
 	desc = "A fuel tank crate."
 
 /obj/structure/closet/crate/internals/fuel/WillContain()
@@ -91,12 +118,12 @@
 /obj/structure/closet/crate/trashcart
 	name = "trash cart"
 	desc = "A heavy, metal trashcart with wheels."
-	closet_appearance = /decl/closet_appearance/cart/trash
+	closet_appearance = /singleton/closet_appearance/cart/trash
 
 /obj/structure/closet/crate/medical
 	name = "medical crate"
 	desc = "A medical crate."
-	closet_appearance = /decl/closet_appearance/crate/medical
+	closet_appearance = /singleton/closet_appearance/crate/medical
 
 /obj/structure/closet/crate/rcd
 	name = "\improper RCD crate"
@@ -129,7 +156,7 @@
 	name = "freezer"
 	desc = "A freezer."
 	temperature = -16 CELSIUS
-	closet_appearance = /decl/closet_appearance/crate/freezer
+	closet_appearance = /singleton/closet_appearance/crate/freezer
 
 	var/target_temp = T0C - 40
 	var/cooling_power = 40
@@ -155,7 +182,12 @@
 	desc = "A crate of emergency rations."
 
 /obj/structure/closet/crate/freezer/rations/WillContain()
-	return list(/obj/random/mre = 6, /obj/item/reagent_containers/food/drinks/cans/waterbottle = 12)
+	return list(
+		/obj/random/mre = 6,
+		/obj/item/storage/mre/menu9,
+		/obj/item/storage/mre/menu10,
+		/obj/item/reagent_containers/food/drinks/cans/waterbottle = 8
+	)
 
 /obj/structure/closet/crate/freezer/meat
 	name = "meat crate"
@@ -175,12 +207,12 @@
 /obj/structure/closet/crate/radiation
 	name = "radioactive crate"
 	desc = "A leadlined crate with a radiation sign on it."
-	closet_appearance = /decl/closet_appearance/crate/radiation
+	closet_appearance = /singleton/closet_appearance/crate/radiation
 
 /obj/structure/closet/crate/radiation_gear
 	name = "radioactive gear crate"
 	desc = "A crate with a radiation sign on it."
-	closet_appearance = /decl/closet_appearance/crate/radiation
+	closet_appearance = /singleton/closet_appearance/crate/radiation
 
 /obj/structure/closet/crate/radiation_gear/WillContain()
 	return list(/obj/item/clothing/suit/radiation = 8)
@@ -188,49 +220,49 @@
 /obj/structure/closet/crate/secure/weapon
 	name = "weapons crate"
 	desc = "A secure weapons crate."
-	closet_appearance = /decl/closet_appearance/crate/secure/weapon
+	closet_appearance = /singleton/closet_appearance/crate/secure/weapon
 
 /obj/structure/closet/crate/secure/phoron
 	name = "phoron crate"
 	desc = "A secure phoron crate."
-	closet_appearance = /decl/closet_appearance/crate/secure/hazard
+	closet_appearance = /singleton/closet_appearance/crate/secure/hazard
 
 /obj/structure/closet/crate/secure/shuttle
 	name = "storage compartment"
 	desc = "A secure storage compartment bolted to the floor, to secure loose objects on Zero-G flights."
 	anchored = TRUE
-	closet_appearance = /decl/closet_appearance/crate/secure/shuttle
+	closet_appearance = /singleton/closet_appearance/crate/secure/shuttle
 
 /obj/structure/closet/crate/secure/gear
 	name = "gear crate"
 	desc = "A secure gear crate."
-	closet_appearance = /decl/closet_appearance/crate/secure/weapon
+	closet_appearance = /singleton/closet_appearance/crate/secure/weapon
 
 /obj/structure/closet/crate/secure/hydrosec
 	name = "secure hydroponics crate"
 	desc = "A crate with a lock on it, painted in the scheme of botany and botanists."
-	closet_appearance = /decl/closet_appearance/crate/secure/hydroponics
+	closet_appearance = /singleton/closet_appearance/crate/secure/hydroponics
 
 /obj/structure/closet/crate/large
 	name = "large crate"
 	desc = "A hefty metal crate."
 	storage_capacity = 2 * MOB_LARGE
 	storage_types = CLOSET_STORAGE_ITEMS|CLOSET_STORAGE_STRUCTURES
-	closet_appearance = /decl/closet_appearance/large_crate
+	closet_appearance = /singleton/closet_appearance/large_crate
 
 /obj/structure/closet/crate/large/hydroponics
-	closet_appearance = /decl/closet_appearance/large_crate/hydroponics
+	closet_appearance = /singleton/closet_appearance/large_crate/hydroponics
 
 /obj/structure/closet/crate/secure/large
 	name = "large crate"
 	desc = "A hefty metal crate with an electronic locking system."
-	closet_appearance = /decl/closet_appearance/large_crate/secure
+	closet_appearance = /singleton/closet_appearance/large_crate/secure
 
 	storage_capacity = 2 * MOB_LARGE
 	storage_types = CLOSET_STORAGE_ITEMS|CLOSET_STORAGE_STRUCTURES
 
 /obj/structure/closet/crate/secure/large/phoron
-	closet_appearance = /decl/closet_appearance/large_crate/secure/hazard
+	closet_appearance = /singleton/closet_appearance/large_crate/secure/hazard
 
 //fluff variant
 /obj/structure/closet/crate/secure/large/reinforced
@@ -239,7 +271,7 @@
 /obj/structure/closet/crate/hydroponics
 	name = "hydroponics crate"
 	desc = "All you need to destroy those pesky weeds and pests."
-	closet_appearance = /decl/closet_appearance/crate/hydroponics
+	closet_appearance = /singleton/closet_appearance/crate/hydroponics
 
 /obj/structure/closet/crate/hydroponics/prespawned/WillContain()
 	return list(
@@ -257,7 +289,7 @@
 	open_sound = 'sound/items/Deconstruct.ogg'
 	close_sound = 'sound/items/Deconstruct.ogg'
 	req_access = list(access_xenobiology)
-	closet_appearance = /decl/closet_appearance/cart/biohazard
+	closet_appearance = /singleton/closet_appearance/cart/biohazard
 	storage_capacity = 2 * MOB_LARGE
 	storage_types = CLOSET_STORAGE_ITEMS|CLOSET_STORAGE_MOBS|CLOSET_STORAGE_STRUCTURES
 
@@ -274,7 +306,7 @@
 	name = "biowaste disposal cart"
 	desc = "A heavy cart used for organ disposal with markings indicating the things inside are probably gross."
 	req_access = list(access_surgery)
-	closet_appearance = /decl/closet_appearance/cart/biohazard/alt
+	closet_appearance = /singleton/closet_appearance/cart/biohazard/alt
 
 /obj/structure/closet/crate/paper_refill
 	name = "paper refill crate"
@@ -287,7 +319,57 @@
 /obj/structure/closet/crate/uranium
 	name = "fissibles crate"
 	desc = "A crate with a radiation sign on it."
-	closet_appearance = /decl/closet_appearance/crate/radiation
+	closet_appearance = /singleton/closet_appearance/crate/radiation
 
 /obj/structure/closet/crate/uranium/WillContain()
 	return list(/obj/item/stack/material/uranium/ten = 5)
+
+///Base ninja equipment
+/obj/structure/closet/crate/ninja
+	name = "ninja equipment crate"
+	desc = "An ominous equipment crate."
+	closet_appearance = /singleton/closet_appearance/crate/secure/weapon
+
+/obj/structure/closet/crate/ninja/WillContain()
+	return list(
+		/obj/item/rig/light/ninja,
+		/obj/item/material/sword/katana,
+		/obj/item/storage/box/syndie_kit/silenced
+	)
+
+///Ninja equipment loadouts. Overwritten in torch/structures/closets.dm because of away/example check evils
+/obj/structure/closet/crate/ninja/sol
+	name = "sol equipment crate"
+	desc = "A tactical equipment crate."
+
+/obj/structure/closet/crate/ninja/sol/WillContain()
+	return list(
+		/obj/item/rig/light/ninja/sol
+	)
+
+/obj/structure/closet/crate/ninja/gcc
+	name = "gcc equipment crate"
+	desc = "A heavy equipment crate."
+
+/obj/structure/closet/crate/ninja/gcc/WillContain()
+	return list(
+		/obj/item/rig/light/ninja/gcc
+	)
+
+/obj/structure/closet/crate/ninja/corpo
+	name = "corporate equipment crate"
+	desc = "A patented equipment crate."
+
+/obj/structure/closet/crate/ninja/corpo/WillContain()
+	return list(
+		/obj/item/rig/light/ninja/corpo
+	)
+
+/obj/structure/closet/crate/ninja/merc
+	name = "mercenary equipment crate"
+	desc = "A traitorous equipment crate."
+
+/obj/structure/closet/crate/ninja/merc/WillContain()
+	return list(
+		/obj/item/rig/merc/ninja
+	)

@@ -45,12 +45,25 @@
 	item_cost = 12
 	path = /obj/item/card/id/syndicate
 
+/datum/uplink_item/item/stealth_items/cosmetic_surgery_kit
+	name = "Cosmetic Surgery Auto-Kit"
+	desc = "A small self-contained auto-surgery device that has the ability to conduct laryngeal, facial and even melanin re-structuring surgery,  \
+	in a (mostly) blood-less manner."
+	item_cost = 12
+	path = /obj/item/device/cosmetic_surgery_kit
+
 /datum/uplink_item/item/stealth_items/chameleon_kit
 	name = "Chameleon Kit"
 	desc = "Comes with a full set of appearance changing clothing you need to impersonate most people.  \
 	Accessories, backpack, and gun included!"
 	item_cost = 20
 	path = /obj/item/storage/backpack/chameleon/sydie_kit
+
+/datum/uplink_item/item/stealth_items/corpse_cube
+	name = "Fake Corpse Cube"
+	desc = "For when reports of death were greatly exaggerated. Bundled with a DNA sampler for extracting a target's DNA to inject into the cube."
+	item_cost = 20
+	path = /obj/item/storage/box/syndie_kit/corpse_cube
 
 /datum/uplink_item/item/stealth_items/voice
 	name = "Modified Gas Mask"
@@ -78,3 +91,9 @@
 	great for stashing your stolen goods. Comes with a crowbar and a floor tile."
 	item_cost = 20
 	path = /obj/item/storage/backpack/satchel/flat
+
+/datum/uplink_item/item/stealth_items/caltrops
+	name = "Box of Caltrops"
+	desc = "A set of 4 steel caltrops, cunningly hidden in an innocent lunchbox."
+	item_cost = 20
+	path = /obj/item/storage/lunchbox/caltrops

@@ -28,6 +28,7 @@
 	var/day_loc = findtext(full_date, time2text(world.timeofday, "DD"))
 
 	var/datum/player_info/P = new
+	P.game_id = game_id
 	if (ismob(user))
 		P.author = user.key
 		P.rank = user.client.holder.rank
@@ -43,7 +44,7 @@
 	infos += P
 	to_save(info, infos)
 
-	message_staff("<span class='notice'>[P.author] has edited [target]'s notes.</span>")
+	message_staff(SPAN_NOTICE("[P.author] has edited [target]'s notes."))
 	log_admin("[P.author] has edited [target]'s notes.")
 
 	del(info) // savefile, so NOT qdel
@@ -63,13 +64,13 @@
 	var/savefile/info = new("data/player_saves/[copytext_char(target, 1, 2)]/[target]/info.sav")
 	var/list/infos
 	from_save(info, infos)
-	if(!infos || infos.len < index) return
+	if(!infos || length(infos) < index) return
 
 	var/datum/player_info/item = infos[index]
 	infos.Remove(item)
 	to_save(info, infos)
 
-	message_staff("<span class='notice'>[key_name_admin(usr)] deleted one of [target]'s notes.</span>")
+	message_staff(SPAN_NOTICE("[key_name_admin(usr)] deleted one of [target]'s notes."))
 	log_admin("[key_name(usr)] deleted one of [target]'s notes.")
 
 	del(info) // savefile, so NOT qdel
@@ -84,6 +85,6 @@
 		dat = "No information found on the given key."
 	else
 		for(var/datum/player_info/I in infos)
-			dat += "[I.content]\nby [I.author] ([I.rank]) on [I.timestamp]\n\n"
+			dat += "[I.content]\nby [I.author] ([I.rank]) on [I.timestamp] ([I.game_id])\n\n"
 
-	return list2params(list(dat))
+	return list2params(list("notes" = dat))

@@ -1,4 +1,4 @@
-GLOBAL_LIST_INIT(secure_weapons, list())
+GLOBAL_LIST_EMPTY(secure_weapons)
 
 /obj/item/gun
 	var/list/authorized_modes = list(ALWAYS_AUTHORIZED) // index of this list should line up with firemodes, unincluded firemodes at the end will use default
@@ -11,7 +11,7 @@ GLOBAL_LIST_INIT(secure_weapons, list())
 		if(!authorized_modes)
 			authorized_modes = list()
 
-		for(var/i = authorized_modes.len + 1 to firemodes.len)
+		for(var/i = length(authorized_modes) + 1 to length(firemodes))
 			authorized_modes.Add(default_mode_authorization)
 
 	. = ..()
@@ -25,18 +25,27 @@ GLOBAL_LIST_INIT(secure_weapons, list())
 	if(distance <= 0 && is_secure_gun())
 		to_chat(user, "The registration screen shows, \"" + (registered_owner ? "[registered_owner]" : "unregistered") + "\"")
 
-/obj/item/gun/attackby(obj/item/W as obj, mob/user as mob)
-	if(istype(W, /obj/item/card/id) && is_secure_gun())
-		user.visible_message("[user] swipes an ID through \the [src].", range = 3)
-		if(!registered_owner)
-			var/obj/item/card/id/id = W
+
+/obj/item/gun/use_tool(obj/item/tool, mob/user, list/click_params)
+	// ID Card - Register gun
+	if (is_secure_gun())
+		var/obj/item/card/id/id = tool.GetIdCard()
+		if (istype(id))
+			if (registered_owner)
+				USE_FEEDBACK_FAILURE("\The [src] is already registered to \"[registered_owner]\".")
+				return TRUE
 			verbs += /obj/item/gun/proc/reset_registration
 			registered_owner = id.registered_name
-			to_chat(user, SPAN_NOTICE("\The [src] chimes quietly as it registers to \"[registered_owner]\"."))
-		else
-			to_chat(user, SPAN_NOTICE("\The [src] buzzes quietly, refusing to register without first being reset."))
-	else
-		..()
+			var/idname = GET_ID_NAME(id, tool)
+			user.visible_message(
+				SPAN_NOTICE("\The [user] runs \a [tool] over \the [src]'s ID scanner."),
+				SPAN_NOTICE("You scan [idname] over \the [src]'s ID scanner, registering it to \"[registered_owner]\"."),
+				range = 3
+			)
+			return TRUE
+
+	return ..()
+
 
 /obj/item/gun/emag_act(charges, mob/user)
 	if(!charges)
@@ -73,7 +82,7 @@ GLOBAL_LIST_INIT(secure_weapons, list())
 
 
 /obj/item/gun/proc/authorize(mode, authorized)
-	if(mode < 1 || mode > authorized_modes.len || authorized_modes[mode] == authorized)
+	if(mode < 1 || mode > length(authorized_modes) || authorized_modes[mode] == authorized)
 		return FALSE
 
 	authorized_modes[mode] = authorized
@@ -91,7 +100,7 @@ GLOBAL_LIST_INIT(secure_weapons, list())
 	return length(req_access)
 
 /obj/item/gun/proc/free_fire()
-	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
+	var/singleton/security_state/security_state = GET_SINGLETON(GLOB.using_map.security_state)
 	return security_state.current_security_level_is_same_or_higher_than(security_state.high_security_level)
 
 /obj/item/gun/special_check()
@@ -108,7 +117,7 @@ GLOBAL_LIST_INIT(secure_weapons, list())
 	. = sel_mode
 	do
 		.++
-		if(. > authorized_modes.len)
+		if(. > length(authorized_modes))
 			. = 1
 		if(. == sel_mode) // just in case all modes are unauthorized
 			return null

@@ -8,7 +8,7 @@
 	bone_amount = 0
 
 	use_me = 0 //Can't use the me verb, it's a freaking immobile brain
-	icon = 'icons/obj/surgery.dmi'
+	icon = 'icons/obj/organs.dmi'
 	icon_state = "brain-prosthetic"
 	silicon_subsystems = list(
 		/datum/nano_module/law_manager
@@ -20,12 +20,14 @@
 	var/list/owner_channels = list()
 	var/list/law_channels = list()
 
-/mob/living/silicon/sil_brainmob/New()
+
+/mob/living/silicon/sil_brainmob/Initialize(mapload)
 	reagents = new/datum/reagents(1000, src)
 	if(istype(loc, /obj/item/organ/internal/posibrain))
 		container = loc
 	add_language(LANGUAGE_ROBOT_GLOBAL)
-	..()
+	. = ..()
+
 
 /mob/living/silicon/sil_brainmob/Destroy()
 	if(key)				//If there is a mob connected to this thing. Have to check key twice to avoid false death reporting.
@@ -35,7 +37,7 @@
 	return ..()
 
 /mob/living/silicon/sil_brainmob/UpdateLyingBuckledAndVerbStatus()
-	if(container && istype(container, /obj/item/organ/internal/posibrain) && istype(container.loc, /turf))
+	if(container && istype(container, /obj/item/organ/internal/posibrain) && isturf(container.loc))
 		use_me = 1
 
 /mob/living/silicon/sil_brainmob/isSynthetic()
@@ -73,7 +75,7 @@
 
 	var/list/new_channels = list()
 	new_channels["Common"] = ";"
-	for(var/i = 1 to R.channels.len)
+	for(var/i = 1 to length(R.channels))
 		var/channel = R.channels[i]
 		var/key = get_radio_key_from_channel(channel)
 		new_channels[channel] = key
@@ -98,7 +100,7 @@
 /mob/living/silicon/sil_brainmob/statelaws(datum/ai_laws/laws)
 	update_law_channels()
 	if(isnull(law_channels[lawchannel]))
-		to_chat(src, "<span class='danger'>[lawchannel]: Unable to state laws. Communication method unavailable.</span>")
+		to_chat(src, SPAN_DANGER("[lawchannel]: Unable to state laws. Communication method unavailable."))
 		return 0
 
 	dostatelaws(lawchannel, law_channels[lawchannel], laws)

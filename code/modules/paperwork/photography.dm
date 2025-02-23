@@ -11,7 +11,7 @@
 *******/
 /obj/item/device/camera_film
 	name = "film cartridge"
-	icon = 'icons/obj/photography.dmi'
+	icon = 'icons/obj/tools/photography.dmi'
 	desc = "A camera film cartridge. Insert it into a camera to reload it."
 	icon_state = "film"
 	item_state = "electropack"
@@ -25,7 +25,7 @@ var/global/photo_count = 0
 
 /obj/item/photo
 	name = "photo"
-	icon = 'icons/obj/photography.dmi'
+	icon = 'icons/obj/tools/photography.dmi'
 	icon_state = "photo"
 	item_state = "paper"
 	randpixel = 10
@@ -36,20 +36,21 @@ var/global/photo_count = 0
 	var/image/tiny
 	var/photo_size = 3
 
-/obj/item/photo/New()
+/obj/item/photo/Initialize()
+	. = ..()
 	id = photo_count++
 
 /obj/item/photo/attack_self(mob/user as mob)
-	user.examinate(src)
+	examinate(user, src)
 
 /obj/item/photo/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 	var/scale = 8/(photo_size*32)
 	var/image/small_img = image(img)
 	small_img.SetTransform(scale = scale)
 	small_img.pixel_x = -32*(photo_size-1)/2 - 3
 	small_img.pixel_y = -32*(photo_size-1)/2
-	overlays |= small_img
+	AddOverlays(small_img)
 
 	tiny = image(img)
 	tiny.SetTransform(scale = 0.5 * scale)
@@ -57,12 +58,13 @@ var/global/photo_count = 0
 	tiny.pixel_x = -32*(photo_size-1)/2 - 3
 	tiny.pixel_y = -32*(photo_size-1)/2 + 3
 
-/obj/item/photo/attackby(obj/item/P as obj, mob/user as mob)
-	if(istype(P, /obj/item/pen))
+/obj/item/photo/use_tool(obj/item/item, mob/living/user, list/click_params)
+	if(istype(item, /obj/item/pen))
 		var/txt = sanitize(input(user, "What would you like to write on the back?", "Photo Writing", null)  as text, 128)
 		if(loc == user && user.stat == 0)
 			scribble = txt
-	..()
+		return TRUE
+	return ..()
 
 /obj/item/photo/examine(mob/user, distance)
 	. = TRUE
@@ -72,13 +74,13 @@ var/global/photo_count = 0
 		show(user)
 		to_chat(user, desc)
 	else
-		to_chat(user, "<span class='notice'>It is too far away.</span>")
+		to_chat(user, SPAN_NOTICE("It is too far away."))
 
 /obj/item/photo/proc/show(mob/user as mob)
 	send_rsc(user, img, "tmp_photo_[id].png")
 	var/output = "<html><head><title>[name]</title></head>"
 	output += "<body style='overflow:hidden;margin:0;text-align:center'>"
-	output += "<img src='tmp_photo_[id].png' width='[64*photo_size]' style='-ms-interpolation-mode:nearest-neighbor' />"
+	output += "<img src='tmp_photo_[id].png' width='[64*photo_size]' style='-ms-interpolation-mode:nearest-neighbor;image-rendering:pixelated;' />"
 	output += "[scribble ? "<br>Written on the back:<br><i>[scribble]</i>" : ""]"
 	output += "</body></html>"
 	show_browser(user, output, "window=book;size=[64*photo_size]x[scribble ? 400 : 64*photo_size]")
@@ -98,18 +100,25 @@ var/global/photo_count = 0
 	add_fingerprint(usr)
 	return
 
+/obj/item/phototrinket
+	name = "photo"
+	icon = 'icons/obj/tools/photography.dmi'
+	desc = "A blank photograph. You feel, for some reason, that someone (or something) has forgotten to... describe it?"
+	icon_state = "photo"
+	item_state = "paper"
+	w_class = ITEM_SIZE_TINY
 
 /**************
 * photo album *
 **************/
 /obj/item/storage/photo_album
 	name = "Photo album"
-	icon = 'icons/obj/photography.dmi'
+	icon = 'icons/obj/tools/photography.dmi'
 	icon_state = "album"
 	item_state = "briefcase"
 	w_class = ITEM_SIZE_NORMAL //same as book
 	storage_slots = DEFAULT_BOX_STORAGE //yes, that's storage_slots. Photos are w_class 1 so this has as many slots equal to the number of photos you could put in a box
-	can_hold = list(/obj/item/photo)
+	contents_allowed = list(/obj/item/photo)
 
 /obj/item/storage/photo_album/MouseDrop(obj/over_object as obj)
 
@@ -140,7 +149,7 @@ var/global/photo_count = 0
 *********/
 /obj/item/device/camera
 	name = "camera"
-	icon = 'icons/obj/photography.dmi'
+	icon = 'icons/obj/tools/photography.dmi'
 	desc = "A polaroid camera."
 	icon_state = "camera"
 	item_state = "electropack"
@@ -171,10 +180,7 @@ var/global/photo_count = 0
 	var/nsize = input("Photo Size","Pick a size of resulting photo.") as null|anything in list(1,3,5,7)
 	if(nsize)
 		size = nsize
-		to_chat(usr, "<span class='notice'>Camera will now take [size]x[size] photos.</span>")
-
-/obj/item/device/camera/attack(mob/living/carbon/human/M as mob, mob/user as mob)
-	return
+		to_chat(usr, SPAN_NOTICE("Camera will now take [size]x[size] photos."))
 
 /obj/item/device/camera/attack_self(mob/user as mob)
 	on = !on
@@ -182,16 +188,23 @@ var/global/photo_count = 0
 	to_chat(user, "You switch the camera [on ? "on" : "off"].")
 	return
 
-/obj/item/device/camera/attackby(obj/item/I as obj, mob/user as mob)
-	if(istype(I, /obj/item/device/camera_film))
-		if(pictures_left)
-			to_chat(user, "<span class='notice'>[src] still has some film in it!</span>")
-			return
-		to_chat(user, "<span class='notice'>You insert [I] into [src].</span>")
-		qdel(I)
+
+/obj/item/device/camera/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Camera Film - Add film
+	if (istype(tool, /obj/item/device/camera_film))
+		if (pictures_left)
+			USE_FEEDBACK_FAILURE("\The [src] already has film in it.")
+			return TRUE
 		pictures_left = pictures_max
-		return
-	..()
+		user.visible_message(
+			SPAN_NOTICE("\The [user] adds \a [tool] to \a [src]."),
+			SPAN_NOTICE("You add \the [tool] to \the [src]."),
+			range = 2
+		)
+		qdel(tool)
+		return TRUE
+
+	return ..()
 
 
 /obj/item/device/camera/proc/get_mobs(turf/the_turf as turf)
@@ -200,7 +213,7 @@ var/global/photo_count = 0
 		if(A.invisibility) continue
 		var/holding = null
 		var/list/held_items = A.GetAllHeld()
-		if (held_items.len)
+		if (length(held_items))
 			holding = "They are holding [english_list(A.GetAllHeld())]"
 
 		if(!mob_detail)
@@ -216,7 +229,7 @@ var/global/photo_count = 0
 	playsound(loc, pick('sound/items/polaroid1.ogg', 'sound/items/polaroid2.ogg'), 75, 1, -3)
 
 	pictures_left--
-	to_chat(user, "<span class='notice'>[pictures_left] photos left.</span>")
+	to_chat(user, SPAN_NOTICE("[pictures_left] photos left."))
 
 	on = 0
 	update_icon()

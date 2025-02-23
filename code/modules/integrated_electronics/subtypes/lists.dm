@@ -33,7 +33,7 @@
 
 /obj/item/integrated_circuit/lists/pick/do_work()
 	var/list/input_list = get_pin_data(IC_INPUT, 1) // List pins guarantee that there is a list inside, even if just an empty one.
-	if(input_list.len)
+	if(length(input_list))
 		set_pin_data(IC_OUTPUT, 1, pick(input_list))
 		push_data()
 		activate_pin(2)
@@ -137,7 +137,7 @@
 				if(!isnull(sample_item))
 					if(istext(input_item) && istext(sample_item) && findtext(input_item, sample_item))
 						output += input_item
-					if(istype(input_item, /atom) && istext(sample_item))
+					if(isloc(input_item) && istext(sample_item))
 						var/atom/input_item_atom = input_item
 						if(istext(sample_item) && findtext(input_item_atom.name, sample_item))
 							output += input_item
@@ -149,7 +149,7 @@
 				if(istext(input_item) && istext(sample) && findtext(input_item, sample))
 					output += input_item
 					continue
-				if(istype(input_item, /atom) && istext(sample))
+				if(isloc(input_item) && istext(sample))
 					var/atom/input_itema = input_item
 					if(findtext(input_itema.name, sample))
 						output += input_item
@@ -185,7 +185,7 @@
 		if(e in output_list)
 			continue
 		output_list.Add(e)
-		
+
 	set_pin_data(IC_OUTPUT, 1, output_list)
 	push_data()
 	activate_pin(2)
@@ -215,7 +215,7 @@
 	var/index = get_pin_data(IC_INPUT, 2)
 
 	// Check if index is valid
-	if(index > input_list.len)
+	if(index > length(input_list))
 		set_pin_data(IC_OUTPUT, 1, null)
 		push_data()
 		activate_pin(3)
@@ -246,7 +246,7 @@
 	var/index = get_pin_data(IC_INPUT, 2)
 
 	if(length(input_list))
-		for(var/j in 1 to input_list.len)
+		for(var/j in 1 to length(input_list))
 			var/I = input_list[j]
 			if(j != index)
 				red_list.Add(I)
@@ -308,7 +308,7 @@
 
 /obj/item/integrated_circuit/lists/len/do_work()
 	var/list/input_list = get_pin_data(IC_INPUT, 1)
-	set_pin_data(IC_OUTPUT, 1, input_list.len)
+	set_pin_data(IC_OUTPUT, 1, length(input_list))
 	push_data()
 	activate_pin(2)
 	cooldown_per_use = 1
@@ -344,7 +344,7 @@
 
 	var/result = null
 
-	if(input_list.len && delimiter && !isnull(start) && !isnull(end))
+	if(length(input_list) && delimiter && !isnull(start) && !isnull(end))
 		result = jointext(input_list, delimiter, start, end)
 
 	set_pin_data(IC_OUTPUT, 1, result)
@@ -421,7 +421,7 @@
 
 	for(var/i = 1 to number_of_pins)
 		var/list_index = i + start_index - 1
-		if(list_index > input_list.len)
+		if(list_index > length(input_list))
 			set_pin_data(IC_OUTPUT, i, null)
 		else
 			set_pin_data(IC_OUTPUT, i, input_list[list_index])

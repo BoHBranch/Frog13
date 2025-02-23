@@ -30,7 +30,7 @@
 		if(!H.should_have_organ(BP_HEART))
 			return
 	M.dna.check_integrity()
-	var/block = pick(GLOB.HULKBLOCK,GLOB.XRAYBLOCK,GLOB.FIREBLOCK,GLOB.TELEBLOCK,GLOB.NOBREATHBLOCK,GLOB.REMOTEVIEWBLOCK,GLOB.REGENERATEBLOCK,GLOB.INCREASERUNBLOCK,GLOB.REMOTETALKBLOCK,GLOB.MORPHBLOCK,GLOB.BLENDBLOCK,GLOB.NOPRINTSBLOCK,GLOB.SHOCKIMMUNITYBLOCK,GLOB.SMALLSIZEBLOCK)
+	var/block = pick(GLOB.FERALBLOCK,GLOB.XRAYBLOCK,GLOB.FIREBLOCK,GLOB.TELEBLOCK,GLOB.NOBREATHBLOCK,GLOB.REMOTEVIEWBLOCK,GLOB.REGENERATEBLOCK,GLOB.INCREASERUNBLOCK,GLOB.REMOTETALKBLOCK,GLOB.MORPHBLOCK,GLOB.BLENDBLOCK,GLOB.NOPRINTSBLOCK,GLOB.SHOCKIMMUNITYBLOCK,GLOB.SMALLSIZEBLOCK)
 	M.dna.SetSEState(block, 1)
 
 // Random Appearance Mutation
@@ -158,7 +158,9 @@
 		H.update_eyes()
 
 		H.skin_tone   = 35 - dna.GetUIValueRange(DNA_UI_SKIN_TONE, 220) // Value can be negative.
-
+		//Necessary for mirror to set plural properly
+		if(H.gender == PLURAL)
+			H.gender = PLURAL
 		if(H.gender != NEUTER)
 			if (dna.GetUIState(DNA_UI_GENDER))
 				H.gender = FEMALE
@@ -177,13 +179,13 @@
 			E.set_dna(E.dna)
 
 		//Hair
-		var/hair = dna.GetUIValueRange(DNA_UI_HAIR_STYLE,GLOB.hair_styles_list.len)
-		if((0 < hair) && (hair <= GLOB.hair_styles_list.len))
+		var/hair = dna.GetUIValueRange(DNA_UI_HAIR_STYLE,length(GLOB.hair_styles_list))
+		if((0 < hair) && (hair <= length(GLOB.hair_styles_list)))
 			H.head_hair_style = GLOB.hair_styles_list[hair]
 
 		//Facial Hair
-		var/beard = dna.GetUIValueRange(DNA_UI_BEARD_STYLE,GLOB.facial_hair_styles_list.len)
-		if((0 < beard) && (beard <= GLOB.facial_hair_styles_list.len))
+		var/beard = dna.GetUIValueRange(DNA_UI_BEARD_STYLE,length(GLOB.facial_hair_styles_list))
+		if((0 < beard) && (beard <= length(GLOB.facial_hair_styles_list)))
 			H.facial_hair_style = GLOB.facial_hair_styles_list[beard]
 
 		H.force_update_limbs()

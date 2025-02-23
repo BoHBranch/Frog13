@@ -9,7 +9,7 @@
 	var/total_moles = 0
 	//Volume of this mix.
 	var/volume = CELL_VOLUME
-	//Size of the group this gas_mixture is representing.  1 for singletons.
+	//Size of the group this gas_mixture is representing.  1 for Singletons.
 	var/group_multiplier = 1
 
 	//List of active tile overlays for this gas_mixture.  Updated by check_tile_graphic()
@@ -23,7 +23,7 @@
 	group_multiplier = _group_multiplier
 
 /datum/gas_mixture/proc/get_gas(gasid)
-	if(!gas.len)
+	if(!length(gas))
 		return 0 //if the list is empty BYOND treats it as a non-associative list, which runtimes
 	return gas[gasid] * group_multiplier
 
@@ -67,9 +67,9 @@
 
 //Variadic version of adjust_gas().  Takes any number of gas and mole pairs and applies them.
 /datum/gas_mixture/proc/adjust_multi()
-	ASSERT(!(args.len % 2))
+	ASSERT(!(length(args) % 2))
 
-	for(var/i = 1; i < args.len; i += 2)
+	for(var/i = 1; i < length(args); i += 2)
 		adjust_gas(args[i], args[i+1], update = 0)
 
 	update_values()
@@ -77,9 +77,9 @@
 
 //Variadic version of adjust_gas_temp().  Takes any number of gas, mole and temperature associations and applies them.
 /datum/gas_mixture/proc/adjust_multi_temp()
-	ASSERT(!(args.len % 3))
+	ASSERT(!(length(args) % 3))
 
-	for(var/i = 1; i < args.len; i += 3)
+	for(var/i = 1; i < length(args); i += 3)
 		adjust_gas_temp(args[i], args[i + 1], args[i + 2], update = 0)
 
 	update_values()
@@ -87,7 +87,7 @@
 
 //Merges all the gas from another mixture into this one.  Respects group_multipliers and adjusts temperature correctly.
 //Does not modify giver in any way.
-/datum/gas_mixture/proc/merge(const/datum/gas_mixture/giver)
+/datum/gas_mixture/proc/merge(datum/gas_mixture/giver)
 	if(!giver)
 		return
 
@@ -167,7 +167,7 @@
 
 //Returns the ideal gas specific entropy of the whole mix. This is the entropy per mole of /mixed/ gas.
 /datum/gas_mixture/proc/specific_entropy()
-	if (!gas.len || total_moles == 0)
+	if (!length(gas) || total_moles == 0)
 		return SPECIFIC_ENTROPY_VACUUM
 
 	. = 0
@@ -297,7 +297,7 @@
 			. += gas[g]
 
 //Copies gas and temperature from another gas_mixture.
-/datum/gas_mixture/proc/copy_from(const/datum/gas_mixture/sample)
+/datum/gas_mixture/proc/copy_from(datum/gas_mixture/sample)
 	gas = sample.gas.Copy()
 	temperature = sample.temperature
 
@@ -307,7 +307,7 @@
 
 
 //Checks if we are within acceptable range of another gas_mixture to suspend processing or merge.
-/datum/gas_mixture/proc/compare(const/datum/gas_mixture/sample, vacuum_exception = 0)
+/datum/gas_mixture/proc/compare(datum/gas_mixture/sample, vacuum_exception = 0)
 	if(!sample) return 0
 
 	if(vacuum_exception)
@@ -346,8 +346,10 @@
 //Rechecks the gas_mixture and adjusts the graphic list if needed.
 //Two lists can be passed by reference if you need know specifically which graphics were added and removed.
 /datum/gas_mixture/proc/check_tile_graphic(list/graphic_add = null, list/graphic_remove = null)
-	for(var/obj/effect/gas_overlay/O in graphic)
-		if(istype(O, /obj/effect/gas_overlay/heat))
+	for(var/obj/gas_overlay/O in graphic)
+		if(istype(O, /obj/gas_overlay/heat))
+			continue
+		if(istype(O, /obj/gas_overlay/cold))
 			continue
 		if(gas[O.gas_id] <= gas_data.overlay_limit[O.gas_id])
 			LAZYADD(graphic_remove, O)
@@ -359,26 +361,38 @@
 				LAZYADD(graphic_add, tile_overlay)
 	. = 0
 
-	var/tile_overlay = get_tile_overlay(GAS_HEAT)
+	var/heat_overlay = get_tile_overlay(GAS_HEAT)
 	//If it's hot add something
 	if(temperature >= CARBON_LIFEFORM_FIRE_RESISTANCE)
-		if(!(tile_overlay in graphic))
-			LAZYADD(graphic_add, tile_overlay)
-	else if (tile_overlay in graphic)
-		LAZYADD(graphic_remove, tile_overlay)
+		if(!(heat_overlay in graphic))
+			LAZYADD(graphic_add, heat_overlay)
+	else if (heat_overlay in graphic)
+		LAZYADD(graphic_remove, heat_overlay)
+
+	var/cold_overlay = get_tile_overlay(GAS_COLD)
+	if(temperature <= FOGGING_TEMPERATURE && (return_pressure() >= (ONE_ATMOSPHERE / 4)))
+		if(!(cold_overlay in graphic))
+			LAZYADD(graphic_add, cold_overlay)
+	else if (cold_overlay in graphic)
+		LAZYADD(graphic_remove, cold_overlay)
 
 	//Apply changes
-	if(graphic_add && graphic_add.len)
+	if(graphic_add && length(graphic_add))
 		graphic |= graphic_add
 		. = 1
-	if(graphic_remove && graphic_remove.len)
+	if(graphic_remove && length(graphic_remove))
 		graphic -= graphic_remove
 		. = 1
-	if(graphic.len)
+	if(length(graphic))
 		var/pressure_mod = clamp(return_pressure() / ONE_ATMOSPHERE, 0, 2)
-		for(var/obj/effect/gas_overlay/O in graphic)
-			if(istype(O, /obj/effect/gas_overlay/heat)) //Heat based
+		for(var/obj/gas_overlay/O in graphic)
+			if(istype(O, /obj/gas_overlay/heat)) //Heat based
 				var/new_alpha = clamp(max(125, 255 * ((temperature - CARBON_LIFEFORM_FIRE_RESISTANCE) / CARBON_LIFEFORM_FIRE_RESISTANCE * 4)), 125, 255)
+				if(new_alpha != O.alpha)
+					O.update_alpha_animation(new_alpha)
+				continue
+			if(istype(O, /obj/gas_overlay/cold))
+				var/new_alpha = clamp(max(125, 200 * (1 - ((temperature - MAX_FOG_TEMPERATURE) / (FOGGING_TEMPERATURE - MAX_FOG_TEMPERATURE)))), 125, 200)
 				if(new_alpha != O.alpha)
 					O.update_alpha_animation(new_alpha)
 				continue
@@ -390,9 +404,11 @@
 /datum/gas_mixture/proc/get_tile_overlay(gas_id)
 	if(!LAZYACCESS(tile_overlay_cache, gas_id))
 		if(gas_id == GAS_HEAT) //Not a real gas but functionally same thing
-			LAZYSET(tile_overlay_cache, gas_id, new/obj/effect/gas_overlay/heat(null, GAS_HEAT))
+			LAZYSET(tile_overlay_cache, gas_id, new/obj/gas_overlay/heat(null, GAS_HEAT))
+		else if(gas_id == GAS_COLD) //Not a real gas but functionally same thing
+			LAZYSET(tile_overlay_cache, gas_id, new/obj/gas_overlay/cold(null, GAS_COLD))
 		else
-			LAZYSET(tile_overlay_cache, gas_id, new/obj/effect/gas_overlay(null, gas_id))
+			LAZYSET(tile_overlay_cache, gas_id, new/obj/gas_overlay(null, gas_id))
 	return tile_overlay_cache[gas_id]
 
 //Simpler version of merge(), adjusts gas amounts directly and doesn't account for temperature or group_multiplier.
@@ -458,10 +474,8 @@
 	if(full_heat_capacity + s_full_heat_capacity)
 		temp_avg = (temperature * full_heat_capacity + other.temperature * s_full_heat_capacity) / (full_heat_capacity + s_full_heat_capacity)
 
-	//WOOT WOOT TOUCH THIS AND YOU ARE A RETARD.
-	if(sharing_lookup_table.len >= connecting_tiles) //6 or more interconnecting tiles will max at 42% of air moved per tick.
+	if(length(sharing_lookup_table) >= connecting_tiles) //6 or more interconnecting tiles will max at 42% of air moved per tick.
 		ratio = sharing_lookup_table[connecting_tiles]
-	//WOOT WOOT TOUCH THIS AND YOU ARE A RETARD
 
 	for(var/g in avg_gas)
 		gas[g] = max(0, (gas[g] - avg_gas[g]) * (1 - ratio) + avg_gas[g])

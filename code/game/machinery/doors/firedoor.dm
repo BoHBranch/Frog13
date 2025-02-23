@@ -88,7 +88,7 @@
 	. = ..()
 
 /obj/machinery/door/firedoor/get_material()
-	return SSmaterials.get_material_by_name(MATERIAL_STEEL)
+	return SSmaterials.get_material_by_name(MATERIAL_PLASTEEL)
 
 /obj/machinery/door/firedoor/examine(mob/user, distance)
 	. = ..()
@@ -102,7 +102,7 @@
 	if(pdiff >= FIREDOOR_MAX_PRESSURE_DIFF)
 		to_chat(user, SPAN_WARNING("WARNING: Current pressure differential is [pdiff] kPa! Opening door may result in injury!"))
 	to_chat(user, "<b>Sensor readings:</b>")
-	for(var/index = 1; index <= tile_info.len; index++)
+	for(var/index = 1; index <= length(tile_info); index++)
 		var/o = "&nbsp;&nbsp;"
 		switch(index)
 			if(1)
@@ -113,26 +113,25 @@
 				o += "EAST: "
 			if(4)
 				o += "WEST: "
-		if(tile_info[index] == null)
+		if(isnull(tile_info[index]))
 			o += SPAN_WARNING("DATA UNAVAILABLE")
 			to_chat(user, o)
 			continue
 		var/celsius = convert_k2c(tile_info[index][1])
 		var/pressure = tile_info[index][2]
-		o += "<span class='[(dir_alerts[index] & (FIREDOOR_ALERT_HOT|FIREDOOR_ALERT_COLD)) ? "warning" : "color:blue"]'>"
-		o += "[celsius]&deg;C</span> "
-		o += "<span style='color:blue'>"
-		o += "[pressure]kPa</span></li>"
+		o += "[SPAN_CLASS("[(dir_alerts[index] & (FIREDOOR_ALERT_HOT|FIREDOOR_ALERT_COLD)) ? "warning" : "color:blue"]", "[celsius]&deg;C")] "
+		o += "<span style='color:blue'>[pressure]kPa</span>"
+		o += "</li>"
 		to_chat(user, o)
-	if(islist(users_to_open) && users_to_open.len)
+	if(islist(users_to_open) && length(users_to_open))
 		var/users_to_open_string = users_to_open[1]
-		if(users_to_open.len >= 2)
-			for(var/i = 2 to users_to_open.len)
+		if(length(users_to_open) >= 2)
+			for(var/i = 2 to length(users_to_open))
 				users_to_open_string += ", [users_to_open[i]]"
 		to_chat(user, "These people have opened \the [src] during an alert: [users_to_open_string].")
 
 /obj/machinery/door/firedoor/Bumped(atom/AM)
-	if(p_open || operating)
+	if (p_open || operating)
 		return
 	if(!density)
 		return ..()
@@ -144,20 +143,17 @@
 			return TRUE
 	return FALSE
 
-/obj/machinery/door/firedoor/attack_generic(mob/user, damage)
-	playsound(loc, 'sound/weapons/tablehit1.ogg', 50, 1)
-	if(MACHINE_IS_BROKEN(src))
-		qdel(src)
-	..()
-
 /obj/machinery/door/firedoor/attack_hand(mob/user)
-	add_fingerprint(user)
+	if(user.a_intent != I_HELP)
+		..()
+		return
 	if(operating)
 		return//Already doing something.
 
 	if(blocked)
 		to_chat(user, SPAN_WARNING("\The [src] is welded shut!"))
 		return
+
 	if(density && (inoperable())) //can still close without power
 		to_chat(user, "\The [src] is not functioning - you'll have to force it open manually.")
 		return
@@ -165,10 +161,11 @@
 	var/alarmed = lockdown
 	alarmed = get_alarm()
 
-	var/answer = alert(user, "Would you like to [density ? "open" : "close"] this [name]?[ alarmed && density ? "\nNote that by doing so, you acknowledge any damages from opening this\n[name] as being your own fault, and you will be held accountable under the law." : ""]",\
-	"\The [src]", "Yes, [density ? "open" : "close"]", "No")
-	if(answer == "No")
-		return
+	if(!allowed(user))
+		var/answer = alert(user, "Would you like to [density ? "open" : "close"] this [name]?[ alarmed && density ? "\nNote that by doing so, you acknowledge any damages from opening this\n[name] as being your own fault, and you will be held accountable under the law." : ""]",\
+		"\The [src]", "Yes, [density ? "open" : "close"]", "No")
+		if(answer == "No")
+			return
 	if(user.incapacitated() || !user.Adjacent(src) && !issilicon(user))
 		to_chat(user, SPAN_WARNING("You must remain able-bodied and close to \the [src] in order to use it."))
 		return
@@ -197,25 +194,24 @@
 			close()
 
 	if(needs_to_close)
-		addtimer(CALLBACK(src, .proc/attempt_autoclose), 10 SECONDS) //Just in case a fire alarm is turned off while the firedoor is going through an autoclose cycle
+		addtimer(new Callback(src, PROC_REF(attempt_autoclose)), 10 SECONDS) //Just in case a fire alarm is turned off while the firedoor is going through an autoclose cycle
 
-/obj/machinery/door/firedoor/attackby(obj/item/C, mob/user)
-	add_fingerprint(user, 0, C)
+/obj/machinery/door/firedoor/use_tool(obj/item/C, mob/living/user, list/click_params)
 	if(operating)
-		return //Already doing something.
+		return TRUE
 
 	if(isWelder(C) && !repairing)
 		var/obj/item/weldingtool/W = C
-		if(W.remove_fuel(0, user))
+		if(W.can_use(2, user))
 			user.visible_message(
 				SPAN_WARNING("\The [user] starts [!blocked ? "welding \the [src] shut" : "cutting open \the [src]"]."),
 				SPAN_DANGER("You start [!blocked ? "welding \the [src] closed" : "cutting open \the [src]"]."),
 				SPAN_ITALIC("You hear welding.")
 			)
 			playsound(loc, 'sound/items/Welder.ogg', 50, TRUE)
-			if(do_after(user, 2 SECONDS, src, DO_REPAIR_CONSTRUCT))
-				if(!W.isOn())
-					return
+			if(do_after(user, (C.toolspeed * 2) SECONDS, src, DO_REPAIR_CONSTRUCT))
+				if(!W.remove_fuel(2, user))
+					return TRUE
 				blocked = !blocked
 				user.visible_message(
 					SPAN_DANGER("\The [user] [blocked ? "welds \the [src] shut" : "cuts open \the [src]"]."),
@@ -224,7 +220,7 @@
 				)
 				playsound(loc, 'sound/items/Welder2.ogg', 50, TRUE)
 				update_icon()
-				return
+			return TRUE
 
 	if(density && isScrewdriver(C))
 		hatch_open = !hatch_open
@@ -235,7 +231,7 @@
 		)
 		playsound(loc, 'sound/items/Screwdriver.ogg', 25, TRUE)
 		update_icon()
-		return
+		return TRUE
 
 	if(blocked && isCrowbar(C) && !repairing)
 		if(!hatch_open)
@@ -247,7 +243,7 @@
 				SPAN_ITALIC("You hear metal bumping against metal.")
 			)
 			playsound(loc, 'sound/items/Crowbar.ogg', 100, TRUE)
-			if(do_after(user, 3 SECONDS, src, DO_REPAIR_CONSTRUCT))
+			if(do_after(user, (C.toolspeed * 3) SECONDS, src, DO_REPAIR_CONSTRUCT))
 				if(blocked && density && hatch_open)
 					playsound(loc, 'sound/items/Deconstruct.ogg', 100, TRUE)
 					user.visible_message(
@@ -256,15 +252,15 @@
 						SPAN_ITALIC("You hear metal coming loose and clattering.")
 					)
 					deconstruct(user)
-		return
+		return TRUE
 
 	if(blocked)
 		to_chat(user, SPAN_DANGER("\The [src] is welded shut!"))
-		return
+		return TRUE
 
 	if(isCrowbar(C) || istype(C,/obj/item/material/twohanded/fireaxe))
 		if(operating)
-			return
+			return TRUE
 
 		if(blocked && isCrowbar(C))
 			user.visible_message(
@@ -272,12 +268,13 @@
 				SPAN_WARNING("You try to pry \the [src] [density ? "open" : "closed"], but it's been welded in place!"),
 				SPAN_WARNING("You hear the unhappy sound of metal straining and groaning.")
 			)
-			return
+			return TRUE
 
 		if(istype(C,/obj/item/material/twohanded/fireaxe))
 			var/obj/item/material/twohanded/fireaxe/F = C
 			if(!F.wielded)
-				return
+				to_chat(user, SPAN_WARNING("You need to wield \the [C]!"))
+				return TRUE
 
 		user.visible_message(
 			SPAN_WARNING("\The [user] wedges \the [C] into \the [src] and starts forcing it [density ? "open" : "closed"]!"),
@@ -285,7 +282,7 @@
 			SPAN_WARNING("You hear metal groaning and grinding!")
 		)
 		playsound(loc, 'sound/machines/airlock_creaking.ogg', 100, TRUE)
-		if(do_after(user, 3 SECONDS, src, DO_REPAIR_CONSTRUCT))
+		if(do_after(user, (C.toolspeed * 3) SECONDS, src, DO_REPAIR_CONSTRUCT))
 			if(isCrowbar(C))
 				if(inoperable() || !density)
 					user.visible_message(
@@ -308,7 +305,8 @@
 				spawn(0)
 					locked = FALSE
 					close()
-			return
+		return TRUE
+
 	return ..()
 
 /obj/machinery/door/firedoor/deconstruct(mob/user, moved = FALSE)
@@ -349,7 +347,7 @@
 		var/old_alerts = dir_alerts
 		for(var/index = 1; index <= 4; index++)
 			var/list/tileinfo = tile_info[index]
-			if(tileinfo == null)
+			if(isnull(tileinfo))
 				continue // Bad data.
 			var/celsius = convert_k2c(tileinfo[1])
 
@@ -495,7 +493,7 @@
 	var/icon/panel_overlay
 	var/icon/weld_overlay
 
-	overlays.Cut()
+	ClearOverlays()
 	set_light(0)
 	var/do_set_light = FALSE
 
@@ -510,16 +508,16 @@
 	if(density)
 		icon_state = "closed"
 		if(hatch_open)
-			overlays = panel_overlay
+			SetOverlays(panel_overlay)
 		if(pdiff_alert)
 			lights_overlay += "palert"
 			do_set_light = TRUE
 		if(dir_alerts)
 			for(var/d=1; d<=4; d++)
 				var/cdir = GLOB.cardinal[d]
-				for(var/i=1; i<=ALERT_STATES.len; i++)
+				for(var/i=1; i<=length(ALERT_STATES); i++)
 					if(dir_alerts[d] & SHIFTL(1, (i - 1)))
-						overlays += new/icon(icon, "alert_[ALERT_STATES[i]]", dir = cdir)
+						AddOverlays(new/icon(icon, "alert_[ALERT_STATES[i]]", dir = cdir))
 						do_set_light = TRUE
 	else
 		icon_state = "open"
@@ -528,8 +526,8 @@
 		weld_overlay = welded_file
 
 	if(do_set_light)
-		set_light(0.25, 0.1, 1, 2, COLOR_SUN)
+		set_light(2, 0.25, COLOR_SUN)
 
-	overlays += panel_overlay
-	overlays += weld_overlay
-	overlays += lights_overlay
+	AddOverlays(panel_overlay)
+	AddOverlays(weld_overlay)
+	AddOverlays(lights_overlay)

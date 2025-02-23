@@ -126,7 +126,7 @@
 	if(updating)
 		return
 
-	if(seenby.len)
+	if(length(seenby))
 		updating = TRUE
 		spawn(UPDATE_BUFFER) // Batch large changes, such as many doors opening or closing at once
 			if(updating)     // Check if we're still updating, a forced update may have occured.
@@ -176,6 +176,7 @@
 	return
 
 /proc/seen_turfs_in_range(source, range)
+	RETURN_TYPE(/list)
 	var/turf/pos = get_turf(source)
 	if(pos)
 		. = hear(range, pos)

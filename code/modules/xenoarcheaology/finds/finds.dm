@@ -17,7 +17,7 @@
 /obj/item/ore/strangerock
 	name = "strange rock"
 	desc = "Seems to have some unusal strata evident throughout it."
-	icon = 'icons/obj/xenoarchaeology.dmi'
+	icon = 'icons/obj/xenoarchaeology_finds.dmi'
 	icon_state = "strange"
 	origin_tech = list(TECH_MATERIAL = 5)
 
@@ -28,41 +28,40 @@
 		var/T = get_archeological_find_by_findtype(inside_item_type)
 		new T(src)
 
-/obj/item/ore/strangerock/attackby(obj/item/I, mob/user)
+/obj/item/ore/strangerock/use_tool(obj/item/I, mob/living/user, list/click_params)
 	if(istype(I, /obj/item/pickaxe/xeno/brush))
 		var/obj/item/inside = locate() in src
 		if(inside)
 			inside.dropInto(loc)
-			visible_message("<span class='info'>\The [src] is brushed away, revealing \the [inside].</span>")
+			visible_message(SPAN_INFO("\The [src] is brushed away, revealing \the [inside]."))
 		else
-			visible_message("<span class='info'>\The [src] is brushed away into nothing.</span>")
+			visible_message(SPAN_INFO("\The [src] is brushed away into nothing."))
 		qdel(src)
-		return
+		return TRUE
 
 	if(isWelder(I))
 		var/obj/item/weldingtool/W = I
-		if(W.isOn())
-			if(W.get_fuel() >= 2)
-				var/obj/item/inside = locate() in src
-				if(inside)
-					inside.dropInto(loc)
-					visible_message("<span class='info'>\The [src] burns away revealing \the [inside].</span>")
-				else
-					visible_message("<span class='info'>\The [src] burns away into nothing.</span>")
-				qdel(src)
-				W.remove_fuel(2)
+		if(W.can_use(2, user))
+			var/obj/item/inside = locate() in src
+			if(inside)
+				inside.dropInto(loc)
+				visible_message(SPAN_INFO("\The [src] burns away revealing \the [inside]."))
 			else
-				visible_message("<span class='info'>A few sparks fly off \the [src], but nothing else happens.</span>")
-				W.remove_fuel(1)
-			return
+				visible_message(SPAN_INFO("\The [src] burns away into nothing."))
+			qdel(src)
+			W.remove_fuel(2, user)
+			return TRUE
+		else if (W.can_use(1, user, silent = TRUE))
+			visible_message(SPAN_INFO("A few sparks fly off \the [src], but nothing else happens."))
+			W.remove_fuel(1)
+			return TRUE
 
-	else if(istype(I, /obj/item/device/core_sampler))
+	if (istype(I, /obj/item/device/core_sampler))
 		var/obj/item/device/core_sampler/S = I
 		S.sample_item(src, user)
-		return
+		return TRUE
 
-	..()
-
-	if(prob(33))
-		src.visible_message("<span class='warning'>[src] crumbles away, leaving some dust and gravel behind.</span>")
+	if ((. = ..()) & prob(33)) //If successfully sampled
+		visible_message(SPAN_WARNING("[src] crumbles away, leaving some dust and gravel behind."))
 		qdel(src)
+		return TRUE

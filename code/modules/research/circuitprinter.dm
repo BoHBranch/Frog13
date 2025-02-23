@@ -8,9 +8,10 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 	name = "circuit imprinter"
 	desc = "Accessed by a connected core fabricator console, it produces circuits from various materials and sulphuric acid."
 	icon_state = "circuit_imprinter"
+	icon = 'icons/obj/machines/research/circuit_imprinter.dmi'
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
 	base_type = /obj/machinery/r_n_d/circuit_imprinter
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 
 	var/list/datum/design/queue = list()
 	var/progress = 0
@@ -35,7 +36,7 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 	if(inoperable())
 		update_icon()
 		return
-	if(queue.len == 0)
+	if(length(queue) == 0)
 		busy = 0
 		update_icon()
 		return
@@ -52,7 +53,7 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 		update_icon()
 	else
 		if(busy)
-			visible_message("<span class='notice'>[icon2html(src, viewers(get_turf(src)))] [src] flashes: insufficient materials: [getLackingMaterials(D)].</span>")
+			visible_message(SPAN_NOTICE("[icon2html(src, viewers(get_turf(src)))] [src] flashes: insufficient materials: [getLackingMaterials(D)]."))
 			busy = 0
 			update_icon()
 
@@ -75,14 +76,16 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 	..()
 
 /obj/machinery/r_n_d/circuit_imprinter/on_update_icon()
+	ClearOverlays()
 	if(panel_open)
-		icon_state = "circuit_imprinter_t"
-	else if(busy)
-		icon_state = "circuit_imprinter_ani"
-	else
-		icon_state = "circuit_imprinter"
+		AddOverlays("[icon_state]_panel")
+	if(is_powered())
+		AddOverlays(emissive_appearance(icon, "[icon_state]_lights"))
+		AddOverlays("[icon_state]_lights")
+	if(busy)
+		AddOverlays("[icon_state]_working")
 
-/obj/machinery/r_n_d/circuit_imprinter/state_transition(decl/machine_construction/default/new_state)
+/obj/machinery/r_n_d/circuit_imprinter/state_transition(singleton/machine_construction/default/new_state)
 	. = ..()
 	if(istype(new_state) && linked_console)
 		linked_console.linked_imprinter = null
@@ -96,31 +99,32 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 		return SPAN_NOTICE("\The [src] is busy. Please wait for completion of previous operation.")
 	return ..()
 
-/obj/machinery/r_n_d/circuit_imprinter/attackby(obj/item/O as obj, mob/user as mob)
+/obj/machinery/r_n_d/circuit_imprinter/use_tool(obj/item/O, mob/living/user, list/click_params)
 	if(busy)
-		to_chat(user, "<span class='notice'>\The [src] is busy. Please wait for completion of previous operation.</span>")
-		return 1
-	if(component_attackby(O, user))
+		to_chat(user, SPAN_NOTICE("\The [src] is busy. Please wait for completion of previous operation."))
 		return TRUE
+	if ((. = ..()))
+		return
 	if(panel_open)
-		to_chat(user, "<span class='notice'>You can't load \the [src] while it's opened.</span>")
-		return 1
+		to_chat(user, SPAN_NOTICE("You can't load \the [src] while it's opened."))
+		return TRUE
 	if(!linked_console)
 		to_chat(user, "\The [src] must be linked to an R&D console first.")
-		return 1
+		return TRUE
 	if(O.is_open_container())
-		return 0
+		return FALSE
 	if(is_robot_module(O))
-		return 0
+		return FALSE
 	if(!istype(O, /obj/item/stack/material))
-		to_chat(user, "<span class='notice'>You cannot insert this item into \the [src]!</span>")
-		return 0
+		to_chat(user, SPAN_WARNING("You cannot insert this item into \the [src]!"))
+		return TRUE
 	if(inoperable())
-		return 1
+		to_chat(user, SPAN_WARNING("\The [src] is not working properly."))
+		return TRUE
 
 	if(TotalMaterials() + SHEET_MATERIAL_AMOUNT > max_material_storage)
-		to_chat(user, "<span class='notice'>\The [src]'s material bin is full. Please remove material before adding more.</span>")
-		return 1
+		to_chat(user, SPAN_WARNING("\The [src]'s material bin is full. Please remove material before adding more."))
+		return TRUE
 
 	var/obj/item/stack/material/stack = O
 	var/amount = min(stack.get_amount(), round((max_material_storage - TotalMaterials()) / SHEET_MATERIAL_AMOUNT))
@@ -132,10 +136,11 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 	if(t)
 		if(do_after(usr, 1.6 SECONDS, src, DO_PUBLIC_UNIQUE))
 			if(stack.use(amount))
-				to_chat(user, "<span class='notice'>You add [amount] sheet\s to \the [src].</span>")
+				to_chat(user, SPAN_NOTICE("You add [amount] sheet\s to \the [src]."))
 				materials[t] += amount * SHEET_MATERIAL_AMOUNT
 	busy = 0
 	updateUsrDialog()
+	return TRUE
 
 /obj/machinery/r_n_d/circuit_imprinter/proc/addToQueue(datum/design/D)
 	queue += D
@@ -148,7 +153,7 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 
 /obj/machinery/r_n_d/circuit_imprinter/proc/canBuild(datum/design/D)
 	for(var/M in D.materials)
-		if(materials[M] <= D.materials[M] * mat_efficiency)
+		if(materials[M] < D.materials[M] * mat_efficiency)
 			return 0
 	for(var/C in D.chemicals)
 		if(!reagents.has_reagent(C, D.chemicals[C] * mat_efficiency))
@@ -169,6 +174,6 @@ using metal and glass, it uses glass and reagents (usually sulphuric acid).
 	if(D.build_path)
 		var/obj/new_item = D.Fabricate(loc, src)
 		if(mat_efficiency != 1) // No matter out of nowhere
-			if(new_item.matter && new_item.matter.len > 0)
+			if(new_item.matter && length(new_item.matter) > 0)
 				for(var/i in new_item.matter)
 					new_item.matter[i] = new_item.matter[i] * mat_efficiency

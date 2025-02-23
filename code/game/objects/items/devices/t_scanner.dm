@@ -3,7 +3,7 @@
 /obj/item/device/t_scanner
 	name = "\improper T-ray scanner"
 	desc = "A terahertz-ray emitter and scanner, capable of penetrating conventional hull materials."
-	icon = 'icons/obj/t_ray_scanner.dmi'
+	icon = 'icons/obj/tools/t_ray_scanner.dmi'
 	icon_state = "t-ray0"
 	slot_flags = SLOT_BELT
 	w_class = ITEM_SIZE_SMALL
@@ -21,15 +21,15 @@
 	var/static/list/overlay_cache = list() //cache recent overlays
 
 /obj/item/device/t_scanner/Destroy()
-	. = ..()
-	if(on)
+	if (on)
 		set_active(FALSE)
+	return ..()
 
 /obj/item/device/t_scanner/on_update_icon()
 	icon_state = "t-ray[on]"
 
 /obj/item/device/t_scanner/emp_act()
-	audible_message("<span class = 'notice'> \The [src] buzzes oddly.</span>")
+	audible_message(SPAN_NOTICE(" \The [src] buzzes oddly."))
 	set_active(FALSE)
 	..()
 
@@ -40,7 +40,7 @@
 /obj/item/device/t_scanner/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
 	var/obj/structure/disposalpipe/D = target
 	if(D && istype(D))
-		to_chat(user, "<span class='info'>Pipe segment integrity: [100 - D.get_damage_percentage()]%</span>")
+		to_chat(user, SPAN_INFO("Pipe segment integrity: [100 - D.get_damage_percentage()]%"))
 
 /obj/item/device/t_scanner/proc/set_active(active)
 	on = active
@@ -97,7 +97,7 @@
 		if(istype(scanned, /obj/machinery/atmospherics/pipe))
 			var/obj/machinery/atmospherics/pipe/P = scanned
 			I.color = P.pipe_color
-			I.overlays += P.overlays
+			I.CopyOverlays(P)
 			I.underlays += P.underlays
 
 		if(ismob(scanned))
@@ -109,7 +109,7 @@
 					I.icon_state = "phaseout"
 			var/mob/M = scanned
 			I.color = M.color
-			I.overlays += M.overlays
+			I.CopyOverlays(M)
 			I.underlays += M.underlays
 
 		I.alpha = 128
@@ -118,8 +118,8 @@
 
 	// Add it to cache, cutting old entries if the list is too long
 	overlay_cache[scanned] = .
-	if(overlay_cache.len > OVERLAY_CACHE_LEN)
-		overlay_cache.Cut(1, overlay_cache.len-OVERLAY_CACHE_LEN-1)
+	if(length(overlay_cache) > OVERLAY_CACHE_LEN)
+		overlay_cache.Cut(1, length(overlay_cache)-OVERLAY_CACHE_LEN-1)
 
 /obj/item/device/t_scanner/proc/get_scanned_objects(scan_dist)
 	. = list()
@@ -142,7 +142,7 @@
 			continue
 
 		for(var/obj/O in T.contents)
-			if(O.level != 1)
+			if(O.level != ATOM_LEVEL_UNDER_TILE)
 				continue
 			if(!O.invisibility)
 				continue //if it's already visible don't need an overlay for it

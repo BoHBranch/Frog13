@@ -4,9 +4,10 @@
 /obj/machinery/atmospherics/binary/circulator
 	name = "circulator"
 	desc = "A gas circulator turbine and heat exchanger."
-	icon = 'icons/obj/power.dmi'
+	icon = 'icons/obj/machines/power/teg.dmi'
 	icon_state = "circ-unassembled"
 	anchored = FALSE
+	layer = STRUCTURE_LAYER
 
 	var/kinetic_efficiency = 0.04 //combined kinetic and kinetic-to-electric efficiency
 	var/volume_ratio = 0.2
@@ -75,22 +76,25 @@
 
 /obj/machinery/atmospherics/binary/circulator/on_update_icon()
 	icon_state = anchored ? "circ-assembled" : "circ-unassembled"
-	overlays.Cut()
+	ClearOverlays()
 	if (inoperable() || !anchored)
 		return 1
 	if (last_pressure_delta > 0 && recent_moles_transferred > 0)
 		if (temperature_overlay)
-			overlays += image('icons/obj/power.dmi', temperature_overlay)
+			AddOverlays(emissive_appearance(icon, temperature_overlay))
+			AddOverlays(image(icon, temperature_overlay))
 		if (last_pressure_delta > 5*ONE_ATMOSPHERE)
-			overlays += image('icons/obj/power.dmi', "circ-run")
+			AddOverlays(emissive_appearance(icon, "circ-run"))
+			AddOverlays(image(icon, "circ-run"))
 		else
-			overlays += image('icons/obj/power.dmi', "circ-slow")
+			AddOverlays(emissive_appearance(icon, "circ-slow"))
+			AddOverlays(image(icon, "circ-slow"))
 	else
-		overlays += image('icons/obj/power.dmi', "circ-off")
+		AddOverlays(image(icon, "circ-off"))
 
 	return 1
 
-/obj/machinery/atmospherics/binary/circulator/attackby(obj/item/W as obj, mob/user as mob)
+/obj/machinery/atmospherics/binary/circulator/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(isWrench(W))
 		playsound(src.loc, 'sound/items/Ratchet.ogg', 75, 1)
 		anchored = !anchored
@@ -124,9 +128,8 @@
 			node1 = null
 			node2 = null
 		update_icon()
-
-	else
-		..()
+		return TRUE
+	return ..()
 
 /obj/machinery/atmospherics/binary/circulator/verb/rotate_clockwise()
 	set category = "Object"

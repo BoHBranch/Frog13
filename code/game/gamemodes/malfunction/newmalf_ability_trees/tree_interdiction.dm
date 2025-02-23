@@ -10,28 +10,28 @@
 // BEGIN RESEARCH DATUMS
 
 /datum/malf_research_ability/interdiction/recall_shuttle
-	ability = new/datum/game_mode/malfunction/verb/recall_shuttle()
+	ability = /datum/game_mode/malfunction/verb/recall_shuttle
 	price = 250
 	next = new/datum/malf_research_ability/interdiction/unlock_cyborg()
 	name = "T1 - Recall Shuttle"
 
 
 /datum/malf_research_ability/interdiction/unlock_cyborg
-	ability = new/datum/game_mode/malfunction/verb/unlock_cyborg()
+	ability = /datum/game_mode/malfunction/verb/unlock_cyborg
 	price = 1000
 	next = new/datum/malf_research_ability/interdiction/hack_cyborg()
 	name = "T2 - Unlock Cyborg"
 
 
 /datum/malf_research_ability/interdiction/hack_cyborg
-	ability = new/datum/game_mode/malfunction/verb/hack_cyborg()
+	ability = /datum/game_mode/malfunction/verb/hack_cyborg
 	price = 2000
 	next = new/datum/malf_research_ability/interdiction/hack_ai()
 	name = "T3 - Hack Cyborg"
 
 
 /datum/malf_research_ability/interdiction/hack_ai
-	ability = new/datum/game_mode/malfunction/verb/hack_ai()
+	ability = /datum/game_mode/malfunction/verb/hack_ai
 	price = 4000
 	name = "T4 - Hack AI"
 
@@ -91,7 +91,7 @@
 			if(R.lockcharge)
 				robots += R
 				robot_names += R.name
-		if(!robots.len)
+		if(!length(robots))
 			to_chat(user, "No locked cyborgs connected.")
 			return
 
@@ -115,8 +115,8 @@
 			to_chat(target, "Unlock signal received..")
 			target.SetLockdown(0)
 			if(target.lockcharge)
-				to_chat(user, "<span class='notice'>Unlock Failed, lockdown wire cut.</span>")
-				to_chat(target, "<span class='notice'>Unlock Failed, lockdown wire cut.</span>")
+				to_chat(user, SPAN_NOTICE("Unlock Failed, lockdown wire cut."))
+				to_chat(target, SPAN_NOTICE("Unlock Failed, lockdown wire cut."))
 			else
 				to_chat(user, "Cyborg unlocked.")
 				to_chat(target, "You have been unlocked.")
@@ -136,8 +136,8 @@
 	var/mob/living/silicon/ai/user = usr
 
 	var/list/L = get_unlinked_cyborgs(user)
-	if(!L.len)
-		to_chat(user, "<span class='notice'>ERROR: No unlinked cyborgs detected!</span>")
+	if(!length(L))
+		to_chat(user, SPAN_NOTICE("ERROR: No unlinked cyborgs detected!"))
 
 	if(target && !istype(target))
 		to_chat(user, "This is not a cyborg.")
@@ -201,8 +201,8 @@
 	var/mob/living/silicon/ai/user = usr
 
 	var/list/L = get_other_ais(user)
-	if(!L.len)
-		to_chat(user, "<span class='notice'>ERROR: No other AIs detected!</span>")
+	if(!length(L))
+		to_chat(user, SPAN_NOTICE("ERROR: No other AIs detected!"))
 	if(target && !istype(target))
 		to_chat(user, "This is not an AI.")
 		return

@@ -1,7 +1,7 @@
 /obj/machinery/meter
 	name = "meter"
 	desc = "A gas flow meter."
-	icon = 'icons/obj/meter.dmi'
+	icon = 'icons/obj/atmospherics/meter.dmi'
 	icon_state = "meterX"
 	var/atom/target = null //A pipe for the base type
 	anchored = TRUE
@@ -12,14 +12,14 @@
 		/obj/item/stock_parts/power/apc
 	)
 	public_variables = list(
-		/decl/public_access/public_variable/gas,
-		/decl/public_access/public_variable/pressure,
-		/decl/public_access/public_variable/temperature
+		/singleton/public_access/public_variable/gas,
+		/singleton/public_access/public_variable/pressure,
+		/singleton/public_access/public_variable/temperature
 	)
-	stock_part_presets = list(/decl/stock_part_preset/radio/basic_transmitter/meter = 1)
+	stock_part_presets = list(/singleton/stock_part_preset/radio/basic_transmitter/meter = 1)
 
 	frame_type = /obj/item/machine_chassis/pipe_meter
-	construct_state = /decl/machine_construction/default/item_chassis
+	construct_state = /singleton/machine_construction/default/item_chassis
 	base_type = /obj/machinery/meter
 
 /obj/machinery/meter/Initialize()
@@ -32,7 +32,7 @@
 /obj/machinery/meter/proc/set_target(atom/new_target)
 	clear_target()
 	target = new_target
-	GLOB.destroyed_event.register(target, src, .proc/clear_target)
+	GLOB.destroyed_event.register(target, src, PROC_REF(clear_target))
 
 /obj/machinery/meter/proc/clear_target()
 	if(target)
@@ -83,10 +83,10 @@
 	. = ..()
 
 	if(distance > 3 && !(istype(user, /mob/living/silicon/ai) || isghost(user)))
-		to_chat(user, "<span class='warning'>You are too far away to read it.</span>")
+		to_chat(user, SPAN_WARNING("You are too far away to read it."))
 
 	else if(inoperable())
-		to_chat(user, "<span class='warning'>The display is off.</span>")
+		to_chat(user, SPAN_WARNING("The display is off."))
 
 	else if(src.target)
 		var/datum/gas_mixture/environment = target.return_air()
@@ -120,8 +120,8 @@
 		/obj/item/stock_parts/power/apc/buildable
 	)
 
-/decl/stock_part_preset/radio/basic_transmitter/meter
+/singleton/stock_part_preset/radio/basic_transmitter/meter
 	transmit_on_tick = list(
-		"pressure" = /decl/public_access/public_variable/pressure,
+		"pressure" = /singleton/public_access/public_variable/pressure,
 	)
 	frequency = ATMOS_TANK_FREQ

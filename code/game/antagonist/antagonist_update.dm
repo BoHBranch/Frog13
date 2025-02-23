@@ -1,5 +1,5 @@
 /datum/antagonist/proc/update_leader()
-	if(!leader && current_antagonists.len && (flags & ANTAG_HAS_LEADER))
+	if(!leader && length(current_antagonists) && (flags & ANTAG_HAS_LEADER))
 		leader = current_antagonists[1]
 
 /datum/antagonist/proc/update_antag_mob(datum/mind/player, preserve_appearance)
@@ -15,7 +15,7 @@
 		spawn(3)
 			var/mob/living/carbon/human/H = player.current
 			if(istype(H))
-				H.change_appearance(APPEARANCE_COMMON, TRUE, state = GLOB.z_state)
+				H.change_appearance(APPEARANCE_COMMON, state = GLOB.z_state)
 	return player.current
 
 /datum/antagonist/proc/update_access(mob/living/player)
@@ -87,9 +87,13 @@
 	if(mode.antag_scaling_coeff)
 
 		var/count = 0
-		for(var/mob/living/M in GLOB.player_list)
-			if(M.client)
-				count++
+		if (GAME_STATE < RUNLEVEL_GAME)
+			count = length(GLOB.player_list)
+		else
+			for(var/mob/M in GLOB.living_players)
+				var/datum/job/job = SSjobs.get_by_title(M.mind.assigned_role)
+				if(job?.create_record)
+					count++
 
 		// Minimum: initial_spawn_target
 		// Maximum: hard_cap or hard_cap_round

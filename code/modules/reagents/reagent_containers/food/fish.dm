@@ -18,8 +18,8 @@
 	name = "[fish_type] fillet"
 
 
-/obj/item/reagent_containers/food/snacks/fish/attackby(obj/item/item, mob/living/user)
-	if (!item.sharp)
+/obj/item/reagent_containers/food/snacks/fish/use_tool(obj/item/item, mob/living/user, list/click_params)
+	if (istype(item, /obj/item/reagent_containers/syringe) || !item.sharp)
 		return ..()
 	var/turf/turf = get_turf(src)
 	if (turf != loc || !(locate(/obj/structure/table) in turf))
@@ -27,12 +27,12 @@
 		return TRUE
 	var/list/toxins = reagents.get_reagent_amount_list(/datum/reagent/toxin)
 	for (var/toxin_type in toxins)
-		if (user.skill_fail_prob(SKILL_COOKING, 90, SKILL_PROF))
+		if (user.skill_fail_prob(SKILL_COOKING, 90, SKILL_MASTER))
 			continue
 		reagents.remove_reagent(toxin_type, toxins[toxin_type])
-	var/transfer = Floor(reagents.total_volume * 0.3)
+	var/transfer = floor(reagents.total_volume * 0.3)
 	for(var/i = 1 to 3)
-		var/obj/item/reagent_containers/food/snacks/sashimi/sashimi = new (turf, fish_type)
+		var/obj/item/reagent_containers/food/snacks/sashimi/sashimi = new (turf, fish_type, color)
 		reagents.trans_to(sashimi, transfer)
 	user.visible_message(SPAN_ITALIC("\The [user] slices \the [src] into thin strips."))
 	qdel(src)
@@ -70,7 +70,7 @@
 
 /obj/item/reagent_containers/food/snacks/fish/space_pike/Initialize()
 	. = ..()
-	reagents.add_reagent(/datum/reagent/toxin/carpotoxin, 6)
+	reagents.add_reagent(/datum/reagent/toxin/carpotoxin, 11)
 
 
 /obj/item/reagent_containers/food/snacks/fish/space_shark
@@ -181,7 +181,7 @@
 /obj/random/fish
 	name = "random fish fillet"
 	desc = "This is a random fish fillet."
-	icon = 'icons/obj/food.dmi'
+	icon = 'icons/obj/food/food.dmi'
 	icon_state = "fishfillet"
 	color = "#ff4040"
 

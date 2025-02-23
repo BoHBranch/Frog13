@@ -5,7 +5,7 @@
 
 	handle_power() // Handles all power interaction
 
-	if(damage > broken_damage)
+	if (get_damage_value() > broken_damage)
 		shutdown_computer()
 		return
 
@@ -79,14 +79,14 @@
 /obj/item/modular_computer/on_update_icon()
 	icon_state = icon_state_unpowered
 
-	overlays.Cut()
+	ClearOverlays()
 	var/datum/extension/interactive/ntos/os = get_extension(src, /datum/extension/interactive/ntos)
 	if(os)
-		overlays += os.get_screen_overlay()
-		overlays += os.get_keyboard_overlay()
+		AddOverlays(os.get_screen_overlay())
+		AddOverlays(os.get_keyboard_overlay())
 
 	if(enabled)
-		set_light(0.2, 0.1, light_strength)
+		set_light(light_strength, 0.2)
 	else
 		set_light(0)
 
@@ -96,7 +96,7 @@
 	if(tesla_link)
 		tesla_link.enabled = TRUE
 	var/issynth = issilicon(user) // Robots and AIs get different activation messages.
-	if(damage > broken_damage)
+	if (get_damage_value() > broken_damage)
 		if(issynth)
 			to_chat(user, "You send an activation signal to \the [src], but it responds with an error code. It must be damaged.")
 		else

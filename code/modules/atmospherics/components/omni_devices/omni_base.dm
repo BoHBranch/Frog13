@@ -6,7 +6,6 @@
 	icon = 'icons/atmos/omni_devices.dmi'
 	icon_state = "base"
 	initialize_directions = 0
-	level = 1
 	layer = ABOVE_CATWALK_LAYER
 
 	var/configuring = 0
@@ -52,11 +51,11 @@
 
 /obj/machinery/atmospherics/omni/on_update_icon()
 	if(!is_powered())
-		overlays = overlays_off
+		SetOverlays(overlays_off)
 	else if(error_check())
-		overlays = overlays_error
+		SetOverlays(overlays_error)
 	else
-		overlays = use_power ? (overlays_on) : (overlays_off)
+		SetOverlays(use_power ? (overlays_on) : (overlays_off))
 
 	underlays = underlays_current
 
@@ -76,7 +75,7 @@
 		return 0
 	return 1
 
-/obj/machinery/atmospherics/omni/attackby(obj/item/W as obj, mob/user as mob)
+/obj/machinery/atmospherics/omni/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(!isWrench(W))
 		return ..()
 
@@ -85,18 +84,19 @@
 		int_pressure += P.air.return_pressure()
 	var/datum/gas_mixture/env_air = loc.return_air()
 	if ((int_pressure - env_air.return_pressure()) > 2*ONE_ATMOSPHERE)
-		to_chat(user, "<span class='warning'>You cannot unwrench \the [src], it is too exerted due to internal pressure.</span>")
-		add_fingerprint(user)
-		return 1
-	to_chat(user, "<span class='notice'>You begin to unfasten \the [src]...</span>")
+		to_chat(user, SPAN_WARNING("You cannot unwrench \the [src], it is too exerted due to internal pressure."))
+		return TRUE
+	to_chat(user, SPAN_NOTICE("You begin to unfasten \the [src]..."))
 	playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
-	if(do_after(user, 4 SECONDS, src, DO_REPAIR_CONSTRUCT))
-		user.visible_message( \
-			"<span class='notice'>\The [user] unfastens \the [src].</span>", \
-			"<span class='notice'>You have unfastened \the [src].</span>", \
-			"You hear a ratchet.")
-		new /obj/item/pipe(loc, src)
-		qdel(src)
+	if (!do_after(user, (W.toolspeed * 4) SECONDS, src, DO_REPAIR_CONSTRUCT))
+		return TRUE
+	user.visible_message( \
+		SPAN_NOTICE("\The [user] unfastens \the [src]."), \
+		SPAN_NOTICE("You have unfastened \the [src]."), \
+		"You hear a ratchet.")
+	new /obj/item/pipe(loc, src)
+	qdel(src)
+	return TRUE
 
 /obj/machinery/atmospherics/omni/interface_interact(mob/user)
 	ui_interact(user)
@@ -183,7 +183,7 @@
 		var/turf/T = get_turf(src)
 		if(!istype(T))
 			return
-		if(!T.is_plating() && istype(P.node, /obj/machinery/atmospherics/pipe) && P.node.level == 1 )
+		if(!T.is_plating() && istype(P.node, /obj/machinery/atmospherics/pipe) && P.node.level == ATOM_LEVEL_UNDER_TILE )
 			//pipe_state = icon_manager.get_atmos_icon("underlay_down", P.dir, color_cache_name(P.node))
 			pipe_state = icon_manager.get_atmos_icon("underlay", P.dir, color_cache_name(P.node), "down")
 		else

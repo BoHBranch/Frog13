@@ -75,31 +75,31 @@
 
 /datum/extension/scent/cheese_aged
 	scent = "sharp cheese"
-	intensity = /decl/scent_intensity
+	intensity = /singleton/scent_intensity
 	descriptor = SCENT_DESC_ODOR
 	range = 2
 
 
-/datum/recipe/cheesewheel_aged
-	reagents = list(
+/datum/microwave_recipe/cheesewheel_aged
+	required_reagents = list(
 		/datum/reagent/enzyme = 5,
 		/datum/reagent/sodiumchloride = 10
 	)
-	items = list(
+	required_items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/cheesewheel
 	)
-	result = /obj/item/reagent_containers/food/snacks/sliceable/cheesewheel/aged
+	result_path = /obj/item/reagent_containers/food/snacks/sliceable/cheesewheel/aged
 
 
-/datum/recipe/cheesewedge_aged
-	reagents = list(
+/datum/microwave_recipe/cheesewedge_aged
+	required_reagents = list(
 		/datum/reagent/enzyme = 1,
 		/datum/reagent/sodiumchloride = 2
 	)
-	items = list(
+	required_items = list(
 		/obj/item/reagent_containers/food/snacks/cheesewedge
 	)
-	result = /obj/item/reagent_containers/food/snacks/cheesewedge/aged
+	result_path = /obj/item/reagent_containers/food/snacks/cheesewedge/aged
 
 
 /obj/item/reagent_containers/food/snacks/sliceable/cheesewheel/blue
@@ -123,30 +123,30 @@
 
 /datum/extension/scent/cheese_blue
 	scent = "funky cheese"
-	intensity = /decl/scent_intensity/strong
+	intensity = /singleton/scent_intensity/strong
 	descriptor = SCENT_DESC_ODOR
 	range = 3
 
 
-/datum/recipe/cheesewheel_blue
-	reagents = list(
+/datum/microwave_recipe/cheesewheel_blue
+	required_reagents = list(
 		/datum/reagent/enzyme = 5,
 		/datum/reagent/sodiumchloride = 5,
 		/datum/reagent/drink/kefir = 5
 	)
-	items = list(
+	required_items = list(
 		/obj/item/reagent_containers/food/snacks/sliceable/cheesewheel
 	)
-	result = /obj/item/reagent_containers/food/snacks/sliceable/cheesewheel/blue
+	result_path = /obj/item/reagent_containers/food/snacks/sliceable/cheesewheel/blue
 
 
-/datum/recipe/cheesewedge_blue
-	reagents = list(
+/datum/microwave_recipe/cheesewedge_blue
+	required_reagents = list(
 		/datum/reagent/enzyme = 1,
 		/datum/reagent/sodiumchloride = 1,
 		/datum/reagent/drink/kefir = 1
 	)
-	items = list(
+	required_items = list(
 		/obj/item/reagent_containers/food/snacks/cheesewedge
 	)
-	result = /obj/item/reagent_containers/food/snacks/cheesewedge/blue
+	result_path = /obj/item/reagent_containers/food/snacks/cheesewedge/blue

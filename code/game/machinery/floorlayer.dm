@@ -1,7 +1,7 @@
 /obj/machinery/floorlayer
 
 	name = "automatic floor layer"
-	icon = 'icons/obj/stationobjs.dmi'
+	icon = 'icons/obj/machines/pipe_dispenser.dmi'
 	icon_state = "pipe_d"
 	density = TRUE
 	var/turf/old_turf
@@ -31,47 +31,53 @@
 
 /obj/machinery/floorlayer/physical_attack_hand(mob/user)
 	on=!on
-	user.visible_message("<span class='notice'>[user] has [!on?"de":""]activated \the [src].</span>", "<span class='notice'>You [!on?"de":""]activate \the [src].</span>")
+	user.visible_message(
+		SPAN_NOTICE("\The [user] has [!on?"de":""]activated \the [src]."),
+		SPAN_NOTICE("You [!on?"de":""]activate \the [src].")
+	)
 	return TRUE
 
-/obj/machinery/floorlayer/attackby(obj/item/W as obj, mob/user as mob)
-
+/obj/machinery/floorlayer/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(isWrench(W))
 		var/m = input("Choose work mode", "Mode") as null|anything in mode
 		mode[m] = !mode[m]
 		var/O = mode[m]
-		user.visible_message("<span class='notice'>[usr] has set \the [src] [m] mode [!O?"off":"on"].</span>", "<span class='notice'>You set \the [src] [m] mode [!O?"off":"on"].</span>")
-		return
+		user.visible_message(
+			SPAN_NOTICE("\The [user] has set \the [src] [m] mode [!O?"off":"on"]."),
+			SPAN_NOTICE("You set \the [src] [m] mode [!O?"off":"on"].")
+		)
+		return TRUE
 
 	if(istype(W, /obj/item/stack/tile))
 		if(!user.unEquip(W, T))
-			return
-		to_chat(user, "<span class='notice'>\The [W] successfully loaded.</span>")
+			return TRUE
+		to_chat(user, SPAN_NOTICE("\The [W] successfully loaded."))
 		TakeTile(T)
-		return
+		return TRUE
 
 	if(isCrowbar(W))
 		if(!length(contents))
-			to_chat(user, "<span class='notice'>\The [src] is empty.</span>")
+			to_chat(user, SPAN_NOTICE("\The [src] is empty."))
 		else
 			var/obj/item/stack/tile/E = input("Choose remove tile type.", "Tiles") as null|anything in contents
 			if(E)
-				to_chat(user, "<span class='notice'>You remove the [E] from /the [src].</span>")
+				to_chat(user, SPAN_NOTICE("You remove the [E] from /the [src]."))
 				E.dropInto(loc)
 				T = null
-		return
+		return TRUE
 
 	if(isScrewdriver(W))
 		T = input("Choose tile type.", "Tiles") as null|anything in contents
-		return
-	..()
+		return TRUE
+
+	return ..()
 
 /obj/machinery/floorlayer/examine(mob/user)
 	. = ..()
 	var/dismantle = mode["dismantle"]
 	var/laying = mode["laying"]
 	var/collect = mode["collect"]
-	var/message = "<span class='notice'>\The [src] [!T?"don't ":""]has [!T?"":"[T.get_amount()] [T] "]tile\s, dismantle is [dismantle?"on":"off"], laying is [laying?"on":"off"], collect is [collect?"on":"off"].</span>"
+	var/message = SPAN_NOTICE("\The [src] [!T?"don't ":""]has [!T?"":"[T.get_amount()] [T] "]tile\s, dismantle is [dismantle?"on":"off"], laying is [laying?"on":"off"], collect is [collect?"on":"off"].")
 	to_chat(user, message)
 
 /obj/machinery/floorlayer/proc/reset()
@@ -99,7 +105,7 @@
 	if(!T)
 		if(!TakeNewStack())
 			return 0
-	w_turf.attackby(T , src)
+	w_turf.use_tool(T , src)
 	return 1
 
 /obj/machinery/floorlayer/proc/TakeTile(obj/item/stack/tile/tile)

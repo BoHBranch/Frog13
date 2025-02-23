@@ -46,7 +46,7 @@
 
 
 /datum/build_mode/edit/OnClick(atom/A, list/parameters)
-	if (!A.may_edit_var(usr, var_to_edit))
+	if (A.may_not_edit_var(usr, var_to_edit))
 		return
 	var/old_value = A.vars[var_to_edit]
 	var/new_value
@@ -57,7 +57,7 @@
 	if (old_value == new_value)
 		return
 	A.vars[var_to_edit] = new_value
-	to_chat(user, "<span class='notice'>Changed the value of [var_to_edit] from '[old_value]' to '[new_value]'.</span>")
+	to_chat(user, SPAN_NOTICE("Changed the value of [var_to_edit] from '[old_value]' to '[new_value]'."))
 	Log("[log_info_line(A)] - [var_to_edit] - [old_value] -> [new_value]")
 
 
@@ -66,13 +66,13 @@
 		return
 	ClearValue()
 	value_to_set = new_value
-	GLOB.destroyed_event.register(value_to_set, src, /datum/build_mode/edit/proc/ClearValue)
+	GLOB.destroyed_event.register(value_to_set, src, PROC_REF(ClearValue))
 
 
 /datum/build_mode/edit/proc/ClearValue(feedback)
 	if (!istype(value_to_set, /datum))
 		return
-	GLOB.destroyed_event.unregister(value_to_set, src, /datum/build_mode/edit/proc/ClearValue)
+	GLOB.destroyed_event.unregister(value_to_set, src, PROC_REF(ClearValue))
 	value_to_set = initial(value_to_set)
 	if (feedback)
 		Warn("The selected reference value was deleted. Default value restored.")

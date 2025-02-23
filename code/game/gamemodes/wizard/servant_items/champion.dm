@@ -10,7 +10,6 @@
 		bomb = ARMOR_BOMB_RESISTANT,
 		bio = ARMOR_BIO_MINOR
 		)
-	species_restricted = list(SPECIES_HUMAN)
 
 /obj/item/clothing/suit/champarmor
 	name = "champion's armor"
@@ -36,7 +35,6 @@
 	armor = list(
 		melee = ARMOR_MELEE_MINOR
 	)
-	species_restricted = list(SPECIES_HUMAN)
 
 /obj/item/clothing/shoes/jackboots/medievalboots
 	name = "leather boots"
@@ -76,7 +74,7 @@
 	if(user.mind)
 		if(!GLOB.wizards.is_antagonist(user.mind) || user.mind.special_role != ANTAG_SERVANT)
 			START_PROCESSING(SSobj, src)
-			to_chat(user,"<span class='danger'>\The [src] heats up in your hands, burning you!</span>")
+			to_chat(user,SPAN_DANGER("\The [src] heats up in your hands, burning you!"))
 
 /obj/item/excalibur/Process()
 	if(istype(loc, /mob/living))
@@ -91,7 +89,7 @@
 			var/mob/living/M = loc
 			M.adjustFireLoss(2)
 		if(prob(2))
-			to_chat(loc,"<span class='danger'>\The [src] is burning you!</span>")
+			to_chat(loc,SPAN_DANGER("\The [src] is burning you!"))
 	return 1
 
 /obj/item/excalibur/dropped()

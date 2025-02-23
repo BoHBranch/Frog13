@@ -15,8 +15,11 @@
 	var/list/datum/stack_recipe/recipes
 	var/singular_name
 	var/plural_name
+	/// String. The stack's base icon state. Used when the amount is 2 or lower.
 	var/base_state
+	/// String. The stack's icon state when amount is greater than 2.
 	var/plural_icon_state
+	/// String. The stack's icon state at the maximum amount.
 	var/max_icon_state
 	var/amount = 1
 	var/max_amount //also see stack recipes initialisation, param "max_res_amount" must be equal to this max_amount
@@ -50,9 +53,9 @@
 	. = ..()
 	if(distance <= 1)
 		if(!uses_charge)
-			to_chat(user, "There [src.amount == 1 ? "is" : "are"] [src.amount] [src.singular_name]\s in the stack.")
+			to_chat(user, "There [amount == 1 ? "is 1 [singular_name]" : "are [amount] [plural_name]"] in the stack.")
 		else
-			to_chat(user, "There is enough charge for [get_amount()].")
+			to_chat(user, "There is enough charge for [get_amount() == 1 ? "1 [singular_name]" : "[amount] [plural_name]"].")
 
 /obj/item/stack/attack_self(mob/user as mob)
 	list_recipes(user)
@@ -69,7 +72,7 @@
 		recipe_list = srl.recipes
 	var/t1 = list()
 	t1 += "<HTML><HEAD><title>Constructions from [src]</title></HEAD><body><TT>Amount Left: [src.get_amount()]<br>"
-	for(var/i=1;i<=recipe_list.len,i++)
+	for(var/i=1;i<=length(recipe_list),i++)
 		var/E = recipe_list[i]
 		if (isnull(E))
 			continue
@@ -77,7 +80,7 @@
 		if (istype(E, /datum/stack_recipe_list))
 			t1+="<br>"
 			var/datum/stack_recipe_list/srl = E
-			t1 += "\[Sub-menu] <a href='?src=\ref[src];sublist=[i]'>[srl.title]</a>"
+			t1 += "\[Sub-menu] <a href='byond://?src=\ref[src];sublist=[i]'>[srl.title]</a>"
 
 		if (istype(E, /datum/stack_recipe))
 			var/datum/stack_recipe/R = E
@@ -93,10 +96,10 @@
 			title+= " ([R.req_amount] [src.singular_name]\s)"
 			var/skill_label = ""
 			if(!user.skill_check(SKILL_CONSTRUCTION, R.difficulty))
-				var/decl/hierarchy/skill/S = decls_repository.get_decl(SKILL_CONSTRUCTION)
-				skill_label = "<font color='red'>\[[S.levels[R.difficulty]]]</font>"
+				var/singleton/hierarchy/skill/S = GET_SINGLETON(SKILL_CONSTRUCTION)
+				skill_label = SPAN_COLOR("red", "\[[S.levels[R.difficulty]]\]")
 			if (can_build)
-				t1 +="[skill_label]<A href='?src=\ref[src];sublist=[recipes_sublist];make=[i];multiplier=1'>[title]</A>"
+				t1 +="[skill_label]<A href='byond://?src=\ref[src];sublist=[recipes_sublist];make=[i];multiplier=1'>[title]</A>"
 			else
 				t1 += "[skill_label][title]"
 			if (R.max_res_amount>1 && max_multiplier>1)
@@ -105,12 +108,12 @@
 				var/list/multipliers = list(5,10,25)
 				for (var/n in multipliers)
 					if (max_multiplier>=n)
-						t1 += " <A href='?src=\ref[src];make=[i];multiplier=[n]'>[n*R.res_amount]x</A>"
+						t1 += " <A href='byond://?src=\ref[src];make=[i];multiplier=[n]'>[n*R.res_amount]x</A>"
 				if (!(max_multiplier in multipliers))
-					t1 += " <A href='?src=\ref[src];make=[i];multiplier=[max_multiplier]'>[max_multiplier*R.res_amount]x</A>"
+					t1 += " <A href='byond://?src=\ref[src];make=[i];multiplier=[max_multiplier]'>[max_multiplier*R.res_amount]x</A>"
 
 	t1 += "</TT></body></HTML>"
-	show_browser(user, JOINTEXT(t1), "window=stack")
+	show_browser(user, jointext(t1, null), "window=stack")
 	onclose(user, "stack")
 
 /obj/item/stack/proc/produce_recipe(datum/stack_recipe/recipe, quantity, mob/user)
@@ -124,27 +127,28 @@
 
 	if (!can_use(required))
 		if (produced>1)
-			to_chat(user, "<span class='warning'>You haven't got enough [src] to build \the [produced] [recipe.display_name()]\s!</span>")
+			to_chat(user, SPAN_WARNING("You haven't got enough [src] to build \the [produced] [recipe.display_name()]\s!"))
 		else
-			to_chat(user, "<span class='warning'>You haven't got enough [src] to build \the [recipe.display_name()]!</span>")
+			to_chat(user, SPAN_WARNING("You haven't got enough [src] to build \the [recipe.display_name()]!"))
 		return
 
 	if(!recipe.can_make(user))
 		return
 
 	if (recipe.time)
-		to_chat(user, "<span class='notice'>Building [recipe.display_name()] ...</span>")
-		if (!user.do_skilled(recipe.time, SKILL_CONSTRUCTION, src, do_flags = DO_REPAIR_CONSTRUCT))
+		to_chat(user, SPAN_NOTICE("Building [recipe.display_name()] ..."))
+		if (!user.do_skilled(recipe.time, SKILL_CONSTRUCTION, src, do_flags = DO_REPAIR_CONSTRUCT | DO_BAR_OVER_USER))
 			return
 
 	if (use(required))
 		if(user.skill_fail_prob(SKILL_CONSTRUCTION, 90, recipe.difficulty))
-			to_chat(user, "<span class='warning'>You waste some [name] and fail to build \the [recipe.display_name()]!</span>")
+			to_chat(user, SPAN_WARNING("You waste some [name] and fail to build \the [recipe.display_name()]!"))
 			return
 		var/atom/O = recipe.spawn_result(user, user.loc, produced)
-		O.add_fingerprint(user)
-
-		user.put_in_hands(O)
+		// Stack recipes will delete the created item if it merges with a stack already in hand.
+		if (!QDELETED(O))
+			O.add_fingerprint(user)
+			user.put_in_hands(O)
 
 /obj/item/stack/Topic(href, href_list)
 	..()
@@ -195,7 +199,7 @@
 	else
 		if(get_amount() < used)
 			return 0
-		for(var/i = 1 to charge_costs.len)
+		for(var/i = 1 to length(charge_costs))
 			var/datum/matter_synth/S = synths[i]
 			S.use_charge(charge_costs[i] * used) // Doesn't need to be deleted
 		return 1
@@ -208,7 +212,7 @@
 			amount += extra
 			update_icon()
 		return 1
-	else if(!synths || synths.len < uses_charge)
+	else if(!synths || length(synths) < uses_charge)
 		return 0
 	else
 		for(var/i = 1 to uses_charge)
@@ -265,12 +269,12 @@
 
 /obj/item/stack/proc/get_amount()
 	if(uses_charge)
-		if(!synths || synths.len < uses_charge)
+		if(!synths || length(synths) < uses_charge)
 			return 0
 		var/datum/matter_synth/S = synths[1]
 		. = round(S.get_charge() / charge_costs[1])
-		if(charge_costs.len > 1)
-			for(var/i = 2 to charge_costs.len)
+		if(length(charge_costs) > 1)
+			for(var/i = 2 to length(charge_costs))
 				S = synths[i]
 				. = min(., round(S.get_charge() / charge_costs[i]))
 		return
@@ -278,7 +282,7 @@
 
 /obj/item/stack/proc/get_max_amount()
 	if(uses_charge)
-		if(!synths || synths.len < uses_charge)
+		if(!synths || length(synths) < uses_charge)
 			return 0
 		var/datum/matter_synth/S = synths[1]
 		. = round(S.max_energy / charge_costs[1])
@@ -301,18 +305,18 @@
 			continue
 		var/transfer = src.transfer_to(item)
 		if (transfer)
-			to_chat(user, "<span class='notice'>You add a new [item.singular_name] to the stack. It now contains [item.amount] [item.singular_name]\s.</span>")
+			to_chat(user, SPAN_NOTICE("You add a new [item.singular_name] to the stack. It now contains [item.get_exact_name(item.amount)]."))
 		if(!amount)
 			break
 
 /obj/item/stack/get_storage_cost()	//Scales storage cost to stack size
 	. = ..()
 	if (amount < max_amount)
-		. = Ceil(. * amount / max_amount)
+		. = ceil(. * amount / max_amount)
 
 /obj/item/stack/attack_hand(mob/user as mob)
 	if (user.get_inactive_hand() == src)
-		var/N = input("How many stacks of [src] would you like to split off?", "Split stacks", 1) as num|null
+		var/N = input("How many [plural_name] of \the [src] would you like to split off?", "Split stacks", 1) as num|null
 		if(N)
 			var/obj/item/stack/F = src.split(N)
 			if (F)
@@ -326,18 +330,60 @@
 		..()
 	return
 
-/obj/item/stack/attackby(obj/item/W as obj, mob/user as mob)
-	if (istype(W, /obj/item/stack))
-		var/obj/item/stack/S = W
-		src.transfer_to(S)
+/obj/item/stack/use_tool(obj/item/tool, mob/living/user, list/click_params)
+	if (istype(tool, /obj/item/stack))
+		var/obj/item/stack/new_stack = tool
+		transfer_to(new_stack)
 
 		spawn(0) //give the stacks a chance to delete themselves if necessary
-			if (S && usr.machine==S)
-				S.interact(usr)
-			if (src && usr.machine==src)
-				src.interact(usr)
+			if (new_stack && user.machine == new_stack)
+				new_stack.interact(usr)
+			if (src && user.machine == src)
+				interact(user)
+		return TRUE
+	return ..()
+
+/**
+ * Returns a string forming a basic name of the stack. By default, this is `name`.
+ *
+ * Has no parameters.
+ */
+/obj/item/stack/proc/get_stack_name()
+	return name
+
+
+/**
+ * Generates a name usable in messages without a specific number attached, i.e. `a sheet of paper` or `some paper sheets`.
+ *
+ * **Parameters**:
+ * - `plural` (Boolean, default `(src.amount == 1)`) - Whether the message uses `plural_name` or `singular_name`, and the proper grammatical rules.
+ *
+ * Returns string.
+ */
+/obj/item/stack/proc/get_vague_name(plural)
+	if (isnull(plural))
+		plural = (src.amount == 1)
+	if (plural)
+		return "some [get_stack_name()] [plural_name]"
 	else
-		return ..()
+		return "\a [singular_name] of [get_stack_name()]"
+
+
+/**
+ * Generates a name usable in messages with a specific number attached, i.e. `1 sheet of paper` or `5 paper sheets`.
+ *
+ * **Parameters**:
+ * - `amount` (Integer, default `src.amount`) - The number of items for the message. Also determines whether `plural_name` or `singular_name` are used.
+ *
+ * Returns string.
+ */
+/obj/item/stack/proc/get_exact_name(amount)
+	if (isnull(amount))
+		amount = src.amount
+	if (amount == 1)
+		return "[amount] [singular_name] of [get_stack_name()]"
+	return "[amount] [get_stack_name()] [plural_name]"
+
 
 /*
  * Recipe datum
@@ -361,6 +407,7 @@
 	if(material)
 		use_material = material.name
 		difficulty += material.construction_difficulty
+		difficulty = clamp(difficulty, MATERIAL_EASY_DIY, MATERIAL_VERY_HARD_DIY)
 	if(reinforce_material)
 		use_reinf_material = reinforce_material
 
@@ -382,12 +429,12 @@
 
 /datum/stack_recipe/proc/can_make(mob/user)
 	if (one_per_turf && (locate(result_type) in user.loc))
-		to_chat(user, "<span class='warning'>There is another [display_name()] here!</span>")
+		to_chat(user, SPAN_WARNING("There is another [display_name()] here!"))
 		return FALSE
 
 	var/turf/T = get_turf(user.loc)
 	if (on_floor && !T.is_floor())
-		to_chat(user, "<span class='warning'>\The [display_name()] must be constructed on the floor!</span>")
+		to_chat(user, SPAN_WARNING("\The [display_name()] must be constructed on the floor!"))
 		return FALSE
 
 	return TRUE

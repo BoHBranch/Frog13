@@ -5,12 +5,10 @@
 // Used for advanced grid control (read: Substations)
 
 /obj/machinery/power/breakerbox
-	name = "Breaker Box"
-	icon = 'icons/obj/power.dmi'
-	icon_state = "bbox_off"
+	name = "breaker box"
+	icon = 'icons/obj/machines/power/breakerbox.dmi'
+	icon_state = "bbox"
 	//directwired = 0
-	var/icon_state_on = "bbox_on"
-	var/icon_state_off = "bbox_off"
 	density = TRUE
 	anchored = TRUE
 	var/on = 0
@@ -25,7 +23,6 @@
 		R.FindDevices()
 
 /obj/machinery/power/breakerbox/activated
-	icon_state = "bbox_on"
 
 	// Enabled on server startup. Used in substations to keep them in bypass mode.
 /obj/machinery/power/breakerbox/activated/Initialize()
@@ -36,24 +33,24 @@
 	. = ..()
 	to_chat(user, "Large machine with heavy duty switching circuits used for advanced grid control")
 	if(on)
-		to_chat(user, "<span class='good'>It seems to be online.</span>")
+		to_chat(user, SPAN_GOOD("It seems to be online."))
 	else
-		to_chat(user, "<span class='warning'>It seems to be offline.</span>")
+		to_chat(user, SPAN_WARNING("It seems to be offline."))
 
 /obj/machinery/power/breakerbox/attack_ai(mob/user)
 	if(update_locked)
-		to_chat(user, "<span class='warning'>System locked. Please try again later.</span>")
+		to_chat(user, SPAN_WARNING("System locked. Please try again later."))
 		return
 
 	if(busy)
-		to_chat(user, "<span class='warning'>System is busy. Please wait until current operation is finished before changing power settings.</span>")
+		to_chat(user, SPAN_WARNING("System is busy. Please wait until current operation is finished before changing power settings."))
 		return
 
 	busy = 1
-	to_chat(user, "<span class='good'>Updating power settings..</span>")
+	to_chat(user, SPAN_GOOD("Updating power settings.."))
 	if(do_after(user, 5 SECONDS, src))
 		set_state(!on)
-		to_chat(user, "<span class='good'>Update Completed. New setting:[on ? "on": "off"]</span>")
+		to_chat(user, SPAN_CLASS("good", "Update Completed. New setting:[on ? "on": "off"]"))
 		update_locked = 1
 		spawn(600)
 			update_locked = 0
@@ -62,43 +59,41 @@
 
 /obj/machinery/power/breakerbox/physical_attack_hand(mob/user)
 	if(update_locked)
-		to_chat(user, "<span class='warning'>System locked. Please try again later.</span>")
+		to_chat(user, SPAN_WARNING("System locked. Please try again later."))
 		return TRUE
 
 	if(busy)
-		to_chat(user, "<span class='warning'>System is busy. Please wait until current operation is finished before changing power settings.</span>")
+		to_chat(user, SPAN_WARNING("System is busy. Please wait until current operation is finished before changing power settings."))
 		return TRUE
 
 	busy = 1
 	for(var/mob/O in viewers(user))
-		O.show_message(text("<span class='warning'>\The [user] started reprogramming \the [src]!</span>"), 1)
+		O.show_message(text(SPAN_WARNING("\The [user] started reprogramming \the [src]!")), 1)
 
 	if(do_after(user, 5 SECONDS, src, DO_PUBLIC_UNIQUE))
 		set_state(!on)
 		user.visible_message(\
-		"<span class='notice'>[user.name] [on ? "enabled" : "disabled"] the breaker box!</span>",\
-		"<span class='notice'>You [on ? "enabled" : "disabled"] the breaker box!</span>")
+		SPAN_NOTICE("[user.name] [on ? "enabled" : "disabled"] the breaker box!"),\
+		SPAN_NOTICE("You [on ? "enabled" : "disabled"] the breaker box!"))
 		update_locked = 1
 		spawn(600)
 			update_locked = 0
 	busy = 0
 	return TRUE
 
-/obj/machinery/power/breakerbox/attackby(obj/item/W as obj, mob/user as mob)
+/obj/machinery/power/breakerbox/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(isMultitool(W))
 		var/newtag = input(user, "Enter new RCON tag. Use \"NO_TAG\" to disable RCON or leave empty to cancel.", "SMES RCON system") as text
 		if(newtag)
 			RCon_tag = newtag
-			to_chat(user, "<span class='notice'>You changed the RCON tag to: [newtag]</span>")
+			to_chat(user, SPAN_NOTICE("You changed the RCON tag to: [newtag]"))
+		return TRUE
 
-
-
-
+	return ..()
 
 /obj/machinery/power/breakerbox/proc/set_state(state)
 	on = state
 	if(on)
-		icon_state = icon_state_on
 		var/list/connection_dirs = list()
 		for(var/direction in directions)
 			for(var/obj/structure/cable/C in get_step(src,direction))
@@ -123,9 +118,9 @@
 				C.mergeDiagonalsNetworks(C.d2)
 
 	else
-		icon_state = icon_state_off
 		for(var/obj/structure/cable/C in src.loc)
 			qdel(C)
+	update_icon()
 
 // Used by RCON to toggle the breaker box.
 /obj/machinery/power/breakerbox/proc/auto_toggle()
@@ -134,3 +129,11 @@
 		update_locked = 1
 		spawn(600)
 			update_locked = 0
+
+/obj/machinery/power/breakerbox/on_update_icon()
+	ClearOverlays()
+	if(panel_open)
+		AddOverlays("[icon_state]_panel")
+	if(on)
+		AddOverlays(emissive_appearance(icon, "[icon_state]_lights"))
+		AddOverlays("[icon_state]_lights")

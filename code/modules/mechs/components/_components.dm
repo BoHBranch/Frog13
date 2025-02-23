@@ -87,42 +87,45 @@
 	var/list/damageable_components = list()
 	for(var/obj/item/robot_parts/robot_component/RC in contents)
 		damageable_components += RC
-	if(!damageable_components.len) return
+	if(!length(damageable_components)) return
 	var/obj/item/robot_parts/robot_component/RC = pick(damageable_components)
 	if(RC.take_damage(brute, burn))
 		qdel(RC)
 		update_components()
 
-/obj/item/mech_component/attackby(obj/item/thing, mob/user)
-	if(isScrewdriver(thing))
-		if(contents.len)
+/obj/item/mech_component/use_tool(obj/item/thing, mob/living/user, list/click_params)
+	if (isScrewdriver(thing))
+		if(length(contents))
 			//Filter non movables
 			var/list/valid_contents = list()
 			for(var/atom/movable/A in contents)
 				if(!A.anchored)
 					valid_contents += A
-			if(!valid_contents.len)
-				return
+			if(!length(valid_contents))
+				return TRUE
 			var/obj/item/removed = pick(valid_contents)
 			if(!(removed in contents))
-				return
+				return TRUE
 			user.visible_message(SPAN_NOTICE("\The [user] removes \the [removed] from \the [src]."))
 			removed.forceMove(user.loc)
 			playsound(user.loc, 'sound/effects/pop.ogg', 50, 0)
 			update_components()
 		else
 			to_chat(user, SPAN_WARNING("There is nothing to remove."))
-		return
-	if(isWelder(thing))
+		return TRUE
+
+	if (isWelder(thing))
 		repair_brute_generic(thing, user)
-		return
-	if(isCoil(thing))
+		return TRUE
+
+	if (isCoil(thing))
 		repair_burn_generic(thing, user)
-		return
-	if(istype(thing, /obj/item/device/robotanalyzer))
+		return TRUE
+
+	if (istype(thing, /obj/item/device/robotanalyzer))
 		to_chat(user, SPAN_NOTICE("Diagnostic Report for \the [src]:"))
 		return_diagnostics(user)
-		return
+		return TRUE
 
 	return ..()
 
@@ -138,13 +141,13 @@
 	if(!WT.isOn())
 		to_chat(user, SPAN_WARNING("Turn \the [WT] on, first."))
 		return
-	if(WT.remove_fuel((SKILL_MAX + 1) - user.get_skill_value(SKILL_CONSTRUCTION), user))
+	if(WT.can_use((SKILL_MAX + 1) - user.get_skill_value(SKILL_CONSTRUCTION), user))
 		user.visible_message(
 			SPAN_NOTICE("\The [user] begins welding the damage on \the [src]..."),
 			SPAN_NOTICE("You begin welding the damage on \the [src]...")
 		)
 		var/repair_value = 10 * max(user.get_skill_value(SKILL_CONSTRUCTION), user.get_skill_value(SKILL_DEVICES))
-		if(user.do_skilled(1 SECOND, SKILL_DEVICES , src, 0.6) && brute_damage)
+		if(user.do_skilled(1 SECOND, SKILL_DEVICES , src, 0.6) && brute_damage && WT.remove_fuel((SKILL_MAX + 1) - user.get_skill_value(SKILL_CONSTRUCTION), user))
 			repair_brute_damage(repair_value)
 			to_chat(user, SPAN_NOTICE("You mend the damage to \the [src]."))
 			playsound(user.loc, 'sound/items/Welder.ogg', 25, 1)
@@ -175,14 +178,14 @@
 /obj/item/mech_component/proc/get_damage_string()
 	switch(damage_state)
 		if(MECH_COMPONENT_DAMAGE_UNDAMAGED)
-			return FONT_COLORED(COLOR_GREEN, "undamaged")
+			return SPAN_COLOR(COLOR_GREEN, "undamaged")
 		if(MECH_COMPONENT_DAMAGE_DAMAGED)
-			return FONT_COLORED(COLOR_YELLOW, "damaged")
+			return SPAN_COLOR(COLOR_YELLOW, "damaged")
 		if(MECH_COMPONENT_DAMAGE_DAMAGED_BAD)
-			return FONT_COLORED(COLOR_ORANGE, "badly damaged")
+			return SPAN_COLOR(COLOR_ORANGE, "badly damaged")
 		if(MECH_COMPONENT_DAMAGE_DAMAGED_TOTAL)
-			return FONT_COLORED(COLOR_RED, "almost destroyed")
-	return FONT_COLORED(COLOR_RED, "destroyed")
+			return SPAN_COLOR(COLOR_RED, "almost destroyed")
+	return SPAN_COLOR(COLOR_RED, "destroyed")
 
 /obj/item/mech_component/proc/return_diagnostics(mob/user)
 	to_chat(user, SPAN_NOTICE("[capitalize(src.name)]:"))

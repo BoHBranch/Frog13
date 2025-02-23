@@ -18,15 +18,12 @@
 	. = ..()
 
 
-/datum/nano_module/appearance_changer/New(mob/living/carbon/human/_owner, _flags, _races)
-	..(_owner, null)
-	owner = _owner
-	flags = _flags
+/datum/nano_module/appearance_changer/New(mob/living/carbon/human/owner, flags)
+	..(owner, null)
+	src.owner = owner
+	src.flags = flags
 	if (flags & APPEARANCE_RACE)
-		if (islist(_races))
-			races = _races
-		else
-			races = owner.generate_valid_species(_races)
+		races = owner.generate_valid_species(flags)
 	generate_data()
 
 
@@ -51,6 +48,11 @@
 
 	if (href_list["gender"] && (flags & APPEARANCE_GENDER) && (href_list["gender"] in owner.species.genders))
 		owner.change_gender(href_list["gender"])
+		generate_data()
+		return TRUE
+
+	if (href_list["pronouns"] && HAS_FLAGS(flags, APPEARANCE_PRONOUNS) && (href_list["pronouns"] in owner.species.pronouns))
+		owner.change_pronouns(href_list["pronouns"])
 		generate_data()
 		return TRUE
 
@@ -146,6 +148,7 @@
 
 	data["specimen"] = owner.species.name
 	data["gender"] = owner.gender
+	data["pronouns"] = owner.pronouns
 
 	data["change_skin_tone"] = (flags & APPEARANCE_SKIN) && (owner.species.appearance_flags & SPECIES_APPEARANCE_HAS_A_SKIN_TONE)
 	data["change_skin_color"] = (flags & APPEARANCE_SKIN) && (owner.species.appearance_flags & SPECIES_APPEARANCE_HAS_SKIN_COLOR)
@@ -164,6 +167,12 @@
 		var/list/entries = (data["genders"] = list())
 		for (var/gender_key in owner.species.genders)
 			entries += list(list("gender_name" = gender2text(gender_key), "gender_key" = gender_key))
+
+	data["change_pronouns"] = !!(flags & APPEARANCE_PRONOUNS)
+	if (data["change_pronouns"])
+		var/list/entries = (data["pronouns_list"] = list())
+		for (var/pronouns in owner.species.pronouns)
+			entries += list(list("pronouns_name" = pronouns, "pronouns_key" = pronouns))
 
 	data["change_hair"] = !!(flags & APPEARANCE_HEAD)
 	if (data["change_hair"])

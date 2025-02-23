@@ -1,6 +1,6 @@
 /client/proc/mod_list_add_ass()
 	var/class = "text"
-	var/list/class_input = list("text","num","type","reference","mob reference", "icon","file","color","list","edit referenced object","restore to default")
+	var/list/class_input = list("text","num","type","reference","mob reference", "icon","file","color","list","view variables","restore to default")
 	if(src.holder)
 		var/datum/marked_datum = holder.marked_datum()
 		if(marked_datum)
@@ -53,7 +53,7 @@
 /client/proc/mod_list_add(list/L, atom/O, original_name, objectvar)
 
 	var/class = "text"
-	var/list/class_input = list("text","num","type","reference","mob reference", "icon","file","list","color","edit referenced object","restore to default")
+	var/list/class_input = list("text","num","type","reference","mob reference", "icon","file","list","color","view variables","restore to default")
 	if(src.holder)
 		var/datum/marked_datum = holder.marked_datum()
 		if(marked_datum)
@@ -109,14 +109,14 @@
 
 /client/proc/mod_list(list/L, atom/O, original_name, objectvar)
 	if(!check_rights(R_VAREDIT))	return
-	if(!istype(L,/list)) to_chat(src, "Not a List.")
-	if(L.len > 1000)
+	if(!islist(L)) to_chat(src, "Not a List.")
+	if(length(L) > 1000)
 		var/confirm = alert(src, "The list you're trying to edit is very long, continuing may crash the server.", "Warning", "Continue", "Abort")
 		if(confirm != "Continue")
 			return
 
 	var/assoc = 0
-	if(L.len > 0)
+	if(length(L) > 0)
 		var/a = L[1]
 		try
 			if(!isnum(a) && L[a] != null)
@@ -150,7 +150,7 @@
 
 	var/dir
 
-	if(!O.may_edit_var(usr, objectvar))
+	if(O.may_not_edit_var(usr, objectvar))
 		return
 
 	if(isnull(variable))
@@ -173,11 +173,11 @@
 		variable = "\icon[variable]"
 		default = "icon"
 
-	else if(istype(variable,/atom) || istype(variable,/datum))
+	else if(isloc(variable) || istype(variable,/datum))
 		to_chat(usr, "Variable appears to be <b>TYPE</b>.")
 		default = "type"
 
-	else if(istype(variable,/list))
+	else if(islist(variable))
 		to_chat(usr, "Variable appears to be <b>LIST</b>.")
 		default = "list"
 
@@ -214,7 +214,7 @@
 		if(dir)
 			to_chat(usr, "If a direction, direction is: [dir]")
 	var/class = "text"
-	var/list/class_input = list("text","num","type","reference","mob reference", "icon","file","list","edit referenced object","restore to default")
+	var/list/class_input = list("text","num","type","reference","mob reference", "icon","file","list","view variables","restore to default")
 
 	if(src.holder)
 		var/datum/marked_datum = holder.marked_datum()
@@ -250,8 +250,9 @@
 			else
 				L[L.Find(variable)] = new_var
 
-		if("edit referenced object")
-			modify_variables(variable)
+		if("view variables")
+			debug_variables(variable)
+			return
 
 		if("DELETE FROM LIST")
 			to_world_log("### ListVarEdit by [src]: [O.type] [objectvar]: REMOVED=[html_encode("[variable]")]")
@@ -328,7 +329,7 @@
 
 	for(var/p in forbidden_varedit_object_types())
 		if( istype(O,p) )
-			to_chat(usr, "<span class='danger'>It is forbidden to edit this object's variables.</span>")
+			to_chat(usr, SPAN_DANGER("It is forbidden to edit this object's variables."))
 			return
 
 	var/class
@@ -340,7 +341,7 @@
 			to_chat(src, "A variable with this name ([param_var_name]) doesn't exist in this atom ([O])")
 			return
 
-		if(!O.may_edit_var(usr, param_var_name))
+		if(O.may_not_edit_var(usr, param_var_name))
 			return
 
 		variable = param_var_name
@@ -370,11 +371,11 @@
 				var_value = "\icon[var_value]"
 				class = "icon"
 
-			else if(istype(var_value,/atom) || istype(var_value,/datum))
+			else if(isloc(var_value) || istype(var_value,/datum))
 				to_chat(usr, "Variable appears to be <b>TYPE</b>.")
 				class = "type"
 
-			else if(istype(var_value,/list))
+			else if(islist(var_value))
 				to_chat(usr, "Variable appears to be <b>LIST</b>.")
 				class = "list"
 
@@ -398,7 +399,7 @@
 		if(!variable)	return
 		var_value = O.get_variable_value(variable)
 
-		if(!O.may_edit_var(usr, variable))
+		if(O.may_not_edit_var(usr, variable))
 			return
 
 	if(!autodetect_class)
@@ -425,11 +426,11 @@
 			var_value = "\icon[var_value]"
 			default = "icon"
 
-		else if(istype(var_value,/atom) || istype(var_value,/datum))
+		else if(isloc(var_value) || istype(var_value,/datum))
 			to_chat(usr, "Variable appears to be <b>TYPE</b>.")
 			default = "type"
 
-		else if(istype(var_value,/list))
+		else if(islist(var_value))
 			to_chat(usr, "Variable appears to be <b>LIST</b>.")
 			default = "list"
 
@@ -464,7 +465,7 @@
 					dir = null
 			if(dir)
 				to_chat(usr, "If a direction, direction is: [dir]")
-		var/list/class_input = list("text","num","type","reference","mob reference", "icon","file","list","json","color","edit referenced object","restore to default")
+		var/list/class_input = list("text","num","type","reference","mob reference", "icon","file","list","json","color","view variables","restore to default")
 		if(src.holder)
 			var/datum/marked_datum = holder.marked_datum()
 			if(marked_datum)
@@ -476,7 +477,7 @@
 
 	var/original_name
 
-	if (!istype(O, /atom))
+	if (!isloc(O))
 		original_name = "\ref[O] ([O])"
 	else
 		original_name = O:name
@@ -494,18 +495,19 @@
 		if("restore to default")
 			var_value = O.get_initial_variable_value(variable)
 
-		if("edit referenced object")
-			return .(O.get_variable_value(variable))
+		if("view variables")
+			debug_variables(O)
+			return
 
 		if("text")
 			var/var_new = input("Enter new text:","Text",O.get_variable_value(variable)) as null|text
-			if(var_new==null) return
+			if(isnull(var_new)) return
 			var_value = var_new
 
 		if("num")
 			if(variable=="stat")
 				var/var_new = input("Enter new number:","Num",O.get_variable_value(variable)) as null|num
-				if(var_new == null) return
+				if(isnull(var_new)) return
 				if((O.get_variable_value(variable) == 2) && (var_new < 2))//Bringing the dead back to life
 					var/mob/M = O
 					M.switch_from_dead_to_living_mob_list()
@@ -515,7 +517,7 @@
 				var_value = var_new
 			else
 				var/var_new =  input("Enter new number:","Num",O.get_variable_value(variable)) as null|num
-				if(var_new==null) return
+				if(isnull(var_new)) return
 				var_value = var_new
 
 		if("type")
@@ -526,22 +528,22 @@
 
 		if("reference")
 			var/var_new = input("Select reference:","Reference",O.get_variable_value(variable)) as null|mob|obj|turf|area in world
-			if(var_new==null) return
+			if(isnull(var_new)) return
 			var_value = var_new
 
 		if("mob reference")
 			var/var_new = input("Select reference:","Reference",O.get_variable_value(variable)) as null|mob in world
-			if(var_new==null) return
+			if(isnull(var_new)) return
 			var_value = var_new
 
 		if("file")
 			var/var_new = input("Pick file:","File",O.get_variable_value(variable)) as null|file
-			if(var_new==null) return
+			if(isnull(var_new)) return
 			var_value = var_new
 
 		if("icon")
 			var/var_new = input("Pick icon:","Icon",O.get_variable_value(variable)) as null|icon
-			if(var_new==null) return
+			if(isnull(var_new)) return
 			var_value = var_new
 
 		if("color")
@@ -573,9 +575,9 @@
 
 /client/proc/special_set_vv_var(datum/O, variable, var_value, client)
 	if(!vv_set_handlers)
-		vv_set_handlers = init_subtypes(/decl/vv_set_handler)
+		vv_set_handlers = init_subtypes(/singleton/vv_set_handler)
 	for(var/vv_handler in vv_set_handlers)
-		var/decl/vv_set_handler/sh = vv_handler
+		var/singleton/vv_set_handler/sh = vv_handler
 		if(sh.can_handle_set_var(O, variable, var_value, client))
 			sh.handle_set_var(O, variable, var_value, client)
 			return TRUE

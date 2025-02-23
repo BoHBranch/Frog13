@@ -1,7 +1,7 @@
 /obj/item/material/ashtray
 	name = "ashtray"
 	desc = "A thing to keep your butts in."
-	icon = 'icons/obj/objects.dmi'
+	icon = 'icons/obj/ashtray.dmi'
 	icon_state = "ashtray"
 	max_force = 10
 	force_multiplier = 0.1
@@ -13,31 +13,28 @@
 	. = ..()
 	if(material)
 		to_chat(user, "It's made of [material.display_name].")
-	if(contents.len >= max_butts)
+	if(length(contents) >= max_butts)
 		to_chat(user, "It's full.")
-	else if(contents.len)
-		to_chat(user, "It has [contents.len] cig butts in it.")
+	else if(length(contents))
+		to_chat(user, "It has [length(contents)] cig butts in it.")
 
 /obj/item/material/ashtray/on_update_icon()
 	..()
-	overlays.Cut()
-	if (contents.len == max_butts)
-		overlays |= image('icons/obj/objects.dmi',"ashtray_full")
-	else if (contents.len >= max_butts/2)
-		overlays |= image('icons/obj/objects.dmi',"ashtray_half")
+	ClearOverlays()
+	if (length(contents) == max_butts)
+		AddOverlays(image('icons/obj/ashtray.dmi',"ashtray_full"))
+	else if (length(contents) >= max_butts/2)
+		AddOverlays(image('icons/obj/ashtray.dmi',"ashtray_half"))
 
-/obj/item/material/ashtray/attackby(obj/item/W as obj, mob/user as mob)
-	if (health_dead)
-		return
-
-	if (user.a_intent == I_HURT)
-		..()
-		return
+/obj/item/material/ashtray/use_tool(obj/item/W, mob/living/user, list/click_params)
+	if (health_dead())
+		USE_FEEDBACK_FAILURE("\The [src] is damaged beyond use!")
+		return TRUE
 
 	if (istype(W,/obj/item/trash/cigbutt) || istype(W,/obj/item/clothing/mask/smokable/cigarette) || istype(W, /obj/item/flame/match))
-		if (contents.len >= max_butts)
+		if (length(contents) >= max_butts)
 			to_chat(user, "\The [src] is full.")
-			return
+			return TRUE
 
 		if (istype(W,/obj/item/clothing/mask/smokable/cigarette))
 			var/obj/item/clothing/mask/smokable/cigarette/cig = W
@@ -51,14 +48,14 @@
 			visible_message("[user] places [W] in [src].")
 			set_extension(src, /datum/extension/scent/ashtray)
 			update_icon()
-		return
+		return TRUE
 
-	..()
+	return ..()
 
 /obj/item/material/ashtray/throw_impact(atom/hit_atom)
-	if (health_max)
-		if (contents.len)
-			visible_message("<span class='danger'>\The [src] slams into [hit_atom], spilling its contents!</span>")
+	if (get_max_health())
+		if (length(contents))
+			visible_message(SPAN_DANGER("\The [src] slams into [hit_atom], spilling its contents!"))
 			for (var/obj/O in contents)
 				O.dropInto(loc)
 			remove_extension(src, /datum/extension/scent)

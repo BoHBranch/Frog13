@@ -17,9 +17,9 @@
 	. += "<br>This gun will be allowed to fire freely once off-ship, otherwise needs to be authorized by XO. \
 	<br>While you can load this gun with lethal ammo, there's a considerable risk of explosion when fired."
 
-/obj/item/gun/projectile/shotgun/pump/exploration/get_antag_info()
+/obj/item/gun/projectile/shotgun/pump/exploration/get_antag_interactions_info()
 	. = ..()
-	. += "<br>You can reinforce the barrel with a simple pipe, lowering chance of explosion to 1 in 10.<br>"
+	.["Pipe"] += "<p>Reinforces the barrel, lowering the chance of explosion to 1 in 10.</p>"
 
 /obj/item/gun/projectile/shotgun/pump/exploration/on_update_icon()
 	..()
@@ -38,25 +38,46 @@
 		return TRUE
 	return ..()
 
-/obj/item/gun/projectile/shotgun/pump/exploration/attackby(obj/item/I, mob/user)
-	if(!reinforced && istype(I, /obj/item/pipe) && user.unEquip(I, src))
-		reinforced = I
-		to_chat(user, SPAN_WARNING("You reinforce \the [src] with \the [reinforced]."))
-		playsound(src, 'sound/effects/tape.ogg',25)
+
+/obj/item/gun/projectile/shotgun/pump/exploration/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Pipe - Reinforce gun
+	if (istype(tool, /obj/item/pipe))
+		if (reinforced)
+			USE_FEEDBACK_FAILURE("\The [src] is already reinforced with \a [reinforced].")
+			return TRUE
+		if (!user.unEquip(tool, src))
+			FEEDBACK_UNEQUIP_FAILURE(user, tool)
+			return TRUE
+		reinforced = tool
 		explosion_chance = 10
-		bulk = bulk + 4
+		bulk += 4
 		update_icon()
-		return 1
-	if(reinforced && isWirecutter(I))
-		to_chat(user, SPAN_WARNING("You remove \the [reinforced] that was reinforcing \the [src]."))
-		playsound(src.loc, 'sound/items/Wirecutter.ogg', 25, 1)
+		playsound(src, 'sound/effects/tape.ogg', 50, TRUE)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] reinforces \a [src] with \a [tool]."),
+			SPAN_NOTICE("You reinforce \the [src] with \the [tool].")
+		)
+		return TRUE
+
+
+	// Wirecutter - Remove reinforcement
+	if (isWirecutter(tool))
+		if (!reinforced)
+			USE_FEEDBACK_FAILURE("\The [src] has no reinforcement to remove.")
+			return TRUE
 		reinforced.dropInto(loc)
-		reinforced = null
 		explosion_chance = initial(explosion_chance)
 		bulk = initial(bulk)
 		update_icon()
-		return 1
+		user.visible_message(
+			SPAN_NOTICE("\The [user] removes \a [reinforced] from \a [src] with \a [tool]."),
+			SPAN_NOTICE("You remove \the [reinforced] from \the [src] with \the [tool].")
+		)
+		return TRUE
+
+
 	return ..()
+
 
 /obj/item/gun/projectile/shotgun/pump/exploration/special_check()
 	if(chambered && chambered.BB && prob(explosion_chance))
@@ -67,7 +88,7 @@
 		if(damage > 30)
 			var/mob/living/carbon/C = loc
 			if(istype(loc))
-				C.visible_message("<span class='danger'>[src] explodes in [C]'s hands!</span>", "<span class='danger'>[src] explodes in your face!</span>")
+				C.visible_message(SPAN_DANGER("[src] explodes in [C]'s hands!"), SPAN_DANGER("[src] explodes in your face!"))
 				C.drop_from_inventory(src)
 				if(reinforced)
 					reinforced.dropInto(loc)
@@ -76,7 +97,7 @@
 				for(var/zone in list(BP_L_HAND, BP_R_HAND, BP_HEAD))
 					C.apply_damage(rand(10,20), def_zone=zone)
 			else
-				visible_message("<span class='danger'>[src] explodes!</span>")
+				visible_message(SPAN_DANGER("[src] explodes!"))
 			explosion(get_turf(src), -1, -1, 1)
 			qdel(src)
 			return FALSE
@@ -115,7 +136,7 @@
 	name = "gun locker"
 	desc = "Wall locker holding the boomstick."
 	req_access = list(access_expedition_shuttle_helm)
-	closet_appearance = /decl/closet_appearance/wall/explo_gun
+	closet_appearance = /singleton/closet_appearance/wall/explo_gun
 	density = FALSE
 	anchored = TRUE
 	wall_mounted = TRUE
@@ -127,7 +148,7 @@
 		/obj/item/gun/projectile/shotgun/pump/exploration
 	)
 
-/decl/closet_appearance/wall/explo_gun
+/singleton/closet_appearance/wall/explo_gun
 	color = COLOR_GRAY20
 	decals = null
 	can_lock = 1

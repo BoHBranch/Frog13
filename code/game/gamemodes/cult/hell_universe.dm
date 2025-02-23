@@ -17,7 +17,7 @@ In short:
 	return 1
 	/*
 	if(user)
-		to_chat(user, "<span class='sinister'>All you hear on the frequency is static and panicked screaming. There will be no shuttle call today.</span>")
+		to_chat(user, SPAN_CLASS("sinister", "All you hear on the frequency is static and panicked screaming. There will be no shuttle call today."))
 	return 0
 	*/
 
@@ -41,14 +41,14 @@ In short:
 		wall.decultify_wall()
 	for (var/turf/simulated/floor/cult/floor)
 		floor.decultify_floor()
-	for (var/obj/effect/gateway/active/cult/G)
+	for (var/obj/gateway/active/cult/G)
 		qdel(G)
 	return
 
 /datum/universal_state/hell/proc/MiscSet()
 	for(var/turf/simulated/floor/T)
 		if(!T.holy && prob(1))
-			new /obj/effect/gateway/active/cult(T)
+			new /obj/gateway/active/cult(T)
 
 /datum/universal_state/hell/proc/KillMobs()
 	for(var/mob/living/simple_animal/M in SSmobs.mob_list)

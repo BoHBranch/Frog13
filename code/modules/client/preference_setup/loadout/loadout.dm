@@ -87,8 +87,8 @@ var/global/list/gear_datums = list()
 	pref.gear_slot = sanitize_integer(pref.gear_slot, 1, config.loadout_slots, initial(pref.gear_slot))
 	if(!islist(pref.gear_list)) pref.gear_list = list()
 
-	if(pref.gear_list.len < config.loadout_slots)
-		pref.gear_list.len = config.loadout_slots
+	if(length(pref.gear_list) < config.loadout_slots)
+		LIST_RESIZE(pref.gear_list, config.loadout_slots)
 
 	for(var/index = 1 to config.loadout_slots)
 		var/list/gears = pref.gear_list[index]
@@ -117,7 +117,7 @@ var/global/list/gear_datums = list()
 	. = list()
 	var/total_cost = 0
 	var/list/gears = pref.gear_list[pref.gear_slot]
-	for(var/i = 1; i <= gears.len; i++)
+	for(var/i = 1; i <= length(gears); i++)
 		var/datum/gear/G = gear_datums[gears[i]]
 		if(G)
 			total_cost += G.cost
@@ -127,13 +127,15 @@ var/global/list/gear_datums = list()
 		fcolor = "#e67300"
 	. += "<table align = 'center' width = 100%>"
 	. += "<tr><td colspan=3><center>"
-	. += "<a href='?src=\ref[src];prev_slot=1'>\<=</a><b><font color = '[fcolor]'>\[[pref.gear_slot]\]</font> </b><a href='?src=\ref[src];next_slot=1'>=\></a>"
+	. += "<a href='byond://?src=\ref[src];prev_slot=1'>\<=</a><b>[SPAN_COLOR(fcolor, "\[[pref.gear_slot]\]")] </b><a href='byond://?src=\ref[src];next_slot=1'>=\></a>"
 
 	if(config.max_gear_cost < INFINITY)
-		. += "<b><font color = '[fcolor]'>[total_cost]/[config.max_gear_cost]</font> loadout points spent.</b>"
+		. += "<b>[SPAN_COLOR(fcolor, "[total_cost]/[config.max_gear_cost]")] loadout points spent.</b>"
 
-	. += "<a href='?src=\ref[src];clear_loadout=1'>Clear Loadout</a>"
-	. += "<a href='?src=\ref[src];toggle_hiding=1'>[hide_unavailable_gear ? "Show all" : "Hide unavailable"]</a></center></td></tr>"
+	. += "<a href='byond://?src=\ref[src];clear_loadout=1'>Clear Loadout</a>"
+	. += "<a href='byond://?src=\ref[src];toggle_hiding=1'>[hide_unavailable_gear ? "Show all" : "Hide unavailable"]</a>"
+	. += "<a href='byond://?src=\ref[src];copy_loadout=1'>Copy Loadout</a>"
+	. += "</center></td></tr>"
 
 	. += "<tr><td colspan=3><center><b>"
 	var/firstcat = 1
@@ -152,12 +154,12 @@ var/global/list/gear_datums = list()
 				category_cost += G.cost
 
 		if(category == current_tab)
-			. += " <span class='linkOn'>[category] - [category_cost]</span> "
+			. += " [SPAN_CLASS("linkOn", "[category] - [category_cost]")] "
 		else
 			if(category_cost)
-				. += " <a href='?src=\ref[src];select_category=[category]'><font color = '#e67300'>[category] - [category_cost]</font></a> "
+				. += " <a href='byond://?src=\ref[src];select_category=[category]'>[SPAN_COLOR("#e67300", "[category] - [category_cost]")]</a> "
 			else
-				. += " <a href='?src=\ref[src];select_category=[category]'>[category] - 0</a> "
+				. += " <a href='byond://?src=\ref[src];select_category=[category]'>[category] - 0</a> "
 
 	. += "</b></center></td></tr>"
 
@@ -176,9 +178,9 @@ var/global/list/gear_datums = list()
 		var/list/entry = list()
 		var/datum/gear/G = LC.gear[gear_name]
 		var/ticked = (G.display_name in pref.gear_list[pref.gear_slot])
-		entry += "<tr style='vertical-align:top;'><td width=25%><a style='white-space:normal;' [ticked ? "class='linkOn' " : ""]href='?src=\ref[src];toggle_gear=\ref[G]'>[G.display_name]</a></td>"
+		entry += "<tr style='vertical-align:top;'><td width=25%><a style='white-space:normal;' [ticked ? "class='linkOn' " : ""]href='byond://?src=\ref[src];toggle_gear=\ref[G]'>[G.display_name]</a></td>"
 		entry += "<td width = 10% style='vertical-align:top'>[G.cost]</td>"
-		entry += "<td><font size=2>[G.get_description(get_gear_metadata(G,1))]</font>"
+		entry += "<td>[FONT_NORMAL(G.get_description(get_gear_metadata(G,1), ticked))]"
 		var/allowed = 1
 		if(allowed && G.allowed_roles)
 			var/good_job = 0
@@ -187,10 +189,10 @@ var/global/list/gear_datums = list()
 			var/list/jobchecks = list()
 			for(var/datum/job/J in jobs)
 				if(J.type in G.allowed_roles)
-					jobchecks += "<font color=55cc55>[J.title]</font>"
+					jobchecks += SPAN_COLOR("#55cc55", J.title)
 					good_job = 1
 				else
-					jobchecks += "<font color=cc5555>[J.title]</font>"
+					jobchecks += SPAN_COLOR("#cc5555", J.title)
 					bad_job = 1
 			allowed = good_job || !bad_job
 			entry += "[english_list(jobchecks)]</i>"
@@ -207,10 +209,10 @@ var/global/list/gear_datums = list()
 				for(var/branch in branches)
 					var/datum/mil_branch/player_branch = GLOB.mil_branches.get_branch(branch)
 					if(player_branch.type in G.allowed_branches)
-						branch_checks += "<font color=55cc55>[player_branch.name]</font>"
+						branch_checks += SPAN_COLOR("#55cc55", player_branch.name)
 						good_branch = 1
 					else
-						branch_checks += "<font color=cc5555>[player_branch.name]</font>"
+						branch_checks += SPAN_COLOR("#cc5555", player_branch.name)
 				allowed = good_branch
 
 				entry += "[english_list(branch_checks)]</i>"
@@ -218,7 +220,7 @@ var/global/list/gear_datums = list()
 		if(allowed && G.allowed_skills)
 			var/list/skills_required = list()//make it into instances? instead of path
 			for(var/skill in G.allowed_skills)
-				var/decl/hierarchy/skill/instance = decls_repository.get_decl(skill)
+				var/singleton/hierarchy/skill/instance = GET_SINGLETON(skill)
 				skills_required[instance] = G.allowed_skills[skill]
 
 			allowed = skill_check(jobs, skills_required)//Checks if a single job has all the skills required
@@ -226,16 +228,32 @@ var/global/list/gear_datums = list()
 			entry += "<br><i>"
 			var/list/skill_checks = list()
 			for(var/R in skills_required)
-				var/decl/hierarchy/skill/S = R
+				var/singleton/hierarchy/skill/S = R
 				var/skill_entry
 				skill_entry += "[S.levels[skills_required[R]]]"
 				if(allowed)
-					skill_entry = "<font color=55cc55>[skill_entry] [R]</font>"
+					skill_entry = SPAN_COLOR("#55cc55", "[skill_entry] [R]")
 				else
-					skill_entry = "<font color=cc5555>[skill_entry] [R]</font>"
+					skill_entry = SPAN_COLOR("#cc5555", "[skill_entry] [R]")
 				skill_checks += skill_entry
 
 			entry += "[english_list(skill_checks)]</i>"
+
+		if (allowed && G.allowed_traits)
+			var/singleton/species/picked_species = GLOB.species_by_name[pref.species]
+			var/list/species_traits = picked_species.traits
+			var/trait_checks = list()
+			entry += "<br><i>"
+			for (var/trait_type in G.allowed_traits)
+				var/singleton/trait/trait = GET_SINGLETON(trait_type)
+				var/trait_entry = "[trait.name]"
+				if (LAZYISIN(pref.picked_traits, trait_type) || LAZYISIN(species_traits, trait_type))
+					trait_entry = SPAN_COLOR("#55cc55", "[trait_entry]")
+				else
+					trait_entry = SPAN_COLOR("#cc5555", "[trait_entry]")
+					allowed = FALSE
+				trait_checks += trait_entry
+			entry += "[english_list(trait_checks)]</i>"
 
 		entry += "</tr>"
 		if(ticked)
@@ -243,7 +261,7 @@ var/global/list/gear_datums = list()
 			for(var/datum/gear_tweak/tweak in G.gear_tweaks)
 				var/contents = tweak.get_contents(get_tweak_metadata(G, tweak))
 				if(contents)
-					entry += " <a href='?src=\ref[src];gear=\ref[G];tweak=\ref[tweak]'>[contents]</a>"
+					entry += " <a href='byond://?src=\ref[src];gear=\ref[G];tweak=\ref[tweak]'>[contents]</a>"
 			entry += "</td></tr>"
 		if(!hide_unavailable_gear || allowed || ticked)
 			. += entry
@@ -314,6 +332,20 @@ var/global/list/gear_datums = list()
 	if(href_list["toggle_hiding"])
 		hide_unavailable_gear = !hide_unavailable_gear
 		return TOPIC_REFRESH
+
+	if (href_list["copy_loadout"])
+		var/list/options = list()
+		for (var/count = 1 to config.loadout_slots)
+			if (count == pref.gear_slot)
+				continue
+			options += count
+		var/selected = input(user, "Select a loadout slot to copy from", "Copy Loadout") as null | anything in options
+		if (!selected)
+			return TOPIC_NOACTION
+		var/list/selected_list = pref.gear_list[selected]
+		pref.gear_list[pref.gear_slot] = selected_list.Copy()
+		return TOPIC_REFRESH_UPDATE_PREVIEW
+
 	return ..()
 
 /datum/gear
@@ -325,6 +357,8 @@ var/global/list/gear_datums = list()
 	var/list/allowed_roles //Roles that can spawn with this item.
 	var/list/allowed_branches //Service branches that can spawn with it.
 	var/list/allowed_skills //Skills required to spawn with this item.
+	///Traits required to spawn with this item.
+	var/list/allowed_traits
 	var/whitelisted        //Term to check the whitelist for..
 	var/sort_category = "General"
 	var/flags              //Special tweaks in New
@@ -350,10 +384,10 @@ var/global/list/gear_datums = list()
 	if(custom_setup_proc)
 		gear_tweaks += new/datum/gear_tweak/custom_setup(custom_setup_proc)
 
-/datum/gear/proc/get_description(metadata)
+/datum/gear/proc/get_description(metadata, include_extended_description)
 	. = description
 	for(var/datum/gear_tweak/gt in gear_tweaks)
-		. = gt.tweak_description(., metadata["[gt]"])
+		. = gt.tweak_description(., metadata["[gt]"], include_extended_description && (flags & GEAR_HAS_EXTENDED_DESCRIPTION))
 
 /datum/gear_data
 	var/path
@@ -388,7 +422,7 @@ var/global/list/gear_datums = list()
 			to_chat(subject, SPAN_WARNING("Failed to find a valid organ to install \the [augment] into!"))
 			qdel(augment)
 			return
-		var/surgery_step = decls_repository.get_decl(/decl/surgery_step/internal/replace_organ)
+		var/surgery_step = GET_SINGLETON(/singleton/surgery_step/internal/replace_organ)
 		if (augment.surgery_configure(subject, subject, parent, null, surgery_step))
 			to_chat(subject, SPAN_WARNING("Failed to set up \the [augment] for installation in your [parent.name]!"))
 			qdel(augment)
@@ -398,10 +432,10 @@ var/global/list/gear_datums = list()
 		augment.onRoundstart()
 		return
 	var/atom/container = subject.equip_to_storage(item)
-	if (container)
-		to_chat(subject, SPAN_NOTICE("Placing \the [item] in your [container.name]!"))
-	else if (subject.equip_to_appropriate_slot(item))
+	if (subject.equip_to_appropriate_slot(item))
 		to_chat(subject, SPAN_NOTICE("Placing \the [item] in your inventory!"))
+	else if (container)
+		to_chat(subject, SPAN_NOTICE("Placing \the [item] in your [container.name]!"))
 	else if (subject.put_in_hands(item))
 		to_chat(subject, SPAN_NOTICE("Placing \the [item] in your hands!"))
 	else

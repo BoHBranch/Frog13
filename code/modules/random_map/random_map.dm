@@ -62,7 +62,7 @@ var/global/list/map_count = list()
 	set_map_size()
 
 	var/start_time = world.timeofday
-	if(!do_not_announce) admin_notice("<span class='danger'>Generating [name].</span>", R_DEBUG)
+	if(!do_not_announce) admin_notice(SPAN_DANGER("Generating [name]."), R_DEBUG)
 	CHECK_TICK
 
 	// Testing needed to see how reliable this is (asynchronous calls, called during worldgen), DM ref is not optimistic
@@ -72,15 +72,15 @@ var/global/list/map_count = list()
 
 	for(var/i = 0;i<max_attempts;i++)
 		if(generate())
-			if(!do_not_announce) admin_notice("<span class='danger'>[capitalize(name)] generation completed in [round(0.1*(world.timeofday-start_time),0.1)] seconds.</span>", R_DEBUG)
+			if(!do_not_announce) admin_notice(SPAN_DANGER("[capitalize(name)] generation completed in [round(0.1*(world.timeofday-start_time),0.1)] seconds."), R_DEBUG)
 			return
-	if(!do_not_announce) admin_notice("<span class='danger'>[capitalize(name)] failed to generate ([round(0.1*(world.timeofday-start_time),0.1)] seconds): could not produce sane map.</span>", R_DEBUG)
+	if(!do_not_announce) admin_notice(SPAN_DANGER("[capitalize(name)] failed to generate ([round(0.1*(world.timeofday-start_time),0.1)] seconds): could not produce sane map."), R_DEBUG)
 
 /datum/random_map/proc/get_map_cell(x,y)
 	if(!map)
 		set_map_size()
 	. = ((y-1)*limit_x)+x
-	if((. < 1) || (. > map.len))
+	if((. < 1) || (. > length(map)))
 		return null
 
 /datum/random_map/proc/get_map_char(value)
@@ -117,8 +117,7 @@ var/global/list/map_count = list()
 	to_chat(user, "[dat]+------+</code>")
 
 /datum/random_map/proc/set_map_size()
-	map = list()
-	map.len = limit_x * limit_y
+	map = new (limit_x * limit_y)
 
 /datum/random_map/proc/seed_map()
 	for(var/x = 1, x <= limit_x, x++)
@@ -200,7 +199,7 @@ var/global/list/map_count = list()
 	return
 
 /datum/random_map/proc/overlay_with(datum/random_map/target_map, tx, ty)
-	if(!map.len || !istype(target_map))
+	if(!length(map) || !istype(target_map))
 		return
 	tx-- // Update origin so that x/y index
 	ty-- // doesn't push it off-kilter by one.

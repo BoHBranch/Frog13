@@ -23,12 +23,12 @@
 	else
 		to_chat(user, (distance == 0 ? "It has [get_fuel()] [welding_resource] remaining. " : "") + "[cell] is attached.")
 
-/obj/item/weldingtool/electric/afterattack(obj/O, mob/user, proximity)
-	if(proximity && istype(O, /obj/structure/reagent_dispensers/fueltank))
+/obj/item/weldingtool/electric/use_after(obj/O, mob/living/user)
+	if(istype(O, /obj/structure/reagent_dispensers/fueltank))
 		if(!welding)
 			to_chat(user, SPAN_WARNING("\The [src] runs on an internal charge and does not need to be refuelled."))
-		return
-	. = ..()
+		return TRUE
+	return ..()
 
 /obj/item/weldingtool/electric/get_cell()
 	if(cell)
@@ -45,9 +45,9 @@
 	var/obj/item/cell/cell = get_cell()
 	return cell ? cell.charge : 0
 
-/obj/item/weldingtool/electric/attackby(obj/item/W, mob/user)
+/obj/item/weldingtool/electric/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(istype(W,/obj/item/stack/material/rods) || istype(W, /obj/item/welder_tank))
-		return
+		return ..()
 	if(isScrewdriver(W))
 		if(cell)
 			cell.dropInto(get_turf(src))
@@ -58,8 +58,8 @@
 			update_icon()
 		else
 			to_chat(user, SPAN_WARNING("\The [src] has no cell installed."))
-		return
-	else if(istype(W, /obj/item/cell))
+		return TRUE
+	if(istype(W, /obj/item/cell))
 		if(cell)
 			to_chat(user, SPAN_WARNING("\The [src] already has a cell installed."))
 		else if(user.unEquip(W))
@@ -67,20 +67,30 @@
 			cell.forceMove(src)
 			to_chat(user, SPAN_NOTICE("You slot \the [cell] into \the [src]."))
 			update_icon()
-		return
-	. = ..()
+		return TRUE
+	return ..()
 
 /obj/item/weldingtool/electric/burn_fuel(amount)
 	spend_charge(amount * fuel_cost_multiplier)
 	var/turf/T = get_turf(src)
 	if(T)
-		T.hotspot_expose(700, 5)
+		T.hotspot_expose(700)
 
 /obj/item/weldingtool/electric/on_update_icon()
 	underlays.Cut()
-	item_state = welding ? "welder1" : "welder"
+	if(welding)
+		icon_state = "welder_arc1"
+		set_light(0.6, 0.5, 2.5, l_color = COLOR_LIGHT_CYAN)
+	else
+		icon_state = "welder_arc"
+		set_light(0)
 	if(cell)
 		underlays += image(icon = icon, icon_state = "[initial(icon_state)]_cell")
+	item_state = welding ? "welder1" : "welder"
+	var/mob/M = loc
+	if(istype(M))
+		M.update_inv_l_hand()
+		M.update_inv_r_hand()
 
 /obj/item/weldingtool/electric/proc/spend_charge(amount)
 	var/obj/item/cell/cell = get_cell()

@@ -2,26 +2,31 @@
 //This is just basic construction and deconstruction and the like
 
 /obj/machinery/disperser
-	icon = 'icons/obj/disperser.dmi'
+	icon = 'icons/obj/machines/disperser.dmi'
 	density = TRUE
 	anchored = TRUE
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 
 /obj/machinery/disperser/examine(mob/user)
 	. = ..()
 	if(panel_open)
 		to_chat(user, "The maintenance panel is open.")
 
-/obj/machinery/disperser/attackby(obj/item/I, mob/user)
+/obj/machinery/disperser/use_tool(obj/item/I, mob/living/user, list/click_params)
 	if(isWrench(I))
 		if(panel_open)
-			user.visible_message("<span class='notice'>\The [user] rotates \the [src] with \the [I].</span>", "<span class='notice'>You rotate \the [src] with \the [I].</span>")
+			user.visible_message(
+				SPAN_NOTICE("\The [user] rotates \the [src] with \the [I]."),
+				SPAN_NOTICE("You rotate \the [src] with \the [I].")
+			)
 			set_dir(turn(dir, 90))
 			playsound(src, 'sound/items/jaws_pry.ogg', 50, 1)
+			return TRUE
 		else
-			to_chat(user,"<span class='notice'>The maintenance panel must be screwed open for this!</span>")
-	else
-		return ..()
+			to_chat(user,SPAN_NOTICE("The maintenance panel must be screwed open for this!"))
+			return TRUE
+
+	return ..()
 
 /obj/machinery/disperser/front
 	name = "obstruction field disperser beam generator"

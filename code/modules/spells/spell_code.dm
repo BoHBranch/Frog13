@@ -42,7 +42,7 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 	var/cooldown_min = 0 //minimum possible cooldown for a charging spell
 
 	var/overlay = 0
-	var/overlay_icon = 'icons/obj/wizard.dmi'
+	var/overlay_icon = 'icons/obj/cult.dmi'
 	var/overlay_icon_state = "spell"
 	var/overlay_lifespan = 0
 
@@ -61,8 +61,6 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 	var/hud_state = "" //name of the icon used in generating the spell hud object
 	var/override_base = ""
 
-
-	var/mob/living/deity/connected_god //Do we have this spell based off a boon from a god?
 	var/obj/screen/connected_button
 
 	var/hidden_from_codex = FALSE
@@ -74,7 +72,7 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 /spell/New()
 	..()
 
-	//still_recharging_msg = "<span class='notice'>[name] is still recharging.</span>"
+	//still_recharging_msg = SPAN_NOTICE("[name] is still recharging.")
 	charge_counter = charge_max
 
 /spell/proc/process()
@@ -177,9 +175,9 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 			var/location
 			if(istype(target,/mob/living))
 				location = target.loc
-			else if(istype(target,/turf))
+			else if(isturf(target))
 				location = target
-			var/obj/effect/overlay/spell = new /obj/effect/overlay(location)
+			var/obj/overlay/spell = new /obj/overlay(location)
 			spell.icon = overlay_icon
 			spell.icon_state = overlay_icon_state
 			spell.anchored = TRUE
@@ -195,16 +193,16 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 		if(istype(target,/mob/living) && message)
 			to_chat(target, text("[message]"))
 		if(sparks_spread)
-			var/datum/effect/effect/system/spark_spread/sparks = new /datum/effect/effect/system/spark_spread()
+			var/datum/effect/spark_spread/sparks = new /datum/effect/spark_spread()
 			sparks.set_up(sparks_amt, 0, location) //no idea what the 0 is
 			sparks.start()
 		if(smoke_spread)
 			if(smoke_spread == 1)
-				var/datum/effect/effect/system/smoke_spread/smoke = new /datum/effect/effect/system/smoke_spread()
+				var/datum/effect/smoke_spread/smoke = new /datum/effect/smoke_spread()
 				smoke.set_up(smoke_amt, 0, location) //no idea what the 0 is
 				smoke.start()
 			else if(smoke_spread == 2)
-				var/datum/effect/effect/system/smoke_spread/bad/smoke = new /datum/effect/effect/system/smoke_spread/bad()
+				var/datum/effect/smoke_spread/bad/smoke = new /datum/effect/smoke_spread/bad()
 				smoke.set_up(smoke_amt, 0, location) //no idea what the 0 is
 				smoke.start()
 
@@ -220,7 +218,7 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 
 	if(!(src in user.mind.learned_spells) && holder == user && !(isanimal(user)))
 		error("[user] utilized the spell '[src]' without having it.")
-		to_chat(user, "<span class='warning'>You shouldn't have this spell! Something's wrong.</span>")
+		to_chat(user, SPAN_WARNING("You shouldn't have this spell! Something's wrong."))
 		return 0
 
 	var/spell_leech = user.disrupts_psionics()
@@ -230,7 +228,7 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 
 	var/turf/user_turf = get_turf(user)
 	if(!user_turf)
-		to_chat(user, "<span class='warning'>You cannot cast spells in null space!</span>")
+		to_chat(user, SPAN_WARNING("You cannot cast spells in null space!"))
 
 	if((spell_flags & Z2NOCAST) && (user_turf.z in GLOB.using_map.admin_levels)) //Certain spells are not allowed on the centcomm zlevel
 		return 0
@@ -247,14 +245,14 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 		if(istype(user, /mob/living/simple_animal))
 			var/mob/living/simple_animal/SA = user
 			if(SA.purge)
-				to_chat(SA, "<span class='warning'>The null sceptre's power interferes with your own!</span>")
+				to_chat(SA, SPAN_WARNING("The null sceptre's power interferes with your own!"))
 				return 0
 
 		if(!(spell_flags & GHOSTCAST))
 			if(!(spell_flags & NO_SOMATIC))
 				var/mob/living/L = user
 				if(L.incapacitated(INCAPACITATION_STUNNED|INCAPACITATION_RESTRAINED|INCAPACITATION_BUCKLED_FULLY|INCAPACITATION_FORCELYING|INCAPACITATION_KNOCKOUT))
-					to_chat(user, "<span class='warning'>You can't cast spells while incapacitated!</span>")
+					to_chat(user, SPAN_WARNING("You can't cast spells while incapacitated!"))
 					return 0
 
 			if(ishuman(user) && !(invocation_type in list(SpI_EMOTE, SpI_NONE)))
@@ -278,7 +276,7 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 					return 0
 			if(Sp_CHARGES)
 				if(!charge_counter)
-					to_chat(user, "<span class='notice'>[name] has no charges left.</span>")
+					to_chat(user, SPAN_NOTICE("[name] has no charges left."))
 					return 0
 	return 1
 
@@ -303,7 +301,7 @@ var/global/list/spells = typesof(/spell) //needed for the badmin verb for now
 		return 0
 	if(!islist(targets))
 		targets = list(targets)
-	else if(!targets.len)
+	else if(!length(targets))
 		return 0
 
 	var/list/valid_targets = view_or_range(range, holder, selection_type)

@@ -44,38 +44,36 @@
 	create_reagents(10)
 	..()
 
-/obj/item/toy/water_balloon/attack(mob/living/carbon/human/M as mob, mob/user as mob)
-	return
-
-/obj/item/toy/water_balloon/afterattack(atom/A as mob|obj, mob/user as mob, proximity)
-	if(!proximity) return
+/obj/item/toy/water_balloon/use_after(atom/A, mob/living/user, click_parameters)
 	if (istype(A, /obj/structure/reagent_dispensers/watertank) && get_dist(src,A) <= 1)
 		A.reagents.trans_to_obj(src, 10)
-		to_chat(user, "<span class='notice'>You fill the balloon with the contents of [A].</span>")
-		src.desc = "A translucent balloon with some form of liquid sloshing around in it."
-		src.update_icon()
-	return
+		to_chat(user, SPAN_NOTICE("You fill the balloon with the contents of [A]."))
+		desc = "A translucent balloon with some form of liquid sloshing around in it."
+		update_icon()
+		return TRUE
 
-/obj/item/toy/water_balloon/attackby(obj/O as obj, mob/user as mob)
+/obj/item/toy/water_balloon/use_tool(obj/item/O, mob/living/user, list/click_params)
 	if(istype(O, /obj/item/reagent_containers/glass))
 		if(O.reagents)
 			if(O.reagents.total_volume < 1)
-				to_chat(user, "The [O] is empty.")
-			else if(O.reagents.total_volume >= 1)
-				if(O.reagents.has_reagent(/datum/reagent/acid/polyacid, 1))
-					to_chat(user, "The acid chews through the balloon!")
-					O.reagents.splash(user, reagents.total_volume)
-					qdel(src)
-				else
-					src.desc = "A translucent balloon with some form of liquid sloshing around in it."
-					to_chat(user, "<span class='notice'>You fill the balloon with the contents of [O].</span>")
-					O.reagents.trans_to_obj(src, 10)
-	src.update_icon()
-	return
+				to_chat(user, SPAN_WARNING("\The [O] is empty."))
+				return TRUE
+
+			if (O.reagents.has_reagent(/datum/reagent/acid/polyacid, 1))
+				to_chat(user, "The acid chews through the balloon!")
+				O.reagents.splash(user, reagents.total_volume)
+				qdel(src)
+			else
+				desc = "A translucent balloon with some form of liquid sloshing around in it."
+				to_chat(user, SPAN_NOTICE("You fill the balloon with the contents of [O]."))
+				O.reagents.trans_to_obj(src, 10)
+			update_icon()
+			return TRUE
+	return ..()
 
 /obj/item/toy/water_balloon/throw_impact(atom/hit_atom)
 	if(reagents && reagents.total_volume >= 1)
-		src.visible_message("<span class='warning'>\The [src] bursts!</span>","You hear a pop and a splash.")
+		src.visible_message(SPAN_WARNING("\The [src] bursts!"),"You hear a pop and a splash.")
 		src.reagents.touch_turf(get_turf(hit_atom))
 		for(var/atom/A in get_turf(hit_atom))
 			src.reagents.touch(A)
@@ -121,7 +119,7 @@
 /obj/item/toy/blink
 	name = "electronic blink toy game"
 	desc = "Blink.  Blink.  Blink. Ages 8 and up."
-	icon = 'icons/obj/radio.dmi'
+	icon = 'icons/obj/beacon.dmi'
 	icon_state = "beacon"
 	item_state = "signaler"
 
@@ -131,7 +129,7 @@
 /obj/item/toy/spinningtoy
 	name = "gravitational singularity"
 	desc = "\"Singulo\" brand spinning toy."
-	icon = 'icons/obj/singularity.dmi'
+	icon = 'icons/obj/machines/power/singularity.dmi'
 	icon_state = "singularity_s1"
 
 /*
@@ -152,27 +150,31 @@
 	attack_verb = list("attacked", "struck", "hit")
 	var/bullets = 5
 
-/obj/item/toy/crossbow/attackby(obj/item/I as obj, mob/user as mob)
+/obj/item/toy/crossbow/use_tool(obj/item/I, mob/living/user, list/click_params)
 	if(istype(I, /obj/item/toy/ammo/crossbow))
 		if(bullets <= 4)
 			if(!user.unEquip(I))
-				return
+				FEEDBACK_UNEQUIP_FAILURE(user, I)
+				return TRUE
 			qdel(I)
 			bullets++
-			to_chat(user, "<span class='notice'>You load the foam dart into the crossbow.</span>")
+			to_chat(user, SPAN_NOTICE("You load the foam dart into the crossbow."))
 		else
-			to_chat(usr, "<span class='warning'>It's already fully loaded.</span>")
+			to_chat(usr, SPAN_WARNING("It's already fully loaded."))
+		return TRUE
+
+	return ..()
 
 
-/obj/item/toy/crossbow/afterattack(atom/target as mob|obj|turf|area, mob/user as mob, flag)
-	if(!isturf(target.loc) || target == user) return
-	if(flag) return
+/obj/item/toy/crossbow/use_after(atom/target, mob/living/user, click_parameters)
+	if(!isturf(target.loc) || target == user) return FALSE
 
-	if (locate (/obj/structure/table, src.loc))
-		return
-	else if (bullets)
+	if (locate (/obj/structure/table, loc))
+		return FALSE
+
+	if (bullets)
 		var/turf/trg = get_turf(target)
-		var/obj/effect/foam_dart_dummy/D = new/obj/effect/foam_dart_dummy(get_turf(src))
+		var/obj/foam_dart_dummy/D = new/obj/foam_dart_dummy(get_turf(src))
 		bullets--
 		D.icon_state = "foamdart"
 		D.SetName("foam dart")
@@ -187,10 +189,10 @@
 					if(!istype(M,/mob/living)) continue
 					if(M == user) continue
 					for(var/mob/O in viewers(world.view, D))
-						O.show_message(text("<span class='warning'>\The [] was hit by the foam dart!</span>", M), 1)
+						O.show_message(SPAN_WARNING("\The [M] was hit by the foam dart!"), 1)
 					new /obj/item/toy/ammo/crossbow(M.loc)
 					qdel(D)
-					return
+					return TRUE
 
 				for(var/atom/A in D.loc)
 					if(A == user) continue
@@ -204,39 +206,38 @@
 			if(D)
 				new /obj/item/toy/ammo/crossbow(D.loc)
 				qdel(D)
+		return TRUE
 
-		return
 	else if (bullets == 0)
 		user.Weaken(5)
 		for(var/mob/O in viewers(world.view, user))
-			O.show_message(text("<span class='warning'>\The [] realized they were out of ammo and starting scrounging for some!</span>", user), 1)
+			O.show_message(SPAN_WARNING("\The [user] realized they were out of ammo and starting scrounging for some!"), 1)
+		return TRUE
 
 
-/obj/item/toy/crossbow/attack(mob/M as mob, mob/user as mob)
-	src.add_fingerprint(user)
+/obj/item/toy/crossbow/use_before(mob/M as mob, mob/user as mob)
+	. = FALSE
+	if (istype(M) && M.lying)
+		if (bullets > 0)
+			M.visible_message(
+				SPAN_DANGER("\The [user] casually lines up a shot with \the [M]'s head and pulls the trigger!"),
+				SPAN_WARNING("You hear the sound of foam against skull")
+			)
+			M.visible_message(SPAN_WARNING("\The [M] was hit in the head by the foam dart!"))
 
-// ******* Check
-
-	if (src.bullets > 0 && M.lying)
-
-		for(var/mob/O in viewers(M, null))
-			if(O.client)
-				O.show_message(text("<span class='danger'>\The [] casually lines up a shot with []'s head and pulls the trigger!</span>", user, M), 1, "<span class='warning'>You hear the sound of foam against skull</span>", 2)
-				O.show_message(text("<span class='warning'>\The [] was hit in the head by the foam dart!</span>", M), 1)
-
-		playsound(user.loc, 'sound/items/syringeproj.ogg', 50, 1)
-		new /obj/item/toy/ammo/crossbow(M.loc)
-		src.bullets--
-	else if (M.lying && src.bullets == 0)
-		for(var/mob/O in viewers(M, null))
-			if (O.client)	O.show_message(text("<span class='danger'>\The [] casually lines up a shot with []'s head, pulls the trigger, then realizes they are out of ammo and drops to the floor in search of some!</span>", user, M), 1, "<span class='warning'>You hear someone fall</span>", 2)
-		user.Weaken(5)
-	return
+			playsound(user.loc, 'sound/items/syringeproj.ogg', 50, 1)
+			new /obj/item/toy/ammo/crossbow(M.loc)
+			src.bullets--
+			return TRUE
+		if (bullets == 0)
+			M.visible_message(SPAN_DANGER("\The [user] casually lines up a shot with \the [M]'s head, pulls the trigger, then realizes they are out of ammo and drops to the floor in search of some!"))
+			user.Weaken(5)
+			return TRUE
 
 /obj/item/toy/crossbow/examine(mob/user, distance)
 	. = ..()
 	if(distance <= 2 && bullets)
-		to_chat(user, "<span class='notice'>It is loaded with [bullets] foam darts!</span>")
+		to_chat(user, SPAN_NOTICE("It is loaded with [bullets] foam darts!"))
 
 /obj/item/toy/ammo/crossbow
 	name = "foam dart"
@@ -246,7 +247,7 @@
 	w_class = ITEM_SIZE_TINY
 	slot_flags = SLOT_EARS
 
-/obj/effect/foam_dart_dummy
+/obj/foam_dart_dummy
 	name = ""
 	desc = ""
 	icon = 'icons/obj/toy.dmi'
@@ -271,13 +272,13 @@
 /obj/item/toy/sword/attack_self(mob/user as mob)
 	src.active = !( src.active )
 	if (src.active)
-		to_chat(user, "<span class='notice'>You extend the plastic blade with a quick flick of your wrist.</span>")
+		to_chat(user, SPAN_NOTICE("You extend the plastic blade with a quick flick of your wrist."))
 		playsound(user, 'sound/weapons/saberon.ogg', 50, 1)
 		src.icon_state = "swordblue"
 		src.item_state = "swordblue"
 		src.w_class = ITEM_SIZE_HUGE
 	else
-		to_chat(user, "<span class='notice'>You push the plastic blade back down into the handle.</span>")
+		to_chat(user, SPAN_NOTICE("You push the plastic blade back down into the handle."))
 		playsound(user, 'sound/weapons/saberoff.ogg', 50, 1)
 		src.icon_state = "sword0"
 		src.item_state = "sword0"
@@ -313,11 +314,11 @@
 
 /obj/item/toy/snappop/throw_impact(atom/hit_atom)
 	..()
-	var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+	var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 	s.set_up(3, 1, src)
 	s.start()
-	new /obj/effect/decal/cleanable/ash(src.loc)
-	src.visible_message("<span class='warning'>The [src.name] explodes!</span>","<span class='warning'>You hear a snap!</span>")
+	new /obj/decal/cleanable/ash(src.loc)
+	src.visible_message(SPAN_WARNING("The [src.name] explodes!"),SPAN_WARNING("You hear a snap!"))
 	playsound(src, 'sound/effects/snap.ogg', 50, 1)
 	qdel(src)
 
@@ -325,13 +326,13 @@
 	if((ishuman(H))) //i guess carp and shit shouldn't set them off
 		var/mob/living/carbon/M = H
 		if(!MOVING_DELIBERATELY(M))
-			to_chat(M, "<span class='warning'>You step on the snap pop!</span>")
+			to_chat(M, SPAN_WARNING("You step on the snap pop!"))
 
-			var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+			var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 			s.set_up(2, 0, src)
 			s.start()
-			new /obj/effect/decal/cleanable/ash(src.loc)
-			src.visible_message("<span class='warning'>The [src.name] explodes!</span>","<span class='warning'>You hear a snap!</span>")
+			new /obj/decal/cleanable/ash(src.loc)
+			src.visible_message(SPAN_WARNING("The [src.name] explodes!"),SPAN_WARNING("You hear a snap!"))
 			playsound(src, 'sound/effects/snap.ogg', 50, 1)
 			qdel(src)
 
@@ -350,7 +351,7 @@
 
 /obj/item/toy/bosunwhistle/attack_self(mob/user as mob)
 	if(cooldown < world.time - 35)
-		to_chat(user, "<span class='notice'>You blow on [src], creating an ear-splitting noise!</span>")
+		to_chat(user, SPAN_NOTICE("You blow on [src], creating an ear-splitting noise!"))
 		playsound(user, 'sound/misc/boatswain.ogg', 20, 1)
 		cooldown = world.time
 
@@ -366,14 +367,14 @@
 //all credit to skasi for toy mech fun ideas
 /obj/item/toy/prize/attack_self(mob/user as mob)
 	if(cooldown < world.time - 8)
-		to_chat(user, "<span class='notice'>You play with [src].</span>")
+		to_chat(user, SPAN_NOTICE("You play with [src]."))
 		playsound(user, 'sound/mecha/mechstep01.ogg', 20, 1)
 		cooldown = world.time
 
 /obj/item/toy/prize/attack_hand(mob/user as mob)
 	if(loc == user)
 		if(cooldown < world.time - 8)
-			to_chat(user, "<span class='notice'>You play with [src].</span>")
+			to_chat(user, SPAN_NOTICE("You play with [src]."))
 			playsound(user, 'sound/mecha/mechmove01.ogg', 20, 1)
 			cooldown = world.time
 			return
@@ -782,6 +783,10 @@
 	desc = "A plushie of a cute kitten! Watch as it purrs it's way right into your heart."
 	icon_state = "kittenplushie"
 
+/obj/item/toy/plushie/crow
+	name = "crow plush"
+	desc = "A plushie of an adorable crow! Caw caw."
+	icon_state = "crowplushie"
 
 /obj/item/toy/plushie/lizard
 	name = "lizard plush"
@@ -799,12 +804,19 @@
 	name = "farwa plush"
 	desc = "A farwa plush doll. It's soft and comforting!"
 	icon_state = "farwaplushie"
+	item_state = "farwaplush"
 
 
 /obj/item/toy/plushie/thoom
 	name = "th'oom plush"
 	desc = "A plush Th'oom with big, button eyes. It smells like mushrooms."
 	icon_state = "thoomplushie"
+
+/obj/item/toy/plushie/bee
+	name = "bee plush"
+	desc = "A plush space bee with large compound eyes. It smells faintly of honey."
+	icon_state = "beeplushie"
+	item_state = "beeplush"
 
 
 /obj/item/toy/plushie/carp_gold
@@ -889,27 +901,27 @@
 	attack_verb = list("attacked", "whacked", "jabbed", "poked", "marshalled")
 
 /obj/item/marshalling_wand/Initialize()
-	set_light(0.6, 0.5, 2, 2, "#ff0000")
+	set_light(1.5, 1.5, "#ff0000")
 	return ..()
 
 /obj/item/marshalling_wand/attack_self(mob/living/user as mob)
 	playsound(src.loc, 'sound/effects/rustle1.ogg', 100, 1)
 	if (user.a_intent == I_HELP)
-		user.visible_message("<span class='notice'>[user] beckons with \the [src], signalling forward motion.</span>",
-							"<span class='notice'>You beckon with \the [src], signalling forward motion.</span>")
+		user.visible_message(SPAN_NOTICE("[user] beckons with \the [src], signalling forward motion."),
+							SPAN_NOTICE("You beckon with \the [src], signalling forward motion."))
 	else if (user.a_intent == I_DISARM)
-		user.visible_message("<span class='notice'>[user] holds \the [src] above their head, signalling a stop.</span>",
-							"<span class='notice'>You hold \the [src] above your head, signalling a stop.</span>")
+		user.visible_message(SPAN_NOTICE("[user] holds \the [src] above their head, signalling a stop."),
+							SPAN_NOTICE("You hold \the [src] above your head, signalling a stop."))
 	else if (user.a_intent == I_GRAB)
 		var/WAND_TURN_DIRECTION
 		if (user.l_hand == src) WAND_TURN_DIRECTION = "left"
 		else if (user.r_hand == src) WAND_TURN_DIRECTION = "right"
 		else return //how can you not be holding it in either hand?? black magic
-		user.visible_message("<span class='notice'>[user] waves \the [src] to the [WAND_TURN_DIRECTION], signalling a turn.</span>",
-							"<span class='notice'>You wave \the [src] to the [WAND_TURN_DIRECTION], signalling a turn.</span>")
+		user.visible_message(SPAN_NOTICE("[user] waves \the [src] to the [WAND_TURN_DIRECTION], signalling a turn."),
+							SPAN_NOTICE("You wave \the [src] to the [WAND_TURN_DIRECTION], signalling a turn."))
 	else if (user.a_intent == I_HURT)
-		user.visible_message("<span class='warning'>[user] frantically waves \the [src] above their head!</span>",
-							"<span class='warning'>You frantically wave \the [src] above your head!</span>")
+		user.visible_message(SPAN_WARNING("[user] frantically waves \the [src] above their head!"),
+							SPAN_WARNING("You frantically wave \the [src] above your head!"))
 
 /obj/item/toy/torchmodel
 	name = "table-top SEV Torch model"
@@ -926,13 +938,13 @@
 
 /obj/item/toy/ringbell/attack_hand(mob/user as mob)
 	if (user.a_intent == I_HELP)
-		user.visible_message("<span class='notice'>[user] rings \the [src], signalling the beginning of the contest.</span>")
+		user.visible_message(SPAN_NOTICE("[user] rings \the [src], signalling the beginning of the contest."))
 		playsound(user.loc, 'sound/items/oneding.ogg', 60)
 	else if (user.a_intent == I_DISARM)
-		user.visible_message("<span class='notice'>[user] rings \the [src] three times, signalling the end of the contest!</span>")
+		user.visible_message(SPAN_NOTICE("[user] rings \the [src] three times, signalling the end of the contest!"))
 		playsound(user.loc, 'sound/items/threedings.ogg', 60)
 	else if (user.a_intent == I_HURT)
-		user.visible_message("<span class='warning'>[user] rings \the [src] repeatedly, signalling a disqualification!</span>")
+		user.visible_message(SPAN_WARNING("[user] rings \the [src] repeatedly, signalling a disqualification!"))
 		playsound(user.loc, 'sound/items/manydings.ogg', 60)
 
 //Office Desk Toys
@@ -1008,9 +1020,9 @@
 		"Very doubtful")
 
 /obj/item/toy/eightball/attack_self(mob/user)
-	user.visible_message("<span class='notice'>\The [user] shakes \the [src] for a moment, and it says, \"[pick(possible_answers) ].\"</span>")
+	user.visible_message(SPAN_NOTICE("\The [user] shakes \the [src] for a moment, and it says, \"[pick(possible_answers) ].\""))
 
-/obj/item/toy/eightball/afterattack(obj/O, mob/user, proximity)
-	. = ..()
-	if (proximity)
-		visible_message("<span class='warning'>\The [src] says, \"[pick(possible_answers) ]\" as it hits \the [O]!</span>")
+/obj/item/toy/eightball/use_after(atom/O, mob/living/user, click_parameters)
+	if (isobj(O))
+		visible_message(SPAN_WARNING("\The [src] says, \"[pick(possible_answers) ]\" as it hits \the [O]!"))
+		return TRUE

@@ -42,11 +42,11 @@
 /datum/ai_holder/simple_animal/goat/king/engage_target()
 	. = ..()
 	var/mob/living/simple_animal/hostile/retaliate/goat/king/G = holder
-	if(isliving(G.target_mob))
-		var/mob/living/L = G.target_mob
+	if(isliving(target))
+		var/mob/living/L = target
 		if(prob(G.stun_chance))
 			L.Weaken(0.5)
-			L.confused += 1
+			L.mod_confused(1)
 			G.visible_message(SPAN_WARNING("\The [L] is bowled over by the impact of [G]'s attack!"))
 
 /datum/ai_holder/simple_animal/goat/king/react_to_attack(atom/movable/attacker)
@@ -98,14 +98,14 @@
 				G.current_damtype = DAMAGE_SHOCK
 
 		else if(prob(5)) //earthquake spell
-			G.visible_message("<span class='cultannounce'>\The [G]' eyes begin to glow ominously as dust and debris in the area is kicked up in a light breeze.</span>")
+			G.visible_message(SPAN_CLASS("cultannounce", "\The [G]' eyes begin to glow ominously as dust and debris in the area is kicked up in a light breeze."))
 			set_busy(TRUE)
 			if(do_after(G, 6 SECONDS, do_flags = DO_DEFAULT | DO_USER_UNIQUE_ACT))
 				var/health_holder = G.health
 				G.visible_message(SPAN_MFAUNA("\The [G] raises its fore-hooves and stomps them into the ground with incredible force!"))
-				explosion(get_step(G,pick(GLOB.cardinal)), -1, 2, 2, 3, 6)
-				explosion(get_step(G,pick(GLOB.cardinal)), -1, 1, 4, 4, 6)
-				explosion(get_step(G,pick(GLOB.cardinal)), -1, 3, 4, 3, 6)
+				explosion(get_step(G,pick(GLOB.cardinal)), 4, EX_ACT_HEAVY)
+				explosion(get_step(G,pick(GLOB.cardinal)), 5, EX_ACT_HEAVY)
+				explosion(get_step(G,pick(GLOB.cardinal)), 7, EX_ACT_HEAVY)
 				set_busy(FALSE)
 				G.spellscast += 2
 				if(!G.health < health_holder)
@@ -127,9 +127,10 @@
 
 /obj/item/natural_weapon/goatking
 	name = "giant horns"
-	attack_verb = list("brutalized")
+	attack_verb = list("brutalized", "impaled", "stabbed")
 	force = 40
 	sharp = TRUE
+	show_in_message = TRUE
 
 /obj/item/natural_weapon/goatking/fire
 	name = "burning horns"
@@ -194,6 +195,7 @@
 	attack_verb = list("impaled", "stabbed")
 	force = 15
 	sharp = TRUE
+	show_in_message = TRUE
 
 /mob/living/simple_animal/hostile/retaliate/goat/guard/master
 	name = "master of the guard"
@@ -215,7 +217,7 @@
 	boss_theme = GLOB.sound_player.PlayLoopingSound(src, sound_id, 'sound/music/Visager-Miniboss_Fight.ogg', volume = 10, range = 8, falloff = 4, prefer_mute = TRUE)
 	stun_chance = 10
 	update_icon()
-	visible_message("<span class='cultannounce'>\The [src]' wounds close with a flash, and when he emerges, he's even larger than before!</span>")
+	visible_message(SPAN_CLASS("cultannounce", "\The [src]' wounds close with a flash, and when he emerges, he's even larger than before!"))
 
 /mob/living/simple_animal/hostile/retaliate/goat/king/phase2/on_update_icon()
 	SetTransform(scale = phase3 ? 1.5 : 1.25)
@@ -236,7 +238,7 @@
 		phase3_transition()
 
 /mob/living/simple_animal/hostile/retaliate/goat/king/proc/OnDeath()
-	visible_message("<span class='cultannounce'>\The [src] lets loose a terrific wail as its wounds close shut with a flash of light, and its eyes glow even brighter than before!</span>")
+	visible_message(SPAN_CLASS("cultannounce", "\The [src] lets loose a terrific wail as its wounds close shut with a flash of light, and its eyes glow even brighter than before!"))
 	new /mob/living/simple_animal/hostile/retaliate/goat/king/phase2(src.loc)
 	qdel(src)
 
@@ -254,8 +256,8 @@
 	QDEL_NULL(boss_theme)
 	. = ..()
 
-/mob/living/simple_animal/hostile/retaliate/goat/king/Allow_Spacemove(check_drift = 0)
-	return 1
+/mob/living/simple_animal/hostile/retaliate/goat/king/Process_Spacemove(allow_movement)
+	return TRUE
 
 /datum/say_list/goat/king
 	emote_hear = list("brays in a booming voice")

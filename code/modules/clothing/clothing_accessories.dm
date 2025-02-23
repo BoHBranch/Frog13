@@ -9,7 +9,7 @@
 			to_chat(user, SPAN_WARNING("\The [A] can't attach to \the [src]."))
 		return FALSE
 
-	if (accessories.len && restricted_accessory_slots && (A.slot in restricted_accessory_slots))
+	if (length(accessories) && restricted_accessory_slots && (A.slot in restricted_accessory_slots))
 		for (var/obj/item/clothing/accessory/AC in accessories)
 			if (AC.slot == A.slot)
 				if (user)
@@ -33,17 +33,9 @@
 						return FALSE
 	return TRUE
 
-
-/obj/item/clothing/attackby(obj/item/I, mob/user)
-	if (attempt_attach_accessory(I, user))
-		return
-	if (attempt_store_item(I, user))
-		return
-	..()
-
 /obj/item/clothing/attack_hand(mob/user)
 	//only forward to the attached accessory if the clothing is equipped (not in a storage)
-	if(accessories.len && src.loc == user)
+	if(length(accessories) && src.loc == user)
 		for(var/obj/item/clothing/accessory/A in accessories)
 			A.attack_hand(user)
 		return
@@ -73,17 +65,17 @@
 	. = ..()
 	for(var/obj/item/clothing/accessory/A in accessories)
 		if (!(A.accessory_flags & ACCESSORY_HIDDEN))
-			to_chat(user, "[icon2html(A, user)] \A [A] is attached to it.")
+			to_chat(user, "[icon2html(A, user)] \A [A] is attached to it.[istype(A, /obj/item/clothing/accessory/wristwatch) ? "  <a href='byond://?src=\ref[A];check_watch=1'>\[Check Watch\]</a>" : ""]")
 	switch(ironed_state)
 		if(WRINKLES_WRINKLY)
-			to_chat(user, "<span class='bad'>It's wrinkly.</span>")
+			to_chat(user, SPAN_BAD("It's wrinkly."))
 		if(WRINKLES_NONE)
-			to_chat(user, "<span class='notice'>It's completely wrinkle-free!</span>")
+			to_chat(user, SPAN_NOTICE("It's completely wrinkle-free!"))
 	switch(smell_state)
 		if(SMELL_CLEAN)
-			to_chat(user, "<span class='notice'>It smells clean!</span>")
+			to_chat(user, SPAN_NOTICE("It smells clean!"))
 		if(SMELL_STINKY)
-			to_chat(user, "<span class='bad'>It's quite stinky!</span>")
+			to_chat(user, SPAN_BAD("It's quite stinky!"))
 
 
 /obj/item/clothing/proc/update_accessory_slowdown()
@@ -102,8 +94,14 @@
 	A.on_attached(src, user)
 	if (A.accessory_flags & ACCESSORY_REMOVABLE)
 		src.verbs |= /obj/item/clothing/proc/removetie_verb
+		src.verbs |= /obj/item/clothing/proc/remove_all_accessories
 	update_accessory_slowdown()
 	update_clothing_icon()
+	update_vision()
+	GLOB.destroyed_event.register(A, src, PROC_REF(accessory_deleted))
+
+/obj/item/clothing/proc/accessory_deleted(obj/item/clothing/accessory/A)
+	remove_accessory(null, A)
 
 /obj/item/clothing/proc/remove_accessory(mob/user, obj/item/clothing/accessory/A)
 	if(!A || !(A in accessories))
@@ -113,6 +111,8 @@
 	accessories -= A
 	update_accessory_slowdown()
 	update_clothing_icon()
+	update_vision()
+	GLOB.destroyed_event.unregister(A, src, PROC_REF(accessory_deleted))
 
 
 /obj/item/clothing/proc/attempt_attach_accessory(obj/item/I, mob/user)
@@ -165,23 +165,42 @@
 	set src in usr
 	if(!istype(usr, /mob/living)) return
 	if(usr.stat) return
-	if(!accessories.len) return
+	if(!length(accessories)) return
 	var/obj/item/clothing/accessory/A
 	var/list/removables = list()
 	for(var/obj/item/clothing/accessory/ass in accessories)
 		if (ass.accessory_flags & ACCESSORY_REMOVABLE)
 			removables |= ass
-	if(accessories.len > 1)
-		A = input("Select an accessory to remove from [src]") as null|anything in removables
+
+	if(length(removables) > 1)
+		A = show_radial_menu(usr, usr, make_item_radial_menu_choices(removables), radius = 42, tooltips = TRUE)
 	else
 		A = accessories[1]
 	src.remove_accessory(usr,A)
 	removables -= A
-	if(!removables.len)
+	if(!length(removables))
 		src.verbs -= /obj/item/clothing/proc/removetie_verb
+		src.verbs -= /obj/item/clothing/proc/remove_all_accessories
+
+/obj/item/clothing/proc/remove_all_accessories()
+	set name = "Remove All Accessories"
+	set category = "Object"
+	set src in usr
+	if(!istype(usr, /mob/living)) return
+	if(usr.stat) return
+	if(!length(accessories)) return
+
+	var/choice = alert("Are you sure you want to remove all accessories from \the [src]?", "Confirmation", "Yes", "No")
+	if(choice == "Yes")
+		for(var/obj/item/clothing/accessory/ac in accessories)
+			if (ac.accessory_flags & ACCESSORY_REMOVABLE)
+				src.remove_accessory(usr,ac)
+
+		src.verbs -= /obj/item/clothing/proc/removetie_verb
+		src.verbs -= /obj/item/clothing/proc/remove_all_accessories
 
 /obj/item/clothing/emp_act(severity)
-	if(accessories.len)
+	if(length(accessories))
 		for(var/obj/item/clothing/accessory/A in accessories)
 			A.emp_act(severity)
 	..()

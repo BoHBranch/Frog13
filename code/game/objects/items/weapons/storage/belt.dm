@@ -8,6 +8,7 @@
 	icon_state = "utilitybelt"
 	item_state = "utility"
 	storage_slots = 7
+	force = 2
 	item_flags = ITEM_FLAG_IS_BELT
 	max_w_class = ITEM_SIZE_NORMAL
 	slot_flags = SLOT_BELT
@@ -26,14 +27,14 @@
 		var/mob/M = src.loc
 		M.update_inv_belt()
 
-	overlays.Cut()
+	ClearOverlays()
 	if(overlay_flags & BELT_OVERLAY_ITEMS)
 		for(var/obj/item/I in contents)
-			overlays += image('icons/obj/clothing/obj_belt_overlays.dmi', "[I.icon_state]")
+			AddOverlays(image('icons/obj/clothing/obj_belt_overlays.dmi', "[I.icon_state]"))
 
 /obj/item/storage/belt/get_mob_overlay(mob/user_mob, slot)
 	var/image/ret = ..()
-	if(slot == slot_belt_str && contents.len)
+	if(slot == slot_belt_str && length(contents))
 		var/list/ret_overlays = list()
 		for(var/obj/item/I in contents)
 			var/use_state = (I.item_state ? I.item_state : I.icon_state)
@@ -42,7 +43,7 @@
 				ret_overlays += H.species.get_offset_overlay_image(FALSE, 'icons/mob/onmob/onmob_belt.dmi', use_state, I.color, slot)
 			else
 				ret_overlays += overlay_image('icons/mob/onmob/onmob_belt.dmi', use_state, I.color, RESET_COLOR)
-			ret.overlays += ret_overlays
+			ret.AddOverlays(ret_overlays)
 	return ret
 
 /obj/item/storage/belt/holster
@@ -55,7 +56,7 @@
 	var/list/can_holster //List of objects which this item can store in the designated holster slot(if unset, it will default to any holsterable items)
 	var/sound_in = 'sound/effects/holster/holsterin.ogg'
 	var/sound_out = 'sound/effects/holster/holsterout.ogg'
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/melee/baton,
 		/obj/item/melee/telebaton
 		)
@@ -64,12 +65,13 @@
 	. = ..()
 	set_extension(src, /datum/extension/holster, src, sound_in, sound_out, can_holster)
 
-/obj/item/storage/belt/holster/attackby(obj/item/W as obj, mob/user as mob)
-	var/datum/extension/holster/H = get_extension(src, /datum/extension/holster)
-	if(H.holster(W, user))
-		return
-	else
-		. = ..(W, user)
+/obj/item/storage/belt/holster/use_tool(obj/item/tool, mob/living/user, list/click_params)
+	// Holster
+	var/datum/extension/holster/holster = get_extension(src, /datum/extension/holster)
+	if (holster.can_holster(tool) && holster.holster(tool, user))
+		return TRUE
+
+	return ..()
 
 /obj/item/storage/belt/holster/attack_hand(mob/user as mob)
 	var/datum/extension/holster/H = get_extension(src, /datum/extension/holster)
@@ -89,15 +91,15 @@
 		var/mob/M = src.loc
 		M.update_inv_belt()
 
-	overlays.Cut()
+	ClearOverlays()
 	var/datum/extension/holster/H = get_extension(src, /datum/extension/holster)
 	if(overlay_flags)
 		for(var/obj/item/I in contents)
 			if(I == H.holstered)
 				if(overlay_flags & BELT_OVERLAY_HOLSTER)
-					overlays += image('icons/obj/clothing/obj_belt_overlays.dmi', "[I.icon_state]")
+					AddOverlays(image('icons/obj/clothing/obj_belt_overlays.dmi', "[I.icon_state]"))
 			else if(overlay_flags & BELT_OVERLAY_ITEMS)
-				overlays += image('icons/obj/clothing/obj_belt_overlays.dmi', "[I.icon_state]")
+				AddOverlays(image('icons/obj/clothing/obj_belt_overlays.dmi', "[I.icon_state]"))
 
 /obj/item/storage/belt/utility
 	name = "tool belt"
@@ -105,8 +107,7 @@
 	icon_state = "utilitybelt"
 	item_state = "utility"
 	overlay_flags = BELT_OVERLAY_ITEMS
-	can_hold = list(
-		///obj/item/combitool,
+	contents_allowed = list(
 		/obj/item/crowbar,
 		/obj/item/screwdriver,
 		/obj/item/weldingtool,
@@ -131,7 +132,12 @@
 		/obj/item/clothing/gloves,
 		/obj/item/tape_roll,
 		/obj/item/clothing/head/beret,
-		/obj/item/material/knife/folding
+		/obj/item/material/knife/folding,
+		/obj/item/swapper,
+		/obj/item/device/drone_designator,
+		/obj/item/modular_computer/tablet,
+		/obj/item/modular_computer/pda,
+		/obj/item/rcd
 		)
 
 
@@ -142,7 +148,7 @@
 	new /obj/item/weldingtool(src)
 	new /obj/item/crowbar(src)
 	new /obj/item/wirecutters(src)
-	new /obj/item/stack/cable_coil/random(src, 30)
+	new /obj/random/single/color/cable_coil(src, 30)
 	update_icon()
 
 
@@ -156,22 +162,30 @@
 	new /obj/item/device/t_scanner(src)
 	update_icon()
 
-
+/obj/item/storage/belt/utility/engi_command/New()
+	..()
+	new /obj/item/swapper/power_drill(src)
+	new /obj/item/weldingtool(src)
+	new /obj/item/swapper/jaws_of_life(src)
+	new /obj/random/single/color/cable_coil(src, 30)
+	new /obj/item/device/t_scanner(src)
+	update_icon()
 
 /obj/item/storage/belt/medical
 	name = "medical belt"
 	desc = "Can hold various medical equipment."
 	icon_state = "medicalbelt"
 	item_state = "medical"
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/device/scanner/health,
 		/obj/item/reagent_containers/dropper,
 		/obj/item/reagent_containers/glass/beaker,
 		/obj/item/reagent_containers/glass/bottle,
 		/obj/item/reagent_containers/pill,
 		/obj/item/reagent_containers/syringe,
+		/obj/item/reagent_containers/ivbag,
 		/obj/item/flame/lighter/zippo,
-		/obj/item/storage/fancy/cigarettes,
+		/obj/item/storage/fancy/smokable,
 		/obj/item/storage/pill_bottle,
 		/obj/item/stack/medical,
 		/obj/item/device/flashlight/pen,
@@ -186,9 +200,12 @@
 		/obj/item/extinguisher/mini,
 		/obj/item/storage/med_pouch,
 		/obj/item/bodybag,
+		/obj/item/taperoll/medical,
 		/obj/item/clothing/gloves,
 		/obj/item/clothing/head/beret,
-		/obj/item/material/knife/folding
+		/obj/item/material/knife/folding,
+		/obj/item/modular_computer/tablet,
+		/obj/item/modular_computer/pda
 		)
 
 /obj/item/storage/belt/medical/emt
@@ -204,7 +221,7 @@
 	item_state = "security"
 	storage_slots = 8
 	overlay_flags = BELT_OVERLAY_ITEMS|BELT_OVERLAY_HOLSTER
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/crowbar,
 		/obj/item/grenade,
 		/obj/item/reagent_containers/spray/pepper,
@@ -218,6 +235,7 @@
 		/obj/item/melee/telebaton,
 		/obj/item/flame/lighter,
 		/obj/item/device/flashlight,
+		/obj/item/modular_computer/tablet,
 		/obj/item/modular_computer/pda,
 		/obj/item/device/radio/headset,
 		/obj/item/device/hailer,
@@ -246,7 +264,7 @@
 	icon_state = "basicsecuritybelt"
 	item_state = "basicsecurity"
 	overlay_flags = BELT_OVERLAY_ITEMS
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/crowbar,
 		/obj/item/grenade,
 		/obj/item/reagent_containers/spray/pepper,
@@ -260,6 +278,7 @@
 		/obj/item/melee/telebaton,
 		/obj/item/flame/lighter,
 		/obj/item/device/flashlight,
+		/obj/item/modular_computer/tablet,
 		/obj/item/modular_computer/pda,
 		/obj/item/device/radio/headset,
 		/obj/item/device/hailer,
@@ -280,13 +299,13 @@
 	icon_state = "gearbelt"
 	item_state = "gear"
 	overlay_flags = BELT_OVERLAY_ITEMS
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/device/flash,
 		/obj/item/melee/telebaton,
 		/obj/item/device/taperecorder,
-		/obj/item/folder,
+		/obj/item/material/folder,
 		/obj/item/paper,
-		/obj/item/material/clipboard,
+		/obj/item/material/folder/clipboard,
 		/obj/item/modular_computer/tablet,
 		/obj/item/device/flashlight,
 		/obj/item/modular_computer/pda,
@@ -318,25 +337,38 @@
 		/obj/item/device/tape
 		)
 
+/obj/item/storage/belt/general/full/Initialize()
+	. = ..()
+	new /obj/item/material/folder/clipboard(src)
+	new /obj/item/material/folder(src)
+	new /obj/item/device/taperecorder(src)
+	new /obj/item/device/camera(src)
+	new /obj/item/taperoll/research(src)
+	new /obj/item/device/tape/random(src)
+	queue_icon_update()
+
 /obj/item/storage/belt/janitor
 	name = "janibelt"
 	desc = "A belt used to hold most janitorial supplies."
 	icon_state = "janibelt"
 	item_state = "janibelt"
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/grenade/chem_grenade,
 		/obj/item/device/lightreplacer,
 		/obj/item/device/flashlight,
 		/obj/item/reagent_containers/spray/cleaner,
 		/obj/item/soap,
+		/obj/item/reagent_containers/glass/rag,
 		/obj/item/holosign_creator,
 		/obj/item/clothing/gloves,
 		/obj/item/device/assembly/mousetrap,
 		/obj/item/crowbar/prybar,
 		/obj/item/clothing/mask/plunger,
 		/obj/item/clothing/head/beret,
-		/obj/item/material/knife/folding
-		)
+		/obj/item/material/knife/folding,
+		/obj/item/modular_computer/tablet,
+		/obj/item/modular_computer/pda
+	)
 
 /obj/item/storage/belt/holster/general
 	name = "holster belt"
@@ -345,13 +377,13 @@
 	item_state = "command"
 	storage_slots = 7
 	overlay_flags = BELT_OVERLAY_ITEMS|BELT_OVERLAY_HOLSTER
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/device/flash,
 		/obj/item/melee/telebaton,
 		/obj/item/device/taperecorder,
-		/obj/item/folder,
+		/obj/item/material/folder,
 		/obj/item/paper,
-		/obj/item/material/clipboard,
+		/obj/item/material/folder/clipboard,
 		/obj/item/modular_computer/tablet,
 		/obj/item/device/flash,
 		/obj/item/device/flashlight,
@@ -381,7 +413,7 @@
 		/obj/item/clothing/head/beret,
 		/obj/item/material/knife/folding,
 		/obj/item/device/tape
-		)
+	)
 
 /obj/item/storage/belt/holster/forensic
 	name = "forensic holster belt"
@@ -390,7 +422,7 @@
 	item_state = "forensic"
 	storage_slots = 8
 	overlay_flags = BELT_OVERLAY_HOLSTER
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/reagent_containers/spray/luminol,
 		/obj/item/device/uv_light,
 		/obj/item/reagent_containers/syringe,
@@ -400,7 +432,7 @@
 		/obj/item/device/taperecorder,
 		/obj/item/device/tape,
 		/obj/item/clothing/gloves,
-		/obj/item/folder,
+		/obj/item/material/folder,
 		/obj/item/paper,
 		/obj/item/photo,
 		/obj/item/paper_bundle,
@@ -412,8 +444,13 @@
 		/obj/item/device/scanner,
 		/obj/item/clothing/head/beret,
 		/obj/item/material/knife/folding,
-		/obj/item/modular_computer/tablet
-		)
+		/obj/item/modular_computer/tablet,
+		/obj/item/modular_computer/pda,
+		/obj/item/taperoll/police,
+		/obj/item/clothing/glasses,
+		/obj/item/reagent_containers/spray/pepper,
+		/obj/item/device/flash
+	)
 
 /obj/item/storage/belt/forensic
 	name = "forensic belt"
@@ -421,7 +458,7 @@
 	icon_state = "basicforensicbelt"
 	item_state = "basicforensic"
 	storage_slots = 8
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/reagent_containers/spray/luminol,
 		/obj/item/device/uv_light,
 		/obj/item/reagent_containers/syringe,
@@ -431,7 +468,7 @@
 		/obj/item/device/taperecorder,
 		/obj/item/device/tape,
 		/obj/item/clothing/gloves,
-		/obj/item/folder,
+		/obj/item/material/folder,
 		/obj/item/paper,
 		/obj/item/photo,
 		/obj/item/paper_bundle,
@@ -443,8 +480,13 @@
 		/obj/item/device/scanner,
 		/obj/item/clothing/head/beret,
 		/obj/item/material/knife/folding,
-		/obj/item/modular_computer/tablet
-		)
+		/obj/item/modular_computer/tablet,
+		/obj/item/modular_computer/pda,
+		/obj/item/taperoll/police,
+		/obj/item/clothing/glasses,
+		/obj/item/reagent_containers/spray/pepper,
+		/obj/item/device/flash
+	)
 
 /obj/item/storage/belt/holster/machete
 	name = "machete belt"
@@ -453,7 +495,7 @@
 	item_state = "machetebelt"
 	storage_slots = 8
 	overlay_flags = BELT_OVERLAY_HOLSTER
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/device/binoculars,
 		/obj/item/device/camera,
 		/obj/item/stack/flag,
@@ -464,10 +506,10 @@
 		/obj/item/device/scanner/mining,
 		/obj/item/device/scanner/xenobio,
 		/obj/item/device/scanner/plant,
-		/obj/item/folder,
+		/obj/item/material/folder,
 		/obj/item/paper,
 		/obj/item/pen,
-		/obj/item/device/spaceflare,
+		/obj/item/shuttle_beacon,
 		/obj/item/pinpointer/radio,
 		/obj/item/device/taperecorder,
 		/obj/item/device/tape,
@@ -477,8 +519,11 @@
 		/obj/item/clothing/head/beret,
 		/obj/item/material/knife/folding,
 		/obj/item/storage/firstaid/light,
-		/obj/item/device/flash
-		)
+		/obj/item/device/flash,
+		/obj/item/device/drone_designator,
+		/obj/item/modular_computer/tablet,
+		/obj/item/modular_computer/pda
+	)
 	can_holster = list(/obj/item/material/hatchet/machete)
 	sound_in = 'sound/effects/holster/sheathin.ogg'
 	sound_out = 'sound/effects/holster/sheathout.ogg'
@@ -488,9 +533,7 @@
 	desc = "Designed for ease of access to the shards during a fight, as to not let a single enemy spirit slip away."
 	icon_state = "soulstonebelt"
 	item_state = "soulstonebelt"
-	can_hold = list(
-		/obj/item/device/soulstone
-		)
+	contents_allowed = list(/obj/item/device/soulstone)
 
 /obj/item/storage/belt/soulstone/full/New()
 	..()
@@ -510,9 +553,7 @@
 	item_state = "champion"
 	storage_slots = null
 	max_storage_space = ITEM_SIZE_SMALL
-	can_hold = list(
-		/obj/item/clothing/mask/luchador
-		)
+	contents_allowed = list(/obj/item/clothing/mask/luchador)
 
 /obj/item/storage/belt/holster/security/tactical
 	name = "combat belt"
@@ -532,16 +573,6 @@
 	max_storage_space = ITEM_SIZE_SMALL * 4
 	slot_flags = SLOT_BELT | SLOT_BACK
 
-/obj/item/storage/belt/waistpack/big
-	name = "large waist pack"
-	desc = "A bag designed to be worn on the waist. Definitely makes your butt look big."
-	icon_state = "fannypack_big_white"
-	item_state = "fannypack_big_white"
-	w_class = ITEM_SIZE_LARGE
-	max_w_class = ITEM_SIZE_NORMAL
-	max_storage_space = ITEM_SIZE_NORMAL * 4
-
-
 /obj/item/storage/belt/fire_belt
 	name = "firefighting equipment belt"
 	desc = "A belt specially designed for firefighting."
@@ -549,12 +580,12 @@
 	item_state = "gear"
 	storage_slots = 5
 	overlay_flags = BELT_OVERLAY_ITEMS
-	can_hold = list(
+	contents_allowed = list(
 		/obj/item/grenade/chem_grenade/water,
 		/obj/item/crowbar/emergency_forcing_tool,
 		/obj/item/extinguisher/mini,
 		/obj/item/inflatable/door
-		)
+	)
 
 
 /obj/item/storage/belt/fire_belt/full

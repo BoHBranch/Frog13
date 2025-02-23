@@ -1,15 +1,12 @@
 /obj/structure/closet/wizard
 	name = "artifact closet"
 	desc = "a special lead lined closet used to hold artifacts of immense power."
-	closet_appearance = /decl/closet_appearance/alien
+	closet_appearance = /singleton/closet_appearance/alien
 
 /obj/structure/closet/wizard/New()
 	..()
-	var/obj/structure/bigDelivery/package = new /obj/structure/bigDelivery(get_turf(src))
-	package.wrapped = src
+	var/obj/structure/bigDelivery/package/package = new (get_turf(src), src, "parcel")
 	package.examtext = "Imported straight from the Wizard Acadamy. Do not lose the contents or suffer a demerit."
-	src.forceMove(package)
-	package.update_icon()
 
 /obj/structure/closet/wizard/armor
 	name = "Mastercrafted Armor Set"

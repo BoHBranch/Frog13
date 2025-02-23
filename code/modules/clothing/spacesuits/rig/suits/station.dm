@@ -65,7 +65,8 @@
 
 /obj/item/clothing/head/helmet/space/rig/industrial
 	light_overlay = "helmet_light_wide"
-	camera = /obj/machinery/camera/network/mining
+	head_light_range = 5
+	camera = /obj/machinery/camera/network/helmet
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL,SPECIES_UNATHI,SPECIES_IPC)
 
 /obj/item/clothing/suit/space/rig/industrial
@@ -92,12 +93,13 @@
 /obj/item/rig/industrial/equipped
 
 	initial_modules = list(
-		/obj/item/rig_module/mounted/plasmacutter,
+		/obj/item/rig_module/mounted/energy/plasmacutter,
 		/obj/item/rig_module/device/drill,
 		/obj/item/rig_module/device/orescanner,
 		/obj/item/rig_module/device/rcd,
 		/obj/item/rig_module/vision/meson,
-		/obj/item/rig_module/cooling_unit
+		/obj/item/rig_module/cooling_unit,
+		/obj/item/rig_module/kinetic_module
 	)
 
 /obj/item/rig/eva
@@ -125,22 +127,23 @@
 	req_access = list(access_engine_equip)
 
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_rig_back_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_rig_back_unathi.dmi'
 	)
 
 /obj/item/clothing/head/helmet/space/rig/eva
 	light_overlay = "helmet_light_alt"
-	camera = /obj/machinery/camera/network/engineering
+	head_light_range = 5
+	camera = /obj/machinery/camera/network/helmet
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL,SPECIES_UNATHI,SPECIES_IPC)
 	sprite_sheets = list(
 		SPECIES_SKRELL = 'icons/mob/species/skrell/onmob_head_skrell.dmi',
-		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_helmet_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_unathi.dmi'
 	)
 
 /obj/item/clothing/suit/space/rig/eva
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL,SPECIES_UNATHI,SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_suit_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_suit_unathi.dmi'
 		)
 	allowed = list(
 		/obj/item/device/flashlight,
@@ -157,20 +160,20 @@
 /obj/item/clothing/shoes/magboots/rig/eva
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL,SPECIES_UNATHI,SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_feet_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_feet_unathi.dmi'
 	)
 
 /obj/item/clothing/gloves/rig/eva
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL,SPECIES_UNATHI,SPECIES_IPC)
 	siemens_coefficient = 0
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_hands_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_hands_unathi.dmi'
 	)
 
 /obj/item/rig/eva/equipped
 
 	initial_modules = list(
-		/obj/item/rig_module/mounted/plasmacutter,
+		/obj/item/rig_module/mounted/energy/plasmacutter,
 		/obj/item/rig_module/maneuvering_jets,
 		/obj/item/rig_module/device/rcd,
 		/obj/item/rig_module/vision/meson,
@@ -208,20 +211,22 @@
 	initial_modules = list(
 		/obj/item/rig_module/ai_container,
 		/obj/item/rig_module/maneuvering_jets,
-		/obj/item/rig_module/mounted/plasmacutter,
+		/obj/item/rig_module/mounted/energy/plasmacutter,
 		/obj/item/rig_module/device/rcd,
 		/obj/item/rig_module/device/flash,
 		/obj/item/rig_module/vision/meson,
 		/obj/item/rig_module/grenade_launcher/mfoam,
-		/obj/item/rig_module/cooling_unit
+		/obj/item/rig_module/cooling_unit,
+		/obj/item/rig_module/kinetic_module
 	)
 
 /obj/item/clothing/head/helmet/space/rig/ce
 	light_overlay = "helmet_light_alt"
-	camera = /obj/machinery/camera/network/engineering
+	head_light_range = 5
+	camera = /obj/machinery/camera/network/helmet
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL,SPECIES_UNATHI,SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_helmet_unathi.dmi',
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_unathi.dmi',
 		SPECIES_SKRELL = 'icons/mob/species/skrell/onmob_head_skrell.dmi'
 	)
 /obj/item/clothing/suit/space/rig/ce
@@ -246,7 +251,7 @@
 /obj/item/clothing/shoes/magboots/rig/ce
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL,SPECIES_UNATHI,SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_feet_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_feet_unathi.dmi'
 	)
 /obj/item/clothing/gloves/rig/ce
 	siemens_coefficient = 0
@@ -276,7 +281,7 @@
 
 /obj/item/clothing/head/helmet/space/rig/hazmat
 	light_overlay = "helmet_light_dual"
-	camera = /obj/machinery/camera/network/research
+	camera = /obj/machinery/camera/network/helmet
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL,SPECIES_UNATHI,SPECIES_IPC)
 
 /obj/item/clothing/suit/space/rig/hazmat
@@ -340,10 +345,10 @@
 
 /obj/item/clothing/head/helmet/space/rig/medical
 	light_overlay = "helmet_light_wide"
-	camera = /obj/machinery/camera/network/medbay
+	camera = /obj/machinery/camera/network/helmet
 	species_restricted = list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_SKRELL, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_helmet_unathi.dmi',
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_unathi.dmi',
 		SPECIES_SKRELL = 'icons/mob/species/skrell/onmob_head_skrell.dmi',
 	)
 
@@ -356,7 +361,7 @@
 		/obj/item/storage/firstaid,
 		/obj/item/device/scanner/health,
 		/obj/item/stack/medical,
-		/obj/item/roller,
+		/obj/item/roller_bed,
 		/obj/item/auto_cpr,
 		/obj/item/inflatable_dispenser
 	)
@@ -364,13 +369,13 @@
 /obj/item/clothing/shoes/magboots/rig/medical
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_feet_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_feet_unathi.dmi'
 	)
 
 /obj/item/clothing/gloves/rig/medical
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_hands_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_hands_unathi.dmi'
 	)
 
 /obj/item/rig/medical/equipped
@@ -407,7 +412,7 @@
 
 /obj/item/clothing/head/helmet/space/rig/hazard
 	light_overlay = "helmet_light_dual"
-	camera = /obj/machinery/camera/network/security
+	camera = /obj/machinery/camera/network/helmet
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL,SPECIES_UNATHI, SPECIES_IPC)
 
 /obj/item/clothing/suit/space/rig/hazard
@@ -435,7 +440,7 @@
 		/obj/item/rig_module/vision/sechud,
 		/obj/item/rig_module/maneuvering_jets,
 		/obj/item/rig_module/grenade_launcher,
-		/obj/item/rig_module/mounted/taser,
+		/obj/item/rig_module/mounted/energy/taser,
 		/obj/item/rig_module/cooling_unit
 	)
 
@@ -478,7 +483,7 @@
 /obj/item/clothing/suit/space/rig/zero
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_suit_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_suit_unathi.dmi'
 	)
 	breach_threshold = 18
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
@@ -487,6 +492,8 @@
 		/obj/item/tank,
 		/obj/item/device/suit_cooling_unit
 	)
+	max_w_class = null
+	slots = null
 
 /obj/item/rig/zero/on_update_icon(update_mob_icon)
 	..()
@@ -499,4 +506,3 @@
 	//Do not further append if current state already indicates gender
 	if(user.gender == FEMALE && !findtext(chest.icon_state,"_f", -2))
 		chest.icon_state = "[chest.icon_state]_f"
-	chest.update_icon(1)

@@ -7,18 +7,20 @@ var/global/const/TELEBEACON_WIRE_SIGNALLER = 4
 /obj/machinery/tele_beacon
 	name = "teleporter beacon"
 	desc = "A beacon used by a teleporter."
-	icon = 'icons/obj/teleporter.dmi'
+	icon = 'icons/obj/machines/teleporter.dmi'
 	icon_state = "beacon"
 	idle_power_usage = 10
 	active_power_usage = 50
 	anchored = TRUE
-	level = 1
+	level = ATOM_LEVEL_UNDER_TILE
+	layer = ABOVE_EXPOSED_WIRE_LAYER
+	obj_flags = OBJ_FLAG_ANCHORABLE
 
 	machine_name = "teleporter beacon"
 	machine_desc = "Teleporter beacons allow teleporter systems to target them, for accurate, instantaneous transport of objects and people."
 	base_type = /obj/machinery/tele_beacon
 	wires = /datum/wires/tele_beacon
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 
 	/// Name of the beacon in the teleporter UI.
 	var/beacon_name
@@ -43,64 +45,44 @@ var/global/const/TELEBEACON_WIRE_SIGNALLER = 4
 	disconnect_computers()
 	. = ..()
 
+/obj/machinery/tele_beacon/can_anchor(obj/item/tool, mob/user, silent)
+	var/turf/T = get_turf(src)
+	if (!T.is_plating())
+		to_chat(user, SPAN_WARNING("You cannot anchor \the [src] to \the [T]. You must connect it to the underplating."))
+		return FALSE
+	return ..()
 
-/obj/machinery/tele_beacon/attackby(obj/item/I, mob/user)
-	if (!panel_open)
-		if (isWrench(I))
-			var/turf/T = get_turf(src)
-			if (is_space_turf(T) || istype(T, /turf/simulated/open))
-				to_chat(user, SPAN_WARNING("You cannot anchor \the [src] to \the [T]. It requires solid plating."))
-				return FALSE
-			if (!T.is_plating())
-				to_chat(user, SPAN_WARNING("You cannot anchor \the [src] to \the [T]. You must connect it to the underplating."))
-				return FALSE
+/obj/machinery/tele_beacon/post_anchor_change()
+	if (!anchored)
+		disconnect_computers()
+	else
+		generate_name()
 
-			user.visible_message(
-				SPAN_NOTICE("\The [user] starts to [anchored ? "disconnect" : "connect"] \the [src] [anchored ? "to" : "from"] \the [T]."),
-				SPAN_NOTICE("You start to [anchored ? "disconnect" : "connect"] \the [src] [anchored ? "to" : "from"] \the [T].")
-			)
+	level = anchored ? ATOM_LEVEL_UNDER_TILE : ATOM_LEVEL_OVER_TILE
+	..()
 
-			if (!do_after(user, 3 SECONDS, src, DO_REPAIR_CONSTRUCT))
-				return TRUE
-
-			anchored = !anchored
-			level = anchored ? 1 : 2
-			user.visible_message(
-				SPAN_NOTICE("\The [user] [anchored ? "connects" : "disconnects"] \the [src] [anchored ? "to" : "from"] \the [T] with \the [I]."),
-				SPAN_NOTICE("You [anchored ? "connect" : "disconnect"] \the [src] [anchored ? "to" : "from"] \the [T] with \the [I].")
-			)
-			playsound(loc, 'sound/items/Ratchet.ogg', 75, 1)
-			update_icon()
-			update_use_power(anchored ? POWER_USE_IDLE : POWER_USE_OFF)
-			if (!anchored)
-				disconnect_computers()
-			else
-				generate_name()
-
+/obj/machinery/tele_beacon/use_tool(obj/item/I, mob/living/user, list/click_params)
+	if (!panel_open && isMultitool(I))
+		var/new_name = input(user, "What label would you like to set this beacon to? Leave empty to enable automatic naming based on area.", "Set Beacon Label", beacon_name) as text|null
+		if (QDELETED(src))
 			return TRUE
+		if (isnull(new_name))
+			autoset_name = TRUE
+			generate_name()
+			user.visible_message(
+				SPAN_NOTICE("\The [user] reconfigures \the [src] with \the [I]."),
+				SPAN_NOTICE("You enable \the [src]'s automatic labeling with \the [I].")
+			)
+		else
+			beacon_name = new_name
+			autoset_name = FALSE
+			user.visible_message(
+				SPAN_NOTICE("\The [user] reconfigures \the [src] with \the [I]."),
+				SPAN_NOTICE("You reconfigure \the [src]'s relay label to \"[beacon_name]\" with \the [I].")
+			)
+		return TRUE
 
-		if (isMultitool(I))
-			var/new_name = input(user, "What label would you like to set this beacon to? Leave empty to enable automatic naming based on area.", "Set Beacon Label", beacon_name) as text|null
-			if (QDELETED(src))
-				return TRUE
-			if (new_name == null)
-				autoset_name = TRUE
-				generate_name()
-				user.visible_message(
-					SPAN_NOTICE("\The [user] reconfigures \the [src] with \the [I]."),
-					SPAN_NOTICE("You enable \the [src]'s automatic labeling with \the [I].")
-				)
-			else
-				beacon_name = new_name
-				autoset_name = FALSE
-				user.visible_message(
-					SPAN_NOTICE("\The [user] reconfigures \the [src] with \the [I]."),
-					SPAN_NOTICE("You reconfigure \the [src]'s relay label to \"[beacon_name]\" with \the [I].")
-				)
-			return TRUE
-
-	. = ..()
-
+	return ..()
 
 /obj/machinery/tele_beacon/emp_act(severity)
 	..()
@@ -109,7 +91,7 @@ var/global/const/TELEBEACON_WIRE_SIGNALLER = 4
 		set_stat(MACHINE_STAT_EMPED, TRUE)
 		disconnect_computers()
 		var/emp_time = rand(15 SECONDS, 30 SECONDS) / severity
-		addtimer(CALLBACK(src, .proc/emp_act_end), emp_time, TIMER_UNIQUE | TIMER_OVERRIDE)
+		addtimer(new Callback(src, PROC_REF(emp_act_end)), emp_time, TIMER_UNIQUE | TIMER_OVERRIDE)
 
 
 /obj/machinery/tele_beacon/proc/emp_act_end()
@@ -129,7 +111,7 @@ var/global/const/TELEBEACON_WIRE_SIGNALLER = 4
 			to_chat(user, SPAN_WARNING("It appears to be offline or disabled."))
 		return
 
-	if (user.skill_check(SKILL_DEVICES, SKILL_ADEPT))
+	if (user.skill_check(SKILL_DEVICES, SKILL_TRAINED))
 		if (wires.IsIndexCut(TELEBEACON_WIRE_SIGNALLER))
 			to_chat(user, SPAN_WARNING("The signal lights appear to be disabled."))
 		else if (LAZYLEN(connected_computers))
@@ -154,10 +136,7 @@ var/global/const/TELEBEACON_WIRE_SIGNALLER = 4
 
 
 /obj/machinery/tele_beacon/on_update_icon()
-	. = ..()
-
 	icon_state = initial(icon_state)
-
 	if (panel_open)
 		icon_state += "_open"
 	else if (functioning())
@@ -172,17 +151,18 @@ var/global/const/TELEBEACON_WIRE_SIGNALLER = 4
 /obj/machinery/tele_beacon/get_mechanics_info()
 	. = ..()
 	. += "<p>\The [src] can be targeted by teleporter control consoles to allow teleporter pads to send mobs and objects to this [src]'s location. \
-		It can only be targeted and used while \the [src] is powered and anchored (wrenched) to the floor.</p>\
-		<p>While the panel is closed:</p>\
-		<ul>\
-			<li>Use a Wrench to anchor/unanchor the beacon, allowing it to be moved. The beacon is not functional unless anchored.</li>\
-			<li>Use a Multitool to rename the beacon. The name will be displayed in teleport control consoles.</li>\
-		</ul>"
+		It can only be targeted and used while \the [src] is powered and anchored (wrenched) to the floor.</p>"
 
 
-/obj/machinery/tele_beacon/get_antag_info()
+/obj/machinery/tele_beacon/get_interactions_info()
 	. = ..()
-	. += "<p>If EMP'd, \the [src] will lose all established teleporter locks and will be disabled for up to 30 seconds.</p>"
+	.["Multitool"] += "<p>If the maintenance panel is closed, renames the beacon. The name will be displayed in teleport control consoles.</p>"
+	.["Wrench"] += "<p>If the maintenance panel is closed, anchors/unanchors the beacon, allowing it to be moved. The beacon is not functional unless anchored.</p>"
+
+
+/obj/machinery/tele_beacon/get_antag_interactions_info()
+	. = ..()
+	.[CODEX_INTERACTION_EMP] += "<p>Disables all established teleporter locks and disables the beacon for up to 30 seconds.</p>"
 
 
 /// Connects the beacon to a computer that's locking onto it. Returns TRUE on connection, FALSE if the connection fails.
@@ -274,9 +254,9 @@ var/global/const/TELEBEACON_WIRE_SIGNALLER = 4
 	wire_count = 3
 	window_y = 500
 	descriptions = list(
-		new /datum/wire_description(TELEBEACON_WIRE_POWER, "This wire is connected to the power supply unit.", SKILL_EXPERT),
-		new /datum/wire_description(TELEBEACON_WIRE_RELAY, "This wire is connected to the remote relay device.", SKILL_PROF),
-		new /datum/wire_description(TELEBEACON_WIRE_SIGNALLER, "This wire is connected to a speaker and several indicator lights.", SKILL_EXPERT)
+		new /datum/wire_description(TELEBEACON_WIRE_POWER, "This wire is connected to the power supply unit.", "Power", SKILL_EXPERIENCED),
+		new /datum/wire_description(TELEBEACON_WIRE_RELAY, "This wire is connected to the remote relay device.", "Relay", SKILL_MASTER),
+		new /datum/wire_description(TELEBEACON_WIRE_SIGNALLER, "This wire is connected to a speaker and several indicator lights.", "Signal", SKILL_EXPERIENCED)
 	)
 
 
@@ -295,7 +275,7 @@ var/global/const/TELEBEACON_WIRE_SIGNALLER = 4
 		. += "<li>The panel seems to be completely unpowered or disabled.</li>"
 	else
 		. += "<li>The panel is powered.</li>"
-		if (user.skill_check(SKILL_ELECTRICAL, SKILL_ADEPT))
+		if (user.skill_check(SKILL_ELECTRICAL, SKILL_TRAINED))
 			. += "<li>The remote relay chip is [IsIndexCut(TELEBEACON_WIRE_RELAY) ? "disconnected" : "connected"].</li>"
 			. += "<li>The connection signaller circuitry is [IsIndexCut(TELEBEACON_WIRE_SIGNALLER) ? "disconnected" : "connected"].</li>"
 		else
@@ -318,7 +298,7 @@ var/global/const/TELEBEACON_WIRE_SIGNALLER = 4
 	switch (index)
 		if (TELEBEACON_WIRE_POWER)
 			tele_beacon.set_power_cut()
-			addtimer(CALLBACK(src, .proc/ResetPulsed), rand(15 SECONDS, 45 SECONDS), TELEBEACON_WIRE_POWER)
+			addtimer(new Callback(src, PROC_REF(ResetPulsed)), rand(15 SECONDS, 45 SECONDS), TELEBEACON_WIRE_POWER)
 		if (TELEBEACON_WIRE_RELAY)
 			tele_beacon.disconnect_computers()
 		if (TELEBEACON_WIRE_SIGNALLER)

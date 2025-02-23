@@ -31,38 +31,16 @@
 	return 1
 
 
-/obj/item/device/assembly_holder/attach(obj/item/device/assembly/D, obj/item/device/assembly/D2, mob/user)
-	if((!D)||(!D2))
-		return 0
-	if((!istype(D))||(!istype(D2)))
-		return 0
-	if((D.secured)||(D2.secured))
-		return 0
-	if(user)
-		user.drop_from_inventory(D)
-		user.drop_from_inventory(D2)
-	D.holder = src
-	D2.holder = src
-	D.forceMove(src)
-	D2.forceMove(src)
-	a_left = D
-	a_right = D2
-	SetName("[D.name]-[D2.name] assembly")
-	update_icon()
-	usr.put_in_hands(src)
-	return 1
-
-
 /obj/item/device/assembly_holder/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 	if(a_left)
-		overlays += "[a_left.icon_state]_left"
+		AddOverlays("[a_left.icon_state]_left")
 		for(var/O in a_left.attached_overlays)
-			overlays += "[O]_l"
+			AddOverlays("[O]_l")
 	if(a_right)
-		overlays += "[a_right.icon_state]_right"
+		AddOverlays("[a_right.icon_state]_right")
 		for(var/O in a_right.attached_overlays)
-			overlays += "[O]_r"
+			AddOverlays("[O]_r")
 	if(master)
 		master.update_icon()
 
@@ -112,28 +90,27 @@
 	return
 
 
-/obj/item/device/assembly_holder/attackby(obj/item/W as obj, mob/user as mob)
-	if(isScrewdriver(W))
-		if(!a_left || !a_right)
-			to_chat(user, "<span class='warning'>BUG:Assembly part missing, please report this!</span>")
-			return
-		a_left.toggle_secure()
-		a_right.toggle_secure()
+/obj/item/device/assembly_holder/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Screwdriver - Toggle secured
+	if (isScrewdriver(tool))
+		a_left.set_secure(TRUE)
+		a_right.set_secure(TRUE)
 		secured = !secured
-		if(secured)
-			to_chat(user, "<span class='notice'>\The [src] is ready!</span>")
-		else
-			to_chat(user, "<span class='notice'>\The [src] can now be taken apart!</span>")
 		update_icon()
-		return
-	..()
+		user.visible_message(
+			SPAN_NOTICE("\The [user] adjusts \a [src] with \a [tool]."),
+			SPAN_NOTICE("You adjust \the [src] with \the [tool]. It [secured ? "is now ready to use" : "can now be taken apart"].")
+		)
+		return TRUE
+
+	return ..()
 
 
 /obj/item/device/assembly_holder/attack_self(mob/user as mob)
 	add_fingerprint(user)
 	if(secured)
 		if(!a_left || !a_right)
-			to_chat(user, "<span class='warning'>Assembly part missing!</span>")
+			to_chat(user, SPAN_WARNING("Assembly part missing!"))
 			return
 		if(istype(a_left,a_right.type))//If they are the same type it causes issues due to window code
 			switch(alert("Which side would you like to use?",,"Left","Right"))
@@ -237,17 +214,17 @@
 		if(!istype(tmr,/obj/item/device/assembly/timer))
 			tmr = holder.a_right
 		if(!istype(tmr,/obj/item/device/assembly/timer))
-			to_chat(usr, "<span class='notice'>This detonator has no timer.</span>")
+			to_chat(usr, SPAN_NOTICE("This detonator has no timer."))
 			return
 		if(tmr.timing)
-			to_chat(usr, "<span class='notice'>Clock is ticking already.</span>")
+			to_chat(usr, SPAN_NOTICE("Clock is ticking already."))
 		else
 			var/ntime = input("Enter desired time in seconds", "Time", "5") as num
 			if (ntime>0 && ntime<1000)
 				tmr.time = ntime
 				SetName(initial(name) + "([tmr.time] secs)")
-				to_chat(usr, "<span class='notice'>Timer set to [tmr.time] seconds.</span>")
+				to_chat(usr, SPAN_NOTICE("Timer set to [tmr.time] seconds."))
 			else
-				to_chat(usr, "<span class='notice'>Timer can't be [ntime<=0?"negative":"more than 1000 seconds"].</span>")
+				to_chat(usr, SPAN_NOTICE("Timer can't be [ntime<=0?"negative":"more than 1000 seconds"]."))
 	else
-		to_chat(usr, "<span class='notice'>You cannot do this while [usr.stat?"unconscious/dead":"restrained"].</span>")
+		to_chat(usr, SPAN_NOTICE("You cannot do this while [usr.stat?"unconscious/dead":"restrained"]."))

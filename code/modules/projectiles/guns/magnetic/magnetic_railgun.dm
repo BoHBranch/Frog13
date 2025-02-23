@@ -36,9 +36,9 @@
 /obj/item/gun/magnetic/railgun/show_ammo(mob/user)
 	var/obj/item/rcd_ammo/ammo = loaded
 	if (ammo)
-		to_chat(user, "<span class='notice'>There are [ammo.remaining] shot\s remaining in \the [loaded].</span>")
+		to_chat(user, SPAN_NOTICE("There are [ammo.remaining] shot\s remaining in \the [loaded]."))
 	else
-		to_chat(user, "<span class='notice'>There is nothing loaded.</span>")
+		to_chat(user, SPAN_NOTICE("There is nothing loaded."))
 
 /obj/item/gun/magnetic/railgun/check_ammo()
 	var/obj/item/rcd_ammo/ammo = loaded
@@ -55,22 +55,20 @@
 /obj/item/gun/magnetic/railgun/proc/out_of_ammo()
 	qdel(loaded)
 	loaded = null
-	visible_message("<span class='warning'>\The [src] beeps and ejects its empty cartridge.</span>")
+	visible_message(SPAN_WARNING("\The [src] beeps and ejects its empty cartridge."))
 
 /obj/item/gun/magnetic/railgun/mmi
 	desc = "The Mars Military Industries MI-72 Comet. A man-portable mass driver for squad support, anti-armour and destruction of fortifications and emplacements."
 	icon = 'icons/obj/guns/railgun_old.dmi'
 	icon_state = "old_railgun"
 
-/obj/item/gun/magnetic/railgun/tcc // Oppa! Should only be available to TCC shock troops or high-budget mercs.
+// Oppa! Should only be available to TCC shock troops or high-budget mercs.
+/obj/item/gun/magnetic/railgun/tcc
 	name = "advanced railgun"
 	desc = "The HelTek Arms HR-22 Hammerhead. A man-portable helical rail cannon; favorite weapon of Terran shock troops and anti-tank personnel."
 	icon = 'icons/obj/guns/railgun_adv.dmi'
 	icon_state = "railgun-tcc"
-	removable_components = TRUE // Railgunners are expected to be able to completely disassemble and reassemble their weapons in the field. But we don't have that mechanic, so the cell and capacitor will do.
 
-	cell = /obj/item/cell/hyper // Standard power
-	capacitor = /obj/item/stock_parts/capacitor/adv // 6-8 shots
 	power_cost = 280 // Same number of shots, but it'll seem to recharge slightly faster
 
 	loaded = /obj/item/stack/material/rods
@@ -83,7 +81,7 @@
 /obj/item/gun/magnetic/railgun/tcc/show_ammo(mob/user)
 	var/obj/item/stack/material/rods/ammo = loaded
 	if(istype(ammo))
-		to_chat(user, "<span class='notice'>It has [ammo.amount] shots loaded.</span>")
+		to_chat(user, SPAN_NOTICE("It has [ammo.amount] shots loaded."))
 
 /obj/item/gun/magnetic/railgun/tcc/check_ammo()
 	var/obj/item/stack/material/rods/ammo = loaded
@@ -94,7 +92,7 @@
 	loaded = null
 	spawn(3)
 		playsound(src.loc, 'sound/machines/twobeep.ogg', 50, 1)
-	visible_message("<span class='warning'>\The [src] beeps, before clanging as the ammunition bank resets.</span>")
+	visible_message(SPAN_WARNING("\The [src] beeps, before clanging as the ammunition bank resets."))
 
 /obj/item/gun/magnetic/railgun/tcc/use_ammo()
 	var/obj/item/stack/material/rods/ammo = loaded
@@ -126,7 +124,7 @@
 /obj/item/gun/magnetic/railgun/automatic/examine(mob/user, distance)
 	. = ..()
 	if(distance <= 1)
-		to_chat(user, "<span class='notice'>Someone has scratched <i>Ultima Ratio Regum</i> onto the side of the barrel.</span>")
+		to_chat(user, SPAN_NOTICE("Someone has scratched <i>Ultima Ratio Regum</i> onto the side of the barrel."))
 
 /obj/item/gun/magnetic/railgun/automatic/mmi
 	name = "\improper RHR accelerator"
@@ -158,7 +156,7 @@
 		)
 
 /obj/item/gun/magnetic/railgun/flechette/out_of_ammo()
-	visible_message("<span class='warning'>\The [src] beeps to indicate the magazine is empty.</span>")
+	visible_message(SPAN_WARNING("\The [src] beeps to indicate the magazine is empty."))
 
 
 /obj/item/gun/magnetic/railgun/flechette/skrell

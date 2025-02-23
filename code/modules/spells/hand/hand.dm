@@ -15,7 +15,7 @@
 	if(!..())
 		return FALSE
 	if(user.get_active_hand())
-		to_chat(holder, "<span class='warning'>You need an empty hand to cast this spell.</span>")
+		to_chat(holder, SPAN_WARNING("You need an empty hand to cast this spell."))
 		return FALSE
 	return TRUE
 
@@ -23,9 +23,9 @@
 	if(current_hand)
 		cancel_hand()
 	if(user.get_active_hand())
-		to_chat(user, "<span class='warning'>You need an empty hand to cast this spell.</span>")
+		to_chat(user, SPAN_WARNING("You need an empty hand to cast this spell."))
 		return FALSE
-	current_hand = new(src)
+	current_hand = new(null, src)
 	if(!user.put_in_active_hand(current_hand))
 		QDEL_NULL(current_hand)
 		return FALSE
@@ -63,8 +63,9 @@
 /spell/hand/charges/cast_hand()
 	if(..())
 		casts--
-		to_chat(holder, "<span class='notice'>The [name] spell has [casts] out of [max_casts] charges left</span>")
-		cancel_hand()
+		to_chat(holder, SPAN_NOTICE("The [name] spell has [casts] out of [max_casts] charges left"))
+		if(!casts)
+			cancel_hand()
 		return TRUE
 	return FALSE
 
@@ -75,7 +76,7 @@
 /spell/hand/duration/cast(list/targets, mob/user)
 	. = ..()
 	if(.)
-		hand_timer = addtimer(CALLBACK(src, .proc/cancel_hand), hand_duration, TIMER_STOPPABLE|TIMER_UNIQUE|TIMER_NO_HASH_WAIT|TIMER_OVERRIDE)
+		hand_timer = addtimer(new Callback(src, PROC_REF(cancel_hand)), hand_duration, TIMER_STOPPABLE|TIMER_UNIQUE|TIMER_NO_HASH_WAIT|TIMER_OVERRIDE)
 
 /spell/hand/duration/cancel_hand()
 	deltimer(hand_timer)

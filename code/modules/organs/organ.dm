@@ -2,7 +2,7 @@ var/global/list/organ_cache = list()
 
 /obj/item/organ
 	name = "organ"
-	icon = 'icons/obj/surgery.dmi'
+	icon = 'icons/obj/organs.dmi'
 	germ_level = 0
 	w_class = ITEM_SIZE_TINY
 	default_action_type = /datum/action/item_action/organ
@@ -18,7 +18,7 @@ var/global/list/organ_cache = list()
 	// Reference data.
 	var/mob/living/carbon/human/owner // Current mob owning the organ.
 	var/datum/dna/dna                 // Original DNA.
-	var/datum/species/species         // Original species.
+	var/singleton/species/species         // Original species.
 
 	// Damage vars.
 	var/damage = 0                    // Current damage to the organ
@@ -50,27 +50,26 @@ var/global/list/organ_cache = list()
 	return (damage >= min_broken_damage || (status & ORGAN_CUT_AWAY) || (status & ORGAN_BROKEN))
 
 //Second argument may be a dna datum; if null will be set to holder's dna.
-/obj/item/organ/New(mob/living/carbon/holder, datum/dna/given_dna)
-	..(holder)
+/obj/item/organ/Initialize(mapload, datum/dna/given_dna)
+	. = ..()
 	if(!istype(given_dna))
 		given_dna = null
 
 	if(max_damage)
-		min_broken_damage = Floor(max_damage / 2)
+		min_broken_damage = floor(max_damage / 2)
 	else
 		max_damage = min_broken_damage * 2
-
-	if(istype(holder))
-		owner = holder
-		if(!given_dna && holder.dna)
-			given_dna = holder.dna
+	if (iscarbon(loc))
+		owner = loc
+		if(!given_dna && owner.dna)
+			given_dna = owner.dna
 		else
-			log_debug("[src] spawned in [holder] without a proper DNA.")
+			log_debug("[src] spawned in [owner] without a proper DNA.")
 
 	if (given_dna)
 		set_dna(given_dna)
 	if (!species)
-		species = all_species[SPECIES_HUMAN]
+		species = GLOB.species_by_name[SPECIES_HUMAN]
 	species.resize_organ(src)
 
 	create_reagents(5 * (w_class-1)**2)
@@ -85,7 +84,7 @@ var/global/list/organ_cache = list()
 			blood_DNA = list()
 		blood_DNA.Cut()
 		blood_DNA[dna.unique_enzymes] = dna.b_type
-		species = all_species[dna.species]
+		species = GLOB.species_by_name[dna.species]
 		if (!species)
 			crash_with("Invalid DNA species. Expected a valid species name as string, was: [log_info_line(dna.species)]")
 
@@ -151,8 +150,12 @@ var/global/list/organ_cache = list()
 	show_decay_status(user)
 
 /obj/item/organ/proc/show_decay_status(mob/user)
-	if(status & ORGAN_DEAD)
-		to_chat(user, "<span class='notice'>The decay has set into \the [src].</span>")
+	if(BP_IS_ROBOTIC(src))
+		if(status & ORGAN_DEAD)
+			to_chat(user, SPAN_NOTICE("\The [src] looks completely spent."))
+	else
+		if(status & ORGAN_DEAD)
+			to_chat(user, SPAN_NOTICE("The decay has set into \the [src]."))
 
 /obj/item/organ/proc/handle_germ_effects()
 	//** Handle the effects of infections
@@ -299,16 +302,16 @@ var/global/list/organ_cache = list()
 		set_dna(owner.dna)
 	return 1
 
-/obj/item/organ/attack(mob/target, mob/user)
+/obj/item/organ/use_before(mob/target, mob/user)
+	. = FALSE
+	if (status & ORGAN_ROBOTIC || !istype(target) || !istype(user) || (user != target && user.a_intent == I_HELP))
+		return FALSE
 
-	if(status & ORGAN_ROBOTIC || !istype(target) || !istype(user) || (user != target && user.a_intent == I_HELP))
-		return ..()
-
-	if(alert("Do you really want to use this organ as food? It will be useless for anything else afterwards.",,"Ew, no.","Bon appetit!") == "Ew, no.")
-		to_chat(user, "<span class='notice'>You successfully repress your cannibalistic tendencies.</span>")
-		return
-	if(!user.unEquip(src))
-		return
+	if (alert("Do you really want to use this organ as food? It will be useless for anything else afterwards.",,"Ew, no.","Bon appetit!") == "Ew, no.")
+		to_chat(user, SPAN_NOTICE("You successfully repress your cannibalistic tendencies."))
+		return TRUE
+	if (!user.unEquip(src))
+		return TRUE
 	var/obj/item/reagent_containers/food/snacks/organ/O = new(get_turf(src))
 	O.SetName(name)
 	O.appearance = src
@@ -317,7 +320,8 @@ var/global/list/organ_cache = list()
 	transfer_fingerprints_to(O)
 	user.put_in_active_hand(O)
 	qdel(src)
-	target.attackby(O, user)
+	O.resolve_attackby(target, user)
+	return TRUE
 
 /obj/item/organ/proc/can_feel_pain()
 	return (!BP_IS_ROBOTIC(src) && (!species || !(species.species_flags & SPECIES_FLAG_NO_PAIN)))
@@ -341,10 +345,16 @@ var/global/list/organ_cache = list()
 	if(status & ORGAN_MUTATED)
 		. += tag ? "<span style='font-weight: bold; color: [COLOR_MEDICAL_RADIATION]'>Genetic Deformation</span>" : "Genetic Deformation"
 	if(status & ORGAN_DEAD)
-		if(can_recover())
-			. += tag ? "<span style='font-weight: bold; color: [COLOR_MEDICAL_INTERNAL_DANGER]'>Decaying</span>" : "Decaying"
+		if(BP_IS_ROBOTIC(src))
+			if(can_recover())
+				. += tag ? "<span style='font-weight: bold; color: [COLOR_MEDICAL_INTERNAL_DANGER]'>Failing</span>" : "Failing"
+			else
+				. += tag ? "<span style='font-weight: bold; color: [COLOR_MEDICAL_NECROTIC]'>Irreparably Damaged</span>" : "Irreperably Damaged"
 		else
-			. += tag ? "<span style='font-weight: bold; color: [COLOR_MEDICAL_NECROTIC]'>Necrotic</span>" : "Necrotic"
+			if(can_recover())
+				. += tag ? "<span style='font-weight: bold; color: [COLOR_MEDICAL_INTERNAL_DANGER]'>Decaying</span>" : "Decaying"
+			else
+				. += tag ? "<span style='font-weight: bold; color: [COLOR_MEDICAL_NECROTIC]'>Necrotic</span>" : "Necrotic"
 	if(BP_IS_BRITTLE(src))
 		. += tag ? "<span style='font-weight: bold; color: [COLOR_MEDICAL_CRYSTAL]'>Brittle</span>" : "Brittle"
 
@@ -382,5 +392,5 @@ var/global/list/organ_cache = list()
 * Pre-surgery modification of the organ if it has status|ORGAN_CONFIGURE
 * Halts surgery if the return value is truthy
 */
-/obj/item/organ/proc/surgery_configure(mob/living/user, mob/living/carbon/human/target, obj/item/organ/parent, obj/item/tool, decl/surgery_step/action)
+/obj/item/organ/proc/surgery_configure(mob/living/user, mob/living/carbon/human/target, obj/item/organ/parent, obj/item/tool, singleton/surgery_step/action)
 	return

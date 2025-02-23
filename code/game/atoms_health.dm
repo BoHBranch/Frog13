@@ -4,8 +4,11 @@
 /// Maximum health for simple health processing. Use `get_max_health()` or `set_max_health()` to reference/modify.
 /atom/var/health_max
 
-/// Boolean. Whether or not the atom is dead. Toggled by death state changes in standardized health and provided as a simple way to check for death without additional proc call overhead from `is_alive()`.
-/atom/var/health_dead
+/// Bitflag (Any of `HEALTH_STATUS_*`). Various health-related status flags for the atom. See `code\__defines\health.dm` for details.
+/atom/var/health_status = EMPTY_BITFIELD
+
+/// Bitflag (Any of `HEALTH_FLAG_*`). Various health-related config flags for the atom. See `code\__defines\health.dm` for details.
+/atom/var/health_flags = EMPTY_BITFIELD
 
 /**
  * LAZY List of damage type resistance or weakness multipliers, decimal form. Only applied to health reduction. Use `set_damage_resistance()`, `remove_damage_resistance()`, and `get_damage_resistance()` to reference/modify.
@@ -22,14 +25,15 @@
 /// Sound effect played when hit
 /atom/var/damage_hitsound = 'sound/weapons/genhit.ogg'
 
+/// Boolean. If set, uses the item's hit sound file instead of the source atom's when attacked.
+/atom/var/use_weapon_hitsound = FALSE
+
 /**
  * Retrieves the atom's current health, or `null` if not using health
  */
 /atom/proc/get_current_health()
 	SHOULD_CALL_PARENT(TRUE)
-	if (!health_max)
-		return
-	return health_current
+	return min(health_current, get_max_health())
 
 /**
  * Retrieves the atom's maximum health.
@@ -41,65 +45,66 @@
 /**
  * Whether or not the atom's health is damaged.
  */
-/atom/proc/health_damaged(use_raw_values)
-	if (!health_max)
-		return
-	if (use_raw_values)
-		return health_current < health_max
+/atom/proc/health_damaged()
 	return get_current_health() < get_max_health()
+
+
+/**
+ * Whether or not the atom is currently dead.
+ *
+ * Returns boolean.
+ */
+/atom/proc/health_dead()
+	return HAS_FLAGS(health_status, HEALTH_STATUS_DEAD)
+
+
+/**
+ * Whether or not the atom is currently broken. Does not consider death as broken, to minimize on recursive proc calls.
+ *
+ * Returns boolean.
+ */
+/atom/proc/health_broken()
+	return HAS_FLAGS(health_status, HEALTH_STATUS_BROKEN)
+
 
 /**
  * Retrieves the atom's current damage, or `null` if not using health.
- * If `use_raw_values` is `TRUE`, uses the raw var values instead of the `get_*` proc results.
  */
-/atom/proc/get_damage_value(use_raw_values)
-	if (!health_max)
-		return
-	if (use_raw_values)
-		return health_max - health_current
-	else
-		return get_max_health() - get_current_health()
+/atom/proc/get_damage_value()
+	return get_max_health() - get_current_health()
 
 /**
  * Retrieves the atom's current damage as a percentage where `100%` is `100`.
- * If `use_raw_values` is `TRUE`, uses the raw var values instead of the `get_*` proc results.
  */
-/atom/proc/get_damage_percentage(use_raw_values)
-	if (!health_max)
-		return
-	var/max_health = use_raw_values ? health_max : get_max_health()
-	return Percent(get_damage_value(use_raw_values), max_health, 0)
+/atom/proc/get_damage_percentage()
+	return Percent(get_damage_value(), get_max_health(), 0)
 
 /**
  * Checks if the atom's health can be restored.
  * Should be called before `restore_health()` in most cases.
- * Returns `null` if health is not in use.
  * NOTE: Does not include a check for death state by default, to allow repairing/healing atoms back to life.
  */
 /atom/proc/can_restore_health(damage, damage_type = null)
 	SHOULD_CALL_PARENT(TRUE)
-	if (!health_max)
-		return
+	if (!get_max_health())
+		return FALSE
 	if (!damage)
 		return FALSE
-	if (get_current_health() == get_max_health())
+	if (!health_damaged())
 		return FALSE
 	return TRUE
 
 /**
  * Checks if the atom's health can be damaged.
  * Should be called before `damage_health()` in most cases.
- * Returns `null` if health is not in use.
  */
-/atom/proc/can_damage_health(damage, damage_type = null)
+/atom/proc/can_damage_health(damage, damage_type = null, damage_flags = EMPTY_BITFIELD)
 	SHOULD_CALL_PARENT(TRUE)
-	if (!health_max)
-		return
-	if (health_dead)
+	if (!get_max_health())
 		return FALSE
 	if (!damage || damage < health_min_damage)
 		return FALSE
-	if (get_damage_resistance(damage_type) == 0)
+	if (is_damage_immune(damage_type))
 		return FALSE
 	return TRUE
 
@@ -112,22 +117,42 @@
  * Health modification for the health system. Applies `health_mod` directly to `simple_health` via addition and calls `handle_death_change` as needed.
  * Has no pre-modification checks, you should be using `damage_health()` or `restore_health()` instead of this.
  * `skip_death_state_change` will skip calling `handle_death_change()` when applicable. Used for when the originally calling proc needs handle it in a unique way.
- * Returns `TRUE` if the death state changes, `null` if the atom is not using health, `FALSE` otherwise.
+ * Returns `TRUE` if the death state changes, `FALSE` otherwise.
  */
 /atom/proc/mod_health(health_mod, damage_type, skip_death_state_change = FALSE)
 	SHOULD_CALL_PARENT(TRUE)
-	if (!health_max)
-		return
+	if (!get_max_health())
+		return FALSE
 	health_mod = round(health_mod)
-	var/death_state = health_dead
+	var/prior_health = get_current_health()
+	var/death_state = health_dead()
+	var/broken_state = health_broken()
+
 	health_current = round(clamp(health_current + health_mod, 0, get_max_health()))
-	post_health_change(health_mod, damage_type)
+	post_health_change(health_mod, prior_health, damage_type)
+
+	if (HAS_FLAGS(health_flags, HEALTH_FLAG_BREAKABLE))
+		var/new_broken_state = health_current > floor(health_max / 2) ? FALSE : TRUE
+		if (new_broken_state != broken_state)
+			if (new_broken_state)
+				SET_FLAGS(health_status, HEALTH_STATUS_BROKEN)
+			else
+				CLEAR_FLAGS(health_status, HEALTH_STATUS_BROKEN)
+			if (!skip_death_state_change)
+				if (new_broken_state)
+					on_broken()
+				else
+					on_unbroken()
+
 	var/new_death_state = health_current > 0 ? FALSE : TRUE
 	if (death_state == new_death_state)
 		return FALSE
-	health_dead = new_death_state
+	if (new_death_state)
+		SET_FLAGS(health_status, HEALTH_STATUS_DEAD)
+	else
+		CLEAR_FLAGS(health_status, HEALTH_STATUS_DEAD)
 	if (!skip_death_state_change)
-		if (health_dead)
+		if (new_death_state)
 			on_death()
 		else
 			on_revive()
@@ -140,9 +165,7 @@
  */
 /atom/proc/set_health(new_health, skip_death_state_change = FALSE)
 	SHOULD_CALL_PARENT(TRUE)
-	if (!health_max)
-		return
-	var/health_mod = new_health - health_current
+	var/health_mod = new_health - get_current_health()
 	return mod_health(health_mod, skip_death_state_change = skip_death_state_change)
 
 /**
@@ -150,8 +173,6 @@
  */
 /atom/proc/restore_health(damage, damage_type = null, skip_death_state_change = FALSE, skip_can_restore_check = FALSE)
 	SHOULD_CALL_PARENT(TRUE)
-	if (!health_max)
-		return
 	if (!skip_can_restore_check && !can_restore_health(damage, damage_type))
 		return FALSE
 	return mod_health(damage, damage_type, skip_death_state_change)
@@ -166,9 +187,7 @@
  */
 /atom/proc/damage_health(damage, damage_type, damage_flags = EMPTY_BITFIELD, severity, skip_can_damage_check = FALSE)
 	SHOULD_CALL_PARENT(TRUE)
-	if (!health_max)
-		return
-	if (!skip_can_damage_check && !can_damage_health(damage, damage_type))
+	if (!skip_can_damage_check && !can_damage_health(damage, damage_type, damage_flags))
 		return FALSE
 
 	// Apply resistance/weakness modifiers
@@ -181,7 +200,7 @@
 /**
  * Proc called after any health changes made by the system
  */
-/atom/proc/post_health_change(health_mod, damage_type = null)
+/atom/proc/post_health_change(health_mod, prior_health, damage_type = null)
 	return
 
 /**
@@ -196,7 +215,7 @@
  */
 /atom/proc/revive_health()
 	SHOULD_CALL_PARENT(TRUE)
-	return set_health(health_max)
+	return set_health(get_max_health())
 
 /// Proc called when the atom transitions from alive to dead.
 /atom/proc/on_death()
@@ -204,6 +223,14 @@
 
 /// Proc called when the atom transitions from dead to alive.
 /atom/proc/on_revive()
+	return
+
+/// Proc called when the atom transitions from unbroken to broken. Only used if `HEALTH_FLAG_BREAKABLE` is set.
+/atom/proc/on_broken()
+	return
+
+/// Proc called when the atom transitions from broken to unbroken. Only used if `HEALTH_FLAG_BREAKABLE` is set.
+/atom/proc/on_unbroken()
 	return
 
 /**
@@ -214,9 +241,9 @@
 	SHOULD_CALL_PARENT(TRUE)
 	health_max = round(new_max_health)
 	if (set_current_health)
-		set_health(health_max)
+		set_health(get_max_health())
 	else
-		set_health(min(health_current, health_max))
+		set_health(min(get_current_health(), get_max_health()))
 
 /**
  * Sets the atom's resistance/weakness to the given damage type.
@@ -260,39 +287,44 @@
  * Overrideable to allow for different messages, or restricting when the messages can or cannot appear.
  */
 /atom/proc/examine_damage_state(mob/user)
-	if (health_dead)
-		to_chat(user, SPAN_DANGER("It looks broken."))
+	var/datum/pronouns/pronouns = choose_from_pronouns()
+
+	if (health_dead())
+		to_chat(user, SPAN_DANGER("[pronouns.He] look[pronouns.s] broken."))
 		return
 
 	var/damage_percentage = get_damage_percentage()
 	switch (damage_percentage)
 		if (0)
-			to_chat(user, SPAN_NOTICE("It looks fully intact."))
+			to_chat(user, SPAN_NOTICE("[pronouns.He] look[pronouns.s] fully intact."))
 		if (1 to 32)
-			to_chat(user, SPAN_WARNING("It looks slightly damaged."))
+			to_chat(user, SPAN_WARNING("[pronouns.He] look[pronouns.s] slightly damaged."))
 		if (33 to 65)
-			to_chat(user, SPAN_WARNING("It looks moderately damaged."))
+			to_chat(user, SPAN_WARNING("[pronouns.He] look[pronouns.s] moderately damaged."))
 		else
-			to_chat(user, SPAN_DANGER("It looks severely damaged."))
+			to_chat(user, SPAN_DANGER("[pronouns.He] look[pronouns.s] severely damaged."))
 
 /mob/examine_damage_state(mob/user)
-	if (health_dead)
-		to_chat(user, SPAN_DANGER("They look severely hurt and is not moving or responding to anything around them."))
+	var/datum/pronouns/pronouns = choose_from_pronouns()
+	if (health_dead())
+		to_chat(user, SPAN_DANGER("[pronouns.He] look[pronouns.s] severely hurt and [pronouns.is] not moving or responding to anything around [pronouns.him]."))
 		return
 
 	var/damage_percentage = get_damage_percentage()
 	switch (damage_percentage)
 		if (0)
-			to_chat(user, SPAN_NOTICE("They appear unhurt."))
+			to_chat(user, SPAN_NOTICE("[pronouns.He] appear[pronouns.s] unhurt."))
 		if (1 to 32)
-			to_chat(user, SPAN_WARNING("They look slightly hurt."))
+			to_chat(user, SPAN_WARNING("[pronouns.He] look[pronouns.s] slightly hurt."))
 		if (33 to 65)
-			to_chat(user, SPAN_WARNING("They look moderately hurt."))
+			to_chat(user, SPAN_WARNING("[pronouns.He] look[pronouns.s] moderately hurt."))
 		else
-			to_chat(user, SPAN_DANGER("They look severely hurt."))
+			to_chat(user, SPAN_DANGER("[pronouns.He] look[pronouns.s] severely hurt."))
 
 /**
  * Copies the state of health from one atom to another.
+ *
+ * Does not support mobs that don't use standardized health.
  */
 /proc/copy_health(atom/source_atom, atom/target_atom)
 	if (!source_atom || QDELETED(target_atom) || !source_atom.health_max || !target_atom.health_max)
@@ -301,79 +333,4 @@
 	target_atom.health_max = source_atom.health_max
 	target_atom.health_resistances = source_atom.health_resistances
 	target_atom.health_min_damage = source_atom.health_min_damage
-	target_atom.health_dead = source_atom.health_dead
-
-
-// Generalized *_act() handlers
-/atom/emp_act(severity)
-	..()
-	// No hitsound here - Doesn't make sense for EMPs.
-	// Generalized - 75-125 damage at max, 38-63 at medium, 25-42 at minimum severities.
-	damage_health(rand(75, 125) / severity, DAMAGE_EMP, severity = severity)
-
-
-/atom/ex_act(severity, turf_breaker)
-	..()
-	// No hitsound here to avoid noise spam.
-	// Damage is based on severity and maximum health, with DEVASTATING being guaranteed death without any resistances.
-	var/damage_flags = turf_breaker ? DAMAGE_FLAG_TURF_BREAKER : EMPTY_BITFIELD
-	var/damage = 0
-	switch (severity)
-		if (EX_ACT_DEVASTATING)
-			damage = round(health_max * (rand(100, 200) / 100)) // So that even atoms resistant to explosions may still be heavily damaged at this severity. Effective range of 100% to 200%.
-		if (EX_ACT_HEAVY)
-			damage = round(health_max * (rand(50, 100) / 100)) // Effective range of 50% to 100%.
-		if (EX_ACT_LIGHT)
-			damage = round(health_max * (rand(10, 50) / 100)) // Effective range of 10% to 50%.
-	if (damage)
-		damage_health(damage, DAMAGE_EXPLODE, damage_flags, severity)
-
-
-/atom/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
-	..()
-	// No hitsound here to avoid noise spam.
-	// 1 point of damage for every 100 kelvin above 300 (~27 C).
-	damage_health(round(max(exposed_temperature - 300, 0) / 100), DAMAGE_FIRE)
-
-
-/atom/bullet_act(obj/item/projectile/P, def_zone)
-	. = ..()
-	if (get_max_health())
-		var/damage = P.damage
-		if (istype(src, /obj/structure) || istype(src, /turf/simulated/wall)) // TODO Better conditions for non-structures that want to use structure damage
-			damage = P.get_structure_damage()
-		if (!can_damage_health(damage, P.damage_type))
-			return
-		playsound(damage_hitsound, src, 75)
-		damage_health(damage, P.damage_type, skip_can_damage_check = TRUE)
-		return 0
-
-
-/atom/lava_act(datum/gas_mixture/air, temperature, pressure)
-	if (is_damage_immune(DAMAGE_FIRE))
-		return FALSE
-	if (get_max_health())
-		fire_act(air, temperature)
-		if (!health_dead)
-			return FALSE
-	. = ..()
-
-
-/atom/attackby(obj/item/W, mob/user, click_params)
-	. = ..()
-	if (user.a_intent == I_HURT && get_max_health() && !(W.item_flags & ITEM_FLAG_NO_BLUDGEON))
-		user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
-		user.do_attack_animation(src)
-		if (!can_damage_health(W.force, W.damtype))
-			playsound(damage_hitsound, src, 50)
-			user.visible_message(
-				SPAN_WARNING("\The [user] hits \the [src] with \a [W], but it bounces off!"),
-				SPAN_WARNING("You hit \the [src] with \the [W], but it bounces off!")
-			)
-			return
-		playsound(damage_hitsound, src, 75)
-		user.visible_message(
-			SPAN_DANGER("\The [user] hits \the [src] with \a [W]!"),
-			SPAN_DANGER("You hit \the [src] with \the [W]!")
-		)
-		damage_health(W.force, W.damtype, skip_can_damage_check = TRUE)
+	target_atom.health_status = source_atom.health_status

@@ -4,7 +4,7 @@
 	icon_state = "intact"
 	pipe_icon = "hepipe"
 	color = "#404040"
-	level = 2
+	level = ATOM_LEVEL_OVER_TILE
 	connect_types = CONNECT_TYPE_HE
 	var/initialize_directions_he
 	var/surface = 2	//surface area in m^2
@@ -18,8 +18,8 @@
 	fatigue_pressure = 300*ONE_ATMOSPHERE
 	alert_pressure = 360*ONE_ATMOSPHERE
 
-	can_buckle = 1
-	buckle_lying = 1
+	can_buckle = TRUE
+	buckle_stance = BUCKLE_FORCE_PRONE
 
 /obj/machinery/atmospherics/pipe/simple/heat_exchanging/Initialize()
 	. = ..()
@@ -111,7 +111,6 @@
 	icon = 'icons/atmos/junction.dmi'
 	icon_state = "intact"
 	pipe_icon = "hejunction"
-	level = 2
 	connect_types = CONNECT_TYPE_REGULAR|CONNECT_TYPE_HE|CONNECT_TYPE_FUEL
 	build_icon_state = "junction"
 

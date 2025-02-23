@@ -6,9 +6,9 @@
 //		Arguments that the called proc should expect:
 //			/datum/shuttle/shuttle: the new shuttle
 
-GLOBAL_DATUM_INIT(shuttle_added, /decl/observ/shuttle_added, new)
+GLOBAL_TYPED_NEW(shuttle_added, /singleton/observ/shuttle_added)
 
-/decl/observ/shuttle_added
+/singleton/observ/shuttle_added
 	name = "Shuttle Added"
 	expected_type = /datum/shuttle
 

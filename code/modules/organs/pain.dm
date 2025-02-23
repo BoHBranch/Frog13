@@ -10,7 +10,7 @@
 // power decides how much painkillers will stop the message
 // force means it ignores anti-spam timer
 /mob/living/carbon/proc/custom_pain(message, power, force, obj/item/organ/external/affecting, nohalloss)
-	if(!message || stat || !can_feel_pain() || chem_effects[CE_PAINKILLER] > power)
+	if(stat || !can_feel_pain() || chem_effects[CE_PAINKILLER] > power)
 		return 0
 
 	power -= chem_effects[CE_PAINKILLER]/2	//Take the edge off.
@@ -18,14 +18,14 @@
 	// Excessive halloss is horrible, just give them enough to make it visible.
 	if(!nohalloss && power)
 		if(affecting)
-			affecting.add_pain(Ceil(power/2))
+			affecting.add_pain(ceil(power/2))
 		else
-			adjustHalLoss(Ceil(power/2))
+			adjustHalLoss(ceil(power/2))
 
 	flash_pain(min(round(2*power)+55, 255))
 
 	// Anti message spam checks
-	if(force || (message != last_pain_message) || (world.time >= next_pain_time))
+	if(message && (force || (message != last_pain_message) || (world.time >= next_pain_time)))
 		last_pain_message = message
 		custom_pain_emote(message, power)
 
@@ -35,13 +35,13 @@
 /// Handles displaying emotes for `custom_pain()`. Separated into its own proc to account for subtype overrides.
 /mob/living/carbon/proc/custom_pain_emote(message, power)
 	if(power >= 70)
-		to_chat(src, "<span class='danger'><font size=3>[message]</font></span>")
+		to_chat(src, SPAN_DANGER(FONT_LARGE(message)))
 	else if(power >= 40)
-		to_chat(src, "<span class='danger'><font size=2>[message]</font></span>")
+		to_chat(src, SPAN_DANGER(FONT_NORMAL(message)))
 	else if(power >= 10)
-		to_chat(src, "<span class='danger'>[message]</span>")
+		to_chat(src, SPAN_DANGER(message))
 	else
-		to_chat(src, "<span class='warning'>[message]</span>")
+		to_chat(src, SPAN_WARNING(message))
 
 
 // Separated out as only human subtypes define `species`
@@ -49,7 +49,7 @@
 	. = ..()
 	var/force_emote = species.get_pain_emote(src, power)
 	if(force_emote && prob(power))
-		var/decl/emote/use_emote = usable_emotes[force_emote]
+		var/singleton/emote/use_emote = usable_emotes[force_emote]
 		if(!(use_emote.message_type == AUDIBLE_MESSAGE && silent))
 			emote(force_emote)
 

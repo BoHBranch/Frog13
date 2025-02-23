@@ -50,7 +50,7 @@
 
 /datum/preferences/proc/setup()
 	if(!length(GLOB.skills))
-		decls_repository.get_decl(/decl/hierarchy/skill)
+		GET_SINGLETON(/singleton/hierarchy/skill)
 	player_setup = new(src)
 	gender = pick(MALE, FEMALE)
 	real_name = random_name(gender,species)
@@ -136,10 +136,10 @@
 		dat += "Loading your savefile failed. Please adminhelp for assistance."
 	else
 		dat += "Slot - "
-		dat += "<a href='?src=\ref[src];load=1'>Load slot</a> - "
-		dat += "<a href='?src=\ref[src];save=1'>Save slot</a> - "
-		dat += "<a href='?src=\ref[src];resetslot=1'>Reset slot</a> - "
-		dat += "<a href='?src=\ref[src];reload=1'>Reload slot</a>"
+		dat += "<a href='byond://?src=\ref[src];load=1'>Load slot</a> - "
+		dat += "<a href='byond://?src=\ref[src];save=1'>Save slot</a> - "
+		dat += "<a href='byond://?src=\ref[src];resetslot=1'>Reset slot</a> - "
+		dat += "<a href='byond://?src=\ref[src];reload=1'>Reload slot</a>"
 
 	dat += "<br>"
 	dat += player_setup.header()
@@ -174,7 +174,7 @@
 		if(config.forum_url)
 			send_link(user, config.forum_url)
 		else
-			to_chat(user, "<span class='danger'>The forum URL is not set in the server configuration.</span>")
+			to_chat(user, SPAN_DANGER("The forum URL is not set in the server configuration."))
 			return
 	update_setup_window(usr)
 	return 1
@@ -230,6 +230,7 @@
 	character.fully_replace_character_name(real_name)
 
 	character.gender = gender
+	character.pronouns = pronouns
 	character.age = age
 	character.b_type = b_type
 
@@ -358,6 +359,18 @@
 	character.gen_record = gen_record
 	character.exploit_record = exploit_record
 
+	if(LAZYLEN(picked_traits))
+		for (var/picked_type as anything in picked_traits)
+			var/singleton/trait/selected = GET_SINGLETON(picked_type)
+			if (!selected || !istype(selected))
+				continue
+			if (length(selected.metaoptions))
+				var/list/temp_list = picked_traits[picked_type]
+				for (var/meta_option in temp_list)
+					character.SetTrait(picked_type, temp_list[meta_option], meta_option)
+			else
+				character.SetTrait(picked_type, picked_traits[picked_type])
+
 	if(LAZYLEN(character.descriptors))
 		for(var/entry in body_descriptors)
 			character.descriptors[entry] = body_descriptors[entry]
@@ -372,11 +385,13 @@
 	dat += "<tt><center>"
 
 	dat += "<b>Select a character slot to load</b><hr>"
-	for(var/i=1, i<= config.character_slots, i++)
-		var/name = (slot_names && slot_names[get_slot_key(i)]) || "Character[i]"
-		if(i==default_slot)
+	for(var/i = 1 to config.character_slots)
+		var/name = slot_names?[get_slot_key(i)]
+		if (!name)
+			name = "Character [i]"
+		if (i == default_slot)
 			name = "<b>[name]</b>"
-		dat += "<a href='?src=\ref[src];changeslot=[i];[details?"details=1":""]'>[name]</a><br>"
+		dat += "<a href='byond://?src=\ref[src];changeslot=[i];[details?"details=1":""]'>[name]</a><br>"
 
 	dat += "<hr>"
 	dat += "</center></tt>"
@@ -437,7 +452,7 @@
 		priority = selected_jobs_assoc(priority)
 	for (var/title in priority)
 		var/datum/job/job = priority[title]
-		.[title] = callback.Invoke(job)
+		.[title] = invoke(callback, job)
 
 /datum/preferences/proc/for_each_selected_job_multi(list/callbacks, priority = JOB_PRIORITY_LIKELY)
 	. = list()
@@ -452,7 +467,7 @@
 		priority = selected_branches_assoc(priority)
 	for (var/name in priority)
 		var/datum/mil_branch/branch = priority[name]
-		.[name] = callback.Invoke(branch)
+		.[name] = invoke(callback, branch)
 
 /datum/preferences/proc/for_each_selected_branch_multi(list/callbacks, priority = JOB_PRIORITY_LIKELY)
 	. = list()

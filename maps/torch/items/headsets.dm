@@ -6,8 +6,7 @@
 	ks1type = /obj/item/device/encryptionkey/science
 
 /obj/item/device/radio/headset/science/alt
-	name = "research headset"
-	desc = "A headset for researchers."
+	name = "research bowman headset"
 	icon_state = "sci_headset_alt"
 	item_state = "sci_headset_alt"
 
@@ -89,6 +88,19 @@
 	icon_state = "cargo_headset_alt"
 	max_keys = 3
 
+/obj/item/device/radio/headset/headset_chief_steward
+	name = "chief steward's radio headset"
+	desc = "The headset of the menu maker."
+	icon_state = "srv_headset"
+	item_state = "headset"
+	ks1type = /obj/item/device/encryptionkey/headset_chief_steward
+
+/obj/item/device/radio/headset/headset_chief_steward/alt
+	name = "chief steward's bowman headset"
+	icon_state = "srv_headset_alt"
+	item_state = "headset"
+	max_keys = 3
+
 /obj/item/device/radio/headset/sea
 	name = "senior enlisted advisor's headset"
 	desc = "A headset for the guy or gal who advises the enlisted whilst from a position of seniority."
@@ -139,10 +151,11 @@
 	item_state = "exp_headset_alt"
 
 /obj/item/device/radio/headset/headset_cargo
-	desc = "A headset used by the Deck Chief and his slaves."
+	desc = "A headset used by the hangar dwellers."
+	ks1type = /obj/item/device/encryptionkey/headset_deck
 
 /obj/item/device/radio/headset/headset_cargo/alt
-	desc = "A bowman headset used by the Deck Chief and his slaves."
+	desc = "A bowman headset used by the hangar dwellers."
 
 /obj/item/device/radio/headset/headset_corpsman
 	name = "medical headset"

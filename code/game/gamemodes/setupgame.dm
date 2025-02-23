@@ -6,7 +6,7 @@
 // The name is used on /vg/ for species with predefined genetic traits,
 //  and for the DNA panel in the player panel.
 /proc/getAssignedBlock(name,list/blocksLeft, activity_bounds=DNA_DEFAULT_BOUNDS)
-	if(blocksLeft.len==0)
+	if(length(blocksLeft)==0)
 		warning("[name]: No more blocks left to assign!")
 		return 0
 	var/assigned = pick(blocksLeft)
@@ -33,7 +33,7 @@
 	// Standard muts, imported from older code above.
 	GLOB.BLINDBLOCK         = getAssignedBlock("BLINDED",         numsToAssign)
 	GLOB.DEAFBLOCK          = getAssignedBlock("DEAFENED",          numsToAssign)
-	GLOB.HULKBLOCK          = getAssignedBlock("HULK",          numsToAssign, DNA_HARD_BOUNDS)
+	GLOB.FERALBLOCK         = getAssignedBlock("FERAL",         numsToAssign, DNA_HARD_BOUNDS)
 	GLOB.TELEBLOCK          = getAssignedBlock("TELE",          numsToAssign, DNA_HARD_BOUNDS)
 	GLOB.FIREBLOCK          = getAssignedBlock("FIRE",          numsToAssign, DNA_HARDER_BOUNDS)
 	GLOB.XRAYBLOCK          = getAssignedBlock("XRAY",          numsToAssign, DNA_HARDER_BOUNDS)

@@ -1,5 +1,5 @@
 /mob/living
-	var/decl/maneuver/prepared_maneuver
+	var/singleton/maneuver/prepared_maneuver
 	var/list/available_maneuvers = list()
 
 /mob/living/begin_falling(lastloc, below)
@@ -7,7 +7,7 @@
 		return
 	if(!can_fall(location_override = lastloc) && prepared_maneuver && prepared_maneuver.can_be_used_by(src, silent = TRUE))
 		var/turf/check = get_turf(lastloc)
-		for(var/i = 1 to Ceil((get_jump_distance() * get_acrobatics_multiplier()) * prepared_maneuver.reflexive_modifier))
+		for(var/i = 1 to ceil((get_jump_distance() * get_acrobatics_multiplier()) * prepared_maneuver.reflexive_modifier))
 			var/turf/next_check = get_step(check, dir)
 			if(!next_check || next_check.density)
 				break
@@ -15,7 +15,7 @@
 			if(!can_fall(location_override = check))
 				break
 		if(check && check != loc)
-			addtimer(CALLBACK(src, /mob/living/proc/reflexive_maneuver_callback, lastloc, check), 0)
+			addtimer(new Callback(src, PROC_REF(reflexive_maneuver_callback), lastloc, check), 0)
 		return
 	. = ..()
 
@@ -36,7 +36,7 @@
 
 	var/list/maneuvers = list()
 	for(var/maneuver in available_maneuvers)
-		maneuvers += decls_repository.get_decl(maneuver)
+		maneuvers += GET_SINGLETON(maneuver)
 
 	var/next_maneuver = input(src, "Select a maneuver.") as null|anything in maneuvers
 	if(next_maneuver)
@@ -47,14 +47,14 @@
 		to_chat(src, SPAN_NOTICE("You are no longer preparing to perform a maneuver."))
 
 /mob/living/proc/perform_maneuver(maneuver, atom/target)
-	var/decl/maneuver/performing_maneuver = ispath(maneuver) ? decls_repository.get_decl(maneuver) : maneuver
+	var/singleton/maneuver/performing_maneuver = ispath(maneuver) ? GET_SINGLETON(maneuver) : maneuver
 	if(istype(performing_maneuver))
 		. = performing_maneuver.perform(src, target, get_acrobatics_multiplier(performing_maneuver))
 
-/mob/living/proc/get_acrobatics_multiplier(decl/maneuver/attempting_maneuver)
+/mob/living/proc/get_acrobatics_multiplier(singleton/maneuver/attempting_maneuver)
 	return 1
 
-/mob/living/proc/can_do_maneuver(decl/maneuver/maneuver, silent = FALSE)
+/mob/living/proc/can_do_maneuver(singleton/maneuver/maneuver, silent = FALSE)
 	. = ((istype(maneuver) ? maneuver.type : maneuver) in available_maneuvers)
 
 /mob/living/proc/get_jump_distance()

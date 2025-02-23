@@ -27,7 +27,7 @@ GLOBAL_LIST(hazard_overlays)
 			return
 		var/obj/machinery/door/airlock/airlock = locate(/obj/machinery/door/airlock) in T
 		if(airlock)
-			afterattack(airlock, null, TRUE)
+			use_after(airlock, null)
 		return INITIALIZE_HINT_QDEL
 
 var/global/list/tape_roll_applications = list()
@@ -48,7 +48,7 @@ var/global/list/tape_roll_applications = list()
 
 /obj/item/tape/on_update_icon()
 	//Possible directional bitflags: 0 (AIRLOCK), 1 (NORTH), 2 (SOUTH), 4 (EAST), 8 (WEST), 3 (VERTICAL), 12 (HORIZONTAL)
-	overlays.Cut()
+	ClearOverlays()
 	var/new_state
 	switch (tape_dir)
 		if(0)  // AIRLOCK
@@ -64,7 +64,7 @@ var/global/list/tape_roll_applications = list()
 	if(detail_overlay)
 		var/image/I = overlay_image(icon, "[new_state]_[detail_overlay]", flags=RESET_COLOR)
 		I.color = detail_color
-		overlays |= I
+		AddOverlays(I)
 
 /obj/item/taperoll/police
 	name = "police tape"
@@ -112,13 +112,13 @@ var/global/list/tape_roll_applications = list()
 	name = "research tape"
 	desc = "A roll of research tape used to block off working areas from the public."
 	tape_type = /obj/item/tape/research
-	color = COLOR_WHITE
+	color = COLOR_RESEARCH
 
 /obj/item/tape/research
 	name = "research tape"
 	desc = "A length of research tape. Better not cross it."
 	req_access = list(access_research)
-	color = COLOR_WHITE
+	color = COLOR_RESEARCH
 
 /obj/item/taperoll/medical
 	name = "medical tape"
@@ -149,7 +149,7 @@ var/global/list/tape_roll_applications = list()
 	detail_color = COLOR_RED
 
 /obj/item/taperoll/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 	var/image/overlay = image(icon = src.icon)
 	overlay.appearance_flags = DEFAULT_APPEARANCE_FLAGS | RESET_COLOR
 	if(ismob(loc))
@@ -157,7 +157,7 @@ var/global/list/tape_roll_applications = list()
 			overlay.icon_state = "start"
 		else
 			overlay.icon_state = "stop"
-		overlays += overlay
+		AddOverlays(overlay)
 
 /obj/item/taperoll/dropped(mob/user)
 	update_icon()
@@ -174,14 +174,14 @@ var/global/list/tape_roll_applications = list()
 /obj/item/taperoll/attack_self(mob/user as mob)
 	if(!start)
 		start = get_turf(src)
-		to_chat(usr, "<span class='notice'>You place the first end of \the [src].</span>")
+		to_chat(usr, SPAN_NOTICE("You place the first end of \the [src]."))
 		update_icon()
 	else
 		end = get_turf(src)
 		if(start.y != end.y && start.x != end.x || start.z != end.z)
 			start = null
 			update_icon()
-			to_chat(usr, "<span class='notice'>\The [src] can only be laid horizontally or vertically.</span>")
+			to_chat(usr, SPAN_NOTICE("\The [src] can only be laid horizontally or vertically."))
 			return
 
 		if(start == end)
@@ -199,7 +199,7 @@ var/global/list/tape_roll_applications = list()
 			if(!possible_dirs)
 				start = null
 				update_icon()
-				to_chat(usr, "<span class='notice'>You can't place \the [src] here.</span>")
+				to_chat(usr, SPAN_NOTICE("You can't place \the [src] here."))
 				return
 			if(possible_dirs & (NORTH|SOUTH))
 				var/obj/item/tape/TP = new tape_type(start)
@@ -217,7 +217,7 @@ var/global/list/tape_roll_applications = list()
 				TP.update_icon()
 			start = null
 			update_icon()
-			to_chat(usr, "<span class='notice'>You finish placing \the [src].</span>")
+			to_chat(usr, SPAN_NOTICE("You finish placing \the [src]."))
 			return
 
 		var/turf/cur = start
@@ -244,7 +244,7 @@ var/global/list/tape_roll_applications = list()
 		if (!can_place)
 			start = null
 			update_icon()
-			to_chat(usr, "<span class='warning'>You can't run \the [src] through that!</span>")
+			to_chat(usr, SPAN_WARNING("You can't run \the [src] through that!"))
 			return
 
 		cur = start
@@ -283,37 +283,37 @@ var/global/list/tape_roll_applications = list()
 			cur = get_step_towards(cur,end)
 		start = null
 		update_icon()
-		to_chat(usr, "<span class='notice'>You finish placing \the [src].</span>")
+		to_chat(usr, SPAN_NOTICE("You finish placing \the [src]."))
 		return
 
-/obj/item/taperoll/afterattack(atom/A, mob/user as mob, proximity)
-	if(!proximity)
-		return
-
+/obj/item/taperoll/use_before(atom/A, mob/living/user, click_parameters)
 	if (istype(A, /obj/machinery/door/airlock))
 		var/turf/T = get_turf(A)
 		var/obj/item/tape/P = new tape_type(T)
 		P.add_fingerprint(user)
 		P.update_icon()
 		P.layer = ABOVE_DOOR_LAYER
-		to_chat(user, "<span class='notice'>You finish placing \the [src].</span>")
+		to_chat(user, SPAN_NOTICE("You finish placing \the [src]."))
+		return TRUE
 
-	if (istype(A, /turf/simulated/floor) ||istype(A, /turf/unsimulated/floor))
+	if (istype(A, /turf/simulated/floor) || istype(A, /turf/unsimulated/floor))
 		var/turf/F = A
 		var/direction = user.loc == F ? user.dir : turn(user.dir, 180)
 		var/hazard_overlay = GLOB.hazard_overlays["[direction]"]
-		if(tape_roll_applications[F] == null)
+		if(isnull(tape_roll_applications[F]))
 			tape_roll_applications[F] = 0
 
-		if(tape_roll_applications[F] & direction) // hazard_overlay in F.overlays wouldn't work.
+		if(tape_roll_applications[F] & direction)
 			user.visible_message("\The [user] uses the adhesive of \the [src] to remove area markings from \the [F].", "You use the adhesive of \the [src] to remove area markings from \the [F].")
-			F.overlays -= hazard_overlay
+			F.CutOverlays(hazard_overlay)
 			tape_roll_applications[F] &= ~direction
 		else
 			user.visible_message("\The [user] applied \the [src] on \the [F] to create area markings.", "You apply \the [src] on \the [F] to create area markings.")
-			F.overlays |= hazard_overlay
+			F.AddOverlays(hazard_overlay)
 			tape_roll_applications[F] |= direction
-		return
+		return TRUE
+
+	return ..()
 
 /obj/item/tape/proc/crumple()
 	if(!crumpled)
@@ -326,18 +326,20 @@ var/global/list/tape_roll_applications = list()
 		var/mob/M = mover
 		add_fingerprint(M)
 		if (!allowed(M))	//only select few learn art of not crumpling the tape
-			to_chat(M, "<span class='warning'>You are not supposed to go past [src]...</span>")
+			to_chat(M, SPAN_WARNING("You are not supposed to go past [src]..."))
 			if(M.a_intent == I_HELP)
 				return 0
 			crumple()
 	return ..(mover)
 
-/obj/item/tape/attackby(obj/item/W as obj, mob/user as mob)
+/obj/item/tape/use_tool(obj/item/item, mob/living/user, list/click_params)
+	if (user.a_intent == I_HELP)
+		return ..()
 	breaktape(user)
 
 /obj/item/tape/attack_hand(mob/user as mob)
 	if (user.a_intent == I_HELP && src.allowed(user))
-		user.show_viewers("<span class='notice'>\The [user] lifts \the [src], allowing passage.</span>")
+		user.show_viewers(SPAN_NOTICE("\The [user] lifts \the [src], allowing passage."))
 		for(var/obj/item/tape/T in gettapeline())
 			T.lift(100) //~10 seconds
 	else
@@ -381,9 +383,9 @@ var/global/list/tape_roll_applications = list()
 
 /obj/item/tape/proc/breaktape(mob/user)
 	if(user.a_intent == I_HELP)
-		to_chat(user, "<span class='warning'>You refrain from breaking \the [src].</span>")
+		to_chat(user, SPAN_WARNING("You refrain from breaking \the [src]."))
 		return
-	user.visible_message("<span class='notice'>\The [user] breaks \the [src]!</span>","<span class='notice'>You break \the [src].</span>")
+	user.visible_message(SPAN_NOTICE("\The [user] breaks \the [src]!"),SPAN_NOTICE("You break \the [src]."))
 
 	for (var/obj/item/tape/T in gettapeline())
 		if(T == src)

@@ -9,10 +9,10 @@
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(src)
 	stunned = 1
 	icon = null
-	set_invisibility(101)
+	set_invisibility(INVISIBILITY_ABSTRACT)
 	for(var/t in organs)
 		qdel(t)
-	var/atom/movable/overlay/animation = new /atom/movable/overlay(src)
+	var/atom/movable/fake_overlay/animation = new /atom/movable/fake_overlay(src)
 	animation.icon_state = "blank"
 	animation.icon = 'icons/mob/mob.dmi'
 	flick("h2monkey", animation)
@@ -58,7 +58,7 @@
 		drop_from_inventory(W)
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(src)
 	icon = null
-	set_invisibility(101)
+	set_invisibility(INVISIBILITY_ABSTRACT)
 	return ..()
 
 /mob/proc/AIize(move=1)
@@ -79,24 +79,27 @@
 
 	if(move)
 		var/obj/loc_landmark
-		for(var/obj/effect/landmark/start/sloc in landmarks_list)
+		for(var/obj/landmark/start/sloc in landmarks_list)
 			if (sloc.name != "AI")
 				continue
 			if (locate(/mob/living) in sloc.loc)
 				continue
 			loc_landmark = sloc
 		if (!loc_landmark)
-			for(var/obj/effect/landmark/tripai in landmarks_list)
+			for(var/obj/landmark/tripai in landmarks_list)
 				if (tripai.name == "tripai")
 					if((locate(/mob/living) in tripai.loc) || (locate(/obj/structure/AIcore) in tripai.loc))
 						continue
 					loc_landmark = tripai
 		if (!loc_landmark)
 			to_chat(O, "Oh god sorry we can't find an unoccupied AI spawn location, so we're spawning you on top of someone.")
-			for(var/obj/effect/landmark/start/sloc in landmarks_list)
+			for(var/obj/landmark/start/sloc in landmarks_list)
 				if (sloc.name == "AI")
 					loc_landmark = sloc
-		O.forceMove(loc_landmark.loc)
+		if (!loc_landmark)
+			to_chat(O, SPAN_DEBUG("We still failed to find a AI spawn location. Where you're standing is now you're new home."))
+		else
+			O.forceMove(loc_landmark.loc)
 		O.on_mob_init()
 
 	O.add_ai_verbs()
@@ -116,7 +119,7 @@
 	regenerate_icons()
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(src)
 	icon = null
-	set_invisibility(101)
+	set_invisibility(INVISIBILITY_ABSTRACT)
 	for(var/t in organs)
 		qdel(t)
 
@@ -133,6 +136,11 @@
 			if(mmi_type)
 				O.mmi = new mmi_type(O)
 				O.mmi.transfer_identity(src)
+		if(O.mind.assigned_job && O.mind.assigned_job.faction)
+			O.faction = O.mind.assigned_job.faction
+			O.mind.faction = O.mind.assigned_job.faction
+		else
+			O.mind.faction = faction
 	else
 		O.key = key
 
@@ -152,7 +160,7 @@
 	regenerate_icons()
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(src)
 	icon = null
-	set_invisibility(101)
+	set_invisibility(INVISIBILITY_ABSTRACT)
 	for(var/t in organs)
 		qdel(t)
 
@@ -185,7 +193,7 @@
 	regenerate_icons()
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(src)
 	icon = null
-	set_invisibility(101)
+	set_invisibility(INVISIBILITY_ABSTRACT)
 	for(var/t in organs)	//this really should not be necessary
 		qdel(t)
 
@@ -203,7 +211,7 @@
 	var/mobpath = input("Which type of mob should [src] turn into?", "Choose a type") in mobtypes
 
 	if(!safe_animal(mobpath))
-		to_chat(usr, "<span class='warning'>Sorry but this mob type is currently unavailable.</span>")
+		to_chat(usr, SPAN_WARNING("Sorry but this mob type is currently unavailable."))
 		return
 
 	if(HAS_TRANSFORMATION_MOVEMENT_HANDLER(src))
@@ -214,7 +222,7 @@
 	regenerate_icons()
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(src)
 	icon = null
-	set_invisibility(101)
+	set_invisibility(INVISIBILITY_ABSTRACT)
 
 	for(var/t in organs)
 		qdel(t)
@@ -236,7 +244,7 @@
 	var/mobpath = input("Which type of mob should [src] turn into?", "Choose a type") in mobtypes
 
 	if(!safe_animal(mobpath))
-		to_chat(usr, "<span class='warning'>Sorry but this mob type is currently unavailable.</span>")
+		to_chat(usr, SPAN_WARNING("Sorry but this mob type is currently unavailable."))
 		return
 
 	var/mob/new_mob = new mobpath(src.loc)
@@ -275,7 +283,7 @@
 		return 1
 	if(ispath(MP, /mob/living/simple_animal/passive/corgi))
 		return 1
-	if(ispath(MP, /mob/living/simple_animal/crab))
+	if(ispath(MP, /mob/living/simple_animal/passive/crab))
 		return 1
 	if(ispath(MP, /mob/living/simple_animal/hostile/carp))
 		return 1

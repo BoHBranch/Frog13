@@ -1,4 +1,4 @@
-/decl/environment_data
+/singleton/environment_data
 	var/list/important_gasses = list(
 		GAS_OXYGEN =         TRUE,
 		GAS_NITROGEN =       TRUE,
@@ -53,8 +53,8 @@
 
 /obj/machinery/alarm
 	name = "alarm"
-	icon = 'icons/obj/monitors.dmi'
-	icon_state = "alarm0"
+	icon = 'icons/obj/machines/airalarm.dmi'
+	icon_state = "alarmp"
 	anchored = TRUE
 	idle_power_usage = 80
 	active_power_usage = 1000 //For heating/cooling rooms. 1000 joules equates to about 1 degree every 2 seconds for a single tile of air.
@@ -101,20 +101,20 @@
 	var/co2_dangerlevel = 0
 	var/temperature_dangerlevel = 0
 	var/other_dangerlevel = 0
-	var/environment_type = /decl/environment_data
+	var/environment_type = /singleton/environment_data
 	var/report_danger_level = 1
 
 /obj/machinery/alarm/cold
 	target_temperature = T0C+4
 
-/decl/environment_data/finnish/Initialize()
+/singleton/environment_data/finnish/Initialize()
 	. = ..()
 	important_gasses[GAS_STEAM] = TRUE
 	dangerous_gasses -= GAS_STEAM
 
 /obj/machinery/alarm/warm
 	target_temperature = T0C+75
-	environment_type = /decl/environment_data/finnish
+	environment_type = /singleton/environment_data/finnish
 
 /obj/machinery/alarm/warm/Initialize()
 	. = ..()
@@ -167,7 +167,7 @@
 	TLV["temperature"] =	list(T0C-26, T0C, T0C+40, T0C+66) // K
 
 
-	var/decl/environment_data/env_info = decls_repository.get_decl(environment_type)
+	var/singleton/environment_data/env_info = GET_SINGLETON(environment_type)
 	for(var/g in gas_data.gases)
 		if(!env_info.important_gasses[g])
 			trace_gas += g
@@ -321,7 +321,7 @@
 //disables breach detection temporarily
 /obj/machinery/alarm/proc/breach_start_cooldown()
 	breach_cooldown = TRUE
-	addtimer(CALLBACK(src,/obj/machinery/alarm/proc/breach_end_cooldown), 10 MINUTES, TIMER_UNIQUE | TIMER_OVERRIDE)
+	addtimer(new Callback(src, PROC_REF(breach_end_cooldown)), 10 MINUTES, TIMER_UNIQUE | TIMER_OVERRIDE)
 	return
 
 /obj/machinery/alarm/proc/get_danger_level(current_value, list/danger_levels)
@@ -332,6 +332,8 @@
 	return 0
 
 /obj/machinery/alarm/on_update_icon()
+	ClearOverlays()
+	icon_state = "alarmp"
 	if(wiresexposed)
 		icon_state = "alarmx"
 		set_light(0)
@@ -348,14 +350,15 @@
 	var/new_color = null
 	switch(icon_level)
 		if (0)
-			icon_state = "alarm0"
 			new_color = COLOR_LIME
 		if (1)
-			icon_state = "alarm2" //yes, alarm2 is yellow alarm
 			new_color = COLOR_SUN
 		if (2)
-			icon_state = "alarm1"
 			new_color = COLOR_RED_LIGHT
+	AddOverlays(list(
+		emissive_appearance(icon, "alarm[icon_level]"),
+		image(icon, "alarm[icon_level]")
+	))
 
 	pixel_x = 0
 	pixel_y = 0
@@ -370,7 +373,7 @@
 		else if(dir == EAST)
 			pixel_x = -21
 
-	set_light(0.25, 0.1, 1, 2, new_color)
+	set_light(2, 0.25, new_color)
 
 /obj/machinery/alarm/receive_signal(datum/signal/signal)
 	if(!signal || signal.encryption)
@@ -398,10 +401,10 @@
 /obj/machinery/alarm/proc/register_env_machine(m_id, device_type)
 	var/new_name
 	if (device_type=="AVP")
-		new_name = "[alarm_area.name] Vent Pump #[alarm_area.air_vent_names.len+1]"
+		new_name = "[alarm_area.name] Vent Pump #[length(alarm_area.air_vent_names)+1]"
 		alarm_area.air_vent_names[m_id] = new_name
 	else if (device_type=="AScr")
-		new_name = "[alarm_area.name] Air Scrubber #[alarm_area.air_scrub_names.len+1]"
+		new_name = "[alarm_area.name] Air Scrubber #[length(alarm_area.air_scrub_names)+1]"
 		alarm_area.air_scrub_names[m_id] = new_name
 	send_signal(m_id, list("init" = new_name) )
 
@@ -533,10 +536,10 @@
 	data["has_environment"] = total
 	if(total)
 		var/pressure = environment.return_pressure()
-		environment_data[++environment_data.len] = list("name" = "Pressure", "value" = pressure, "unit" = "kPa", "danger_level" = pressure_dangerlevel)
-		var/decl/environment_data/env_info = decls_repository.get_decl(environment_type)
+		environment_data[LIST_PRE_INC(environment_data)] = list("name" = "Pressure", "value" = pressure, "unit" = "kPa", "danger_level" = pressure_dangerlevel)
+		var/singleton/environment_data/env_info = GET_SINGLETON(environment_type)
 		for(var/gas_id in env_info.important_gasses)
-			environment_data[++environment_data.len] = list(
+			environment_data[LIST_PRE_INC(environment_data)] = list(
 				"name" =  gas_data.name[gas_id],
 				"value" = environment.gas[gas_id] / total * 100,
 				"unit" = "%",
@@ -545,13 +548,13 @@
 		var/other_moles = 0
 		for(var/g in trace_gas)
 			other_moles += environment.gas[g]
-		environment_data[++environment_data.len] = list("name" = "Other Gases", "value" = other_moles / total * 100, "unit" = "%", "danger_level" = other_dangerlevel)
+		environment_data[LIST_PRE_INC(environment_data)] = list("name" = "Other Gases", "value" = other_moles / total * 100, "unit" = "%", "danger_level" = other_dangerlevel)
 
-		environment_data[++environment_data.len] = list("name" = "Temperature", "value" = environment.temperature, "unit" = "K ([round(environment.temperature - T0C, 0.1)]C)", "danger_level" = temperature_dangerlevel)
+		environment_data[LIST_PRE_INC(environment_data)] = list("name" = "Temperature", "value" = environment.temperature, "unit" = "K ([round(environment.temperature - T0C, 0.1)]C)", "danger_level" = temperature_dangerlevel)
 	data["total_danger"] = danger_level
 	data["environment"] = environment_data
 	data["atmos_alarm"] = alarm_area.atmosalm
-	data["fire_alarm"] = alarm_area.fire != null
+	data["fire_alarm"] = alarm_area.fire
 	data["target_temperature"] = "[target_temperature - T0C]C"
 
 /obj/machinery/alarm/proc/populate_controls(list/data)
@@ -565,7 +568,7 @@
 				var/list/info = alarm_area.air_vent_info[id_tag]
 				if(!info)
 					continue
-				vents[++vents.len] = list(
+				vents[LIST_PRE_INC(vents)] = list(
 						"id_tag"	= id_tag,
 						"long_name" = sanitize(long_name),
 						"power"		= info["power"],
@@ -581,7 +584,7 @@
 				var/list/info = alarm_area.air_scrub_info[id_tag]
 				if(!info)
 					continue
-				scrubbers[++scrubbers.len] = list(
+				scrubbers[LIST_PRE_INC(scrubbers)] = list(
 						"id_tag"	= id_tag,
 						"long_name" = sanitize(long_name),
 						"power"		= info["power"],
@@ -589,9 +592,9 @@
 						"panic"		= info["panic"],
 						"filters"	= list()
 					)
-				var/decl/environment_data/env_info = decls_repository.get_decl(environment_type)
+				var/singleton/environment_data/env_info = GET_SINGLETON(environment_type)
 				for(var/gas_id in env_info.filter_gasses)
-					scrubbers[scrubbers.len]["filters"] += list(
+					scrubbers[length(scrubbers)]["filters"] += list(
 						list(
 							"name" = gas_data.name[gas_id],
 							"id"   = gas_id,
@@ -602,12 +605,12 @@
 			data["scrubbers"] = scrubbers
 		if(AALARM_SCREEN_MODE)
 			var/modes[0]
-			modes[++modes.len] = list("name" = "Filtering - Scrubs out contaminants", 			"mode" = AALARM_MODE_SCRUBBING,		"selected" = mode == AALARM_MODE_SCRUBBING, 	"danger" = 0)
-			modes[++modes.len] = list("name" = "Replace Air - Siphons out air while replacing", "mode" = AALARM_MODE_REPLACEMENT,	"selected" = mode == AALARM_MODE_REPLACEMENT,	"danger" = 0)
-			modes[++modes.len] = list("name" = "Panic - Siphons air out of the room", 			"mode" = AALARM_MODE_PANIC,			"selected" = mode == AALARM_MODE_PANIC, 		"danger" = 1)
-			modes[++modes.len] = list("name" = "Cycle - Siphons air before replacing", 			"mode" = AALARM_MODE_CYCLE,			"selected" = mode == AALARM_MODE_CYCLE, 		"danger" = 1)
-			modes[++modes.len] = list("name" = "Fill - Shuts off scrubbers and opens vents", 	"mode" = AALARM_MODE_FILL,			"selected" = mode == AALARM_MODE_FILL, 			"danger" = 0)
-			modes[++modes.len] = list("name" = "Off - Shuts off vents and scrubbers", 			"mode" = AALARM_MODE_OFF,			"selected" = mode == AALARM_MODE_OFF, 			"danger" = 0)
+			modes[LIST_PRE_INC(modes)] = list("name" = "Filtering - Scrubs out contaminants", 			"mode" = AALARM_MODE_SCRUBBING,		"selected" = mode == AALARM_MODE_SCRUBBING, 	"danger" = 0)
+			modes[LIST_PRE_INC(modes)] = list("name" = "Replace Air - Siphons out air while replacing", "mode" = AALARM_MODE_REPLACEMENT,	"selected" = mode == AALARM_MODE_REPLACEMENT,	"danger" = 0)
+			modes[LIST_PRE_INC(modes)] = list("name" = "Panic - Siphons air out of the room", 			"mode" = AALARM_MODE_PANIC,			"selected" = mode == AALARM_MODE_PANIC, 		"danger" = 1)
+			modes[LIST_PRE_INC(modes)] = list("name" = "Cycle - Siphons air before replacing", 			"mode" = AALARM_MODE_CYCLE,			"selected" = mode == AALARM_MODE_CYCLE, 		"danger" = 1)
+			modes[LIST_PRE_INC(modes)] = list("name" = "Fill - Shuts off scrubbers and opens vents", 	"mode" = AALARM_MODE_FILL,			"selected" = mode == AALARM_MODE_FILL, 			"danger" = 0)
+			modes[LIST_PRE_INC(modes)] = list("name" = "Off - Shuts off vents and scrubbers", 			"mode" = AALARM_MODE_OFF,			"selected" = mode == AALARM_MODE_OFF, 			"danger" = 0)
 			data["modes"] = modes
 			data["mode"] = mode
 		if(AALARM_SCREEN_SENSORS)
@@ -622,20 +625,20 @@
 				GAS_CO2 = "CO<sub>2</sub>",
 				"other"          = "Other")
 			for (var/g in gas_names)
-				thresholds[++thresholds.len] = list("name" = gas_names[g], "settings" = list())
+				thresholds[LIST_PRE_INC(thresholds)] = list("name" = gas_names[g], "settings" = list())
 				selected = TLV[g]
 				for(var/i = 1, i <= 4, i++)
-					thresholds[thresholds.len]["settings"] += list(list("env" = g, "val" = i, "selected" = selected[i]))
+					thresholds[length(thresholds)]["settings"] += list(list("env" = g, "val" = i, "selected" = selected[i]))
 
 			selected = TLV["pressure"]
-			thresholds[++thresholds.len] = list("name" = "Pressure", "settings" = list())
+			thresholds[LIST_PRE_INC(thresholds)] = list("name" = "Pressure", "settings" = list())
 			for(var/i = 1, i <= 4, i++)
-				thresholds[thresholds.len]["settings"] += list(list("env" = "pressure", "val" = i, "selected" = selected[i]))
+				thresholds[length(thresholds)]["settings"] += list(list("env" = "pressure", "val" = i, "selected" = selected[i]))
 
 			selected = TLV["temperature"]
-			thresholds[++thresholds.len] = list("name" = "Temperature", "settings" = list())
+			thresholds[LIST_PRE_INC(thresholds)] = list("name" = "Temperature", "settings" = list())
 			for(var/i = 1, i <= 4, i++)
-				thresholds[thresholds.len]["settings"] += list(list("env" = "temperature", "val" = i, "selected" = selected[i]))
+				thresholds[length(thresholds)]["settings"] += list(list("env" = "temperature", "val" = i, "selected" = selected[i]))
 
 
 			data["thresholds"] = thresholds
@@ -644,8 +647,8 @@
 	if(buildstage != 2)
 		return STATUS_CLOSE
 
-	if(aidisabled && isAI(user))
-		to_chat(user, "<span class='warning'>AI control for \the [src] interface has been disabled.</span>")
+	if(aidisabled && issilicon(user))
+		to_chat(user, SPAN_WARNING("AI control for \the [src] interface has been disabled."))
 		return STATUS_CLOSE
 
 	. = shorted ? STATUS_DISABLED : STATUS_INTERACTIVE
@@ -712,7 +715,7 @@
 					return TOPIC_REFRESH
 
 				if("set_scrub_gas")
-					var/decl/environment_data/env_info = decls_repository.get_decl(environment_type)
+					var/singleton/environment_data/env_info = GET_SINGLETON(environment_type)
 					if(env_info && (href_list["gas_id"] in env_info.filter_gasses))
 						send_signal(device_id, list(href_list["command"] = list(href_list["gas_id"] = text2num(href_list["val"]))) )
 					return TOPIC_REFRESH
@@ -808,71 +811,74 @@
 			apply_mode()
 			return TOPIC_REFRESH
 
-/obj/machinery/alarm/attackby(obj/item/W as obj, mob/user as mob)
+/obj/machinery/alarm/use_tool(obj/item/W, mob/living/user, list/click_params)
 	switch(buildstage)
 		if(2)
-			if(isScrewdriver(W))  // Opening that Air Alarm up.
-//				to_chat(user, "You pop the Air Alarm's maintence panel open.")
+			if (isScrewdriver(W))
 				wiresexposed = !wiresexposed
 				to_chat(user, "The wires have been [wiresexposed ? "exposed" : "unexposed"]")
 				update_icon()
-				return
+				return TRUE
 
 			if (wiresexposed && isWirecutter(W))
-				user.visible_message("<span class='warning'>[user] has cut the wires inside \the [src]!</span>", "You have cut the wires inside \the [src].")
+				user.visible_message(SPAN_WARNING("[user] has cut the wires inside \the [src]!"), "You have cut the wires inside \the [src].")
 				playsound(src.loc, 'sound/items/Wirecutter.ogg', 50, 1)
 				new/obj/item/stack/cable_coil(get_turf(src), 5)
 				buildstage = 1
 				update_icon()
-				return
+				return TRUE
 
-			if (istype(W, /obj/item/card/id) || istype(W, /obj/item/modular_computer))// trying to unlock the interface with an ID card
+			if (isid(W) || istype(W, /obj/item/modular_computer))
 				if(inoperable())
 					to_chat(user, "It does nothing")
-					return
+					return TRUE
+				if(allowed(usr) && !wires.IsIndexCut(AALARM_WIRE_IDSCAN))
+					locked = !locked
+					to_chat(user, SPAN_NOTICE("You [ locked ? "lock" : "unlock"] the Air Alarm interface."))
 				else
-					if(allowed(usr) && !wires.IsIndexCut(AALARM_WIRE_IDSCAN))
-						locked = !locked
-						to_chat(user, "<span class='notice'>You [ locked ? "lock" : "unlock"] the Air Alarm interface.</span>")
-					else
-						to_chat(user, "<span class='warning'>Access denied.</span>")
-			return
+					to_chat(user, SPAN_WARNING("Access denied."))
+				return TRUE
 
 		if(1)
-			if(isCoil(W))
+			if (isCoil(W))
 				var/obj/item/stack/cable_coil/C = W
 				if (C.use(5))
-					to_chat(user, "<span class='notice'>You wire \the [src].</span>")
+					to_chat(user, SPAN_NOTICE("You wire \the [src]."))
 					buildstage = 2
 					update_icon()
-					return
+					return TRUE
 				else
-					to_chat(user, "<span class='warning'>You need 5 pieces of cable to do wire \the [src].</span>")
-					return
+					to_chat(user, SPAN_WARNING("You need 5 pieces of cable to do wire \the [src]."))
+					return TRUE
 
-			else if(isCrowbar(W))
+			if (isCrowbar(W))
 				to_chat(user, "You start prying out the circuit.")
 				playsound(src.loc, 'sound/items/Crowbar.ogg', 50, 1)
-				if(do_after(user, 2 SECONDS, src, DO_REPAIR_CONSTRUCT) && buildstage == 1)
-					to_chat(user, "You pry out the circuit!")
-					var/obj/item/airalarm_electronics/circuit = new /obj/item/airalarm_electronics()
-					circuit.dropInto(user.loc)
-					buildstage = 0
-					update_icon()
-				return
+				if (!do_after(user, (W.toolspeed * 2) SECONDS, src, DO_REPAIR_CONSTRUCT))
+					return TRUE
+
+				to_chat(user, "You pry out the circuit!")
+				var/obj/item/airalarm_electronics/circuit = new /obj/item/airalarm_electronics()
+				circuit.dropInto(user.loc)
+				buildstage = 0
+				update_icon()
+				return TRUE
+
 		if(0)
-			if(istype(W, /obj/item/airalarm_electronics))
+			if (istype(W, /obj/item/airalarm_electronics))
 				to_chat(user, "You insert the circuit!")
 				qdel(W)
 				buildstage = 1
 				update_icon()
-				return
+				return TRUE
 
-			else if(isWrench(W))
+			if (isWrench(W))
 				to_chat(user, "You remove the fire alarm assembly from the wall!")
-				new /obj/item/frame/air_alarm(get_turf(user))
+				var/obj/item/frame/air_alarm/frame = new /obj/item/frame/air_alarm(get_turf(user))
+				transfer_fingerprints_to(frame)
 				playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 				qdel(src)
+				return TRUE
 
 	return ..()
 
@@ -900,7 +906,7 @@ FIRE ALARM
 /obj/machinery/firealarm
 	name = "fire alarm"
 	desc = "<i>\"Pull this in case of emergency\"</i>. Thus, keep pulling it forever."
-	icon = 'icons/obj/firealarm.dmi'
+	icon = 'icons/obj/machines/firealarm.dmi'
 	icon_state = "casing"
 	var/detecting = 1.0
 	var/working = 1.0
@@ -920,7 +926,7 @@ FIRE ALARM
 /obj/machinery/firealarm/examine(mob/user)
 	. = ..()
 	if(loc.z in GLOB.using_map.contact_levels)
-		var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
+		var/singleton/security_state/security_state = GET_SINGLETON(GLOB.using_map.security_state)
 		to_chat(user, "The current alert level is [security_state.current_security_level.name].")
 
 /obj/machinery/firealarm/Initialize()
@@ -933,7 +939,7 @@ FIRE ALARM
 	return overlays_cache[state]
 
 /obj/machinery/firealarm/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 
 	pixel_x = 0
 	pixel_y = 0
@@ -951,28 +957,28 @@ FIRE ALARM
 
 	icon_state = "casing"
 	if(wiresexposed)
-		overlays += get_cached_overlay("b[buildstage]")
+		AddOverlays(get_cached_overlay("b[buildstage]"))
 		set_light(0)
 		return
 
 	if(MACHINE_IS_BROKEN(src))
-		overlays += get_cached_overlay("broken")
+		AddOverlays(get_cached_overlay("broken"))
 		set_light(0)
 	else if(!is_powered())
-		overlays += get_cached_overlay("unpowered")
+		AddOverlays(get_cached_overlay("unpowered"))
 		set_light(0)
 	else
 		if(!detecting)
-			overlays += get_cached_overlay("fire1")
-			set_light(0.25, 0.1, 1, 2, COLOR_RED)
+			AddOverlays(get_cached_overlay("fire1"))
+			set_light(2, 0.25, COLOR_RED)
 		else if(z in GLOB.using_map.contact_levels)
-			var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
-			var/decl/security_level/sl = security_state.current_security_level
+			var/singleton/security_state/security_state = GET_SINGLETON(GLOB.using_map.security_state)
+			var/singleton/security_level/sl = security_state.current_security_level
 
-			set_light(sl.light_max_bright, sl.light_inner_range, sl.light_outer_range, 2, sl.light_color_alarm)
-			overlays += image(sl.icon, sl.overlay_alarm)
+			set_light(sl.light_power, sl.light_range, sl.light_color_alarm)
+			AddOverlays(image(sl.icon, sl.overlay_alarm))
 		else
-			overlays += get_cached_overlay("fire0")
+			AddOverlays(get_cached_overlay("fire0"))
 
 /obj/machinery/firealarm/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(src.detecting)
@@ -988,63 +994,78 @@ FIRE ALARM
 		alarm(rand(30/severity, 60/severity))
 	..()
 
-/obj/machinery/firealarm/attackby(obj/item/W as obj, mob/user as mob)
+/obj/machinery/firealarm/use_tool(obj/item/W, mob/living/user, list/click_params)
+	if ((. = ..()))
+		return
+
 	if(isScrewdriver(W) && buildstage == 2)
 		wiresexposed = !wiresexposed
 		update_icon()
-		return
+		return TRUE
 
 	if(wiresexposed)
 		switch(buildstage)
 			if(2)
 				if(isMultitool(W))
-					src.detecting = !( src.detecting )
-					if (src.detecting)
-						user.visible_message("<span class='notice'>\The [user] has reconnected [src]'s detecting unit!</span>", "<span class='notice'>You have reconnected [src]'s detecting unit.</span>")
-					else
-						user.visible_message("<span class='notice'>\The [user] has disconnected [src]'s detecting unit!</span>", "<span class='notice'>You have disconnected [src]'s detecting unit.</span>")
-				else if(isWirecutter(W))
-					user.visible_message("<span class='notice'>\The [user] has cut the wires inside \the [src]!</span>", "<span class='notice'>You have cut the wires inside \the [src].</span>")
+					detecting = !detecting
+					user.visible_message(
+						SPAN_NOTICE("\The [user] has [detecting? "re" : "dis"]connected \the [src]'s detecting unit!"),
+						SPAN_NOTICE("You have [detecting? "re" : "dis"]connected \the [src]'s detecting unit.")
+					)
+					return TRUE
+
+				if (isWirecutter(W))
+					user.visible_message(
+						SPAN_NOTICE("\The [user] has cut the wires inside \the [src]!"),
+						SPAN_NOTICE("You have cut the wires inside \the [src].")
+					)
 					new/obj/item/stack/cable_coil(get_turf(src), 5)
 					playsound(src.loc, 'sound/items/Wirecutter.ogg', 50, 1)
 					buildstage = 1
 					update_icon()
+					return TRUE
+
 			if(1)
 				if(istype(W, /obj/item/stack/cable_coil))
 					var/obj/item/stack/cable_coil/C = W
 					if (C.use(5))
-						to_chat(user, "<span class='notice'>You wire \the [src].</span>")
+						to_chat(user, SPAN_NOTICE("You wire \the [src]."))
 						buildstage = 2
 						update_icon()
-						return
+						return TRUE
 					else
-						to_chat(user, "<span class='warning'>You need 5 pieces of cable to wire \the [src].</span>")
-						return
-				else if(isCrowbar(W))
+						to_chat(user, SPAN_WARNING("You need 5 pieces of cable to wire \the [src]."))
+						return TRUE
+				if(isCrowbar(W))
 					to_chat(user, "You start prying out the circuit.")
 					playsound(src.loc, 'sound/items/Crowbar.ogg', 50, 1)
-					if (do_after(user, 2 SECONDS, src, DO_REPAIR_CONSTRUCT))
-						to_chat(user, "You pry out the circuit!")
-						var/obj/item/firealarm_electronics/circuit = new /obj/item/firealarm_electronics()
-						circuit.dropInto(user.loc)
-						buildstage = 0
-						update_icon()
+					if (!do_after(user, (W.toolspeed * 2) SECONDS, src, DO_REPAIR_CONSTRUCT))
+						return TRUE
+
+					to_chat(user, "You pry out the circuit!")
+					var/obj/item/firealarm_electronics/circuit = new /obj/item/firealarm_electronics()
+					circuit.dropInto(user.loc)
+					buildstage = 0
+					update_icon()
+					return TRUE
 			if(0)
 				if(istype(W, /obj/item/firealarm_electronics))
 					to_chat(user, "You insert the circuit!")
 					qdel(W)
 					buildstage = 1
 					update_icon()
+					return TRUE
 
-				else if(isWrench(W))
+				if (isWrench(W))
 					to_chat(user, "You remove the fire alarm assembly from the wall!")
 					new /obj/item/frame/fire_alarm(get_turf(user))
 					playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 					qdel(src)
-		return
+					return TRUE
 
-	src.alarm()
-	return
+	to_chat(user, SPAN_WARNING("You fumble with \the [W] and trigger the alarm!"))
+	alarm()
+	return TRUE
 
 /obj/machinery/firealarm/Process()//Note: this processing was mostly phased out due to other code, and only runs when needed
 	if(inoperable())
@@ -1074,38 +1095,36 @@ FIRE ALARM
 	var/d1
 	var/d2
 
-	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
+	var/datum/browser/popup = new(user, "firealarm", "Fire alarm")
+	var/singleton/security_state/security_state = GET_SINGLETON(GLOB.using_map.security_state)
 	if (istype(user, /mob/living/carbon/human) || istype(user, /mob/living/silicon))
 		A = A.loc
 
 		if (A.fire)
-			d1 = text("<A href='?src=\ref[];reset=1'>Reset - Lockdown</A>", src)
+			d1 = text("<A href='byond://?src=\ref[];reset=1'>Reset - Lockdown</A>", src)
 		else
-			d1 = text("<A href='?src=\ref[];alarm=1'>Alarm - Lockdown</A>", src)
+			d1 = text("<A href='byond://?src=\ref[];alarm=1'>Alarm - Lockdown</A>", src)
 		if (src.timing)
-			d2 = text("<A href='?src=\ref[];time=0'>Stop Time Lock</A>", src)
+			d2 = text("<A href='byond://?src=\ref[];time=0'>Stop Time Lock</A>", src)
 		else
-			d2 = text("<A href='?src=\ref[];time=1'>Initiate Time Lock</A>", src)
+			d2 = text("<A href='byond://?src=\ref[];time=1'>Initiate Time Lock</A>", src)
 		var/second = round(src.time) % 60
 		var/minute = (round(src.time) - second) / 60
-		var/dat = "<HTML><HEAD></HEAD><BODY><TT><B>Fire alarm</B> [d1]\n<HR>The current alert level is <b>[security_state.current_security_level.name]</b><br><br>\nTimer System: [d2]<BR>\nTime Left: [(minute ? "[minute]:" : null)][second] <A href='?src=\ref[src];tp=-30'>-</A> <A href='?src=\ref[src];tp=-1'>-</A> <A href='?src=\ref[src];tp=1'>+</A> <A href='?src=\ref[src];tp=30'>+</A>\n</TT></BODY></HTML>"
-		show_browser(user, dat, "window=firealarm")
-		onclose(user, "firealarm")
+		popup.set_content("[d1]\n<HR>The current alert level is <b>[security_state.current_security_level.name]</b><br><br>\nTimer System: [d2]<BR>\nTime Left: [(minute ? "[minute]:" : null)][second] <A href='byond://?src=\ref[src];tp=-30'>-</A> <A href='byond://?src=\ref[src];tp=-1'>-</A> <A href='byond://?src=\ref[src];tp=1'>+</A> <A href='byond://?src=\ref[src];tp=30'>+</A>")
 	else
 		A = A.loc
 		if (A.fire)
-			d1 = text("<A href='?src=\ref[];reset=1'>[]</A>", src, stars("Reset - Lockdown"))
+			d1 = text("<A href='byond://?src=\ref[];reset=1'>[]</A>", src, stars("Reset - Lockdown"))
 		else
-			d1 = text("<A href='?src=\ref[];alarm=1'>[]</A>", src, stars("Alarm - Lockdown"))
+			d1 = text("<A href='byond://?src=\ref[];alarm=1'>[]</A>", src, stars("Alarm - Lockdown"))
 		if (src.timing)
-			d2 = text("<A href='?src=\ref[];time=0'>[]</A>", src, stars("Stop Time Lock"))
+			d2 = text("<A href='byond://?src=\ref[];time=0'>[]</A>", src, stars("Stop Time Lock"))
 		else
-			d2 = text("<A href='?src=\ref[];time=1'>[]</A>", src, stars("Initiate Time Lock"))
+			d2 = text("<A href='byond://?src=\ref[];time=1'>[]</A>", src, stars("Initiate Time Lock"))
 		var/second = round(src.time) % 60
 		var/minute = (round(src.time) - second) / 60
-		var/dat = "<HTML><HEAD></HEAD><BODY><TT><B>[stars("Fire alarm")]</B> [d1]\n<HR>The current security level is <b>[security_state.current_security_level.name]</b><br><br>\nTimer System: [d2]<BR>\nTime Left: [(minute ? text("[]:", minute) : null)][second] <A href='?src=\ref[src];tp=-30'>-</A> <A href='?src=\ref[src];tp=-1'>-</A> <A href='?src=\ref[src];tp=1'>+</A> <A href='?src=\ref[src];tp=30'>+</A>\n</TT></BODY></HTML>"
-		show_browser(user, dat, "window=firealarm")
-		onclose(user, "firealarm")
+		popup.set_content("[d1]\n<HR>The current security level is <b>[security_state.current_security_level.name]</b><br><br>\nTimer System: [d2]<BR>\nTime Left: [(minute ? text("[]:", minute) : null)][second] <A href='byond://?src=\ref[src];tp=-30'>-</A> <A href='byond://?src=\ref[src];tp=-1'>-</A> <A href='byond://?src=\ref[src];tp=1'>+</A> <A href='byond://?src=\ref[src];tp=30'>+</A>\n")
+	popup.open()
 	return
 
 /obj/machinery/firealarm/CanUseTopic(user)
@@ -1189,7 +1208,7 @@ Just a object used in constructing fire alarms
 /obj/machinery/partyalarm
 	name = "\improper PARTY BUTTON"
 	desc = "Cuban Pete is in the house!"
-	icon = 'icons/obj/monitors.dmi'
+	icon = 'icons/obj/machines/firealarm.dmi'
 	icon_state = "fire0"
 	var/detecting = 1.0
 	var/working = 1.0
@@ -1210,35 +1229,33 @@ Just a object used in constructing fire alarms
 	ASSERT(isarea(A))
 	var/d1
 	var/d2
+	var/datum/browser/popup = new(user, "partyalarm", "Party alarm")
 	if (istype(user, /mob/living/carbon/human) || istype(user, /mob/living/silicon/ai))
 
 		if (A.party)
-			d1 = text("<A href='?src=\ref[];reset=1'>No Party :(</A>", src)
+			d1 = text("<A href='byond://?src=\ref[];reset=1'>No Party :(</A>", src)
 		else
-			d1 = text("<A href='?src=\ref[];alarm=1'>PARTY!!!</A>", src)
+			d1 = text("<A href='byond://?src=\ref[];alarm=1'>PARTY!!!</A>", src)
 		if (timing)
-			d2 = text("<A href='?src=\ref[];time=0'>Stop Time Lock</A>", src)
+			d2 = text("<A href='byond://?src=\ref[];time=0'>Stop Time Lock</A>", src)
 		else
-			d2 = text("<A href='?src=\ref[];time=1'>Initiate Time Lock</A>", src)
+			d2 = text("<A href='byond://?src=\ref[];time=1'>Initiate Time Lock</A>", src)
 		var/second = time % 60
 		var/minute = (time - second) / 60
-		var/dat = text("<HTML><HEAD></HEAD><BODY><TT><B>Party Button</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='?src=\ref[];tp=-30'>-</A> <A href='?src=\ref[];tp=-1'>-</A> <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=30'>+</A>\n</TT></BODY></HTML>", d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src)
-		show_browser(user, dat, "window=partyalarm")
-		onclose(user, "partyalarm")
+		popup.set_content(text("<TT><B>Party Button</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='byond://?src=\ref[];tp=-30'>-</A> <A href='byond://?src=\ref[];tp=-1'>-</A> <A href='byond://?src=\ref[];tp=1'>+</A> <A href='byond://?src=\ref[];tp=30'>+</A>\n</TT>", d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src))
 	else
 		if (A.fire)
-			d1 = text("<A href='?src=\ref[];reset=1'>[]</A>", src, stars("No Party :("))
+			d1 = text("<A href='byond://?src=\ref[];reset=1'>[]</A>", src, stars("No Party :("))
 		else
-			d1 = text("<A href='?src=\ref[];alarm=1'>[]</A>", src, stars("PARTY!!!"))
+			d1 = text("<A href='byond://?src=\ref[];alarm=1'>[]</A>", src, stars("PARTY!!!"))
 		if (timing)
-			d2 = text("<A href='?src=\ref[];time=0'>[]</A>", src, stars("Stop Time Lock"))
+			d2 = text("<A href='byond://?src=\ref[];time=0'>[]</A>", src, stars("Stop Time Lock"))
 		else
-			d2 = text("<A href='?src=\ref[];time=1'>[]</A>", src, stars("Initiate Time Lock"))
+			d2 = text("<A href='byond://?src=\ref[];time=1'>[]</A>", src, stars("Initiate Time Lock"))
 		var/second = time % 60
 		var/minute = (time - second) / 60
-		var/dat = text("<HTML><HEAD></HEAD><BODY><TT><B>[]</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='?src=\ref[];tp=-30'>-</A> <A href='?src=\ref[];tp=-1'>-</A> <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=30'>+</A>\n</TT></BODY></HTML>", stars("Party Button"), d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src)
-		show_browser(user, dat, "window=partyalarm")
-		onclose(user, "partyalarm")
+		popup.set_content(text("<TT><B>[]</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='byond://?src=\ref[];tp=-30'>-</A> <A href='byond://?src=\ref[];tp=-1'>-</A> <A href='byond://?src=\ref[];tp=1'>+</A> <A href='byond://?src=\ref[];tp=30'>+</A>\n</TT>", stars("Party Button"), d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src))
+	popup.open()
 	return
 
 /obj/machinery/partyalarm/proc/reset()

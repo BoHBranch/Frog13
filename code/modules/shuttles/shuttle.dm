@@ -6,7 +6,7 @@
 	var/moving_status = SHUTTLE_IDLE
 
 	var/list/shuttle_area //can be both single area type or a list of areas
-	var/obj/effect/shuttle_landmark/current_location //This variable is type-abused initially: specify the landmark_tag, not the actual landmark.
+	var/obj/shuttle_landmark/current_location //This variable is type-abused initially: specify the landmark_tag, not the actual landmark.
 
 	var/arrive_time = 0	//the time at which the shuttle arrives when long jumping
 	var/flags = 0
@@ -29,7 +29,7 @@
 	var/mothershuttle //tag of mothershuttle
 	var/motherdock    //tag of mothershuttle landmark, defaults to starting location
 
-/datum/shuttle/New(_name, obj/effect/shuttle_landmark/initial_location)
+/datum/shuttle/New(_name, obj/shuttle_landmark/initial_location)
 	..()
 	if(_name)
 		src.name = _name
@@ -74,7 +74,7 @@
 
 	. = ..()
 
-/datum/shuttle/proc/short_jump(obj/effect/shuttle_landmark/destination)
+/datum/shuttle/proc/short_jump(obj/shuttle_landmark/destination)
 	if(moving_status != SHUTTLE_IDLE) return
 
 	moving_status = SHUTTLE_WARMUP
@@ -94,10 +94,10 @@
 		attempt_move(destination)
 		moving_status = SHUTTLE_IDLE
 
-/datum/shuttle/proc/long_jump(obj/effect/shuttle_landmark/destination, obj/effect/shuttle_landmark/interim, travel_time)
+/datum/shuttle/proc/long_jump(obj/shuttle_landmark/destination, obj/shuttle_landmark/interim, travel_time)
 	if(moving_status != SHUTTLE_IDLE) return
 
-	var/obj/effect/shuttle_landmark/start_location = current_location
+	var/obj/shuttle_landmark/start_location = current_location
 
 	moving_status = SHUTTLE_WARMUP
 	if(sound_takeoff)
@@ -148,7 +148,7 @@
 * Shuttle Pre Move Handling * (Observer Pattern Implementation: Shuttle Pre Move)
 *****************/
 
-/datum/shuttle/proc/attempt_move(obj/effect/shuttle_landmark/destination)
+/datum/shuttle/proc/attempt_move(obj/shuttle_landmark/destination)
 	if(current_location == destination)
 		return FALSE
 
@@ -166,12 +166,22 @@
 	shuttle_moved(destination, translation)
 	GLOB.shuttle_moved_event.raise_event(src, old_location, destination)
 	destination.shuttle_arrived(src)
+	// + BANDAID
+	// /obj/machinery/proc/area_changed and /proc/translate_turfs cause problems with power cost duplication.
+	var/list/area/retally_areas
+	if (isarea(shuttle_area))
+		retally_areas = list(shuttle_area)
+	else if (islist(shuttle_area))
+		retally_areas = shuttle_area
+	for (var/area/area as anything in retally_areas)
+		area.retally_power()
+	// - BANDAID
 	return TRUE
 
 //just moves the shuttle from A to B, if it can be moved
 //A note to anyone overriding move in a subtype. shuttle_moved() must absolutely not, under any circumstances, fail to move the shuttle.
 //If you want to conditionally cancel shuttle launches, that logic must go in short_jump(), long_jump() or attempt_move()
-/datum/shuttle/proc/shuttle_moved(obj/effect/shuttle_landmark/destination, list/turf_translation)
+/datum/shuttle/proc/shuttle_moved(obj/shuttle_landmark/destination, list/turf_translation)
 
 //	log_debug("move_shuttle() called for [shuttle_tag] leaving [origin] en route to [destination].")
 //	log_degug("area_coming_from: [origin]")
@@ -205,12 +215,12 @@
 				spawn(0)
 					if(istype(M, /mob/living/carbon))
 						if(M.buckled)
-							to_chat(M, "<span class='warning'>Sudden acceleration presses you into your chair!</span>")
+							to_chat(M, SPAN_WARNING("Sudden acceleration presses you into your chair!"))
 							shake_camera(M, 3, 1)
 						else
-							to_chat(M, "<span class='warning'>The floor lurches beneath you!</span>")
+							to_chat(M, SPAN_WARNING("The floor lurches beneath you!"))
 							shake_camera(M, 10, 1)
-							M.visible_message("<span class='warning'>[M.name] is tossed around by the sudden acceleration!</span>")
+							M.visible_message(SPAN_WARNING("[M.name] is tossed around by the sudden acceleration!"))
 							M.throw_at_random(FALSE, 4, 1)
 
 		for(var/obj/structure/cable/C in A)
@@ -231,6 +241,8 @@
 					if(get_area(TA) in shuttle_area)
 						continue
 					TA.ChangeTurf(ceiling_type, TRUE, TRUE, TRUE)
+					for (var/datum/lighting_corner/C in TD.corners)
+						C.clear_above_ambient()
 
 	// Remove all powernets that were affected, and rebuild them.
 	var/list/cables = list()

@@ -3,6 +3,7 @@
 	desc = "A majestic spaceborne cetacean. This one is a little baby."
 	icon = 'icons/mob/simple_animal/juvenile_space_whale.dmi'
 	icon_state = "alive"
+	icon_living = "alive"
 	icon_dead = "dead"
 
 	health = 80
@@ -35,13 +36,15 @@
 	ai_holder = /datum/ai_holder/simple_animal/passive
 	say_list_type = /datum/say_list/juvenile_space_whale
 
-/mob/living/simple_animal/passive/juvenile_space_whale/New()
-	..()
+
+/mob/living/simple_animal/passive/juvenile_space_whale/Initialize(mapload)
+	. = ..()
 	var/mob/living/simple_animal/hostile/retaliate/space_whale/W = locate() in viewers(src, 7)
 	if(W && !parent && !W.baby)
 		W.baby = src
 		parent = W
 		color = parent.color
+
 
 /mob/living/simple_animal/passive/juvenile_space_whale/Life()
 	. = ..()
@@ -53,7 +56,7 @@
 			parent.ai_holder.attackers += enemies
 		if(health < (maxHealth - 5))
 			walk_to(src, parent, 1, 1 SECONDS)
-			if(parent.stance == STANCE_IDLE && ai_holder.attackers.len)
+			if(parent.stance == STANCE_IDLE && length(ai_holder.attackers))
 				parent.ai_holder.react_to_attack(pick(ai_holder.attackers))
 		else if(get_dist(src.loc, parent.loc) > 5)
 			walk_to(src, parent, 4, 3 SECONDS)
@@ -68,7 +71,7 @@
 			bound_height = 32
 			bound_width = 64
 
-/mob/living/simple_animal/passive/juvenile_space_whale/Allow_Spacemove()
+/mob/living/simple_animal/passive/juvenile_space_whale/Process_Spacemove(allow_movement)
 	return TRUE
 
 /datum/say_list/juvenile_space_whale

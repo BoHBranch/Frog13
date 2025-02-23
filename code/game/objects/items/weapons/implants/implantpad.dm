@@ -3,7 +3,7 @@
 /obj/item/implantpad
 	name = "implant pad"
 	desc = "Used to reprogramm implants."
-	icon = 'icons/obj/items.dmi'
+	icon = 'icons/obj/tools/implanter.dmi'
 	icon_state = "implantpad-0"
 	item_state = "electronic"
 	w_class = ITEM_SIZE_SMALL
@@ -26,8 +26,7 @@
 	else
 		return ..()
 
-/obj/item/implantpad/attackby(obj/item/I, mob/user)
-	..()
+/obj/item/implantpad/use_tool(obj/item/I, mob/living/user, list/click_params)
 	if(istype(I, /obj/item/implantcase))
 		var/obj/item/implantcase/C = I
 		if(!imp && C.imp)
@@ -39,6 +38,9 @@
 			C.imp = imp
 			imp = null
 		C.update_icon()
+		update_icon()
+		return TRUE
+
 	else if(istype(I, /obj/item/implanter))
 		var/obj/item/implanter/C = I
 		if(!imp && C.imp)
@@ -50,12 +52,18 @@
 			C.imp = imp
 			imp = null
 		C.update_icon()
+		update_icon()
+		return TRUE
+
 	else if(istype(I, /obj/item/implant) && user.unEquip(I, src))
 		imp = I
-	update_icon()
+		update_icon()
+		return TRUE
+
+	return ..()
 
 /obj/item/implantpad/attack_self(mob/user)
 	if (imp)
 		imp.interact(user)
 	else
-		to_chat(user,"<span class='warning'>There's no implant loaded in \the [src].</span>")
+		to_chat(user,SPAN_WARNING("There's no implant loaded in \the [src]."))

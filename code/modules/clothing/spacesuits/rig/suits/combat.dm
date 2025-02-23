@@ -23,13 +23,13 @@
 	light_overlay = "helmet_light_dual_green"
 	species_restricted = list(SPECIES_HUMAN, SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_head_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_unathi.dmi'
 		)
 
 /obj/item/clothing/suit/space/rig/combat
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_suit_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_suit_unathi.dmi'
 		)
 	allowed = list(
 		/obj/item/device/flashlight,
@@ -53,26 +53,26 @@
 		/obj/item/gun,
 		/obj/item/storage/firstaid,
 		/obj/item/reagent_containers/hypospray,
-		/obj/item/roller,
+		/obj/item/roller_bed,
 		/obj/item/device/suit_cooling_unit
 	)
 
 /obj/item/clothing/shoes/magboots/rig/combat
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_feet_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_feet_unathi.dmi'
 		)
 
 /obj/item/clothing/gloves/rig/combat
 	item_flags = ITEM_FLAG_THICKMATERIAL | ITEM_FLAG_NOCUFFS
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_hands_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_hands_unathi.dmi'
 		)
 
 /obj/item/rig/combat/equipped
 	initial_modules = list(
-		/obj/item/rig_module/mounted/egun,
+		/obj/item/rig_module/mounted/energy/egun,
 		/obj/item/rig_module/vision/thermal,
 		/obj/item/rig_module/grenade_launcher,
 		/obj/item/rig_module/ai_container,
@@ -109,13 +109,13 @@
 	light_overlay = "helmet_light_dual_green"
 	species_restricted = list(SPECIES_HUMAN)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_helmet_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_unathi.dmi'
 		)
 
 /obj/item/clothing/suit/space/rig/military
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_suit_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_suit_unathi.dmi'
 		)
 	allowed = list(
 		/obj/item/device/flashlight,
@@ -138,26 +138,26 @@
 		/obj/item/gun,
 		/obj/item/storage/firstaid,
 		/obj/item/reagent_containers/hypospray,
-		/obj/item/roller,
+		/obj/item/roller_bed,
 		/obj/item/device/suit_cooling_unit
 	)
 
 /obj/item/clothing/shoes/magboots/rig/military
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_feet_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_feet_unathi.dmi'
 		)
 
 /obj/item/clothing/gloves/rig/military
 	item_flags = ITEM_FLAG_THICKMATERIAL | ITEM_FLAG_NOCUFFS
 	species_restricted = list(SPECIES_HUMAN,SPECIES_SKRELL, SPECIES_UNATHI, SPECIES_IPC)
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_hands_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_hands_unathi.dmi'
 		)
 
 /obj/item/rig/military/equipped
 	initial_modules = list(
-		/obj/item/rig_module/mounted/egun,
+		/obj/item/rig_module/mounted/energy/egun,
 		/obj/item/rig_module/vision/multi,
 		/obj/item/rig_module/grenade_launcher,
 		/obj/item/rig_module/ai_container,

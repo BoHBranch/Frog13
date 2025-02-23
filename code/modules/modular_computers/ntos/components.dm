@@ -49,6 +49,10 @@
 /datum/extension/interactive/ntos/proc/get_ntnet_status()
 	if(!on) // No signal if the computer isn't on.
 		return 0
+
+	if (isAdminLevel(get_z(holder)))
+		return 3
+
 	if(isnull(ntnet_status))
 		var/obj/item/stock_parts/computer/network_card/network_card = get_component(PART_NETWORK)
 		if(network_card)
@@ -101,7 +105,7 @@
 /datum/extension/interactive/ntos/proc/voltage_overload()
 	var/atom/A = holder
 	if(istype(A))
-		var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+		var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 		s.set_up(10, 1, A.loc)
 		s.start()
 

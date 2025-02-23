@@ -15,7 +15,7 @@
 	)
 	spawn_weight = 0.2
 
-/decl/submap_archetype/playablecolony
+/singleton/submap_archetype/playablecolony
 	descriptor = "established colony"
 	crew_jobs = list(/datum/job/submap/colonist)
 
@@ -23,20 +23,20 @@
 	title = "Colonist"
 	info = "You are a Colonist, living on the rim of explored, let alone inhabited, space in a reconstructed shelter made from the very ship that took you here."
 	total_positions = 4
-	outfit_type = /decl/hierarchy/outfit/job/colonist
+	outfit_type = /singleton/hierarchy/outfit/job/colonist
 
-/decl/hierarchy/outfit/job/colonist
+/singleton/hierarchy/outfit/job/colonist
 	name = OUTFIT_JOB_NAME("Colonist")
 	id_types = null
 	pda_type = null
 	l_ear = /obj/item/device/radio/headset/map_preset/playablecolony
 
-/obj/effect/submap_landmark/spawnpoint/colonist_spawn
+/obj/submap_landmark/spawnpoint/colonist_spawn
 	name = "Colonist"
 
-/obj/effect/submap_landmark/joinable_submap/colony
+/obj/submap_landmark/joinable_submap/colony
 	name = "Established Colony"
-	archetype = /decl/submap_archetype/playablecolony
+	archetype = /singleton/submap_archetype/playablecolony
 
 // Areas //
 /area/map_template/colony

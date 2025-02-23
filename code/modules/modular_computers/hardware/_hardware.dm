@@ -21,10 +21,10 @@
 	/// Chance of malfunction when the component is damaged
 	var/malfunction_probability = 10
 	var/usage_flags = PROGRAM_ALL
-	/// Whether attackby will be passed on it even with a closed panel
+	/// Whether use_tool will be passed on it even with a closed panel
 	var/external_slot
 
-/obj/item/stock_parts/computer/attackby(obj/item/W as obj, mob/living/user as mob)
+/obj/item/stock_parts/computer/use_tool(obj/item/W, mob/living/user, list/click_params)
 	// Multitool. Runs diagnostics
 	if(isMultitool(W))
 		to_chat(user, "***** DIAGNOSTICS REPORT *****")
@@ -88,7 +88,7 @@
 /obj/item/stock_parts/computer/proc/set_damage_failure()
 	if (get_damage_value() >= damage_failure)
 		return
-	set_health(health_max - damage_failure)
+	set_health(get_max_health() - damage_failure)
 
 
 /**
@@ -104,7 +104,7 @@
 /obj/item/stock_parts/computer/proc/set_damage_malfunction()
 	if (get_damage_value() >= damage_malfunction)
 		return
-	set_health(health_max - damage_malfunction)
+	set_health(get_max_health() - damage_malfunction)
 
 
 /**

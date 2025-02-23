@@ -1,7 +1,7 @@
 /obj/item/blueprints
 	name = "blueprints"
 	desc = "Blueprints..."
-	icon = 'icons/obj/items.dmi'
+	icon = 'icons/obj/tools/blueprints.dmi'
 	icon_state = "blueprints"
 	attack_verb = list("attacked", "bapped", "hit")
 	var/const/AREA_ERRNONE = 0
@@ -47,7 +47,7 @@
 			edit_area()
 		if ("delete_area")
 			//skip the sanity checking, delete_area() does it anyway
-			delete_area()
+			delete_area(user)
 
 /obj/item/blueprints/proc/get_header()
 	return "<h2>[station_name()] blueprints</h2><small>Property of [GLOB.using_map.company_name]. For heads of staff only. Store in high-secure storage.</small><hr>"
@@ -59,14 +59,14 @@
 	switch (get_area_type(A))
 		if (AREA_SPACE)
 			dat += "According \the [src], you are now <b>outside the facility</b>."
-			dat += "<a href='?src=\ref[src];action=create_area'>Mark this place as new area.</a>"
+			dat += "<a href='byond://?src=\ref[src];action=create_area'>Mark this place as new area.</a>"
 		if (AREA_STATION)
 			dat += "According \the [src], you are now in <b>\"[A.name]\"</b>."
-			dat += "You may <a href='?src=\ref[src];action=edit_area'> move an amendment</a> to the drawing."
+			dat += "You may <a href='byond://?src=\ref[src];action=edit_area'> move an amendment</a> to the drawing."
 			if (A.apc)
 				dat += "You can't erase this area, because it has an APC.</p>"
 			else
-				dat += "You <a href='?src=\ref[src];action=delete_area'>erase a part of it</a>.</p>"
+				dat += "You <a href='byond://?src=\ref[src];action=delete_area'>erase a part of it</a>.</p>"
 		else
 			dat += "This place isn't noted on \the [src]."
 	var/datum/browser/popup = new(usr, "blueprints", name, 290, 300)
@@ -86,23 +86,23 @@
 //	log_debug("create_area")
 
 	var/res = detect_room(get_turf(usr))
-	if(!istype(res,/list))
+	if(!islist(res))
 		switch(res)
 			if(ROOM_ERR_SPACE)
-				to_chat(usr, "<span class='warning'>The new area must be completely airtight!</span>")
+				to_chat(usr, SPAN_WARNING("The new area must be completely airtight!"))
 				return
 			if(ROOM_ERR_TOOLARGE)
-				to_chat(usr, "<span class='warning'>The new area too large!</span>")
+				to_chat(usr, SPAN_WARNING("The new area too large!"))
 				return
 			else
-				to_chat(usr, "<span class='warning'>Error! Please notify administration!</span>")
+				to_chat(usr, SPAN_WARNING("Error! Please notify administration!"))
 				return
 	var/list/turf/turfs = res
 	var/str = sanitizeSafe(input("New area name:","Blueprint Editing", ""), MAX_NAME_LEN)
 	if(!str || !length(str)) //cancel
 		return
 	if(length(str) > 50)
-		to_chat(usr, "<span class='warning'>Name too long.</span>")
+		to_chat(usr, SPAN_WARNING("Name too long."))
 		return
 	var/area/A = new
 	A.SetName(str)
@@ -123,20 +123,20 @@
 	if(!str || !length(str) || str==prevname) //cancel
 		return
 	if(length(str) > 50)
-		to_chat(usr, "<span class='warning'>Text too long.</span>")
+		to_chat(usr, SPAN_WARNING("Text too long."))
 		return
 	set_area_machinery_title(A,str,prevname)
 	A.SetName(str)
-	to_chat(usr, "<span class='notice'>You set the area '[prevname]' title to '[str]'.</span>")
+	to_chat(usr, SPAN_NOTICE("You set the area '[prevname]' title to '[str]'."))
 	interact()
 
-/obj/item/blueprints/proc/delete_area()
+/obj/item/blueprints/proc/delete_area(mob/user)
 	var/area/A = get_area(src)
 	if (get_area_type(A)!=AREA_STATION || A.apc) //let's just check this one last time, just in case
 		interact()
 		return
-	to_chat(usr, "<span class='notice'>You scrub [A.name] off the blueprint.</span>")
-	log_and_message_admins("deleted area [A.name] via station blueprints.")
+	to_chat(usr, SPAN_NOTICE("You scrub [A.name] off the blueprint."))
+	log_and_message_admins("deleted area [A.name] via station blueprints.", user)
 	qdel(A)
 	interact()
 
@@ -184,8 +184,8 @@
 /obj/item/blueprints/proc/detect_room(turf/first)
 	var/list/turf/found = new
 	var/list/turf/pending = list(first)
-	while(pending.len)
-		if (found.len+pending.len > 300)
+	while(length(pending))
+		if (length(found)+length(pending) > 300)
 			return ROOM_ERR_TOOLARGE
 		var/turf/T = pending[1] //why byond havent list::pop()?
 		pending -= T
@@ -236,7 +236,7 @@
 /obj/item/blueprints/outpost/get_area_type(area/A = get_area(src))
 	if(istype(A, /area/exoplanet))
 		return AREA_SPACE
-	var/obj/effect/overmap/visitable/sector/exoplanet/E = map_sectors["[z]"]
+	var/obj/overmap/visitable/sector/exoplanet/E = map_sectors["[z]"]
 	if(istype(E))
 		return AREA_STATION
 	return AREA_SPECIAL

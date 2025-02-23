@@ -1,8 +1,8 @@
 ////FIELD GEN START //shameless copypasta from fieldgen, powersink, and grille
 /obj/machinery/shieldwallgen
-	name = "Shield Generator"
+	name = "shield generator"
 	desc = "A shield generator."
-	icon = 'icons/obj/stationobjs.dmi'
+	icon = 'icons/obj/machines/shield_generator.dmi'
 	icon_state = "Shield_Gen"
 	anchored = FALSE
 	density = TRUE
@@ -12,7 +12,7 @@
 	var/locked = 1
 	var/max_range = 8
 	var/storedpower = 0
-	obj_flags = OBJ_FLAG_CONDUCTIBLE
+	obj_flags = OBJ_FLAG_CONDUCTIBLE | OBJ_FLAG_ANCHORABLE
 	//There have to be at least two posts, so these are effectively doubled
 	var/power_draw = 30 KILOWATTS //30 kW. How much power is drawn from powernet. Increase this to allow the generator to sustain longer shields, at the cost of more power draw.
 	var/max_stored_power = 50 KILOWATTS //50 kW
@@ -79,13 +79,13 @@
 
 /obj/machinery/shieldwallgen/CanUseTopic(mob/user)
 	if(!anchored)
-		to_chat(user, "<span class='warning'>The shield generator needs to be firmly secured to the floor first.</span>")
+		to_chat(user, SPAN_WARNING("The shield generator needs to be firmly secured to the floor first."))
 		return STATUS_CLOSE
 	if(src.locked && !istype(user, /mob/living/silicon))
-		to_chat(user, "<span class='warning'>The controls are locked!</span>")
+		to_chat(user, SPAN_WARNING("The controls are locked!"))
 		return STATUS_CLOSE
 	if(power != 1)
-		to_chat(user, "<span class='warning'>The shield generator needs to be powered by wire underneath.</span>")
+		to_chat(user, SPAN_WARNING("The shield generator needs to be powered by wire underneath."))
 		return STATUS_CLOSE
 	return ..()
 
@@ -144,7 +144,7 @@
 		src.active = 2
 	if(src.active >= 1)
 		if(src.power == 0)
-			src.visible_message("<span class='warning'>The [src.name] shuts down due to lack of power!</span>", \
+			src.visible_message(SPAN_WARNING("The [src.name] shuts down due to lack of power!"), \
 				"You hear heavy droning fade out")
 			src.active = 0
 			update_icon()
@@ -194,37 +194,22 @@
 		var/obj/machinery/shieldwall/CF = new(T, src, G) //(ref to this gen, ref to connected gen)
 		CF.set_dir(field_dir)
 
+/obj/machinery/shieldwallgen/can_anchor(obj/item/tool, mob/user, silent)
+	if (active)
+		to_chat(user, SPAN_WARNING("Turn off \the [src] first."))
+		return FALSE
+	return ..()
 
-/obj/machinery/shieldwallgen/attackby(obj/item/W, mob/user)
-	if(isWrench(W))
-		if(active)
-			to_chat(user, "Turn off the field generator first.")
-			return
-
-		else if(!anchored)
-			playsound(src.loc, 'sound/items/Ratchet.ogg', 75, 1)
-			to_chat(user, "You secure the external reinforcing bolts to the floor.")
-			src.anchored = TRUE
-			return
-
-		else if(anchored)
-			playsound(src.loc, 'sound/items/Ratchet.ogg', 75, 1)
-			to_chat(user, "You undo the external reinforcing bolts.")
-			src.anchored = FALSE
-			return
-
+/obj/machinery/shieldwallgen/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(istype(W, /obj/item/card/id)||istype(W, /obj/item/modular_computer))
-		if (src.allowed(user))
-			src.locked = !src.locked
+		if (allowed(user))
+			locked = !locked
 			to_chat(user, "Controls are now [src.locked ? "locked." : "unlocked."]")
 		else
-			to_chat(user, "<span class='warning'>Access denied.</span>")
-		return
+			to_chat(user, SPAN_WARNING("Access denied."))
+		return TRUE
 
-	else
-		src.add_fingerprint(user)
-		..()
-
+	return ..()
 
 /obj/machinery/shieldwallgen/proc/cleanup(NSEW)
 	var/obj/machinery/shieldwall/F
@@ -254,14 +239,14 @@
 
 //////////////Containment Field START
 /obj/machinery/shieldwall
-	name = "Shield"
+	name = "shield"
 	desc = "An energy shield."
 	icon = 'icons/effects/effects.dmi'
 	icon_state = "shieldwall"
 	anchored = TRUE
 	density = TRUE
 	unacidable = TRUE
-	light_outer_range = 3
+	light_range = 3
 	var/needs_power = 0
 	var/active = 1
 	var/delay = 5
@@ -290,13 +275,14 @@
 	update_nearby_tiles()
 	..()
 
-/obj/machinery/shieldwall/attackby(obj/item/I, mob/user)
+/obj/machinery/shieldwall/use_weapon(obj/item/I, mob/living/user, list/click_params)
 	var/obj/machinery/shieldwallgen/G = prob(50) ? gen_primary : gen_secondary
 	G.storedpower -= I.force*2500
-	user.visible_message("<span class='danger'>\The [user] hits \the [src] with \the [I]!</span>")
-	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+	user.visible_message(SPAN_DANGER("\The [user] hits \the [src] with \the [I]!"))
+	user.setClickCooldown(user.get_attack_speed(I))
 	user.do_attack_animation(src)
 	playsound(loc, 'sound/weapons/smash.ogg', 75, 1)
+	return TRUE || ..()
 
 /obj/machinery/shieldwall/Process()
 	if(needs_power)

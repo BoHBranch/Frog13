@@ -29,7 +29,7 @@
 
 	for(var/p in forbidden_varedit_object_types())
 		if( istype(O,p) )
-			to_chat(usr, "<span class='warning'>It is forbidden to edit this object's variables.</span>")
+			to_chat(usr, SPAN_WARNING("It is forbidden to edit this object's variables."))
 			return
 
 	var/list/names = list()
@@ -74,11 +74,11 @@
 		var_value = "\icon[var_value]"
 		default = "icon"
 
-	else if(istype(var_value,/atom) || istype(var_value,/datum))
+	else if(isloc(var_value) || istype(var_value,/datum))
 		to_chat(usr, "Variable appears to be <b>TYPE</b>.")
 		default = "type"
 
-	else if(istype(var_value,/list))
+	else if(islist(var_value))
 		to_chat(usr, "Variable appears to be <b>LIST</b>.")
 		default = "list"
 
@@ -115,14 +115,14 @@
 			to_chat(usr, "If a direction, direction is: [dir]")
 
 	var/class = input("What kind of variable?","Variable Type",default) as null|anything in list("text",
-		"num","type","icon","file","edit referenced object","restore to default")
+		"num","type","icon","file","view variables","restore to default")
 
 	if(!class)
 		return
 
 	var/original_name
 
-	if (!istype(O, /atom))
+	if (!isloc(O))
 		original_name = "\ref[O] ([O])"
 	else
 		original_name = O:name
@@ -132,72 +132,73 @@
 		if("restore to default")
 			O.vars[variable] = initial(O.vars[variable])
 			if(method)
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if ( istype(M , O.type) )
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 
 			else
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if (M.type == O.type)
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
-		if("edit referenced object")
-			return .(O.vars[variable])
+		if("view variables")
+			debug_variables(O)
+			return
 
 		if("text")
 			var/new_value = input("Enter new text:","Text",O.vars[variable]) as text|null//todo: sanitize ???
-			if(new_value == null) return
+			if(isnull(new_value)) return
 			O.vars[variable] = new_value
 
 			if(method)
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if ( istype(M , O.type) )
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 			else
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if (M.type == O.type)
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
@@ -205,145 +206,145 @@
 		if("num")
 			var/new_value = input("Enter new number:","Num",\
 					O.vars[variable]) as num|null
-			if(new_value == null) return
+			if(isnull(new_value)) return
 			O.vars[variable] = new_value
 
 			if(method)
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if ( istype(M , O.type) )
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 
 			else
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if (M.type == O.type)
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
 		if("type")
 			var/new_value
-			new_value = input("Enter type:","Type",O.vars[variable]) as null|anything in typesof(/obj,/mob,/area,/turf)
-			if(new_value == null) return
+			new_value = select_subpath(within_scope = /datum)
+			if(isnull(new_value)) return
 			O.vars[variable] = new_value
 			if(method)
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if ( istype(M , O.type) )
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 			else
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if (M.type == O.type)
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
 		if("file")
 			var/new_value = input("Pick file:","File",O.vars[variable]) as null|file
-			if(new_value == null) return
+			if(isnull(new_value)) return
 			O.vars[variable] = new_value
 
 			if(method)
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if ( istype(M , O.type) )
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O.type, /obj))
+				else if(isobj(O.type))
 					for(var/obj/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O.type, /turf))
+				else if(isturf(O.type))
 					for(var/turf/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 			else
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if (M.type == O.type)
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O.type, /obj))
+				else if(isobj(O.type))
 					for(var/obj/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O.type, /turf))
+				else if(isturf(O.type))
 					for(var/turf/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
 		if("icon")
 			var/new_value = input("Pick icon:","Icon",O.vars[variable]) as null|icon
-			if(new_value == null) return
+			if(isnull(new_value)) return
 			O.vars[variable] = new_value
 			if(method)
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if ( istype(M , O.type) )
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if ( istype(A , O.type) )
 							A.vars[variable] = O.vars[variable]
 
 			else
-				if(istype(O, /mob))
+				if(ismob(O))
 					for(var/mob/M in SSmobs.mob_list)
 						if (M.type == O.type)
 							M.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /obj))
+				else if(isobj(O))
 					for(var/obj/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]
 
-				else if(istype(O, /turf))
+				else if(isturf(O))
 					for(var/turf/A in world)
 						if (A.type == O.type)
 							A.vars[variable] = O.vars[variable]

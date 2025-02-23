@@ -1,7 +1,7 @@
 /obj/item/device/holowarrant
 	name = "warrant projector"
 	desc = "The practical paperwork replacement for the officer on the go."
-	icon = 'icons/obj/holowarrant.dmi'
+	icon = 'icons/obj/tools/holowarrant.dmi'
 	icon_state = "holowarrant"
 	item_state = "holowarrant"
 	throwforce = 5
@@ -21,7 +21,7 @@
 	if(distance <= 1)
 		show_content(user)
 	else
-		to_chat(user, "<span class='notice'>You have to be closer if you want to read it.</span>")
+		to_chat(user, SPAN_NOTICE("You have to be closer if you want to read it."))
 
 // an active warrant with access authorized grants access
 /obj/item/device/holowarrant/GetAccess()
@@ -42,8 +42,8 @@
 	for(var/datum/computer_file/data/warrant/W in GLOB.all_warrants)
 		if(!W.archived)
 			warrants["[W.fields["namewarrant"]] ([capitalize(W.fields["arrestsearch"])])"] = W
-	if(warrants.len == 0)
-		to_chat(user,"<span class='notice'>There are no warrants available</span>")
+	if(length(warrants) == 0)
+		to_chat(user,SPAN_NOTICE("There are no warrants available"))
 		return
 	var/datum/computer_file/data/warrant/temp
 	temp = input(user, "Which warrant would you like to load?") as null|anything in warrants
@@ -54,26 +54,40 @@
 	active = temp
 	update_icon()
 
-/obj/item/device/holowarrant/attackby(obj/item/W, mob/user)
-	if(active)
-		var/obj/item/card/id/I = W.GetIdCard()
-		if(I && check_access_list(I.GetAccess()))
-			var/choice = alert(user, "Would you like to authorize this warrant?","Warrant authorization","Yes","No")
-			if(choice == "Yes")
-				active.fields["auth"] = "[I.registered_name] - [I.assignment ? I.assignment : "(Unknown)"]"
-			user.visible_message("<span class='notice'>You swipe \the [I] through the [src].</span>", \
-					"<span class='notice'>[user] swipes \the [I] through the [src].</span>")
-			broadcast_security_hud_message("\A [active.fields["arrestsearch"]] warrant for <b>[active.fields["namewarrant"]]</b> has been authorized by [I.assignment ? I.assignment+" " : ""][I.registered_name].", src)
-		else
-			to_chat(user, "<span class='notice'>A red \"Access Denied\" light blinks on \the [src]</span>")
-		return 1
-	..()
+
+/obj/item/device/holowarrant/use_tool(obj/item/tool, mob/user, list/click_params)
+	// ID Card - Authorize warrant
+	var/obj/item/card/id/id = tool.GetIdCard()
+	if (istype(id))
+		if (!active)
+			USE_FEEDBACK_FAILURE("\The [src] has no warrant to authorize.")
+			return TRUE
+		var/id_name = GET_ID_NAME(id, tool)
+		if (!check_access(id))
+			USE_FEEDBACK_ID_CARD_DENIED(src, id_name)
+			return TRUE
+		var/input = alert(user, "Would you like to authorize this warrant?", "\The [src] - Authorization", "Yes", "No")
+		if (input != "Yes" || !user.use_sanity_check(src, tool))
+			return TRUE
+		active.fields["auth"] = "[id.registered_name] - [id.assignment ? id.assignment : "(Unknown)"]"
+		broadcast_security_hud_message("\A [active.fields["arrestsearch"]] warrant for <b>[active.fields["namewarrant"]]</b> has been authorized by [id.assignment ? id.assignment+" " : ""][id.registered_name].", src)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] scans \a [tool] with \a [src]."),
+			SPAN_NOTICE("You authorize \the [src]'s warrant with [id_name].")
+		)
+		return TRUE
+
+	return ..()
+
 
 //hit other people with it
-/obj/item/device/holowarrant/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
-	user.visible_message("<span class='notice'>[user] holds up a warrant projector and shows the contents to [M].</span>", \
-			"<span class='notice'>You show the warrant to [M].</span>")
-	M.examinate(src)
+/obj/item/device/holowarrant/use_before(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
+	. = FALSE
+	if(istype(M))
+		user.visible_message(SPAN_NOTICE("[user] holds up a warrant projector and shows the contents to [M]."), \
+				SPAN_NOTICE("You show the warrant to [M]."))
+		examinate(M, src)
+		return TRUE
 
 /obj/item/device/holowarrant/on_update_icon()
 	if(active)

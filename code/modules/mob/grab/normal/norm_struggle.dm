@@ -27,15 +27,22 @@
 /datum/grab/normal/struggle/process_effect(obj/item/grab/G)
 	var/mob/living/carbon/human/affecting = G.affecting
 	var/mob/living/carbon/human/assailant = G.assailant
+	var/datum/pronouns/pronouns = assailant.choose_from_pronouns()
+
+	if (assailant.incapacitated(INCAPACITATION_ALL))
+		affecting.visible_message(SPAN_WARNING("\The [assailant] lets go of [pronouns.his] grab!"))
+		qdel(G)
+		return
 
 	if(affecting.incapacitated(INCAPACITATION_UNRESISTING) || affecting.a_intent == I_HELP)
-		affecting.visible_message("<span class='warning'>[affecting] isn't prepared to fight back as [assailant] tightens \his grip!</span>")
+		affecting.visible_message(SPAN_WARNING("\The [affecting] isn't prepared to fight back as \the [assailant] tightens [pronouns.his] grip!"))
 		G.done_struggle = TRUE
 		G.upgrade(TRUE)
 
 /datum/grab/normal/struggle/enter_as_up(obj/item/grab/G)
 	var/mob/living/carbon/human/affecting = G.affecting
 	var/mob/living/carbon/human/assailant = G.assailant
+	var/datum/pronouns/pronouns = assailant.choose_from_pronouns()
 
 	if(affecting == assailant)
 		G.done_struggle = TRUE
@@ -43,13 +50,13 @@
 		return
 
 	if(affecting.incapacitated(INCAPACITATION_UNRESISTING) || affecting.a_intent == I_HELP)
-		affecting.visible_message("<span class='warning'>[affecting] isn't prepared to fight back as [assailant] tightens \his grip!</span>")
+		affecting.visible_message(SPAN_WARNING("\The [affecting] isn't prepared to fight back as \the [assailant] tightens [pronouns.his] grip!"))
 		G.done_struggle = TRUE
 		G.upgrade(TRUE)
 	else
-		affecting.visible_message("<span class='warning'>[affecting] struggles against [assailant]!</span>")
+		affecting.visible_message(SPAN_WARNING("\The [affecting] struggles against \the [assailant]!"))
 		G.done_struggle = FALSE
-		addtimer(CALLBACK(G, .proc/handle_resist), 1 SECOND)
+		addtimer(new Callback(G, PROC_REF(handle_resist)), 1 SECOND)
 		resolve_struggle(G)
 
 /datum/grab/normal/struggle/proc/resolve_struggle(obj/item/grab/G)
@@ -64,16 +71,16 @@
 	return G.done_struggle
 
 /datum/grab/normal/struggle/on_hit_disarm(obj/item/grab/normal/G)
-	to_chat(G.assailant, "<span class='warning'>Your grip isn't strong enough to pin.</span>")
-	return 0
+	to_chat(G.assailant, SPAN_WARNING("Your grip isn't strong enough to pin."))
+	return FALSE
 
 /datum/grab/normal/struggle/on_hit_grab(obj/item/grab/normal/G)
-	to_chat(G.assailant, "<span class='warning'>Your grip isn't strong enough to jointlock.</span>")
-	return 0
+	to_chat(G.assailant, SPAN_WARNING("Your grip isn't strong enough to jointlock."))
+	return FALSE
 
 /datum/grab/normal/struggle/on_hit_harm(obj/item/grab/normal/G)
-	to_chat(G.assailant, "<span class='warning'>Your grip isn't strong enough to dislocate.</span>")
-	return 0
+	to_chat(G.assailant, SPAN_WARNING("Your grip isn't strong enough to dislocate."))
+	return FALSE
 
 /datum/grab/normal/struggle/resolve_openhand_attack(obj/item/grab/G)
-	return 0
+	return FALSE

@@ -43,7 +43,7 @@
 			var/datum/gear/G = gear_datums[thing]
 			if(G)
 				var/permitted = 0
-				if(G.allowed_roles && G.allowed_roles.len)
+				if(G.allowed_roles && length(G.allowed_roles))
 					if(previewJob)
 						for(var/job_type in G.allowed_roles)
 							if(previewJob.type == job_type)
@@ -67,6 +67,7 @@
 		var/mob/living/carbon/human/dummy/mannequin/mannequin = get_mannequin(client_ckey)
 		mannequin.delete_inventory(TRUE)
 		dress_preview_mob(mannequin)
+		mannequin.ImmediateOverlayUpdate()
 		last_built_icon = icon('icons/effects/128x48.dmi', bgstate)
 		last_built_icon.Scale(48+32, 16+32)
 		mannequin.dir = WEST

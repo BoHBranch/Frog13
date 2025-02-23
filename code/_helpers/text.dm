@@ -51,7 +51,7 @@
 
 	if(trim)
 		//Maybe, we need trim text twice? Here and before copytext?
-		input = trim(input)
+		input = trimtext(input)
 
 	return input
 
@@ -220,7 +220,7 @@
 	var/padding_size = length_char(padding)
 	if (!padding_size)
 		return ""
-	var/padding_count = Ceil(size / padding_size)
+	var/padding_count = ceil(size / padding_size)
 	var/list/result = list()
 	for (var/i = padding_count to 1 step -1)
 		result += padding // pow2 strategies could be used here at the cost of complexity
@@ -268,10 +268,6 @@
 		if (text2ascii(text, i) > 32)
 			return copytext(text, 1, i + 1)
 	return ""
-
-//Returns a string with reserved characters and spaces before the first word and after the last word removed.
-/proc/trim(text)
-	return trim_left(trim_right(text))
 
 //Returns a string with the first element of the string capitalized.
 /proc/capitalize(text)
@@ -407,8 +403,8 @@
 	t = replacetext(t, "\[/u\]", "</U>")
 	t = replacetext(t, "\[time\]", "[stationtime2text()]")
 	t = replacetext(t, "\[date\]", "[stationdate2text()]")
-	t = replacetext(t, "\[large\]", "<font size=\"4\">")
-	t = replacetext(t, "\[/large\]", "</font>")
+	t = replacetext(t, "\[large\]", "<span style=\"font-size: 18px\">")
+	t = replacetext(t, "\[/large\]", "</span>")
 	t = replacetext(t, "\[field\]", "<span class=\"paper_field\"></span>")
 	t = replacetext(t, "\[h1\]", "<H1>")
 	t = replacetext(t, "\[/h1\]", "</H1>")
@@ -418,8 +414,8 @@
 	t = replacetext(t, "\[/h3\]", "</H3>")
 	t = replacetext(t, "\[*\]", "<li>")
 	t = replacetext(t, "\[hr\]", "<HR>")
-	t = replacetext(t, "\[small\]", "<font size = \"1\">")
-	t = replacetext(t, "\[/small\]", "</font>")
+	t = replacetext(t, "\[small\]", "<span style=\"font-size: 10px\">")
+	t = replacetext(t, "\[/small\]", "</span>")
 	t = replacetext(t, "\[list\]", "<ul>")
 	t = replacetext(t, "\[/list\]", "</ul>")
 	t = replacetext(t, "\[table\]", "<table border=1 cellspacing=0 cellpadding=3 style='border: 1px solid black;'>")
@@ -439,6 +435,8 @@
 	t = replacetext(t, "\[xynlogo\]", "<img src = xynlogo.png>")
 	t = replacetext(t, "\[fleetlogo\]", "<img src = fleetlogo.png>")
 	t = replacetext(t, "\[sfplogo\]", "<img src = sfplogo.png>")
+	t = replacetext(t, "\[falogo\]", "<img src = falogo.png>")
+	t = replacetext(t, "\[zhlogo\]", "<img src = zhlogo.png>")
 	t = replacetext(t, "\[editorbr\]", "")
 	return t
 
@@ -447,10 +445,10 @@
 /proc/digitalPencode2html(text)
 	text = replacetext(text, "\[pre\]", "<pre>")
 	text = replacetext(text, "\[/pre\]", "</pre>")
-	text = replacetext(text, "\[fontred\]", "<font color=\"red\">") //</font> to pass html tag integrity unit test
-	text = replacetext(text, "\[fontblue\]", "<font color=\"blue\">")//</font> to pass html tag integrity unit test
-	text = replacetext(text, "\[fontgreen\]", "<font color=\"green\">")
-	text = replacetext(text, "\[/font\]", "</font>")
+	text = replacetext(text, "\[fontred\]", "<span style=\"color: red\">") //</span> to pass html tag integrity unit test
+	text = replacetext(text, "\[fontblue\]", "<span style=\"color: blue\">")//</span> to pass html tag integrity unit test
+	text = replacetext(text, "\[fontgreen\]", "<span style=\"color: green\">")
+	text = replacetext(text, "\[/font\]", "</span>")
 	text = replacetext(text, "\[redacted\]", "<span class=\"redacted\">R E D A C T E D</span>")
 	return pencode2html(text)
 
@@ -458,10 +456,10 @@
 /proc/html2pencode(t)
 	t = replacetext(t, "<pre>", "\[pre\]")
 	t = replacetext(t, "</pre>", "\[/pre\]")
-	t = replacetext(t, "<font color=\"red\">", "\[fontred\]")//</font> to pass html tag integrity unit test
-	t = replacetext(t, "<font color=\"blue\">", "\[fontblue\]")//</font> to pass html tag integrity unit test
-	t = replacetext(t, "<font color=\"green\">", "\[fontgreen\]")
-	t = replacetext(t, "</font>", "\[/font\]")
+	t = replacetext(t, "<span style=\"color: red\">", "\[fontred\]")//</span> to pass html tag integrity unit test
+	t = replacetext(t, "<span style=\"color: blue\">", "\[fontblue\]")//</span> to pass html tag integrity unit test
+	t = replacetext(t, "<span style=\"color: green\">", "\[fontgreen\]")
+	t = replacetext(t, "</span>", "\[/font\]")
 	t = replacetext(t, "<BR>", "\[br\]")
 	t = replacetext(t, "<br>", "\[br\]")
 	t = replacetext(t, "<B>", "\[b\]")
@@ -495,6 +493,8 @@
 	t = replacetext(t, "<img src = daislogo.png>", "\[daislogo\]")
 	t = replacetext(t, "<img src = xynlogo.png>", "\[xynlogo\]")
 	t = replacetext(t, "<img src = sfplogo.png>", "\[sfplogo\]")
+	t = replacetext(t, "<img src = falogo.png>", "\[falogo\]")
+	t = replacetext(t, "<img src = zhlogo.png", "\[zhlogo\]")
 	t = replacetext(t, "<span class=\"paper_field\"></span>", "\[field\]")
 	t = replacetext(t, "<span class=\"redacted\">R E D A C T E D</span>", "\[redacted\]")
 	t = strip_html_properly(t)
@@ -669,3 +669,23 @@
 			return "Northwest"
 		if(337)
 			return "North-Northwest"
+
+
+/// Returns random hex of char length nibbles
+/proc/randhex(nibbles)
+	var/static/list/chars = list(
+		"0", "1", "2", "3", "4", "5", "6", "7",
+		"8", "9", "a", "b", "c", "d", "e", "f"
+	)
+	var/list/result = new (nibbles)
+	for (var/i = 1 to nibbles)
+		result[i] = chars[rand(1, 16)]
+	return jointext(result, null)
+
+
+/// Check if thing is an SUID. If other is supplied, check if other matches thing.
+/proc/is_suid(thing, other)
+	var/static/regex/suid_check = regex(@"^~[0-9a-zA-Z]{15}$")
+	if (other && other != thing)
+		return FALSE
+	return findtext(thing, suid_check)

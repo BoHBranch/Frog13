@@ -10,6 +10,8 @@
 	bone_material = null
 	bone_amount = 0
 
+	ignore_hazard_flags = HAZARD_FLAG_SHARD
+
 	var/syndicate = 0
 	var/const/MAIN_CHANNEL = "Main Frequency"
 	var/lawchannel = MAIN_CHANNEL // Default channel on which to state laws
@@ -83,13 +85,14 @@
 		if(EMP_ACT_HEAVY)
 			take_organ_damage(0, 16, ORGAN_DAMAGE_SILICON_EMP)
 			if(prob(50)) Stun(rand(5,10))
-			else confused = (min(confused + 2, 40))
+			else
+				mod_confused(2, 40)
 		if(EMP_ACT_LIGHT)
 			take_organ_damage(0, 7, ORGAN_DAMAGE_SILICON_EMP)
-			confused = (min(confused + 2, 30))
+			mod_confused(2, 30)
 	flash_eyes(affect_silicon = 1)
-	to_chat(src, "<span class='danger'><B>*BZZZT*</B></span>")
-	to_chat(src, "<span class='danger'>Warning: Electromagnetic pulse detected.</span>")
+	to_chat(src, SPAN_DANGER("<B>*BZZZT*</B>"))
+	to_chat(src, SPAN_DANGER("Warning: Electromagnetic pulse detected."))
 	..()
 
 /mob/living/silicon/stun_effect_act(stun_amount, agony_amount)
@@ -98,15 +101,15 @@
 /mob/living/silicon/electrocute_act(shock_damage, obj/source, siemens_coeff = 1.0, def_zone = null)
 
 	if (istype(source, /obj/machinery/containment_field))
-		var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+		var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 		s.set_up(5, 1, loc)
 		s.start()
 
 		shock_damage *= 0.75	//take reduced damage
 		take_overall_damage(0, shock_damage)
-		visible_message("<span class='warning'>\The [src] was shocked by \the [source]!</span>", \
-			"<span class='danger'>Energy pulse detected, system damaged!</span>", \
-			"<span class='warning'>You hear an electrical crack</span>")
+		visible_message(SPAN_WARNING("\The [src] was shocked by \the [source]!"), \
+			SPAN_DANGER("Energy pulse detected, system damaged!"), \
+			SPAN_WARNING("You hear an electrical crack"))
 		if(prob(20))
 			Stun(2)
 		return
@@ -172,8 +175,8 @@
 	. = ..()
 
 //can't inject synths
-/mob/living/silicon/can_inject(mob/user, target_zone)
-	to_chat(user, "<span class='warning'>The armoured plating is too tough.</span>")
+/mob/living/silicon/can_inject(mob/user, target_zone, ignore_thick_clothing)
+	to_chat(user, SPAN_WARNING("The armoured plating is too tough."))
 	return 0
 
 
@@ -205,7 +208,7 @@
 	set category = "IC"
 	set src = usr
 
-	var/dat = "<b><font size = 5>Known Languages</font></b><br/><br/>"
+	var/dat = "<b>[FONT_GIANT("Known Languages")]</b><br/><br/>"
 
 	if(default_language)
 		dat += "Current default language: [default_language] - <a href='byond://?src=\ref[src];default_lang=reset'>reset</a><br/><br/>"
@@ -229,10 +232,10 @@
 	switch(sensor_type)
 		if ("Security")
 			sensor_mode = SEC_HUD
-			to_chat(src, "<span class='notice'>Security records overlay enabled.</span>")
+			to_chat(src, SPAN_NOTICE("Security records overlay enabled."))
 		if ("Medical")
 			sensor_mode = MED_HUD
-			to_chat(src, "<span class='notice'>Life signs monitor overlay enabled.</span>")
+			to_chat(src, SPAN_NOTICE("Life signs monitor overlay enabled."))
 		if ("Disable")
 			sensor_mode = 0
 			to_chat(src, "Sensor augmentations disabled.")
@@ -281,7 +284,7 @@
 /mob/living/silicon/ai/raised_alarm(datum/alarm/A)
 	var/cameratext = ""
 	for(var/obj/machinery/camera/C in A.cameras())
-		cameratext += "[(cameratext == "")? "" : "|"]<A HREF=?src=\ref[src];switchcamera=\ref[C]>[C.c_tag]</A>"
+		cameratext += "[(cameratext == "")? "" : "|"]<A HREF='byond://?src=\ref[src];switchcamera=\ref[C]'>[C.c_tag]</A>"
 	to_chat(src, "[A.alarm_name()]! ([(cameratext)? cameratext : "No Camera"])")
 
 
@@ -310,7 +313,7 @@
 	if(mind)
 		if(mind.assigned_job)
 			mind.assigned_job.clear_slot()
-		if(mind.objectives.len)
+		if(length(mind.objectives))
 			qdel(mind.objectives)
 			mind.special_role = null
 		clear_antag_roles(mind)

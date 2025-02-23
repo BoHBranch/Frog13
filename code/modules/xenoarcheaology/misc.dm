@@ -14,14 +14,14 @@
 /obj/structure/closet/secure_closet/xenoarchaeologist
 	name = "Xenoarchaeologist Locker"
 	req_access = list(access_xenoarch)
-	closet_appearance = /decl/closet_appearance/secure_closet/expedition/science
+	closet_appearance = /singleton/closet_appearance/secure_closet/expedition/science
 
 /obj/structure/closet/secure_closet/xenoarchaeologist/New()
 	..()
 	if(prob(50))
-		new /obj/item/storage/backpack/toxins(src)
+		new /obj/item/storage/backpack/corpsci(src)
 	else
-		new /obj/item/storage/backpack/satchel/tox(src)
+		new /obj/item/storage/backpack/satchel/corpsci(src)
 	if(prob(50))
 		new /obj/item/storage/backpack/dufflebag(src)
 	new /obj/item/clothing/under/rank/scientist(src)
@@ -30,14 +30,14 @@
 	new /obj/item/clothing/glasses/science(src)
 	new /obj/item/device/radio/headset/headset_sci(src)
 	new /obj/item/clothing/mask/gas(src)
-	new /obj/item/material/clipboard(src)
+	new /obj/item/material/folder/clipboard(src)
 	new /obj/item/storage/belt/archaeology(src)
 	new /obj/item/storage/excavation(src)
 	new /obj/item/taperoll/research(src)
 
 /obj/structure/closet/excavation
 	name = "excavation tools"
-	closet_appearance = /decl/closet_appearance/secure_closet/engineering/tools
+	closet_appearance = /singleton/closet_appearance/secure_closet/engineering/tools
 
 /obj/structure/closet/excavation/New()
 	..()

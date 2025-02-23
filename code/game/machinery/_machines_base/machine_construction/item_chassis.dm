@@ -1,25 +1,32 @@
 // Identical to default behavior, but does not require circuit boards.
 
-/decl/machine_construction/default/item_chassis
+/singleton/machine_construction/default/item_chassis
 	needs_board = null
-	down_state = /decl/machine_construction/default/deconstructed
+	down_state = /singleton/machine_construction/default/deconstructed
 
-/decl/machine_construction/default/item_chassis/attackby(obj/item/I, mob/user, obj/machinery/machine)
-	if((. = ..()))
+/singleton/machine_construction/default/item_chassis/use_tool(obj/item/tool, mob/user, obj/machinery/machine)
+	. = ..()
+	if (.)
 		return
-	if(isWrench(I))
+
+	// Wrench - Dismantle
+	if (isWrench(tool))
 		TRANSFER_STATE(down_state)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] dismantles \a [machine] with \a [tool]."),
+			SPAN_NOTICE("You dismantle \the [machine] with \the [tool].")
+		)
 		machine.dismantle()
-		return
+		return TRUE
 
-/decl/machine_construction/default/item_chassis/state_is_valid(obj/machinery/machine)
+/singleton/machine_construction/default/item_chassis/state_is_valid(obj/machinery/machine)
 	return TRUE
 
-/decl/machine_construction/default/item_chassis/validate_state(obj/machinery/machine)
+/singleton/machine_construction/default/item_chassis/validate_state(obj/machinery/machine)
 	. = ..()
 	if(!.)
 		try_change_state(machine, down_state)
 
-/decl/machine_construction/default/panel_closed/mechanics_info()
+/singleton/machine_construction/default/panel_closed/mechanics_info()
 	. = list()
 	. += "Use a wrench to deconstruct the machine"

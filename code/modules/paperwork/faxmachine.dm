@@ -6,9 +6,10 @@ GLOBAL_LIST_EMPTY(admin_departments)
 
 /obj/machinery/photocopier/faxmachine
 	name = "fax machine"
-	icon = 'icons/obj/bureaucracy.dmi'
+	icon = 'icons/obj/machines/bureaucracy/fax_machine.dmi'
 	icon_state = "fax"
 	insert_anim = "faxsend"
+	obj_flags = OBJ_FLAG_ANCHORABLE | OBJ_FLAG_CAN_TABLE
 	var/send_access = list()
 
 	idle_power_usage = 30
@@ -18,6 +19,8 @@ GLOBAL_LIST_EMPTY(admin_departments)
 	var/authenticated = 0
 	var/department = null // our department
 	var/destination = null // the department we're sending to
+	/// LAZYLIST (Instances of `/obj/item/modular_computer/pda`). List of PDAs linked to this faxmachine
+	var/list/linked_pdas
 
 /obj/machinery/photocopier/faxmachine/Initialize()
 	. = ..()
@@ -39,48 +42,77 @@ GLOBAL_LIST_EMPTY(admin_departments)
 	if (department && !(("[department]" in GLOB.alldepartments) || ("[department]" in GLOB.admin_departments)))
 		GLOB.alldepartments |= department
 
-/obj/machinery/photocopier/faxmachine/attackby(obj/item/O as obj, mob/user as mob)
+
+/obj/machinery/photocopier/faxmachine/Destroy()
+	if (LAZYLEN(linked_pdas))
+		for (var/obj/item/modular_computer/pda/pda as anything in linked_pdas)
+			unlink_pda(pda)
+		linked_pdas = null
+	. = ..()
+
+
+/obj/machinery/photocopier/faxmachine/use_tool(obj/item/O, mob/living/user, list/click_params)
 	if(istype(O, /obj/item/paper))
 		var/obj/item/paper/P = O
 		if(!P.readable)
 			to_chat(user, SPAN_NOTICE("\The [src] beeps. Error, invalid document detected."))
-			return
-	if(istype(O, /obj/item/card/id))
+			return TRUE
+
+	if(isid(O))
 		if(!user.unEquip(O, src))
-			return
+			return TRUE
 		scan = O
-		to_chat(user, "<span class='notice'>You insert \the [O] into \the [src].</span>")
+		to_chat(user, SPAN_NOTICE("You insert \the [O] into \the [src]."))
+		return TRUE
+
 	if (isMultitool(O))
 		to_chat(user, SPAN_NOTICE("\The [src]'s department tag is set to [department]."))
 		if (!emagged)
 			to_chat(user, SPAN_WARNING("\The [src]'s department configuration is vendor locked."))
-			return
+			return TRUE
 		var/list/option_list = GLOB.alldepartments.Copy() + GLOB.admin_departments.Copy() + "(Custom)" + "(Cancel)"
 		var/new_department = input(user, "Which department do you want to tag this fax machine as? Choose '(Custom)' to enter a custom department or '(Cancel) to cancel.", "Fax Machine Department Tag") as null|anything in option_list
 		if (!new_department || new_department == department || new_department == "(Cancel)" || !CanUseTopic(user) || !Adjacent(user))
-			return
+			return TRUE
 		if (new_department == "(Custom)")
 			new_department = input(user, "Which department do you want to tag this fax machine as?", "Fax Machine Department Tag", department) as text|null
 			if (!new_department || new_department == department || !CanUseTopic(user) || !Adjacent(user))
-				return
+				return TRUE
 		if (new_department == "Unknown" || new_department == "(Custom)" || new_department == "(Cancel)")
 			to_chat(user, SPAN_WARNING("Invalid department tag selected."))
-			return
+			return TRUE
 		department = new_department
 		to_chat(user, SPAN_NOTICE("You reconfigure \the [src]'s department tag to [department]."))
-	else
-		..()
+		return TRUE
+
+	if (istype(O, /obj/item/modular_computer/pda))
+		if (LAZYISIN(linked_pdas, O))
+			unlink_pda(O)
+			to_chat(user, SPAN_NOTICE("You remove \the [O] from \the [src]'s notifications list."))
+			return TRUE
+		link_pda(O)
+		to_chat(user, SPAN_NOTICE("You add \the [O] to \the [src]'s notifications list. It will now be pinged whenever a fax is received."))
+		return TRUE
+
+	return ..()
 
 /obj/machinery/photocopier/faxmachine/get_mechanics_info()
 	. = "<p>The fax machine can be used to transmit paper faxes to other fax machines on the map, or to off-ship organizations handled by server administration. To use the fax machine, you'll need to insert both a paper and your ID card, authenticate, select a destination, the transmit the fax.</p>"
 	. += "<p>You can also fax paper bundles, including photos, using this machine.</p>"
-	. += "<p>You can check the machine's department origin tag using a multitool.</p>"
 	. += ..()
 
-/obj/machinery/photocopier/faxmachine/get_antag_info()
-	. = "<p>If emagged with a cryptographic sequencer, the fax machine can then have it's origin department tag changed using a multitool. This allows you to send faxes pretending to be from somewhere else on the ship, or even an off-ship origin like EXCOMM.</p>"
-	. += "<p><strong>NOTE</strong>: Any new department tags created in this way that do not already exist in the list of targets cannot receive faxes, as this does not add new departments to the list of valid fax targets.</p>"
-	. += ..()
+/obj/machinery/photocopier/faxmachine/get_interactions_info()
+	. = ..()
+	.["Multitool"] += "<p>Displays the fax machine's department origin tag.</p>"
+	.["PDA"] += "<p>Links the PDA to be notified of inbound faxes, or unlinks the PDA if it's currently linked.</p>"
+
+/obj/machinery/photocopier/faxmachine/get_antag_interactions_info()
+	. = ..()
+	.[CODEX_INTERACTION_EMAG] += "<p>Emags the fax machine, allowing its origin department tag to be modified using a multitool.</p>"
+	.["Multitool"] += {"
+		<p>If emagged, allows changing the fax machine's origin department tag. This allows you to send faxes pretending to be from somewhere else on the ship, or even an off-ship origin like EXCOMM.<br />
+		<strong>NOTE</strong>: Any new department tags created in this way that do not already exist in the list of targets cannot receive faxes, as this does not add new departments to the list of valid fax targets.</p>
+	"}
 
 /obj/machinery/photocopier/faxmachine/emag_act(remaining_charges, mob/user, emag_source)
 	if (emagged)
@@ -98,6 +130,8 @@ GLOBAL_LIST_EMPTY(admin_departments)
 	user.set_machine(src)
 
 	var/dat = "Fax Machine ([department])<BR>"
+
+	dat += "Linked PDAs: [LAZYLEN(linked_pdas)]<br />"
 
 	var/scan_name
 	if(scan)
@@ -209,6 +243,13 @@ GLOBAL_LIST_EMPTY(admin_departments)
 	playsound(loc, "sound/machines/dotprinter.ogg", 50, 1)
 	visible_message(SPAN_NOTICE("\The [src] pings, \"New fax received from [origin_department].\""))
 
+	// Notify any linked PDAs
+	if (LAZYLEN(linked_pdas))
+		for (var/obj/item/modular_computer/pda/pda as anything in linked_pdas)
+			if (!AreConnectedZLevels(get_z(src), get_z(pda)))
+				continue
+			pda.receive_notification("Fax from [origin_department] received in [department].")
+
 	// give the sprite some time to flick
 	sleep(20)
 
@@ -226,6 +267,7 @@ GLOBAL_LIST_EMPTY(admin_departments)
 
 	use_power_oneoff(active_power_usage)
 	return
+
 
 /obj/machinery/photocopier/faxmachine/proc/send_admin_fax(mob/sender, destination)
 	if(inoperable())
@@ -256,9 +298,10 @@ GLOBAL_LIST_EMPTY(admin_departments)
 
 
 /obj/machinery/photocopier/faxmachine/proc/message_admins(mob/sender, faxname, obj/item/sent, reply_type)
-	var/msg = "<span class='notice'><b><font color='#006100'>[faxname]: </font>[get_options_bar(sender, 2,1,1)]"
-	msg += "(<A HREF='?_src_=holder;take_ic=\ref[sender]'>TAKE</a>) (<a href='?_src_=holder;FaxReply=\ref[sender];originfax=\ref[src];replyorigin=[reply_type]'>REPLY</a>)</b>: "
-	msg += "Receiving '[sent.name]' via secure connection ... <a href='?_src_=holder;AdminFaxView=\ref[sent]'>view message</a></span>"
+	var/msg = "<b>[SPAN_COLOR("#006100", "[faxname]: ")][get_options_bar(sender, 2,1,1)]"
+	msg += "(<A HREF='byond://?_src_=holder;take_ic=\ref[sender]'>TAKE</a>) (<a href='byond://?_src_=holder;FaxReply=\ref[sender];originfax=\ref[src];replyorigin=[reply_type]'>REPLY</a>)</b>: "
+	msg += "Receiving '[sent.name]' via secure connection ... <a href='byond://?_src_=holder;AdminFaxView=\ref[sent]'>view message</a>"
+	msg = SPAN_NOTICE(msg)
 
 	for(var/client/C as anything in GLOB.admins)
 		if(check_rights((R_ADMIN|R_MOD),0,C))
@@ -266,8 +309,21 @@ GLOBAL_LIST_EMPTY(admin_departments)
 			sound_to(C, 'sound/machines/dotprinter.ogg')
 
 
+/obj/machinery/photocopier/faxmachine/proc/link_pda(obj/item/modular_computer/pda/pda)
+	if (!istype(pda))
+		return
+	LAZYADD(linked_pdas, pda)
+	GLOB.destroyed_event.register(pda, src, PROC_REF(unlink_pda))
+
+
+/obj/machinery/photocopier/faxmachine/proc/unlink_pda(obj/item/modular_computer/pda/pda)
+	LAZYREMOVE(linked_pdas, pda)
+	GLOB.destroyed_event.unregister(pda, src, PROC_REF(unlink_pda))
+
+
 /// Retrieves a list of all fax machines matching the given department tag.
 /proc/get_fax_machines_by_department(department)
+	RETURN_TYPE(/list)
 	if (!department)
 		department = "Unknown"
 	var/list/faxes = list()

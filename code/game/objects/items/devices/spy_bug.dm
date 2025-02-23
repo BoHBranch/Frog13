@@ -40,12 +40,16 @@
 /obj/item/device/spy_bug/attack_self(mob/user)
 	radio.attack_self(user)
 
-/obj/item/device/spy_bug/attackby(obj/W as obj, mob/living/user as mob)
-	if(istype(W, /obj/item/device/spy_monitor))
-		var/obj/item/device/spy_monitor/SM = W
-		SM.pair(src, user)
-	else
-		..()
+
+/obj/item/device/spy_bug/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Spy Monitor - Pair device
+	if (istype(tool, /obj/item/device/spy_monitor))
+		var/obj/item/device/spy_monitor/spy_monitor = tool
+		spy_monitor.pair(src, user)
+		return TRUE
+
+	return ..()
+
 
 /obj/item/device/spy_bug/hear_talk(mob/M, msg, verb, datum/language/speaking)
 	radio.hear_talk(M, msg, speaking)
@@ -87,18 +91,22 @@
 	radio.attack_self(user)
 	view_cameras(user)
 
-/obj/item/device/spy_monitor/attackby(obj/W as obj, mob/living/user as mob)
-	if(istype(W, /obj/item/device/spy_bug))
-		pair(W, user)
-	else
-		return ..()
+
+/obj/item/device/spy_monitor/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Spy Bug - Pair device
+	if (istype(tool, /obj/item/device/spy_bug))
+		pair(tool, user)
+		return TRUE
+
+	return ..()
+
 
 /obj/item/device/spy_monitor/proc/pair(obj/item/device/spy_bug/SB, mob/living/user)
 	if(SB.camera in cameras)
-		to_chat(user, "<span class='notice'>\The [SB] has been unpaired from \the [src].</span>")
+		to_chat(user, SPAN_NOTICE("\The [SB] has been unpaired from \the [src]."))
 		cameras -= SB.camera
 	else
-		to_chat(user, "<span class='notice'>\The [SB] has been paired with \the [src].</span>")
+		to_chat(user, SPAN_NOTICE("\The [SB] has been paired with \the [src]."))
 		cameras += SB.camera
 
 /obj/item/device/spy_monitor/proc/view_cameras(mob/user)
@@ -121,7 +129,7 @@
 			if(!T || !is_on_same_plane_or_station(T.z, user.z) || !selected_camera.can_use())
 				user.unset_machine()
 				user.reset_view(null)
-				to_chat(user, "<span class='notice'>[selected_camera] unavailable.</span>")
+				to_chat(user, SPAN_NOTICE("[selected_camera] unavailable."))
 				sleep(90)
 			else
 				user.set_machine(selected_camera)
@@ -134,9 +142,9 @@
 	if(operating)
 		return
 
-	if(!cameras.len)
-		to_chat(user, "<span class='warning'>No paired cameras detected!</span>")
-		to_chat(user, "<span class='warning'>Bring a bug in contact with this device to pair the camera.</span>")
+	if(!length(cameras))
+		to_chat(user, SPAN_WARNING("No paired cameras detected!"))
+		to_chat(user, SPAN_WARNING("Bring a bug in contact with this device to pair the camera."))
 		return
 
 	return 1

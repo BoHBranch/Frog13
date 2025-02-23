@@ -8,17 +8,18 @@ var/global/list/view_variables_no_assoc = list("verbs", "contents","screen","ima
 	set category = "Debug"
 	set name = "View Variables"
 
-	if(!check_rights(0))
+	if(!istype(D, /datum))
+		to_chat(usr, SPAN_WARNING("Not a viewable datum."))
 		return
 
-	if(!D)
+	if(!check_rights())
 		return
 
 	var/static/cookieoffset = rand(1, 9999) //to force cookies to reset after the round.
 
 	var/icon/sprite
 	var/atom/A
-	if(istype(D, /atom))
+	if(isloc(D))
 		A = D
 		if(A.icon && A.icon_state)
 			sprite = icon(A.icon, A.icon_state)
@@ -45,14 +46,14 @@ var/global/list/view_variables_no_assoc = list("verbs", "contents","screen","ima
 							<td><div align='center'>[D.get_view_variables_header()]</div></td>
 						</tr></table>
 						<div align='center'>
-							<b><font size='1'>[replacetext("[D.type]", "/", "/<wbr>")]</font></b>
-							[holder.marked_datum() == D ? "<br/><font size='1' color='red'><b>Marked Object</b></font>" : ""]
+							<b><span style='font-size: 10px'>[replacetext("[D.type]", "/", "/<wbr>")]</span></b>
+							[holder.marked_datum() == D ? "<br/><span style='font-size: 10px; color: red'><b>Marked Object</b></span>" : ""]
 						</div>
 					</td>
 					<td width='50%'>
 						<div align='center'>
-							<a href='?_src_=vars;datumrefresh=\ref[D]'>Refresh</a>
-							[A ? "<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[A.x];Y=[A.y];Z=[A.z]'>Jump To</a>":""]
+							<a href='byond://?_src_=vars;datumrefresh=\ref[D]'>Refresh</a>
+							[A ? "<A HREF='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[A.x];Y=[A.y];Z=[A.z]'>Jump To</a>":""]
 							<form>
 								<select name='file'
 								        size='1'
@@ -62,8 +63,8 @@ var/global/list/view_variables_no_assoc = list("verbs", "contents","screen","ima
 								        style='background-color:#ffffff'>
 									<option>Select option</option>
 									<option />
-									<option value='?_src_=vars;mark_object=\ref[D]'>Mark Object</option>
-									<option value='?_src_=vars;call_proc=\ref[D]'>Call Proc</option>
+									<option value='byond://?_src_=vars;mark_object=\ref[D]'>Mark Object</option>
+									<option value='byond://?_src_=vars;call_proc=\ref[D]'>Call Proc</option>
 									[D.get_view_variables_options()]
 								</select>
 							</form>
@@ -72,11 +73,11 @@ var/global/list/view_variables_no_assoc = list("verbs", "contents","screen","ima
 				</tr></table>
 			</div>
 			<hr/>
-			<font size='1'>
+			<span style='font-size: 10px'>
 				<b>E</b> - Edit, tries to determine the variable type by itself.<br/>
 				<b>C</b> - Change, asks you for the var type first.<br/>
 				<b>M</b> - Mass modify: changes this variable for all objects of this type.<br/>
-			</font>
+			</span>
 			<hr/>
 			<table width='100%'><tr>
 				<td width='20%'>
@@ -131,7 +132,7 @@ var/global/list/view_variables_no_assoc = list("verbs", "contents","screen","ima
 		dat += "<h1>[make_view_variables_value(D)]</h1>"
 		for(var/v in user.client.watched_variables[D])
 			dat += "<div class='var'>"
-			dat += "(<a href='?_src_=vars;datumunwatch=\ref[D];varnameunwatch=[v]'>X</a>) "
+			dat += "(<a href='byond://?_src_=vars;datumunwatch=\ref[D];varnameunwatch=[v]'>X</a>) "
 			dat += "[D.make_view_variables_variable_entry(v, D.get_variable_value(v), 1)] [v] = [make_view_variables_value(D.get_variable_value(v), v)]"
 			dat += "</div>"
 
@@ -171,20 +172,20 @@ var/global/list/view_variables_no_assoc = list("verbs", "contents","screen","ima
 	else if(istype(value, /datum))
 		var/datum/DA = value
 		if("[DA]" == "[DA.type]" || !"[DA]")
-			vtext = "<a href='?_src_=vars;Vars=\ref[DA]'>\ref[DA]</a> - [DA.type]"
+			vtext = "<a href='byond://?_src_=vars;Vars=\ref[DA]'>\ref[DA]</a> - [DA.type]"
 		else
-			vtext = "<a href='?_src_=vars;Vars=\ref[DA]'>\ref[DA]</a> - [DA] ([DA.type])"
+			vtext = "<a href='byond://?_src_=vars;Vars=\ref[DA]'>\ref[DA]</a> - [DA] ([DA.type])"
 	else if(istype(value, /client))
 		var/client/C = value
-		vtext = "<a href='?_src_=vars;Vars=\ref[C]'>\ref[C]</a> - [C] ([C.type])"
+		vtext = "<a href='byond://?_src_=vars;Vars=\ref[C]'>\ref[C]</a> - [C] ([C.type])"
 	else if(islist(value))
 		var/list/L = value
-		vtext = "/list ([L.len])"
-		if(!(varname in view_variables_dont_expand) && L.len > 0 && L.len < 100)
+		vtext = "/list ([length(L)])"
+		if(!(varname in view_variables_dont_expand) && length(L) > 0 && length(L) < 100)
 			extra += "<ul>"
-			for (var/index = 1 to L.len)
+			for (var/index = 1 to length(L))
 				var/entry = L[index]
-				if(!isnum(entry) && !isnull(entry) && !(varname in view_variables_no_assoc) && L[entry] != null)
+				if(!isnum(entry) && !isnull(entry) && !(varname in view_variables_no_assoc))
 					extra += "<li>[index]: [make_view_variables_value(entry)] -> [make_view_variables_value(L[entry])]</li>"
 				else
 					extra += "<li>[index]: [make_view_variables_value(entry)]</li>"
@@ -192,7 +193,7 @@ var/global/list/view_variables_no_assoc = list("verbs", "contents","screen","ima
 	else
 		vtext = "[value]"
 
-	return "<span class=value>[vtext]</span>[jointext(extra, null)]"
+	return "[SPAN_CLASS("value", "[vtext]")][jointext(extra, null)]"
 
 /proc/make_view_variables_var_entry(datum/D, varname, value, level=0)
 	var/ecm = null

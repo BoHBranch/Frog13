@@ -156,7 +156,7 @@
 	..()
 	holder.visor = src
 
-/obj/item/rig_module/vision/engage()
+/obj/item/rig_module/vision/engage(atom/target)
 
 	var/starting_up = !active
 
@@ -165,18 +165,18 @@
 
 	// Don't cycle if this engage() is being called by activate().
 	if(starting_up)
-		to_chat(holder.wearer, "<span class='info'>You activate your visual sensors.</span>")
+		to_chat(holder.wearer, SPAN_INFO("You activate your visual sensors."))
 		return 1
 
-	if(vision_modes.len > 1)
+	if(length(vision_modes) > 1)
 		vision_index++
-		if(vision_index > vision_modes.len)
+		if(vision_index > length(vision_modes))
 			vision_index = 1
 		vision = vision_modes[vision_index]
 
-		to_chat(holder.wearer, "<span class='info'>You cycle your sensors to <b>[vision.mode]</b> mode.</span>")
+		to_chat(holder.wearer, SPAN_INFO("You cycle your sensors to <b>[vision.mode]</b> mode."))
 	else
-		to_chat(holder.wearer, "<span class='info'>Your sensors only have one mode.</span>")
+		to_chat(holder.wearer, SPAN_INFO("Your sensors only have one mode."))
 	return 1
 
 /obj/item/rig_module/vision/Initialize()

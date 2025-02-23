@@ -1,4 +1,4 @@
-/datum/species/nabber
+/singleton/species/nabber
 	name = SPECIES_NABBER
 	name_plural = "giant armoured serpentids"
 	description = "A species of large invertebrates who, after being discovered by a \
@@ -18,7 +18,7 @@
 
 	skin_material = MATERIAL_SKIN_CHITIN
 	bone_material = null
-	speech_sounds = list('sound/voice/bug.ogg')
+	speech_sounds = list('sound/voice/Bug.ogg')
 	speech_chance = 2
 
 	warning_low_pressure = 50
@@ -78,7 +78,7 @@
 
 	breathing_organ = BP_TRACH
 
-	move_trail = /obj/effect/decal/cleanable/blood/tracks/snake
+	move_trail = /obj/decal/cleanable/blood/tracks/snake
 
 	has_organ = list(    // which required-organ checks are conducted.
 		BP_BRAIN =    /obj/item/organ/internal/brain/insectoid/nabber,
@@ -141,7 +141,7 @@
 		)
 	)
 	pain_emotes_with_pain_level = list(
-			list(/decl/emote/audible/bug_hiss) = 40
+			list(/singleton/emote/audible/bug_hiss) = 40
 	)
 
 	exertion_effect_chance = 10
@@ -149,16 +149,16 @@
 	exertion_reagent_scale = 5
 	exertion_reagent_path = /datum/reagent/lactate
 	exertion_emotes_biological = list(
-		/decl/emote/exertion/biological,
-		/decl/emote/exertion/biological/breath,
-		/decl/emote/exertion/biological/pant
+		/singleton/emote/exertion/biological,
+		/singleton/emote/exertion/biological/breath,
+		/singleton/emote/exertion/biological/pant
 	)
 
 	ingest_amount = 6
 
-	traits = list(/decl/trait/general/serpentid_adapted = TRAIT_LEVEL_EXISTS)
+	traits = list(/singleton/trait/general/serpentid_adapted = TRAIT_LEVEL_EXISTS)
 
-/datum/species/nabber/New()
+/singleton/species/nabber/New()
 	equip_adjust = list(
 		slot_head_str =    list("[NORTH]" = list("x" = 0, "y" = 7),  "[EAST]" = list("x" = 0, "y" = 8),  "[SOUTH]" = list("x" = 0, "y" = 8),  "[WEST]" = list("x" = 0, "y" = 8)),
 		slot_back_str =    list("[NORTH]" = list("x" = 0, "y" = 7),  "[EAST]" = list("x" = 0, "y" = 8),  "[SOUTH]" = list("x" = 0, "y" = 8),  "[WEST]" = list("x" = 0, "y" = 8)),
@@ -167,10 +167,10 @@
 	)
 	..()
 
-/datum/species/nabber/get_blood_name()
+/singleton/species/nabber/get_blood_name()
 	return "haemolymph"
 
-/datum/species/nabber/can_overcome_gravity(mob/living/carbon/human/H)
+/singleton/species/nabber/can_overcome_gravity(mob/living/carbon/human/H)
 	var/datum/gas_mixture/mixture = H.loc.return_air()
 
 	if(mixture)
@@ -183,13 +183,13 @@
 
 	return FALSE
 
-/datum/species/nabber/handle_environment_special(mob/living/carbon/human/H)
+/singleton/species/nabber/handle_environment_special(mob/living/carbon/human/H)
 	if(!H.on_fire && H.fire_stacks < 2)
 		H.fire_stacks += 0.2
 	return
 
 // Nabbers will only fall when there isn't enough air pressure for them to keep themselves aloft.
-/datum/species/nabber/can_fall(mob/living/carbon/human/H)
+/singleton/species/nabber/can_fall(mob/living/carbon/human/H)
 	var/datum/gas_mixture/mixture = H.loc.return_air()
 
 	//nabbers should not be trying to break their fall on stairs.
@@ -205,7 +205,7 @@
 	return TRUE
 
 // Even when nabbers do fall, if there's enough air pressure they won't hurt themselves.
-/datum/species/nabber/handle_fall_special(mob/living/carbon/human/H, turf/landing)
+/singleton/species/nabber/handle_fall_special(mob/living/carbon/human/H, turf/landing)
 
 	var/datum/gas_mixture/mixture = H.loc.return_air()
 
@@ -229,13 +229,13 @@
 	return FALSE
 
 
-/datum/species/nabber/can_shred(mob/living/carbon/human/H, ignore_intent, ignore_antag)
+/singleton/species/nabber/can_shred(mob/living/carbon/human/H, ignore_intent, ignore_antag)
 	if(!H.handcuffed || H.buckled)
 		return ..(H, ignore_intent, TRUE)
 	else
 		return 0
 
-/datum/species/nabber/handle_movement_delay_special(mob/living/carbon/human/H)
+/singleton/species/nabber/handle_movement_delay_special(mob/living/carbon/human/H)
 	var/tally = 0
 
 	H.remove_cloaking_source(src)
@@ -255,10 +255,10 @@
 	if(!(. = ..()))
 		return
 	affecting.apply_damage(15, DAMAGE_BRUTE, BP_CHEST, DAMAGE_FLAG_SHARP, "organic punctures")
-	affecting.visible_message("<span class='danger'>[assailant]'s spikes dig in painfully!</span>")
+	affecting.visible_message(SPAN_DANGER("[assailant]'s spikes dig in painfully!"))
 	affecting.Stun(10)
 
-/datum/species/nabber/update_skin(mob/living/carbon/human/H)
+/singleton/species/nabber/update_skin(mob/living/carbon/human/H)
 
 	if(H.stat)
 		H.skin_state = SKIN_NORMAL
@@ -287,48 +287,44 @@
 
 			var/image/threat_image = skin_overlays[image_key]
 			if(!threat_image)
-				var/icon/base_icon = icon(H.stand_icon)
-				var/icon/I = new('icons/mob/human_races/species/nabber/threat.dmi', "threat")
-				base_icon.Blend(COLOR_BLACK, ICON_MULTIPLY)
-				base_icon.Blend(I, ICON_ADD)
-				threat_image  = image(base_icon)
+				threat_image = image('icons/mob/human_races/species/nabber/threat.dmi', "threat")
 				skin_overlays[image_key] = threat_image
 
 			return(threat_image)
 	return
 
-/datum/species/nabber/disarm_attackhand(mob/living/carbon/human/attacker, mob/living/carbon/human/target)
+/singleton/species/nabber/disarm_attackhand(mob/living/carbon/human/attacker, mob/living/carbon/human/target)
 	if(attacker.pulling_punches || target.lying || attacker == target)
 		return ..(attacker, target)
 	if(world.time < attacker.last_attack + 20)
-		to_chat(attacker, "<span class='notice'>You can't attack again so soon.</span>")
+		to_chat(attacker, SPAN_NOTICE("You can't attack again so soon."))
 		return 0
 	attacker.last_attack = world.time
 	var/turf/T = get_step(get_turf(target), get_dir(get_turf(attacker), get_turf(target)))
 	playsound(target.loc, 'sound/weapons/pushhiss.ogg', 50, 1, -1)
 	if(!T.density)
 		step(target, get_dir(get_turf(attacker), get_turf(target)))
-		target.visible_message("<span class='danger'>[pick("[target] was sent flying backward!", "[target] staggers back from the impact!")]</span>")
+		target.visible_message(SPAN_CLASS("danger", "[pick("[target] was sent flying backward!", "[target] staggers back from the impact!")]"))
 	else
 		target.turf_collision(T, target.throw_speed / 2)
 	if(prob(50))
 		target.set_dir(GLOB.reverse_dir[target.dir])
 
-/datum/species/nabber/get_additional_examine_text(mob/living/carbon/human/H)
-	var/datum/gender/T = gender_datums[H.get_gender()]
+/singleton/species/nabber/get_additional_examine_text(mob/living/carbon/human/H)
+	var/datum/pronouns/P = H.choose_from_pronouns()
 	if(H.pulling_punches)
-		return "\n[T.His] manipulation arms are out and [T.he] looks ready to use complex items."
+		return "\n[P.His] manipulation arms are out and [P.he] looks ready to use complex items."
 	else
-		return "\n<span class='warning'>[T.His] deadly upper arms are raised and [T.he] looks ready to attack!</span>"
+		return "\n[SPAN_WARNING("[P.His] deadly upper arms are raised and [P.he] looks ready to attack!")]"
 
-/datum/species/nabber/handle_post_spawn(mob/living/carbon/human/H)
+/singleton/species/nabber/handle_post_spawn(mob/living/carbon/human/H)
 	..()
 	return H.pulling_punches = TRUE
 
-/datum/species/nabber/has_fine_manipulation(mob/living/carbon/human/H)
+/singleton/species/nabber/has_fine_manipulation(mob/living/carbon/human/H)
 	return (..() && (H && H.pulling_punches))
 
-/datum/species/nabber/attempt_grab(mob/living/carbon/human/grabber, mob/living/target)
+/singleton/species/nabber/attempt_grab(mob/living/carbon/human/grabber, mob/living/target)
 	if(grabber.pulling_punches)
 		return ..()
 	if(grabber == target)
@@ -336,14 +332,14 @@
 
 	for (var/obj/item/item as anything in grabber.GetAllHeld())
 		grabber.unEquip(item)
-	to_chat(grabber, "<span class='warning'>You drop everything as you spring out to nab \the [target]!.</span>")
+	to_chat(grabber, SPAN_WARNING("You drop everything as you spring out to nab \the [target]!."))
 	playsound(grabber.loc, 'sound/weapons/pierce.ogg', 25, 1, -1)
 
 	if(!grabber.is_cloaked())
 		return ..(grabber, target, GRAB_NAB)
 
 	if(grabber.last_special > world.time)
-		to_chat(grabber, "<span class='warning'>It is too soon to make another nab attempt.</span>")
+		to_chat(grabber, SPAN_WARNING("It is too soon to make another nab attempt."))
 		return
 
 	grabber.last_special = world.time + 50
@@ -352,60 +348,53 @@
 	if(prob(90) && grabber.make_grab(grabber, target, GRAB_NAB_SPECIAL))
 		target.Weaken(rand(1,3))
 		target.LAssailant = grabber
-		grabber.visible_message("<span class='danger'>\The [grabber] suddenly lunges out and grabs \the [target]!</span>")
+		grabber.visible_message(SPAN_DANGER("\The [grabber] suddenly lunges out and grabs \the [target]!"))
 		grabber.do_attack_animation(target)
 		playsound(grabber.loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
 		return 1
 	else
-		grabber.visible_message("<span class='danger'>\The [grabber] suddenly lunges out, almost grabbing \the [target]!</span>")
+		grabber.visible_message(SPAN_DANGER("\The [grabber] suddenly lunges out, almost grabbing \the [target]!"))
 
-/datum/species/nabber/toggle_stance(mob/living/carbon/human/H)
+/singleton/species/nabber/toggle_stance(mob/living/carbon/human/H)
 	if(H.incapacitated())
 		return FALSE
-	var/datum/gender/T = gender_datums[H.get_gender()]
-	to_chat(H, "<span class='notice'>You begin to adjust the fluids in your arms, dropping everything and getting ready to swap which set you're using.</span>")
+	var/datum/pronouns/P = H.choose_from_pronouns()
+	to_chat(H, SPAN_NOTICE("You begin to adjust the fluids in your arms, dropping everything and getting ready to swap which set you're using."))
 	var/hidden = H.is_cloaked()
-	if(!hidden) H.visible_message("<span class='warning'>\The [H] shifts [T.his] arms.</span>")
+	if(!hidden) H.visible_message(SPAN_WARNING("\The [H] shifts [P.his] arms."))
 	for (var/obj/item/item as anything in H.GetAllHeld())
 		H.unEquip(item)
 	if(do_after(H, 3 SECONDS, do_flags = DO_DEFAULT | DO_USER_UNIQUE_ACT))
 		arm_swap(H)
 	else
-		to_chat(H, "<span class='notice'>You stop adjusting your arms and don't switch between them.</span>")
+		to_chat(H, SPAN_NOTICE("You stop adjusting your arms and don't switch between them."))
 	return TRUE
 
-/datum/species/nabber/proc/arm_swap(mob/living/carbon/human/H, forced)
+/singleton/species/nabber/proc/arm_swap(mob/living/carbon/human/H, forced)
 	for (var/obj/item/item as anything in H.GetAllHeld())
 		H.unEquip(item)
 	var/hidden = H.is_cloaked()
-	var/datum/gender/T = gender_datums[H.get_gender()]
+	var/datum/pronouns/P = H.choose_from_pronouns()
 	H.pulling_punches = !H.pulling_punches
 	if(H.pulling_punches)
 		H.current_grab_type = all_grabobjects[GRAB_NORMAL]
 		if(forced)
-			to_chat(H, "<span class='notice'>You can't keep your hunting arms prepared and they drop, forcing you to use your manipulation arms.</span>")
+			to_chat(H, SPAN_NOTICE("You can't keep your hunting arms prepared and they drop, forcing you to use your manipulation arms."))
 			if(!hidden)
-				H.visible_message("<span class='notice'>[H] falters, [T.his] hunting arms failing.</span>")
+				H.visible_message(SPAN_NOTICE("[H] falters, [P.his] hunting arms failing."))
 		else
-			to_chat(H, "<span class='notice'>You relax your hunting arms, lowering the pressure and folding them tight to your thorax. \
-			You reach out with your manipulation arms, ready to use complex items.</span>")
+			to_chat(H, SPAN_NOTICE("You relax your hunting arms, lowering the pressure and folding them tight to your thorax. \
+			You reach out with your manipulation arms, ready to use complex items."))
 			if(!hidden)
-				H.visible_message("<span class='notice'>[H] seems to relax as [T.he] folds [T.his] massive curved arms to [T.his] thorax and reaches out \
-				with [T.his] small handlike limbs.</span>")
+				H.visible_message(SPAN_NOTICE("[H] seems to relax as [P.he] folds [P.his] massive curved arms to [P.his] thorax and reaches out \
+				with [P.his] small handlike limbs."))
 	else
 		H.current_grab_type = all_grabobjects[GRAB_NAB]
-		to_chat(H, "<span class='notice'>You pull in your manipulation arms, dropping any items and unfolding your massive hunting arms in preparation of grabbing prey.</span>")
+		to_chat(H, SPAN_NOTICE("You pull in your manipulation arms, dropping any items and unfolding your massive hunting arms in preparation of grabbing prey."))
 		if(!hidden)
-			H.visible_message("<span class='warning'>[H] tenses as [T.he] brings [T.his] smaller arms in close to [T.his] body. [T.His] two massive spiked arms reach \
-			out. [T.He] looks ready to attack.</span>")
+			H.visible_message(SPAN_WARNING("[H] tenses as [P.he] brings [P.his] smaller arms in close to [P.his] body. [P.His] two massive spiked arms reach \
+			out. [P.He] looks ready to attack."))
 
-/datum/species/nabber/check_background(datum/job/job, datum/preferences/prefs)
-	var/decl/cultural_info/culture/nabber/grade = SSculture.get_culture(prefs.cultural_info[TAG_CULTURE])
+/singleton/species/nabber/check_background(datum/job/job, datum/preferences/prefs)
+	var/singleton/cultural_info/culture/nabber/grade = SSculture.get_culture(prefs.cultural_info[TAG_CULTURE])
 	. = istype(grade) ? (job.type in grade.valid_jobs) : ..()
-
-/datum/species/nabber/skills_from_age(age)	//Converts an age into a skill point allocation modifier. Can be used to give skill point bonuses/penalities not depending on job.
-	switch(age)
-		if(0 to 18) 	. = 8
-		if(19 to 27) 	. = 2
-		if(28 to 40)	. = -2
-		else			. = -4

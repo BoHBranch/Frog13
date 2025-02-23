@@ -6,7 +6,7 @@
 /obj/machinery/power/tracker
 	name = "solar tracker"
 	desc = "A solar directional tracker."
-	icon = 'icons/obj/power.dmi'
+	icon = 'icons/obj/machines/power/solar_panels.dmi'
 	icon_state = "tracker"
 	anchored = TRUE
 	density = TRUE
@@ -56,21 +56,21 @@
 	if(powernet && (powernet == control.powernet)) //update if we're still in the same powernet
 		control.cdir = angle
 
-/obj/machinery/power/tracker/attackby(obj/item/W, mob/user)
-
+/obj/machinery/power/tracker/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(isCrowbar(W))
 		playsound(src.loc, 'sound/machines/click.ogg', 50, 1)
-		user.visible_message("<span class='notice'>[user] begins to take the glass off the solar tracker.</span>")
-		if(do_after(user, 5 SECONDS, src, DO_REPAIR_CONSTRUCT))
+		user.visible_message(SPAN_NOTICE("[user] begins to take the glass off the solar tracker."))
+		if(do_after(user, (W.toolspeed * 5) SECONDS, src, DO_REPAIR_CONSTRUCT))
 			var/obj/item/solar_assembly/S = locate() in src
 			if(S)
 				S.dropInto(loc)
 				S.give_glass()
 			playsound(src.loc, 'sound/items/Deconstruct.ogg', 50, 1)
-			user.visible_message("<span class='notice'>[user] takes the glass off the tracker.</span>")
+			user.visible_message(SPAN_NOTICE("[user] takes the glass off the tracker."))
 			qdel(src)
-		return
-	..()
+		return TRUE
+
+	return ..()
 
 // Tracker Electronic
 

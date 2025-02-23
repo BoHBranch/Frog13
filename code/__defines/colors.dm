@@ -39,6 +39,8 @@
 #define COLOR_PURPLE_GRAY      "#a2819e"
 #define COLOR_BLUE_LIGHT       "#33ccff"
 #define COLOR_RED_LIGHT        "#ff3333"
+#define COLOR_GREEN_LIGHT      "#33ff33"
+#define COLOR_ORANGE_LIGHT     "#ffcc33"
 #define COLOR_BEIGE            "#ceb689"
 #define COLOR_BABY_BLUE        "#89cff0"
 #define COLOR_PALE_GREEN_GRAY  "#aed18b"
@@ -52,8 +54,8 @@
 #define COLOR_WHITE            "#ffffff"
 #define COLOR_GOLD             "#ffcc33"
 #define COLOR_CLOSET_GOLD      "#6d6133"
-#define COLOR_NT_RED           "#9d2300"
 #define COLOR_BOTTLE_GREEN     "#1f6b4f"
+#define COLOR_NT_RED           "#9d2300"
 #define COLOR_PALE_BTL_GREEN   "#57967f"
 #define COLOR_GUNMETAL         "#545c68"
 #define COLOR_WALL_GUNMETAL    "#353a42"
@@ -82,6 +84,16 @@
 #define COLOR_NULLGLASS        "#ff6088"
 #define COLOR_DIAMOND          "#d8d4ea"
 #define COLOR_VOX			   "#244238"
+
+
+#define CABLE_COLOR_RED "#800000"
+#define CABLE_COLOR_YELLOW "#ffbf00"
+#define CABLE_COLOR_GREEN "#008000"
+#define CABLE_COLOR_BLUE "#3366cc"
+#define CABLE_COLOR_ORANGE "#ff9900"
+#define CABLE_COLOR_CYAN "#5ca1cc"
+#define CABLE_COLOR_WHITE "#c0c0c0"
+#define CABLE_COLOR_BLACK "#333333"
 
 
 #define	PIPE_COLOR_GREY        "#808080"
@@ -127,11 +139,25 @@
 #define WOOD_COLOR_YELLOW      "#e3994e"
 
 #define GLASS_COLOR            "#aaccff"
-#define GLASS_COLOR_PHORON     "#7c3a9a"
+#define GLASS_COLOR_BORON      "#899ebd"
 #define GLASS_COLOR_TINTED     "#222222"
 #define GLASS_COLOR_FROSTED    "#eeeeee"
 
 #define COLOR_BLOOD_HUMAN      "#a10808"
+
+// Color defines used by the crew manifest
+#define MANIFEST_COLOR_COMMAND  "#204090"
+#define MANIFEST_COLOR_SUPPORT  "#3085b6"
+#define MANIFEST_COLOR_SCIENCE  "#993399"
+#define MANIFEST_COLOR_SECURITY "#930000"
+#define MANIFEST_COLOR_MEDICAL  "#009190"
+#define MANIFEST_COLOR_ENGINEER "#a66300"
+#define MANIFEST_COLOR_SUPPLY   "#7f6539"
+#define MANIFEST_COLOR_EXPLORER "#929820"
+#define MANIFEST_COLOR_SERVICE  "#709b00"
+#define MANIFEST_COLOR_CIVILIAN "#408010"
+#define MANIFEST_COLOR_MISC     "#353a42"
+#define MANIFEST_COLOR_SILICON  "#4c535b"
 
 //Color defines used by the assembly detailer.
 #define COLOR_ASSEMBLY_BLACK   "#545454"

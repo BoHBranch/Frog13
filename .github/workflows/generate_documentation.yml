@@ -10,33 +10,49 @@ on:
   workflow_dispatch: # allows this workflow to be manually triggered
 
 env:
-  SPACEMAN_DMM_VERSION: suite-1.7.2
+  SPACEMAN_DMM_VERSION: suite-1.9
 
 jobs:
+  PreFlight:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: paths-filter
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+        id: filter
+        with:
+          filters: .github/workflow-config/preflight-filters.yml
+    outputs:
+      dm: ${{ steps.filter.outputs.dm }}
   generate_documentation:
     permissions:
       contents: write # required to push the doc commit
-    if: "!contains(github.event.head_commit.message, '[ci skip]')"
-    runs-on: ubuntu-latest
-    concurrency: gen-docs
+    runs-on: ubuntu-22.04
+    needs: PreFlight
+    if: |
+      (needs.PreFlight.outputs.dm == 'true') &&
+      !contains(github.event.head_commit.message, '[ci skip]')
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     steps:
-      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Setup Cache
-        uses: actions/cache@56461b9eb0f8438fd15c7a9968e3c9ebb18ceff1
+        uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f
         with:
-          path: $HOME/spaceman_dmm/$SPACEMAN_DMM_VERSION
+          path: ~/spaceman_dmm/${{ env.SPACEMAN_DMM_VERSION }}
           key: ${{ runner.os }}-spacemandmm-${{ env.SPACEMAN_DMM_VERSION }}
       - name: Install dmdoc
         run:  scripts/install-spaceman-dmm.sh dmdoc
       - name: Generate documentation
         run: |
           ~/dmdoc
-          touch dmdoc/.nojekyll
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@13046b614c663b56cba4dda3f30b9736a748b80d
+        uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages-dmdoc
-          single-commit: true
+          branch: gh-pages
           folder: dmdoc
+          target-folder: docs
           clean: true

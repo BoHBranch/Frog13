@@ -3,6 +3,7 @@
 /obj/item/stock_parts/power/terminal
 	name = "wired connection"
 	desc = "A power connection directly to the grid, via power cables."
+	icon = 'icons/obj/machines/apc.dmi'
 	icon_state = "terminal"
 	priority = 2
 	var/obj/machinery/power/terminal/terminal
@@ -73,15 +74,15 @@
 		unset_terminal(machine, terminal)
 	terminal = new_terminal
 	terminal.master = src
-	GLOB.destroyed_event.register(terminal, src, .proc/unset_terminal)
+	GLOB.destroyed_event.register(terminal, src, PROC_REF(unset_terminal))
 
-	set_extension(src, /datum/extension/event_registration/shuttle_stationary, GLOB.moved_event, machine, .proc/machine_moved, get_area(src))
+	set_extension(src, /datum/extension/event_registration/shuttle_stationary, GLOB.moved_event, machine, PROC_REF(machine_moved), get_area(src))
 	set_status(machine, PART_STAT_CONNECTED)
 	start_processing(machine)
 
 /obj/item/stock_parts/power/terminal/proc/machine_moved(obj/machinery/machine, turf/old_loc, turf/new_loc)
 	if(!terminal)
-		GLOB.moved_event.unregister(machine, src, .proc/machine_moved)
+		GLOB.moved_event.unregister(machine, src, PROC_REF(machine_moved))
 		return
 	if(istype(new_loc) && (terminal.loc == get_step(new_loc, terminal_dir)))
 		return     // This location is fine
@@ -111,10 +112,10 @@
 	var/check_dir = terminal_dir ? GLOB.reverse_dir[terminal_dir] : machine.dir
 	for(var/obj/machinery/power/terminal/term in T)
 		if(T.dir == check_dir)
-			to_chat(user, "<span class='notice'>There is already a terminal here.</span>")
+			to_chat(user, SPAN_NOTICE("There is already a terminal here."))
 			return TRUE
 
-/obj/item/stock_parts/power/terminal/attackby(obj/item/I, mob/user)
+/obj/item/stock_parts/power/terminal/use_tool(obj/item/I, mob/living/user, list/click_params)
 	var/obj/machinery/machine = loc
 	if(!istype(machine))
 		return ..()
@@ -128,27 +129,27 @@
 			return FALSE
 
 		if(istype(T) && !T.is_plating())
-			to_chat(user, "<span class='warning'>You must remove the floor plating in front of \the [machine] first.</span>")
+			to_chat(user, SPAN_WARNING("You must remove the floor plating in front of \the [machine] first."))
 			return TRUE
 		var/obj/item/stack/cable_coil/C = I
 		if(!C.can_use(10))
-			to_chat(user, "<span class='warning'>You need ten lengths of cable for \the [machine].</span>")
+			to_chat(user, SPAN_WARNING("You need ten lengths of cable for \the [machine]."))
 			return TRUE
-		user.visible_message("<span class='warning'>\The [user] adds cables to the \the [machine].</span>", \
+		user.visible_message(SPAN_WARNING("\The [user] adds cables to the \the [machine]."), \
 							"You start adding cables to \the [machine] frame...")
 		playsound(src.loc, 'sound/items/Deconstruct.ogg', 50, 1)
 		if(do_after(user, 2 SECONDS, machine, DO_REPAIR_CONSTRUCT))
 			if(C.can_use(10) && !terminal && (machine == loc) && machine.components_are_accessible(type) && !blocking_terminal_at_loc(machine, T, user))
 				var/obj/structure/cable/N = T.get_cable_node()
 				if (prob(50) && electrocute_mob(user, N, N))
-					var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+					var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 					s.set_up(5, 1, machine)
 					s.start()
 					if(user.stunned)
 						return TRUE
 				C.use(10)
 				user.visible_message(\
-					"<span class='warning'>\The [user] has added cables to the \the [machine]!</span>",\
+					SPAN_WARNING("\The [user] has added cables to the \the [machine]!"),\
 					"You add cables to the \the [machine].")
 				make_terminal(machine)
 		return TRUE
@@ -158,32 +159,33 @@
 		if(terminal_dir && user.loc != T)
 			return FALSE // Wrong terminal handler.
 		if(istype(T) && !T.is_plating())
-			to_chat(user, "<span class='warning'>You must remove the floor plating in front of \the [machine] first.</span>")
+			to_chat(user, SPAN_WARNING("You must remove the floor plating in front of \the [machine] first."))
 			return TRUE
-		user.visible_message("<span class='warning'>\The [user] dismantles the power terminal from \the [machine].</span>", \
+		user.visible_message(SPAN_WARNING("\The [user] dismantles the power terminal from \the [machine]."), \
 							"You begin to cut the cables...")
 		playsound(src.loc, 'sound/items/Deconstruct.ogg', 50, 1)
-		if(do_after(user, 5 SECONDS, machine, DO_REPAIR_CONSTRUCT))
+		if(do_after(user, (I.toolspeed * 5) SECONDS, machine, DO_REPAIR_CONSTRUCT))
 			if(terminal && (machine == loc) && machine.components_are_accessible(type))
 				if (prob(50) && electrocute_mob(user, terminal.powernet, terminal))
-					var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+					var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 					s.set_up(5, 1, machine)
 					s.start()
 					if(user.stunned)
 						return TRUE
 				new /obj/item/stack/cable_coil(T, 10)
-				to_chat(user, "<span class='notice'>You cut the cables and dismantle the power terminal.</span>")
+				to_chat(user, SPAN_NOTICE("You cut the cables and dismantle the power terminal."))
 				qdel(terminal)
 		return TRUE
+	return ..()
 
 /obj/item/stock_parts/power/terminal/buildable
 	part_flags = PART_FLAG_HAND_REMOVE
 	matter = list(MATERIAL_STEEL = 400)
 
-/decl/stock_part_preset/terminal_setup
+/singleton/stock_part_preset/terminal_setup
 	expected_part_type = /obj/item/stock_parts/power/terminal
 
-/decl/stock_part_preset/terminal_setup/apply(obj/machinery/machine, obj/item/stock_parts/power/terminal/part)
+/singleton/stock_part_preset/terminal_setup/apply(obj/machinery/machine, obj/item/stock_parts/power/terminal/part)
 	var/obj/machinery/power/terminal/term = locate() in machine.loc
 	if(istype(term) && !term.master)
 		part.set_terminal(machine, term)

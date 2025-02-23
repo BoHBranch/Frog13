@@ -2,35 +2,35 @@
 // on the XGM gas datums - would need to have a consistent/constant
 // id for the gasses but otherwise should allow for true omni filters.
 
-GLOBAL_LIST_INIT(filter_gas_to_mode, list(    \
-	"None" =           ATM_NONE,              \
-	"Oxygen" =         ATM_O2,                \
-	"Nitrogen" =       ATM_N2,                \
-	"Carbon Dioxide" = ATM_CO2,               \
-	"Phoron" =         ATM_P,                 \
-	"Nitrous Oxide" =  ATM_N2O,               \
-	"Hydrogen" =       ATM_H2,                \
-	"Methyl Bromide" = ATM_CH3BR              \
+GLOBAL_LIST_AS(filter_gas_to_mode, list(
+	"None" = ATM_NONE,
+	"Oxygen" = ATM_O2,
+	"Nitrogen" = ATM_N2,
+	"Carbon Dioxide" = ATM_CO2,
+	"Phoron" = ATM_P,
+	"Nitrous Oxide" = ATM_N2O,
+	"Hydrogen" = ATM_H2,
+	"Methyl Bromide" = ATM_CH3BR
 ))
 
-GLOBAL_LIST_INIT(filter_mode_to_gas, list(    \
-	"[ATM_O2]" =       "Oxygen",              \
-	"[ATM_N2]" =       "Nitrogen",            \
-	"[ATM_CO2]" =      "Carbon Dioxide",      \
-	"[ATM_P]" =        "Phoron",              \
-	"[ATM_N2O]" =      "Nitrous Oxide",       \
-	"[ATM_H2]" =       "Hydrogen",            \
-	"[ATM_CH3BR]" =    "Methyl Bromide"       \
+GLOBAL_LIST_AS(filter_mode_to_gas, list(
+	"[ATM_O2]" = "Oxygen",
+	"[ATM_N2]" = "Nitrogen",
+	"[ATM_CO2]" = "Carbon Dioxide",
+	"[ATM_P]" = "Phoron",
+	"[ATM_N2O]" = "Nitrous Oxide",
+	"[ATM_H2]" = "Hydrogen",
+	"[ATM_CH3BR]" = "Methyl Bromide"
 ))
 
-GLOBAL_LIST_INIT(filter_mode_to_gas_id, list( \
-	"[ATM_O2]" =       "[GAS_OXYGEN]",        \
-	"[ATM_N2]" =       "[GAS_NITROGEN]",      \
-	"[ATM_CO2]" =      "[GAS_CO2]",           \
-	"[ATM_P]" =        "[GAS_PHORON]",        \
-	"[ATM_N2O]" =      "[GAS_N2O]",           \
-	"[ATM_H2]" =       "[GAS_HYDROGEN]",      \
-	"[ATM_CH3BR]" =    "[GAS_METHYL_BROMIDE]" \
+GLOBAL_LIST_AS(filter_mode_to_gas_id, list(
+	"[ATM_O2]" = "[GAS_OXYGEN]",
+	"[ATM_N2]" = "[GAS_NITROGEN]",
+	"[ATM_CO2]" = "[GAS_CO2]",
+	"[ATM_P]" = "[GAS_PHORON]",
+	"[ATM_N2O]" = "[GAS_N2O]",
+	"[ATM_H2]" = "[GAS_HYDROGEN]",
+	"[ATM_CH3BR]" = "[GAS_METHYL_BROMIDE]"
 ))
 
 //--------------------------------------------
@@ -88,7 +88,7 @@ GLOBAL_LIST_INIT(filter_mode_to_gas_id, list( \
 /obj/machinery/atmospherics/omni/filter/error_check()
 	if(!input || !output || !gas_filters)
 		return 1
-	if(gas_filters.len < 1) //requires at least 1 filter ~otherwise why are you using a filter?
+	if(length(gas_filters) < 1) //requires at least 1 filter ~otherwise why are you using a filter?
 		return 1
 
 	return 0
@@ -172,13 +172,13 @@ GLOBAL_LIST_INIT(filter_mode_to_gas_id, list( \
 			if(ATM_GAS_MIN to ATM_GAS_MAX)
 				f_type = mode_send_switch(P.mode)
 
-		portData[++portData.len] = list("dir" = dir_name(P.dir, capitalize = 1), \
+		portData[LIST_PRE_INC(portData)] = list("dir" = dir_name(P.dir, capitalize = 1), \
 										"input" = input, \
 										"output" = output, \
 										"filter" = is_filter, \
 										"f_type" = f_type)
 
-	if(portData.len)
+	if(length(portData))
 		data["ports"] = portData
 	if(output)
 		data["set_flow_rate"] = round(set_flow_rate*10)		//because nanoui can't handle rounded decimals.
@@ -237,7 +237,7 @@ GLOBAL_LIST_INIT(filter_mode_to_gas_id, list( \
 	switch_mode(dir, mode)
 
 /obj/machinery/atmospherics/omni/filter/proc/switch_mode(port, mode)
-	if(mode == null || !port)
+	if(isnull(mode) || !port)
 		return
 	var/datum/omni_port/target_port = null
 	var/list/other_ports = new()

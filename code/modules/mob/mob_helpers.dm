@@ -28,7 +28,7 @@
 		for(var/obj/item/organ/external/E in organs)
 			if(BP_IS_ROBOTIC(E))
 				robolimb_count++
-		full_prosthetic = (robolimb_count == organs.len)
+		full_prosthetic = (robolimb_count == length(organs))
 		update_emotes()
 	return full_prosthetic
 
@@ -37,12 +37,12 @@
 
 
 /// Determine if the mob is the supplied species by text name, species path, or species instance name
-/mob/proc/is_species(datum/species/S)
+/mob/proc/is_species(singleton/species/S)
 	return FALSE
 
 
-/mob/living/carbon/is_species(datum/species/S)
-	if (!S) return FALSE
+/mob/living/carbon/is_species(singleton/species/S)
+	if (!S || !species) return FALSE
 	if (istext(S)) return species.name == S
 	if (ispath(S)) return species.name == initial(S.name)
 	return species.name == S.name
@@ -59,6 +59,12 @@
 		if (G.force_danger())
 			return TRUE
 
+///Remove all grabs applied to target mob. Useful when mob is entering a compartment where they're not supposed to be grabbed.
+/mob/proc/remove_grabs_and_pulls()
+	for (var/obj/item/grab/G in grabbed_by)
+		G.current_grab.let_go(G)
+	if(pulledby)
+		pulledby.stop_pulling()
 
 /proc/isdeaf(mob/living/M)
 	return istype(M) && (M.ear_deaf || M.sdisabilities & DEAFENED)
@@ -87,6 +93,8 @@
 //The base miss chance for the different defence zones
 var/global/list/base_miss_chance = list(
 	BP_HEAD = 70,
+	BP_EYES = 70,
+	BP_MOUTH = 70,
 	BP_CHEST = 10,
 	BP_GROIN = 20,
 	BP_L_LEG = 60,
@@ -151,22 +159,19 @@ var/global/list/organ_rel_size = list(
 
 	return ran_zone
 
-// Emulates targetting a specific body part, and miss chances
-// May return null if missed
-// miss_chance_mod may be negative.
+///Emulates targetting a specific body part, and miss chances
+/// May return null if missed. Miss_chance_mod may be negative.
+///In order to make this proc compatible with melee and projectile attacks, only return projectile compatible zones if not point blank.
 /proc/get_zone_with_miss_chance(zone, mob/target, miss_chance_mod = 0, ranged_attack=0)
-	zone = check_zone(zone)
-
-	if(!ranged_attack)
-		// target isn't trying to fight
-		if(target.a_intent == I_HELP)
+	if (ranged_attack)
+		zone = check_zone(zone)
+	else
+		if (target.a_intent == I_HELP)
 			return zone
-		// you cannot miss if your target is prone or restrained
-		if(target.buckled || target.lying)
+		if (target.buckled || target.lying)
 			return zone
-		// if your target is being grabbed aggressively by someone you cannot miss either
-		for(var/obj/item/grab/G in target.grabbed_by)
-			if(G.stop_move())
+		for (var/obj/item/grab/G in target.grabbed_by)
+			if (G.stop_move())
 				return zone
 
 	var/miss_chance = 10
@@ -184,6 +189,7 @@ var/global/list/organ_rel_size = list(
 //Replaces some of the characters with *, used in whispers. pr = probability of no star.
 //Will try to preserve HTML formatting. re_encode controls whether the returned text is HTML encoded outside tags.
 /proc/stars(n, pr = 25, re_encode = 1)
+	RETURN_TYPE(/list)
 	if (pr < 0)
 		return null
 	else if (pr >= 100)
@@ -196,18 +202,19 @@ var/global/list/organ_rel_size = list(
 		var/char = copytext_char(n, i, i+1)
 		if(!intag && (char == "<"))
 			intag = 1
-			. += stars_no_html(JOINTEXT(block), pr, re_encode) //stars added here
+			. += stars_no_html(jointext(block, null), pr, re_encode) //stars added here
 			block = list()
 		block += char
 		if(intag && (char == ">"))
 			intag = 0
 			. += block //We don't mess up html tags with stars
 			block = list()
-	. += (intag ? block : stars_no_html(JOINTEXT(block), pr, re_encode))
-	. = JOINTEXT(.)
+	. += (intag ? block : stars_no_html(jointext(block, null), pr, re_encode))
+	. = jointext(., null)
 
 //Ingnores the possibility of breaking tags.
 /proc/stars_no_html(text, pr, re_encode)
+	RETURN_TYPE(/list)
 	text = html_decode(text) //We don't want to screw up escaped characters
 	. = list()
 	for(var/i = 1, i <= length_char(text), i++)
@@ -216,7 +223,7 @@ var/global/list/organ_rel_size = list(
 			. += char
 		else
 			. += "*"
-	. = JOINTEXT(.)
+	. = jointext(., null)
 	if(re_encode)
 		. = html_encode(.)
 
@@ -360,7 +367,7 @@ var/global/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 		if(hud_used && hud_used.action_intent)
 			hud_used.action_intent.icon_state = "intent_[a_intent]"
 
-	else if(isrobot(src))
+	else if(isrobot(src) || ispAI(src))
 		switch(input)
 			if(I_HELP)
 				a_intent = I_HELP
@@ -394,9 +401,10 @@ var/global/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 	var/turf/sourceturf = get_turf(broadcast_source)
 	for(var/mob/M in targets)
 		if(!sourceturf || (get_z(M) in GetConnectedZlevels(sourceturf.z)))
-			M.show_message("<span class='info'>[icon2html(icon, M)] [message]</span>", 1)
+			M.show_message(SPAN_INFO("[icon2html(icon, M)] [message]"), 1)
 
 /proc/mobs_in_area(area/A)
+	RETURN_TYPE(/list)
 	var/list/mobs = new
 	for(var/mob/living/M in SSmobs.mob_list)
 		if(get_area(M) == A)
@@ -407,7 +415,7 @@ var/global/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 /proc/announce_ghost_joinleave(O, joined_ghosts = 1, message = "")
 	var/client/C
 	//Accept any type, sort what we want here
-	if(istype(O, /mob))
+	if(ismob(O))
 		var/mob/M = O
 		if(M.client)
 			C = M.client
@@ -437,10 +445,10 @@ var/global/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 		if(C.mob.lastarea)
 			diedat = " at [C.mob.lastarea]"
 		if(joined_ghosts)
-			message = "The ghost of <span class='name'>[name]</span> now [pick("skulks","lurks","prowls","creeps","stalks")] among the dead[diedat]. [message]"
+			message = "The ghost of [SPAN_CLASS("name", "[name]")] now [pick("skulks","lurks","prowls","creeps","stalks")] among the dead[diedat]. [message]"
 		else
-			message = "<span class='name'>[name]</span> no longer [pick("skulks","lurks","prowls","creeps","stalks")] in the realm of the dead. [message]"
-		communicate(/decl/communication_channel/dsay, C || O, message, /decl/dsay_communication/direct)
+			message = "[SPAN_CLASS("name", "[name]")] no longer [pick("skulks","lurks","prowls","creeps","stalks")] in the realm of the dead. [message]"
+		communicate(/singleton/communication_channel/dsay, C || O, message, /singleton/dsay_communication/direct)
 
 /mob/proc/switch_to_camera(obj/machinery/camera/C)
 	if (!C.can_use() || stat || (get_dist(C, src) > 1 || machine != src || blinded))
@@ -496,7 +504,7 @@ var/global/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 
 	if(auth_weapons && !access_obj.allowed(src))
 		var/list/weapons = GetAllHeld(/obj/item/melee)
-		threatcount += 4 * weapons.len
+		threatcount += 4 * length(weapons)
 
 		if(istype(belt, /obj/item/gun) || istype(belt, /obj/item/melee))
 			threatcount += 2
@@ -594,17 +602,17 @@ var/global/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 	if(src.jitteriness >= 400 && prob(5)) //Kills people if they have high jitters.
 		if(prob(1))
 			L.take_internal_damage(L.max_damage / 2, 0)
-			to_chat(src, "<span class='danger'>Something explodes in your heart.</span>")
+			to_chat(src, SPAN_DANGER("Something explodes in your heart."))
 			admin_victim_log(src, "has taken <b>lethal heart damage</b> at jitteriness level [src.jitteriness].")
 		else
 			L.take_internal_damage(1, 0)
-			to_chat(src, "<span class='danger'>The jitters are killing you! You feel your heart beating out of your chest.</span>")
+			to_chat(src, SPAN_DANGER("The jitters are killing you! You feel your heart beating out of your chest."))
 			admin_victim_log(src, "has taken <i>minor heart damage</i> at jitteriness level [src.jitteriness].")
 	return 1
 
 /mob/proc/try_teleport(area/thearea)
 	if(!istype(thearea))
-		if(istype(thearea, /list))
+		if(islist(thearea))
 			thearea = thearea[1]
 	var/list/L = list()
 	for(var/turf/T in get_area_turfs(thearea))
@@ -624,7 +632,7 @@ var/global/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 	var/success = 0
 	var/turf/end
 	var/candidates = L.Copy()
-	while(L.len)
+	while(length(L))
 		attempt = pick(L)
 		success = Move(attempt)
 		if(!success)

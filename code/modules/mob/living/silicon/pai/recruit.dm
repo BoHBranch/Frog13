@@ -34,7 +34,7 @@ var/global/datum/paiController/paiController			// Global handler for pAI candida
 		if(card.pai)
 			return
 		if(istype(card,/obj/item/device/paicard) && istype(candidate,/datum/paiCandidate))
-			var/mob/living/silicon/pai/pai = new(card)
+			var/mob/living/silicon/pai/pai = new(card, card)
 			if(!candidate.name)
 				pai.SetName(pick(GLOB.ninja_names))
 			else
@@ -44,8 +44,8 @@ var/global/datum/paiController/paiController			// Global handler for pAI candida
 			pai.chassis = pai.icon_state = GLOB.possible_chassis[candidate.chassis]
 			var/list/sayverbs = GLOB.possible_say_verbs[candidate.say_verb]
 			pai.speak_statement = sayverbs[1]
-			pai.speak_exclamation = sayverbs[(sayverbs.len>1 ? 2 : sayverbs.len)]
-			pai.speak_query = sayverbs[(sayverbs.len>2 ? 3 : sayverbs.len)]
+			pai.speak_exclamation = sayverbs[(length(sayverbs)>1 ? 2 : length(sayverbs))]
+			pai.speak_query = sayverbs[(length(sayverbs)>2 ? 3 : length(sayverbs))]
 
 			card.setPersonality(pai)
 			card.looking_for_personality = 0
@@ -189,7 +189,7 @@ var/global/datum/paiController/paiController			// Global handler for pAI candida
 
 	dat += {"
 	<body>
-		<b><font size="3px">pAI Personality Configuration</font></b>
+		<b><span style="font-size: 3px">pAI Personality Configuration</span></b>
 		<p class="top">Please configure your pAI personality's options. Remember, what you enter here could determine whether or not the user requesting a personality chooses you!</p>
 
 		<table>
@@ -250,7 +250,7 @@ var/global/datum/paiController/paiController			// Global handler for pAI candida
 	if(allowSubmit)
 		dat += {"
 			<table>
-				<td class="button"><a href='byond://?src=\ref[src];option=submit;new=1;candidate=\ref[candidate]' class="button"><b><font size="4px">Submit Personality</font></b></a></td>
+				<td class="button"><a href='byond://?src=\ref[src];option=submit;new=1;candidate=\ref[candidate]' class="button"><b><span style="font-size: 4px">Submit Personality</span></b></a></td>
 			</table><br>
 			"}
 	dat += {"
@@ -337,7 +337,7 @@ var/global/datum/paiController/paiController			// Global handler for pAI candida
 				</style>
 			</head>
 			<body>
-				<b><font size='3px'>pAI Availability List</font></b><br><br>
+				<b>[SPAN_SIZE("3px", "pAI Availability List")]</b><br><br>
 	"}
 	dat += "<p>Displaying available AI personalities from central database... If there are no entries, or if a suitable entry is not listed, check again later as more personalities may be added.</p>"
 

@@ -139,6 +139,7 @@
 	. += new/datum/stack_recipe/furniture/table_frame(src)
 	. += new/datum/stack_recipe/shield(src)
 	. += new/datum/stack_recipe/furniture/truss(src)
+	. += new/datum/stack_recipe/woodenstaff(src)
 
 /material/wood/mahogany/generate_recipes(reinforce_material)
 	. = ..()
@@ -171,6 +172,7 @@
 	. += create_recipe_list(/datum/stack_recipe/box)
 	. += new/datum/stack_recipe/cardborg_suit(src)
 	. += new/datum/stack_recipe/cardborg_helmet(src)
+	. += new/datum/stack_recipe/envelope(src)
 	. += new/datum/stack_recipe_list("folders", create_recipe_list(/datum/stack_recipe/folder))
 
 /material/aluminium/generate_recipes(reinforce_material)

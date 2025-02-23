@@ -20,11 +20,11 @@
 /datum/atom_creator/simple
 	var/path
 	var/probability
-	var/prob_method = /proc/prob_call
+	var/prob_method = GLOBAL_PROC_REF(prob_call)
 
 /datum/atom_creator/simple/New(path, probability)
-	if(args.len != 2)
-		CRASH("Invalid number of arguments. Expected 2, was [args.len]")
+	if(length(args) != 2)
+		CRASH("Invalid number of arguments. Expected 2, was [length(args)]")
 	if(!isnum(probability) || probability < 1 || probability > 99)
 		CRASH("Invalid probability. Expected a number between 1 and 99, was [log_info_line(probability)]") // A probability of 0 or 100 is pretty meaningless.
 	src.probability = probability
@@ -36,11 +36,11 @@
 
 /datum/atom_creator/weighted
 	var/list/paths
-	var/selection_method = /proc/pickweight
+	var/selection_method = GLOBAL_PROC_REF(pickweight)
 
 /datum/atom_creator/weighted/New(list/paths)
-	if(args.len != 1)
-		CRASH("Invalid number of arguments. Expected 1, was [args.len]")
+	if(length(args) != 1)
+		CRASH("Invalid number of arguments. Expected 1, was [length(args)]")
 	if(!istype(paths))
 		CRASH("Invalid argument type. Expected /list, was [log_info_line(paths)]")
 	for(var/path in paths)

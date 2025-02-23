@@ -67,7 +67,7 @@ var/global/list/angle_step_to_dir = list(
 	return global.angle_step_to_dir[clamp(round(angle/45)+1, 1, length(global.angle_step_to_dir))]
 
 /obj/compass_holder/Destroy()
-	QDEL_NULL_LIST(compass_waypoints)
+	QDEL_NULL_ASSOC_LIST(compass_waypoints)
 	. = ..()
 
 /obj/compass_holder/proc/get_heading_strength()
@@ -84,7 +84,7 @@ var/global/list/angle_step_to_dir = list(
 		. = 0
 
 /obj/compass_holder/on_update_icon()
-	overlays = (compass_static_labels | compass_waypoint_markers)
+	SetOverlays(compass_static_labels | compass_waypoint_markers)
 
 /obj/compass_holder/proc/clear_waypoint(id)
 	LAZYREMOVE(compass_waypoints, id)

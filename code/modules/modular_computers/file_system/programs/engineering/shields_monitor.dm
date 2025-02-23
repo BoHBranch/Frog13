@@ -23,7 +23,7 @@
 /datum/nano_module/shields_monitor/proc/get_shields()
 	var/list/shields = list()
 	var/connected_z_levels = GetConnectedZlevels(get_host_z())
-	for(var/obj/machinery/power/shield_generator/S in SSmachines.machinery)
+	for(var/obj/machinery/power/shield_generator/S as anything in GLOB.shield_generators)
 		if(!(S.z in connected_z_levels))
 			continue
 		shields.Add(S)
@@ -51,8 +51,8 @@
 			data["percentage_energy"] = round(data["current_energy"] / data["max_energy"] * 100)
 		else
 			data["percentage_energy"] = "ERR"
-		data["total_segments"] = active.field_segments ? active.field_segments.len : 0
-		data["functional_segments"] = active.damaged_segments ? data["total_segments"] - active.damaged_segments.len : data["total_segments"]
+		data["total_segments"] = active.field_segments ? length(active.field_segments) : 0
+		data["functional_segments"] = active.damaged_segments ? data["total_segments"] - length(active.damaged_segments) : data["total_segments"]
 		data["field_radius"] = active.field_radius
 		data["input_cap_kw"] = round(active.input_cap / 1000)
 		data["upkeep_power_usage"] = round(active.upkeep_power_usage / 1000, 0.1)
@@ -98,7 +98,7 @@
 		var/obj/machinery/power/shield_generator/S = locate(href_list["ref"]) in shields
 		if(S)
 			deselect_shield()
-			GLOB.destroyed_event.register(S, src, /datum/nano_module/shields_monitor/proc/deselect_shield)
+			GLOB.destroyed_event.register(S, src, PROC_REF(deselect_shield))
 			active = S
 		return 1
 

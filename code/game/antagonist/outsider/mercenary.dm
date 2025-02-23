@@ -1,4 +1,4 @@
-GLOBAL_DATUM_INIT(mercs, /datum/antagonist/mercenary, new)
+GLOBAL_TYPED_NEW(mercs, /datum/antagonist/mercenary)
 
 /datum/antagonist/mercenary
 	id = MODE_MERCENARY
@@ -14,10 +14,11 @@ GLOBAL_DATUM_INIT(mercs, /datum/antagonist/mercenary, new)
 	hard_cap = 4
 	hard_cap_round = 8
 	initial_spawn_req = 3
-	initial_spawn_target = 5
+	initial_spawn_target = 3
 	min_player_age = 14
 
 	faction = "mercenary"
+	no_prior_faction = TRUE
 
 	base_to_load = /datum/map_template/ruin/antag_spawn/mercenary
 
@@ -32,7 +33,7 @@ GLOBAL_DATUM_INIT(mercs, /datum/antagonist/mercenary, new)
 	if(!..())
 		return 0
 
-	var/decl/hierarchy/outfit/mercenary = outfit_by_type(/decl/hierarchy/outfit/mercenary)
+	var/singleton/hierarchy/outfit/mercenary = outfit_by_type(/singleton/hierarchy/outfit/mercenary)
 	mercenary.equip(player)
 
 	var/obj/item/device/radio/uplink/U = new(get_turf(player), player.mind, DEFAULT_TELECRYSTAL_AMOUNT)

@@ -3,13 +3,14 @@
 /obj/item/tank/jetpack
 	name = "jetpack (empty)"
 	desc = "The O'Neill Manufacturing VMU-12-U is a tank-based maneuvering pack that uses compressed gas for propulsion in zero-gravity areas. Use with caution."
+	icon = 'icons/obj/jetpacks.dmi'
 	icon_state = "jetpack"
 	gauge_icon = null
 	w_class = ITEM_SIZE_HUGE
 	tank_size = TANK_SIZE_HUGE
 	item_state = "jetpack"
 	distribute_pressure = ONE_ATMOSPHERE*O2STANDARD
-	var/datum/effect/effect/system/trail/ion/ion_trail
+	var/datum/effect/trail/ion/ion_trail
 	var/on = 0.0
 	var/stabilization_on = 0
 	var/volume_rate = 500              //Needed for borg jetpack transfer
@@ -17,7 +18,7 @@
 
 /obj/item/tank/jetpack/Initialize()
 	. = ..()
-	ion_trail = new /datum/effect/effect/system/trail/ion()
+	ion_trail = new /datum/effect/trail/ion()
 	ion_trail.set_up(src)
 
 /obj/item/tank/jetpack/Destroy()
@@ -27,7 +28,7 @@
 /obj/item/tank/jetpack/examine(mob/living/user)
 	. = ..()
 	if(air_contents.total_moles < 5)
-		to_chat(user, "<span class='danger'>The meter on \the [src] indicates you are almost out of gas!</span>")
+		to_chat(user, SPAN_DANGER("The meter on \the [src] indicates you are almost out of gas!"))
 		playsound(src.loc, 'sound/effects/caution.ogg', 50, 1, -6)
 
 /obj/item/tank/jetpack/verb/toggle_rockets()
@@ -70,7 +71,7 @@
 
 	qdel(G)
 
-/obj/item/tank/jetpack/ui_action_click()
+/obj/item/tank/jetpack/ui_action_click(mob/living/user)
 	toggle()
 
 

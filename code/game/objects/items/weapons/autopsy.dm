@@ -1,7 +1,7 @@
 /obj/item/autopsy_scanner
 	name = "autopsy scanner"
 	desc = "Used to gather information on wounds."
-	icon = 'icons/obj/surgery.dmi'
+	icon = 'icons/obj/surgery_tools.dmi'
 	icon_state = "autopsy_scanner"
 	obj_flags = OBJ_FLAG_CONDUCTIBLE
 	w_class = ITEM_SIZE_SMALL
@@ -34,7 +34,7 @@
 	return W
 
 /obj/item/autopsy_scanner/proc/add_data(obj/item/organ/external/O)
-	if(!O.autopsy_data.len) return
+	if(!length(O.autopsy_data)) return
 
 	for(var/V in O.autopsy_data)
 		var/datum/autopsy_data/W = O.autopsy_data[V]
@@ -102,15 +102,15 @@
 			if(0)
 				damage_desc = "Unknown"
 			if(1 to 5)
-				damage_desc = "<font color='green'>negligible</font>"
+				damage_desc = SPAN_COLOR("green", "negligible")
 			if(5 to 15)
-				damage_desc = "<font color='green'>light</font>"
+				damage_desc = SPAN_COLOR("green", "light")
 			if(15 to 30)
-				damage_desc = "<font color='orange'>moderate</font>"
+				damage_desc = SPAN_COLOR("orange", "moderate")
 			if(30 to 1000)
-				damage_desc = "<font color='red'>severe</font>"
+				damage_desc = SPAN_COLOR("red", "severe")
 
-		if(!total_score) total_score = D.organs_scanned.len
+		if(!total_score) total_score = length(D.organs_scanned)
 
 		scan_data += "<b>Weapon #[n]</b><br>"
 		if(damaging_weapon)
@@ -126,14 +126,14 @@
 
 		n++
 
-	if(chemtraces.len)
+	if(length(chemtraces))
 		scan_data += "<b>Trace Chemicals: </b><br>"
 		for(var/chemID in chemtraces)
 			scan_data += chemID
 			scan_data += "<br>"
 
 	for(var/mob/O in viewers(usr))
-		O.show_message("<span class='notice'>\The [src] rattles and prints out a sheet of paper.</span>", 1)
+		O.show_message(SPAN_NOTICE("\The [src] rattles and prints out a sheet of paper."), 1)
 
 	sleep(10)
 
@@ -152,12 +152,12 @@
 
 	var/obj/item/organ/external/S = M.get_organ(user.zone_sel.selecting)
 	if(!S)
-		to_chat(usr, "<span class='warning'>You can't scan this body part.</span>")
+		to_chat(usr, SPAN_WARNING("You can't scan this body part."))
 		return
 	if(!S.how_open())
-		to_chat(usr, "<span class='warning'>You have to cut [S] open first!</span>")
+		to_chat(usr, SPAN_WARNING("You have to cut [S] open first!"))
 		return
-	M.visible_message("<span class='notice'>\The [user] scans the wounds on [M]'s [S.name] with [src]</span>")
+	M.visible_message(SPAN_NOTICE("\The [user] scans the wounds on [M]'s [S.name] with [src]"))
 
 	add_data(S)
 	for(var/T in M.chem_doses)
@@ -166,22 +166,24 @@
 
 	return 1
 
-/obj/item/autopsy_scanner/proc/set_target(atom/new_target, user)
+/obj/item/autopsy_scanner/proc/set_target(mob/new_target, user)
+	if (new_target.stat != DEAD && new_target.stat != FAKEDEATH)
+		to_chat(user, SPAN_NOTICE("Scanned patient is currently alive. Aborting."))
+		return
 	if(target_name != new_target.name)
 		target_name = new_target.name
 		wdata.Cut()
 		chemtraces.Cut()
 		timeofdeath = null
-		to_chat(user, "<span class='notice'>A new patient has been registered. Purging data for previous patient.</span>")
+		to_chat(user, SPAN_NOTICE("A new patient has been registered. Purging data for previous patient."))
 
-/obj/item/autopsy_scanner/afterattack(obj/item/organ/external/target, mob/user, proximity_flag, click_parameters)
-	if(!proximity_flag)
-		return
+/obj/item/autopsy_scanner/use_after(obj/item/organ/external/target, mob/living/user, click_parameters)
 	if(!istype(target))
-		return
+		return FALSE
 
 	set_target(target, user)
 	add_data(target)
+	return TRUE
 
 /obj/item/autopsy_scanner/attack_self(mob/user)
 	print_data(user)

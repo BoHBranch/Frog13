@@ -10,10 +10,6 @@
 	name = "Skipjack"
 	defer_initialisation = TRUE
 	warmup_time = 0
-	destination_tags = list(
-		"nav_skipjack_dock",
-		"nav_skipjack_start"
-		)
 	shuttle_area =  /area/map_template/skipjack_station/start
 	dock_target = "skipjack_shuttle"
 	current_location = "nav_skipjack_start"
@@ -24,16 +20,16 @@
 	departure_message = "Attention, vessel detected leaving vessel proximity."
 	ceiling_type = /turf/simulated/floor/shuttle_ceiling/heist
 
-/obj/effect/shuttle_landmark/skipjack/start
+/obj/shuttle_landmark/skipjack/start
 	name = "Raider Outpost"
 	landmark_tag = "nav_skipjack_start"
 	docking_controller = "skipjack_base"
 
-/obj/effect/shuttle_landmark/skipjack/internim
+/obj/shuttle_landmark/skipjack/internim
 	name = "In transit"
 	landmark_tag = "nav_skipjack_transition"
 
-/obj/effect/shuttle_landmark/skipjack/dock
+/obj/shuttle_landmark/skipjack/dock
 	name = "Docking Port"
 	landmark_tag = "nav_skipjack_dock"
 	docking_controller = "skipjack_shuttle_dock_airlock"

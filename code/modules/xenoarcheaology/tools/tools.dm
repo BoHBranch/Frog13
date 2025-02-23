@@ -1,7 +1,7 @@
 /obj/item/device/measuring_tape
 	name = "measuring tape"
 	desc = "A coiled metallic tape used to check dimensions and lengths."
-	icon = 'icons/obj/xenoarchaeology.dmi'
+	icon = 'icons/obj/tools/xenoarcheology_tape.dmi'
 	icon_state = "measuring"
 	origin_tech = list(TECH_MATERIAL = 1)
 	matter = list(MATERIAL_STEEL = 100)
@@ -10,14 +10,14 @@
 /obj/item/storage/bag/fossils
 	name = "fossil satchel"
 	desc = "Transports delicate fossils in suspension so they don't break during transit."
-	icon = 'icons/obj/mining.dmi'
+	icon = 'icons/obj/mining_satchel.dmi'
 	icon_state = "satchel"
 	slot_flags = SLOT_BELT | SLOT_POCKET
 	w_class = ITEM_SIZE_NORMAL
 	storage_slots = 50
 	max_storage_space = 200
 	max_w_class = ITEM_SIZE_NORMAL
-	can_hold = list(/obj/item/fossil)
+	contents_allowed = list(/obj/item/fossil)
 
 /obj/item/storage/box/samplebags
 	name = "sample bag box"
@@ -33,7 +33,7 @@
 /obj/item/device/ano_scanner
 	name = "\improper Alden-Saraspova counter"
 	desc = "A device which aids in triangulation of exotic particles."
-	icon = 'icons/obj/xenoarchaeology.dmi'
+	icon = 'icons/obj/tools/xenoarcheology_scanner.dmi'
 	icon_state = "alden"
 	item_state = "analyzer"
 	origin_tech = list(TECH_BLUESPACE = 3, TECH_MAGNET = 3)
@@ -68,7 +68,7 @@
 				GLOB.xeno_artifact_turfs -= T
 
 		for(var/turf/simulated/mineral/T as anything in GLOB.xeno_digsite_turfs)
-			if(T.density && T.finds && T.finds.len)
+			if(T.density && T.finds && length(T.finds))
 				if(T.z == cur_turf.z)
 					var/cur_dist = get_dist(cur_turf, T) * 2
 					if(nearestSimpleTargetDist < 0 || cur_dist < nearestSimpleTargetDist)
@@ -89,7 +89,7 @@
 /obj/item/device/depth_scanner
 	name = "depth analysis scanner"
 	desc = "A device used to check spatial depth and density of rock outcroppings."
-	icon = 'icons/obj/xenoarchaeology.dmi'
+	icon = 'icons/obj/tools/xenoarcheology_scanner.dmi'
 	icon_state = "depth"
 	item_state = "xenoarch_device"
 	origin_tech = list(TECH_MAGNET = 2, TECH_ENGINEERING = 2, TECH_BLUESPACE = 2)
@@ -109,21 +109,21 @@
 	var/material = "unknown"
 
 /obj/item/device/depth_scanner/proc/scan_atom(mob/user, atom/A)
-	user.visible_message("<span class='notice'>\The [user] scans \the [A], the air around them humming gently.</span>")
+	user.visible_message(SPAN_NOTICE("\The [user] scans \the [A], the air around them humming gently."))
 
 	if(istype(A, /turf/simulated/mineral))
 		var/turf/simulated/mineral/M = A
-		if((M.finds && M.finds.len) || M.artifact_find)
+		if((M.finds && length(M.finds)) || M.artifact_find)
 
 			//create a new scanlog entry
 			var/datum/depth_scan/D = new()
 			D.coords = "[M.x]:[M.y]:[M.z]"
 			D.time = stationtime2text()
-			D.record_index = positive_locations.len + 1
+			D.record_index = length(positive_locations) + 1
 			D.material = M.mineral ? M.mineral.ore_name : "Rock"
 
 			//find the first artifact and store it
-			if(M.finds.len)
+			if(length(M.finds))
 				var/datum/find/F = M.finds[1]
 				D.depth = "[F.excavation_required - F.clearance_range] - [F.excavation_required]"
 				D.clearance = F.clearance_range
@@ -131,7 +131,7 @@
 
 			positive_locations.Add(D)
 
-			to_chat(user, "<span class='notice'>[icon2html(src, user)] [src] pings.</span>")
+			to_chat(user, SPAN_NOTICE("[icon2html(src, user)] [src] pings."))
 			playsound(loc, 'sound/machines/twobeep.ogg', 40)
 
 	else if(istype(A, /obj/structure/boulder))
@@ -141,7 +141,7 @@
 			var/datum/depth_scan/D = new()
 			D.coords = "[B.x]:[B.y]:[B.z]"
 			D.time = stationtime2text()
-			D.record_index = positive_locations.len + 1
+			D.record_index = length(positive_locations) + 1
 
 			//these values are arbitrary
 			D.depth = rand(150, 200)
@@ -150,7 +150,7 @@
 
 			positive_locations.Add(D)
 
-			to_chat(user, "<span class='notice'>[icon2html(src, user)] [src] pings [pick("madly","wildly","excitedly","crazily")]!</span>")
+			to_chat(user, SPAN_NOTICE("[icon2html(src, user)] [src] pings [pick("madly","wildly","excitedly","crazily")]!"))
 			playsound(loc, 'sound/machines/triple_beep.ogg', 40)
 
 	updateSelfDialog()
@@ -162,7 +162,7 @@
 	user.set_machine(src)
 	var/dat = "<b>Coordinates with positive matches</b><br>"
 
-	dat += "<A href='?src=\ref[src];clear=0'>== Clear all ==</a><br>"
+	dat += "<A href='byond://?src=\ref[src];clear=0'>== Clear all ==</a><br>"
 
 	if(current)
 		dat += "Time: [current.time]<br>"
@@ -170,25 +170,24 @@
 		dat += "Anomaly depth: [current.depth] cm<br>"
 		dat += "Anomaly size: [current.clearance] cm<br>"
 		dat += "Dissonance spread: [current.dissonance_spread]<br>"
-		var/index = responsive_carriers.Find(current.material)
-		if(index > 0 && index <= finds_as_strings.len)
-			dat += "Anomaly material: [finds_as_strings[index]]<br>"
+		if (GLOB.responsive_carriers_to_finds[current.material])
+			dat += "Anomaly material: [GLOB.responsive_carriers_to_finds[current.material]]<br>"
 		else
 			dat += "Anomaly material: Unknown<br>"
-		dat += "<A href='?src=\ref[src];clear=[current.record_index]'>clear entry</a><br>"
+		dat += "<A href='byond://?src=\ref[src];clear=[current.record_index]'>clear entry</a><br>"
 	else
 		dat += "Select an entry from the list<br>"
 		dat += "<br><br><br><br>"
 	dat += "<hr>"
-	if(positive_locations.len)
-		for(var/index = 1 to positive_locations.len)
+	if(length(positive_locations))
+		for(var/index = 1 to length(positive_locations))
 			var/datum/depth_scan/D = positive_locations[index]
-			dat += "<A href='?src=\ref[src];select=[index]'>[D.time], coords: [D.coords]</a><br>"
+			dat += "<A href='byond://?src=\ref[src];select=[index]'>[D.time], coords: [D.coords]</a><br>"
 	else
 		dat += "No entries recorded."
 
 	dat += "<hr>"
-	dat += "<a href='?src=\ref[src];close=1'>Close</a>"
+	dat += "<a href='byond://?src=\ref[src];close=1'>Close</a>"
 
 	var/datum/browser/popup = new(user, "depth_scanner", "Results", 300, 500)
 	popup.set_content(dat)
@@ -198,13 +197,13 @@
 /obj/item/device/depth_scanner/OnTopic(user, href_list)
 	if(href_list["select"])
 		var/index = text2num(href_list["select"])
-		if(index && index <= positive_locations.len)
+		if(index && index <= length(positive_locations))
 			current = positive_locations[index]
 		. = TOPIC_REFRESH
 	else if(href_list["clear"])
 		var/index = text2num(href_list["clear"])
 		if(index)
-			if(index <= positive_locations.len)
+			if(index <= length(positive_locations))
 				var/datum/depth_scan/D = positive_locations[index]
 				positive_locations.Remove(D)
 				qdel(D)

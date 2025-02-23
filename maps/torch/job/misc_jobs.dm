@@ -25,24 +25,23 @@ Civilian
 
 /datum/job/assistant
 	title = "Passenger"
-	total_positions = 12
-	spawn_positions = 12
+	total_positions = -1
+	spawn_positions = -1
 	supervisors = "the Executive Officer"
 	economic_power = 6
 	announced = FALSE
 	alt_titles = list(
-		"Journalist" = /decl/hierarchy/outfit/job/torch/passenger/passenger/journalist,
+		"Journalist" = /singleton/hierarchy/outfit/job/torch/passenger/passenger/journalist,
 		"Historian",
 		"Botanist",
-		"Investor" = /decl/hierarchy/outfit/job/torch/passenger/passenger/investor,
-		"Psychologist" = /decl/hierarchy/outfit/job/torch/passenger/passenger/psychologist,
+		"Investor" = /singleton/hierarchy/outfit/job/torch/passenger/passenger/investor,
 		"Naturalist",
 		"Ecologist",
 		"Entertainer",
 		"Independent Observer",
 		"Sociologist",
 		"Trainer")
-	outfit_type = /decl/hierarchy/outfit/job/torch/passenger/passenger
+	outfit_type = /singleton/hierarchy/outfit/job/torch/passenger/passenger
 	allowed_branches = list(/datum/mil_branch/civilian)
 	allowed_ranks = list(
 		/datum/mil_rank/civ/civ,
@@ -62,7 +61,7 @@ Civilian
 	ideal_character_age = 30
 	minimal_player_age = 0
 	create_record = 0
-	outfit_type = /decl/hierarchy/outfit/job/torch/merchant
+	outfit_type = /singleton/hierarchy/outfit/job/torch/merchant
 	allowed_branches = list(
 		/datum/mil_branch/civilian,
 		/datum/mil_branch/alien
@@ -74,10 +73,12 @@ Civilian
 	latejoin_at_spawnpoints = 1
 	access = list(access_merchant)
 	announced = FALSE
-	min_skill = list(   SKILL_FINANCE = SKILL_ADEPT,
-	                    SKILL_PILOT	  = SKILL_BASIC)
+	skill_points = 24
+	min_skill = list( // 4 points
+		SKILL_FINANCE = SKILL_TRAINED, // 2 points
+		SKILL_PILOT = SKILL_BASIC // 2 points
+	)
 
 	max_skill = list(   SKILL_PILOT       = SKILL_MAX)
-	skill_points = 24
 	required_language = null
 	give_psionic_implant_on_join = FALSE

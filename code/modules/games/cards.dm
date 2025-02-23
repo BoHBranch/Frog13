@@ -25,21 +25,21 @@
 /obj/item/deck/inherit_custom_item_data(datum/custom_item/citem)
 	. = ..()
 	if(islist(citem.additional_data["extra_cards"]))
-		for(var/card_decl in citem.additional_data["extra_cards"])
-			if(islist(card_decl))
+		for(var/card_singleton in citem.additional_data["extra_cards"])
+			if(islist(card_singleton))
 				var/datum/playingcard/custom/P = new()
-				if(!isnull(card_decl["name"]))
-					P.name = card_decl["name"]
-				if(!isnull(card_decl["card_icon"]))
-					P.card_icon = card_decl["card_icon"]
-				if(!isnull(card_decl["back_icon"]))
-					P.back_icon = card_decl["back_icon"]
-				if(!isnull(card_decl["desc"]))
-					P.desc = card_decl["desc"]
-				if(!isnull(card_decl["use_custom_front"]))
-					P.use_custom_front = card_decl["use_custom_front"]
-				if(!isnull(card_decl["use_custom_back"]))
-					P.use_custom_back = card_decl["use_custom_back"]
+				if(!isnull(card_singleton["name"]))
+					P.name = card_singleton["name"]
+				if(!isnull(card_singleton["card_icon"]))
+					P.card_icon = card_singleton["card_icon"]
+				if(!isnull(card_singleton["back_icon"]))
+					P.back_icon = card_singleton["back_icon"]
+				if(!isnull(card_singleton["desc"]))
+					P.desc = card_singleton["desc"]
+				if(!isnull(card_singleton["use_custom_front"]))
+					P.use_custom_front = card_singleton["use_custom_front"]
+				if(!isnull(card_singleton["use_custom_back"]))
+					P.use_custom_back = card_singleton["use_custom_back"]
 				cards += P
 
 /obj/item/deck/holder
@@ -85,15 +85,15 @@
 		P.card_icon = "joker"
 		cards += P
 
-/obj/item/deck/attackby(obj/O, mob/user)
+/obj/item/deck/use_tool(obj/item/O, mob/living/user, list/click_params)
 	if(istype(O,/obj/item/hand))
 		var/obj/item/hand/H = O
 		for(var/datum/playingcard/P in H.cards)
 			cards += P
 		qdel(O)
 		to_chat(user, "You place your cards on the bottom of \the [src].")
-		return
-	..()
+		return TRUE
+	return ..()
 
 /obj/item/deck/verb/draw_card()
 
@@ -109,7 +109,7 @@
 
 	var/mob/living/carbon/user = usr
 
-	if(!cards.len)
+	if(!length(cards))
 		to_chat(usr, "There are no cards in the deck.")
 		return
 
@@ -136,7 +136,7 @@
 
 	if(usr.stat || !Adjacent(usr)) return
 
-	if(!cards.len)
+	if(!length(cards))
 		to_chat(usr, "There are no cards in the deck.")
 		return
 
@@ -159,12 +159,13 @@
 	H.concealed = 1
 	H.update_icon()
 	if(user==target)
-		user.visible_message("\The [user] deals a card to \himself.")
+		var/datum/pronouns/pronouns = user.choose_from_pronouns()
+		user.visible_message("\The [user] deals a card to [pronouns.self].")
 	else
 		user.visible_message("\The [user] deals a card to \the [target].")
 	H.throw_at(get_step(target,target.dir),10,1,user)
 
-/obj/item/hand/attackby(obj/O, mob/user)
+/obj/item/hand/use_tool(obj/item/O, mob/living/user, list/click_params)
 	if(istype(O,/obj/item/hand))
 		var/obj/item/hand/H = O
 		for(var/datum/playingcard/P in cards)
@@ -172,8 +173,8 @@
 		H.concealed = src.concealed
 		qdel(src)
 		H.update_icon()
-		return
-	..()
+		return TRUE
+	return ..()
 
 /obj/item/deck/attack_self(mob/user)
 
@@ -186,7 +187,7 @@
 
 	if(!ishuman(over) || !(over in viewers(3))) return
 
-	if(!cards.len)
+	if(!length(cards))
 		to_chat(usr, "There are no cards in the deck.")
 		return
 
@@ -242,7 +243,7 @@
 			to_discard[P.name] = P
 		var/discarding = null
 		//don't prompt if only 1 card
-		if(to_discard.len == 1)
+		if(length(to_discard) == 1)
 			discarding = to_discard[1]
 		else
 			discarding = input(user, "Which card do you wish to take?") as null|anything in to_discard
@@ -256,7 +257,7 @@
 		new_hand.update_icon()
 		src.update_icon()
 
-		if(!cards.len)
+		if(!length(cards))
 			qdel(src)
 
 		user.put_in_hands(new_hand)
@@ -265,16 +266,16 @@
 
 /obj/item/hand/examine(mob/user)
 	. = ..()
-	if((!concealed || src.loc == user) && cards.len)
+	if((!concealed || src.loc == user) && length(cards))
 		to_chat(user, "It contains: ")
 		for(var/datum/playingcard/P in cards)
 			to_chat(user, "The [P.name].")
 
 /obj/item/hand/on_update_icon(direction = 0)
-	if(!cards.len)
+	if(!length(cards))
 		qdel(src)
 		return
-	else if(cards.len > 1)
+	else if(length(cards) > 1)
 		name = "hand of cards"
 		desc = "Some playing cards."
 	else if(concealed)
@@ -285,17 +286,17 @@
 		name = "[P.name]"
 		desc = "[P.desc]"
 
-	overlays.Cut()
+	ClearOverlays()
 
-	if(cards.len == 1)
+	if(length(cards) == 1)
 		var/datum/playingcard/P = cards[1]
 		var/image/I = P.card_image(concealed, src.icon)
 		I.pixel_x += (-5+rand(10))
 		I.pixel_y += (-5+rand(10))
-		overlays += I
+		AddOverlays(I)
 		return
 
-	var/offset = Floor(20/cards.len)
+	var/offset = floor(20/length(cards))
 	var/matrix/M = matrix()
 	M.Update(
 		rotation = (direction & EAST|WEST) ? 90 : 0,
@@ -316,7 +317,7 @@
 			else
 				I.pixel_x = -7+(offset*i)
 		I.SetTransform(others = M)
-		overlays += I
+		AddOverlays(I)
 		i++
 
 /obj/item/hand/dropped(mob/user)
@@ -340,7 +341,7 @@
 		if(isturf(D.loc))		//Decks hiding in inventories are safe. Respect the sanctity of loadout items.
 			deck_list += D
 
-	if(deck_list.len)
+	if(length(deck_list))
 		var/obj/item/deck/the_deck = pick(deck_list)
 		var/datum/playingcard/the_card = length(the_deck.cards) ? pick(the_deck.cards) : null
 

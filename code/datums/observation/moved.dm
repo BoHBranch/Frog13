@@ -8,18 +8,18 @@
 //			/atom/old_loc: The loc before the move.
 //			/atom/new_loc: The loc after the move.
 
-GLOBAL_DATUM_INIT(moved_event, /decl/observ/moved, new)
+GLOBAL_TYPED_NEW(moved_event, /singleton/observ/moved)
 
-/decl/observ/moved
+/singleton/observ/moved
 	name = "Moved"
 	expected_type = /atom/movable
 
-/decl/observ/moved/register(atom/movable/mover, datum/listener, proc_call)
+/singleton/observ/moved/register(atom/movable/mover, datum/listener, proc_call)
 	. = ..()
 
 	// Listen to the parent if possible.
 	if(. && istype(mover.loc, expected_type))
-		register(mover.loc, mover, /atom/movable/proc/recursive_move)
+		register(mover.loc, mover, TYPE_PROC_REF(/atom/movable, recursive_move))
 
 /********************
 * Movement Handling *
@@ -32,8 +32,8 @@ GLOBAL_DATUM_INIT(moved_event, /decl/observ/moved, new)
 /atom/movable/Entered(atom/movable/am, atom/old_loc)
 	. = ..()
 	if(GLOB.moved_event.has_listeners(am))
-		GLOB.moved_event.register(src, am, /atom/movable/proc/recursive_move)
+		GLOB.moved_event.register(src, am, TYPE_PROC_REF(/atom/movable, recursive_move))
 
 /atom/movable/Exited(atom/movable/am, atom/new_loc)
 	. = ..()
-	GLOB.moved_event.unregister(src, am, /atom/movable/proc/recursive_move)
+	GLOB.moved_event.unregister(src, am, TYPE_PROC_REF(/atom/movable, recursive_move))

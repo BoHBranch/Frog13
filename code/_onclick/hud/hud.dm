@@ -62,7 +62,7 @@
 		var/stamina = mymob.get_stamina()
 		if(stamina < 100)
 			stamina_bar.invisibility = 0
-			stamina_bar.icon_state = "priv_prog_bar_[Floor(stamina/5)*5]"
+			stamina_bar.icon_state = "priv_prog_bar_[floor(stamina/5)*5]"
 
 /datum/hud/proc/hidden_inventory_update()
 	if(!mymob) return
@@ -169,11 +169,11 @@
 	set hidden = 1
 
 	if(!hud_used)
-		to_chat(usr, "<span class='warning'>This mob type does not use a HUD.</span>")
+		to_chat(usr, SPAN_WARNING("This mob type does not use a HUD."))
 		return
 
 	if(!ishuman(src))
-		to_chat(usr, "<span class='warning'>Inventory hiding is currently only supported for human mobs, sorry.</span>")
+		to_chat(usr, SPAN_WARNING("Inventory hiding is currently only supported for human mobs, sorry."))
 		return
 
 	if(!client) return

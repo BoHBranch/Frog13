@@ -63,7 +63,7 @@
 
 	var/list/new_overlays = list()
 	if(!owner.get_cell() || (owner.get_cell().charge <= 0))
-		overlays.Cut()
+		ClearOverlays()
 		maptext = ""
 		return
 
@@ -73,7 +73,7 @@
 
 	var/value = holding.get_hardpoint_status_value()
 	if(isnull(value))
-		overlays.Cut()
+		ClearOverlays()
 		return
 
 	if(ui_damage)
@@ -121,7 +121,7 @@
 				GLOB.hardpoint_bar_cache += bar
 		for(var/i=1;i<=value;i++)
 			new_overlays += GLOB.hardpoint_bar_cache[i]
-	overlays = new_overlays
+	SetOverlays(new_overlays)
 
 /obj/screen/exosuit/hardpoint/Initialize(mapload, newtag)
 	. = ..()
@@ -190,9 +190,8 @@
 	queue_icon_update()
 
 /obj/screen/exosuit/toggle/on_update_icon()
-	. = ..()
 	icon_state = "[initial(icon_state)][toggled ? "_enabled" : ""]"
-	maptext = FONT_COLORED(toggled ? COLOR_WHITE : COLOR_GRAY,initial(maptext))
+	maptext = SPAN_COLOR(toggled ? COLOR_WHITE : COLOR_GRAY,initial(maptext))
 
 /obj/screen/exosuit/toggle/Click()
 	if(..()) toggled()
@@ -229,6 +228,7 @@
 /obj/screen/exosuit/toggle/air/toggled()
 	owner.use_air = ..()
 	to_chat(usr, SPAN_NOTICE("Auxiliary atmospheric system [owner.use_air ? "enabled" : "disabled"]."))
+	playsound(src.loc, 'sound/effects/turret/open.wav', 50, 1, -6)
 
 /obj/screen/exosuit/toggle/maint
 	name = "toggle maintenance protocol"
@@ -241,6 +241,7 @@
 /obj/screen/exosuit/toggle/maint/toggled()
 	owner.maintenance_protocols = ..()
 	to_chat(usr, SPAN_NOTICE("Maintenance protocols [owner.maintenance_protocols ? "enabled" : "disabled"]."))
+	playsound(src.loc, 'sound/machines/suitstorage_lockdoor.ogg', 50, 1, -6)
 
 /obj/screen/exosuit/toggle/hardpoint
 	name = "toggle hardpoint lock"
@@ -251,6 +252,7 @@
 /obj/screen/exosuit/toggle/hardpoint/toggled()
 	owner.hardpoints_locked = ..()
 	to_chat(usr, SPAN_NOTICE("Hardpoint system access is now [owner.hardpoints_locked ? "disabled" : "enabled"]."))
+	playsound(src.loc, 'sound/machines/twobeep.ogg', 50, 1, -6)
 
 /obj/screen/exosuit/toggle/hatch
 	name = "toggle hatch lock"
@@ -264,6 +266,7 @@
 		return
 	owner.hatch_locked = ..()
 	to_chat(usr, SPAN_NOTICE("The [owner.body.hatch_descriptor] is [owner.hatch_locked ? "now" : "no longer" ] locked."))
+	playsound(src.loc, 'sound/machines/suitstorage_lockdoor.ogg', 50, 1, -6)
 
 /obj/screen/exosuit/toggle/hatch_open
 	name = "open or close hatch"
@@ -280,6 +283,7 @@
 	owner.hatch_closed = ..()
 	to_chat(usr, SPAN_NOTICE("The [owner.body.hatch_descriptor] is now [owner.hatch_closed ? "closed" : "open" ]."))
 	owner.update_icon()
+	playsound(src.loc, 'sound/machines/suitstorage_cycledoor.ogg', 50, 1, -6)
 
 /obj/screen/exosuit/toggle/hatch_open/on_update_icon()
 	toggled = owner.hatch_closed

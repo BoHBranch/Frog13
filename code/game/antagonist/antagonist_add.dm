@@ -26,7 +26,11 @@
 		if(!do_not_equip)
 			equip(player.current)
 
-	if(player.current)
+	if(faction && player.current)
+		if(no_prior_faction)
+			player.current.last_faction = faction
+		else
+			player.current.last_faction = player.current.faction
 		player.current.faction = faction
 	return 1
 
@@ -40,6 +44,7 @@
 	if(!can_become_antag(player, ignore_role))
 		return 0
 	current_antagonists |= player
+	GLOB.destroyed_event.register(player, src, PROC_REF(remove_antagonist))
 
 	if(faction_verb)
 		player.current.verbs |= faction_verb
@@ -50,32 +55,42 @@
 	if(player.current.client)
 		player.current.client.verbs += /client/proc/aooc
 
+	if (istype(player.current, /mob/living/silicon/robot))
+		var/mob/living/silicon/robot/borg = player.current
+		borg.emagged = TRUE
+
 	spawn(1 SECOND) //Added a delay so that this should pop up at the bottom and not the top of the text flood the new antag gets.
-		to_chat(player.current, "<span class='notice'>Once you decide on a goal to pursue, you can optionally display it to \
+		to_chat(player.current, SPAN_NOTICE("Once you decide on a goal to pursue, you can optionally display it to \
 			everyone at the end of the shift with the <b>Set Ambition</b> verb, located in the IC tab.  You can change this at any time, \
-			and it otherwise has no bearing on your round.</span>")
+			and it otherwise has no bearing on your round."))
 	player.current.verbs += /mob/living/proc/set_ambition
 
 	// Handle only adding a mind and not bothering with gear etc.
 	if(nonstandard_role_type)
 		faction_members |= player
-		to_chat(player.current, "<span class='danger'><font size=3>You are \a [nonstandard_role_type]!</font></span>")
+		to_chat(player.current, SPAN_DANGER(FONT_LARGE("You are \a [nonstandard_role_type]!")))
 		player.special_role = nonstandard_role_type
 		if(nonstandard_role_msg)
-			to_chat(player.current, "<span class='notice'>[nonstandard_role_msg]</span>")
+			to_chat(player.current, SPAN_NOTICE("[nonstandard_role_msg]"))
 		update_icons_added(player)
 	return 1
 
 /datum/antagonist/proc/remove_antagonist(datum/mind/player, show_message, implanted)
+	GLOB.destroyed_event.unregister(player, src, PROC_REF(remove_antagonist))
 	if(!istype(player))
+		current_antagonists -= player
 		return 0
 	if (player.current)
 		if (faction_verb)
 			player.current.verbs -= faction_verb
 		if (faction && player.current.faction == faction)
-			player.current.faction = MOB_FACTION_NEUTRAL
+			if(player.current.faction == player.current.last_faction)
+				player.current.faction = MOB_FACTION_NEUTRAL
+			else
+				player.current.faction = player.current.last_faction
+			player.current.last_faction = faction
 	if(player in current_antagonists)
-		to_chat(player.current, "<span class='danger'><font size = 3>You are no longer a [role_text]!</font></span>")
+		to_chat(player.current, SPAN_DANGER(FONT_LARGE("You are no longer a [role_text]!")))
 		current_antagonists -= player
 		faction_members -= player
 		player.special_role = null

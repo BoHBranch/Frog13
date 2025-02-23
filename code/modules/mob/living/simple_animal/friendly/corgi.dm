@@ -13,7 +13,7 @@
 	response_harm   = "kicks"
 	see_in_dark = 5
 	mob_size = 8
-	possession_candidate = 1
+	possession_candidate = TRUE
 	holder_type = /obj/item/holder/corgi
 	pass_flags = PASS_FLAG_TABLE
 	density = FALSE
@@ -96,21 +96,36 @@
 	name = "Corgi meat"
 	desc = "Tastes like... well you know..."
 
-/mob/living/simple_animal/passive/corgi/attackby(obj/item/O as obj, mob/user as mob)  //Marker -Agouri
-	if(istype(O, /obj/item/newspaper))
-		if(!stat)
-			for(var/mob/M in viewers(user, null))
-				if ((M.client && !( M.blinded )))
-					M.show_message("<span class='notice'>[user] baps [name] on the nose with the rolled up [O]</span>")
-			spawn(0)
-				for(var/i in list(1,2,4,8,4,2,1,2))
-					set_dir(i)
-					sleep(1)
-	else
-		..()
+
+/mob/living/simple_animal/passive/corgi/get_interactions_info()
+	. = ..()
+	.["Newspaper"] = "<p>On harm intent, disciplines \the [initial(name)]. Bad dog!</p>"
+
+
+/mob/living/simple_animal/passive/corgi/use_weapon(obj/item/weapon, mob/user, list/click_params)
+	// Newspaper - Bap on the nose
+	if (istype(weapon, /obj/item/newspaper))
+		user.setClickCooldown(user.get_attack_speed(weapon))
+		user.do_attack_animation(src)
+		user.visible_message(
+			SPAN_WARNING("\The [user] baps \the [src] on the nose with a rolled up [weapon.name]!"),
+			SPAN_DANGER("You bap \the [src] on the nose with the rolled up [weapon.name]!"),
+			exclude_mobs = list(src)
+		)
+		if (stat)
+			return TRUE
+		to_chat(src, SPAN_DANGER("\The [user] baps you on the nose with a rolle up [weapon.name]!"))
+		spawn(0)
+			for(var/i in list(1,2,4,8,4,2,1,2))
+				set_dir(i)
+				sleep(1)
+		return TRUE
+
+	return ..()
+
 
 /mob/living/simple_animal/passive/corgi/regenerate_icons()
-	overlays = list()
+	ClearOverlays()
 
 	if(inventory_head)
 		var/head_icon_state = inventory_head.icon_state
@@ -119,7 +134,7 @@
 
 		var/icon/head_icon = image('icons/mob/simple_animal/corgi_head.dmi',head_icon_state)
 		if(head_icon)
-			overlays += head_icon
+			AddOverlays(head_icon)
 
 	if(inventory_back)
 		var/back_icon_state = inventory_back.icon_state
@@ -128,7 +143,7 @@
 
 		var/icon/back_icon = image('icons/mob/simple_animal/corgi_back.dmi',back_icon_state)
 		if(back_icon)
-			overlays += back_icon
+			AddOverlays(back_icon)
 
 /mob/living/simple_animal/passive/corgi/puppy
 	name = "\improper corgi puppy"
@@ -144,7 +159,7 @@
 //pupplies cannot wear anything.
 /mob/living/simple_animal/passive/corgi/puppy/OnTopic(mob/user, href_list)
 	if(href_list["remove_inv"] || href_list["add_inv"])
-		to_chat(user, "<span class='warning'>You can't fit this on [src]</span>")
+		to_chat(user, SPAN_WARNING("You can't fit this on [src]"))
 		return TOPIC_HANDLED
 	return ..()
 
@@ -166,7 +181,7 @@
 //Lisa already has a cute bow!
 /mob/living/simple_animal/passive/corgi/Lisa/OnTopic(mob/user, href_list)
 	if(href_list["remove_inv"] || href_list["add_inv"])
-		to_chat(user, "<span class='warning'>[src] already has a cute bow!</span>")
+		to_chat(user, SPAN_WARNING("[src] already has a cute bow!"))
 		return TOPIC_HANDLED
 	return ..()
 

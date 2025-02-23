@@ -15,12 +15,6 @@
 	src.sound_out = sound_out || src.sound_out
 	src.can_holster = can_holster
 
-	atom_holder.verbs += /atom/proc/holster_verb
-
-/datum/extension/holster/Destroy()
-	. = ..()
-	atom_holder.verbs -= /atom/proc/holster_verb
-
 /datum/extension/holster/proc/can_holster(obj/item/I)
 	if(can_holster)
 		if(is_type_in_list(I,can_holster))
@@ -33,33 +27,38 @@
 /datum/extension/holster/proc/holster(obj/item/I, mob/living/user)
 	if(!storage)
 		return 1
-	if(!holstered && storage.storage_slots != null && storage.contents.len >= storage.storage_slots - 1)
+	if(!holstered && storage.storage_slots != null && length(storage.contents) >= storage.storage_slots - 1)
 		if(!can_holster(I))
-			to_chat(user, "<span class='notice'>\The [I] won't fit in \the [atom_holder]'s holster!.</span>")
+			to_chat(user, SPAN_NOTICE("\The [I] won't fit in \the [atom_holder]'s holster!."))
 			return 1
 	if(can_holster(I))
 		if(holstered && istype(user))
-			to_chat(user, "<span class='warning'>There is already \a [holstered] holstered here!</span>")
+			to_chat(user, SPAN_WARNING("There is already \a [holstered] holstered here!"))
 			return 1
 		if(sound_in)
 			playsound(get_turf(atom_holder), sound_in, 50)
 		if(istype(user))
 			user.stop_aiming(no_message=1)
+		if(istype(I, /obj/item/gun))
+			var/obj/item/gun/G = I
+			G.check_accidents(user)
+			if(user.a_intent == I_HELP && G.has_safety && !G.safety_state && user.skill_check(SKILL_WEAPONS, SKILL_EXPERIENCED))
+				G.toggle_safety(user)
 		holstered = I
 		storage.handle_item_insertion(holstered, 1)
 		holstered.add_fingerprint(user)
 		storage.w_class = max(storage.w_class, holstered.w_class)
-		user.visible_message("<span class='notice'>\The [user] holsters \the [holstered].</span>", "<span class='notice'>You holster \the [holstered].</span>")
+		user.visible_message(SPAN_NOTICE("\The [user] holsters \the [holstered]."), SPAN_NOTICE("You holster \the [holstered]."))
 		atom_holder.SetName("occupied [initial(atom_holder.name)]")
 		atom_holder.update_icon()
-		GLOB.moved_event.register(holstered, src, .proc/check_holster)
-		GLOB.destroyed_event.register(holstered, src, .proc/clear_holster)
+		GLOB.moved_event.register(holstered, src, PROC_REF(check_holster))
+		GLOB.destroyed_event.register(holstered, src, PROC_REF(clear_holster))
 		return 1
 	return 0
 
 /datum/extension/holster/proc/clear_holster()
-	GLOB.moved_event.unregister(holstered, src, .proc/check_holster)
-	GLOB.destroyed_event.unregister(holstered, src, .proc/clear_holster)
+	GLOB.moved_event.unregister(holstered, src, PROC_REF(check_holster))
+	GLOB.destroyed_event.unregister(holstered, src, PROC_REF(clear_holster))
 	holstered = null
 	atom_holder.SetName(initial(atom_holder.name))
 
@@ -67,7 +66,7 @@
 	if(!holstered)
 		return 0
 	if (!user.HasFreeHand())
-		to_chat(user, "<span class='warning'>You need an empty hand to draw \the [holstered]!</span>")
+		to_chat(user, SPAN_WARNING("You need an empty hand to draw \the [holstered]!"))
 		return 0
 	var/using_intent_preference = user.client ? user.client.get_preference_value(/datum/client_preference/holster_on_intent) == GLOB.PREF_YES : FALSE
 	if(avoid_intent || (using_intent_preference && user.a_intent != I_HELP))
@@ -77,16 +76,16 @@
 			if(istype(holstered, /obj/item/gun))
 				var/obj/item/gun/G = holstered
 				G.check_accidents(user)
-				if(G.safety() && !user.skill_fail_prob(SKILL_WEAPONS, 100, SKILL_EXPERT, 0.5)) //Experienced shooter will disable safety before shooting.
+				if(G.safety() && user.skill_check(SKILL_WEAPONS, SKILL_EXPERIENCED)) // Experienced shooter will disable safety before shooting.
 					G.toggle_safety(user)
 			usr.visible_message(
-				"<span class='danger'>\The [user] draws \the [holstered], ready to go!</span>",
-				"<span class='warning'>You draw \the [holstered], ready to go!</span>"
+				SPAN_DANGER("\The [user] draws \the [holstered], ready to go!"),
+				SPAN_WARNING("You draw \the [holstered], ready to go!")
 				)
 		else
 			user.visible_message(
-				"<span class='notice'>\The [user] draws \the [holstered], pointing it at the ground.</span>",
-				"<span class='notice'>You draw \the [holstered], pointing it at the ground.</span>"
+				SPAN_NOTICE("\The [user] draws \the [holstered], pointing it at the ground."),
+				SPAN_NOTICE("You draw \the [holstered], pointing it at the ground.")
 				)
 		if(sound_out)
 			playsound(get_turf(atom_holder), sound_out, sound_vol)
@@ -108,27 +107,58 @@
 	if(holstered.loc != storage)
 		clear_holster()
 
-/atom/proc/holster_verb(holster_name in get_holsters())
+/**
+ * Verb to handle quick-holstering an item in the mob's active hand, or retrieving an item from this atom's holster
+ * extension.
+ */
+/mob/living/verb/holster_verb()
 	set name = "Holster"
 	set category = "Object"
-	set src in usr
 
 	if(usr.incapacitated())
 		return
 
-	var/datum/extension/holster/H = get_holsters()[holster_name]
-	if(!H)
+	var/list/holsters = list()
+	for (var/obj/item/item in contents)
+		holsters += item.get_holsters()
+		continue
+
+	if (!length(holsters))
+		return
+
+	var/holster_name
+	if (length(holsters) > 1)
+		var/list/options = list()
+		for (var/holster in holsters)
+			var/datum/extension/holster/H = holsters[holster]
+			var/atom/holder = H.atom_holder
+			options[holster] = mutable_appearance(holder.icon, holder.icon_state)
+
+		holster_name = show_radial_menu(usr, usr, options, tooltips = TRUE, use_labels = TRUE)
+
+		if (!holster_name)
+			return
+	else
+		holster_name = holsters[1]
+	var/datum/extension/holster/H = holsters[holster_name]
+	if (!H || !usr.use_sanity_check(H.atom_holder))
 		return
 
 	if(!H.holstered)
 		var/obj/item/W = usr.get_active_hand()
 		if(!istype(W, /obj/item))
-			to_chat(usr, "<span class='warning'>You're not holding anything to holster.</span>")
+			to_chat(usr, SPAN_WARNING("You're not holding anything to holster."))
 			return
 		H.holster(W, usr)
 	else
 		H.unholster(usr, 1)
 
+/**
+ * Retrieves all holsters contained within the atom, including itself. Generally, this is any atom that has the
+ * `/datum/extension/holster` extension.
+ *
+ * Returns associative list (name = instance of `/datum/extension/holster`)
+ */
 /atom/proc/get_holsters()
 	. = list()
 	if(has_extension(src, /datum/extension/holster))
@@ -143,9 +173,9 @@
 
 	for(var/accessory_name in holster_accessories_by_name)
 		var/list/holster_accessories = holster_accessories_by_name[accessory_name]
-		if(holster_accessories.len == 1)
+		if(length(holster_accessories) == 1)
 			.[accessory_name] = get_extension(holster_accessories[1], /datum/extension/holster)
 		else
-			for(var/i = 1 to holster_accessories.len)
+			for(var/i = 1 to length(holster_accessories))
 				var/holster_name = "[accessory_name] [i]"
 				.[holster_name] = get_extension(holster_accessories[i], /datum/extension/holster)

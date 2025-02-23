@@ -19,9 +19,9 @@
 	playsound(src, 'sound/weapons/wave.ogg', 100)
 
 /obj/item/grenade/supermatter/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 	if(implode_at)
-		overlays += image(icon = 'icons/obj/machines/power/fusion.dmi', icon_state = "emfield_s1")
+		AddOverlays(image(icon = 'icons/obj/machines/power/fusion_field.dmi', icon_state = "emfield_s1"))
 
 /obj/item/grenade/supermatter/Process()
 	if(!isturf(loc))
@@ -32,5 +32,5 @@
 	playsound(src, 'sound/effects/supermatter.ogg', 100)
 	supermatter_pull(src, world.view, STAGE_THREE)
 	if(world.time > implode_at)
-		explosion(loc, 0, 1, 3, 4)
+		explosion(loc, 4, EX_ACT_HEAVY)
 		qdel(src)

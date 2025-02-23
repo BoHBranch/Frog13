@@ -9,11 +9,15 @@
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER | ATOM_FLAG_NO_REACT
 
 /obj/item/reagent_containers/food/drinks/shaker/attack_self(mob/user as mob)
-	if(user.skill_check(SKILL_COOKING, SKILL_PROF))
-		user.visible_message("<span class='rose'>\The [user] shakes \the [src] briskly in one hand, with supreme confidence and competence.</span>", "<span class='rose'>You shake \the [src] briskly with one hand.</span>")
+	if(!reagents.total_volume)
+		return
+	playsound(loc,'sound/items/soda_shaking.ogg', rand(10,50), 1)
+	shake_animation(20)
+	if(user.skill_check(SKILL_COOKING, SKILL_MASTER))
+		user.visible_message(SPAN_CLASS("rose", "\The [user] shakes \the [src] briskly in one hand, with supreme confidence and competence."), SPAN_CLASS("rose", "You shake \the [src] briskly with one hand."))
 		mix()
 		return
-	if(user.skill_check(SKILL_COOKING, SKILL_ADEPT))
+	if(user.skill_check(SKILL_COOKING, SKILL_TRAINED))
 		user.visible_message(SPAN_NOTICE("\The [user] shakes \the [src] briskly, with some skill."), SPAN_NOTICE("You shake \the [src] briskly, with some skill."))
 		mix()
 		return
@@ -29,7 +33,7 @@
 	if(reagents && reagents.total_volume)
 		atom_flags &= ~ATOM_FLAG_NO_REACT
 		HANDLE_REACTIONS(reagents)
-		addtimer(CALLBACK(src, .proc/stop_react), SSchemistry.wait)
+		addtimer(new Callback(src, PROC_REF(stop_react)), SSchemistry.wait)
 
 /obj/item/reagent_containers/food/drinks/shaker/proc/stop_react()
 	atom_flags |= ATOM_FLAG_NO_REACT

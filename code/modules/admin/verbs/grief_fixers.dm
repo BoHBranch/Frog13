@@ -8,7 +8,7 @@
 		return
 
 	log_and_message_admins("Full atmosphere reset initiated by [usr].")
-	to_world("<span class = 'danger'>Initiating restart of atmosphere. The server may lag a bit.</span>")
+	to_world(SPAN_CLASS("danger", "Initiating restart of atmosphere. The server may lag a bit."))
 	sleep(10)
 	var/current_time = world.timeofday
 
@@ -38,9 +38,9 @@
 
 	for(var/turf/simulated/T in world)
 		T.air = null
-		T.overlays.Remove(unsorted_overlays)
+		T.CutOverlays(unsorted_overlays)
 		T.zone = null
-		for(var/obj/effect/gas_overlay/effect in T.vis_contents)
+		for(var/obj/gas_overlay/effect in T.vis_contents)
 			T.vis_contents -= effect
 
 	to_chat(usr, "\[4/5\] - All turfs reset to roundstart values.")
@@ -48,4 +48,4 @@
 	SSair.reboot()
 
 	to_chat(usr, "\[5/5\] - ZAS Rebooted")
-	to_world("<span class = 'danger'>Atmosphere restart completed in <b>[(world.timeofday - current_time)/10]</b> seconds.</span>")
+	to_world(SPAN_CLASS("danger", "Atmosphere restart completed in <b>[(world.timeofday - current_time)/10]</b> seconds."))

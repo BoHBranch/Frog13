@@ -5,16 +5,16 @@
 		return
 	var/turf/T = mob.loc
 
-	if (!( istype(T, /turf) ))
+	if (!( isturf(T) ))
 		return
 
 	var/datum/gas_mixture/env = T.return_air()
 
-	var/t = "<span class='notice'>Coordinates: [T.x],[T.y],[T.z]</span>\n"
-	t += "<span class='warning'>Temperature: [env.temperature]</span>\n"
-	t += "<span class='warning'>Pressure: [env.return_pressure()]kPa</span>\n"
+	var/t = "[SPAN_NOTICE("Coordinates: [T.x],[T.y],[T.z]")]\n"
+	t += "[SPAN_WARNING("Temperature: [env.temperature]")]\n"
+	t += "[SPAN_WARNING("Pressure: [env.return_pressure()]kPa")]\n"
 	for(var/g in env.gas)
-		t += "<span class='notice'>[g]: [env.gas[g]] / [env.gas[g] * R_IDEAL_GAS_EQUATION * env.temperature / env.volume]kPa</span>\n"
+		t += "[SPAN_NOTICE("[g]: [env.gas[g]] / [env.gas[g] * R_IDEAL_GAS_EQUATION * env.temperature / env.volume]kPa")]\n"
 
 	usr.show_message(t, 1)
 
@@ -71,7 +71,7 @@
 		if(confirm != "Yes")
 			return 0
 	var/obj/item/device/paicard/card = new(T)
-	var/mob/living/silicon/pai/pai = new(card)
+	var/mob/living/silicon/pai/pai = new(card, card)
 	pai.SetName(sanitizeSafe(input(choice, "Enter your pAI name:", "pAI Name", "Personal AI") as text))
 	pai.real_name = pai.name
 	pai.key = choice.key
@@ -158,6 +158,8 @@
 	log_and_message_admins("assumed direct control of [M].")
 	var/mob/adminmob = src.mob
 	M.ckey = src.ckey
+	M.teleop = null
+	adminmob.teleop = null
 	if(isghost(adminmob))
 		qdel(adminmob)
 
@@ -265,7 +267,7 @@
 	if(!H)
 		return
 
-	var/decl/hierarchy/outfit/outfit = input("Select outfit.", "Select equipment.") as null|anything in outfits()
+	var/singleton/hierarchy/outfit/outfit = input("Select outfit.", "Select equipment.") as null|anything in outfits()
 	if(!outfit)
 		return
 
@@ -274,12 +276,12 @@
 		reset_equipment = alert("Do you wish to delete all current equipment first?", "Delete Equipment?","Yes", "No") == "Yes"
 	dressup_human(H, outfit, reset_equipment)
 
-/proc/dressup_human(mob/living/carbon/human/H, decl/hierarchy/outfit/outfit, undress = TRUE)
+/proc/dressup_human(mob/living/carbon/human/H, singleton/hierarchy/outfit/outfit, undress = TRUE)
 	if(!H || !outfit)
 		return
 	if(undress)
 		H.delete_inventory(TRUE)
-	outfit.equip(H)
+	outfit.equip(H, equip_adjustments = outfit.flags)
 	log_and_message_admins("changed the equipment of [key_name(H)] to [outfit.name].")
 
 /client/proc/startSinglo()
@@ -398,7 +400,7 @@
 
 	var/dat = display_medical_data(H.get_raw_medical_data(), SKILL_MAX)
 
-	dat += text("<BR><A href='?src=\ref[];mach_close=scanconsole'>Close</A>", usr)
+	dat += text("<BR><A href='byond://?src=\ref[];mach_close=scanconsole'>Close</A>", usr)
 	show_browser(usr, dat, "window=scanconsole;size=430x600")
 
 /client/proc/cmd_analyse_health_context(mob/living/carbon/human/H as mob in GLOB.human_mobs)
@@ -410,7 +412,7 @@
 	if(!ishuman(H))	return
 	cmd_analyse_health(H)
 
-/obj/effect/debugmarker
+/obj/debugmarker
 	icon = 'icons/effects/lighting_overlay.dmi'
 	icon_state = "transparent"
 	layer = HOLOMAP_LAYER
@@ -451,7 +453,7 @@
 	GLOB.planet_repopulation_disabled = !GLOB.planet_repopulation_disabled
 	log_and_message_admins("toggled planet mob repopulating [GLOB.planet_repopulation_disabled ? "OFF" : "ON"].")
 
-/client/proc/spawn_exoplanet(exoplanet_type as anything in subtypesof(/obj/effect/overmap/visitable/sector/exoplanet))
+/client/proc/spawn_exoplanet(exoplanet_type as anything in subtypesof(/obj/overmap/visitable/sector/exoplanet))
 	set category = "Debug"
 	set name = "Create Exoplanet"
 
@@ -477,10 +479,10 @@
 	if (last_chance == "Cancel")
 		return
 
-	var/obj/effect/overmap/visitable/sector/exoplanet/new_planet = new exoplanet_type(null, world.maxx, world.maxy)
+	var/obj/overmap/visitable/sector/exoplanet/new_planet = new exoplanet_type(null, world.maxx, world.maxy)
 	new_planet.features_budget = budget
 	new_planet.themes = list(new theme)
-	new_planet.lightlevel = rand(5, 10)/10
+	new_planet.sun_brightness_modifier = Frand(0.1, 0.6)
 
 	log_and_message_admins("is spawning [new_planet] at [new_planet.start_x],[new_planet.start_y], containing Z [english_list(new_planet.map_z)]")
 	new_planet.build_level()

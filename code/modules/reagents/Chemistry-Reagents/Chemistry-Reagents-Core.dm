@@ -1,5 +1,5 @@
 /datum/reagent/blood
-	data = new/list(
+	data = list(
 		"donor" = null,
 		"species" = SPECIES_HUMAN,
 		"blood_DNA" = null,
@@ -54,7 +54,7 @@
 	if(ishuman(W))
 		blood_splatter(T, src, 1)
 	else if(isalien(W))
-		var/obj/effect/decal/cleanable/blood/B = blood_splatter(T, src, 1)
+		var/obj/decal/cleanable/blood/B = blood_splatter(T, src, 1)
 		if(B)
 			B.blood_DNA["UNKNOWN DNA STRUCTURE"] = "X*"
 
@@ -95,13 +95,13 @@
 	value = 0
 
 /datum/reagent/water/affect_blood(mob/living/carbon/M, removed)
-	var/malus_level = M.GetTraitLevel(/decl/trait/malus/water)
+	var/malus_level = M.GetTraitLevel(/singleton/trait/malus/water)
 	if (malus_level)
 		M.adjustToxLoss(malus_level * removed)
 
 /datum/reagent/water/affect_ingest(mob/living/carbon/M, removed)
 
-	var/malus_level = M.GetTraitLevel(/decl/trait/malus/water)
+	var/malus_level = M.GetTraitLevel(/singleton/trait/malus/water)
 	if (malus_level)
 		M.adjustToxLoss(malus_level * removed)
 	M.adjust_hydration(removed * 10)
@@ -126,7 +126,7 @@
 		var/removed_heat = clamp(volume * WATER_LATENT_HEAT, 0, -environment.get_thermal_energy_change(min_temperature))
 		environment.add_thermal_energy(-removed_heat)
 		if (prob(5) && environment && environment.temperature > T100C)
-			T.visible_message("<span class='warning'>The water sizzles as it lands on \the [T]!</span>")
+			T.visible_message(SPAN_WARNING("The water sizzles as it lands on \the [T]!"))
 
 	else if(volume >= 10)
 		var/turf/simulated/S = T
@@ -137,8 +137,8 @@
 		var/obj/item/reagent_containers/food/snacks/monkeycube/cube = O
 		if(!cube.wrapped)
 			cube.Expand()
-	if(istype(O, /obj/effect/turf_fire))
-		var/obj/effect/turf_fire/TF = O
+	if(istype(O, /obj/turf_fire))
+		var/obj/turf_fire/TF = O
 		TF.AddPower(-volume)
 		if(TF.fire_power <= 0)
 			qdel(TF)
@@ -163,7 +163,7 @@
 			remove_self(amount)
 
 /datum/reagent/water/affect_touch(mob/living/carbon/M, removed)
-	var/trait_level = GET_TRAIT_LEVEL(M, /decl/trait/malus/water)
+	var/trait_level = GET_TRAIT_LEVEL(M, /singleton/trait/malus/water)
 	if (!trait_level)
 		return
 
@@ -175,8 +175,8 @@
 		if(S.Victim)
 			S.Feedstop()
 	if(M.chem_doses[type] == removed)
-		M.visible_message("<span class='warning'>[S]'s flesh sizzles where the water touches it!</span>", "<span class='danger'>Your flesh burns in the water!</span>")
-		M.confused = max(M.confused, 2)
+		M.visible_message(SPAN_WARNING("[S]'s flesh sizzles where the water touches it!"), SPAN_DANGER("Your flesh burns in the water!"))
+		M.set_confused(2)
 
 /datum/reagent/water/boiling
 	name = "Boiling water"
@@ -220,7 +220,7 @@
 	accelerant_quality = 10
 
 /datum/reagent/fuel/touch_turf(turf/T)
-	new /obj/effect/decal/cleanable/liquid_fuel(T, volume)
+	new /obj/decal/cleanable/liquid_fuel(T, volume)
 	remove_self(volume)
 	return
 
@@ -240,11 +240,11 @@
 	products.adjust_multi(GAS_NO, 0.1 * gas_moles, GAS_NO2, 0.1 * gas_moles, GAS_NITROGEN, 0.6 * gas_moles, GAS_HYDROGEN, 0.02 * gas_moles)
 	T.assume_air(products)
 	if(volume > 500)
-		explosion(T,1,2,4)
+		explosion(T, 7)
 	else if(volume > 100)
-		explosion(T,0,1,3)
+		explosion(T, 4, EX_ACT_HEAVY)
 	else if(volume > 50)
-		explosion(T,-1,1,2)
+		explosion(T, 3, EX_ACT_HEAVY)
 	remove_self(volume)
 
 /datum/reagent/coagulated_blood

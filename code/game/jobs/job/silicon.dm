@@ -10,33 +10,32 @@
 	minimal_player_age = 14
 	account_allowed = 0
 	economic_power = 0
-	outfit_type = /decl/hierarchy/outfit/job/silicon/ai
+	outfit_type = /singleton/hierarchy/outfit/job/silicon/ai
 	loadout_allowed = FALSE
 	hud_icon = "hudblank"
 	skill_points = 0
-	no_skill_buffs = TRUE
 	min_skill = list(
-		SKILL_BUREAUCRACY   = SKILL_EXPERT,
-		SKILL_FINANCE       = SKILL_EXPERT,
-		SKILL_EVA           = SKILL_EXPERT,
-		SKILL_MECH          = SKILL_EXPERT,
-		SKILL_PILOT         = SKILL_EXPERT,
-		SKILL_HAULING       = SKILL_NONE,
-		SKILL_COMPUTER      = SKILL_PROF,
-		SKILL_BOTANY        = SKILL_EXPERT,
-		SKILL_COOKING       = SKILL_EXPERT,
-		SKILL_COMBAT        = SKILL_EXPERT,
-		SKILL_WEAPONS       = SKILL_EXPERT,
-		SKILL_FORENSICS     = SKILL_EXPERT,
-		SKILL_CONSTRUCTION  = SKILL_EXPERT,
-		SKILL_ELECTRICAL    = SKILL_EXPERT,
-		SKILL_ATMOS         = SKILL_EXPERT,
-		SKILL_ENGINES       = SKILL_EXPERT,
-		SKILL_DEVICES       = SKILL_EXPERT,
-		SKILL_SCIENCE       = SKILL_EXPERT,
-		SKILL_MEDICAL       = SKILL_EXPERT,
-		SKILL_ANATOMY       = SKILL_EXPERT,
-		SKILL_CHEMISTRY     = SKILL_EXPERT
+		SKILL_BUREAUCRACY   = SKILL_EXPERIENCED,
+		SKILL_FINANCE       = SKILL_EXPERIENCED,
+		SKILL_EVA           = SKILL_EXPERIENCED,
+		SKILL_MECH          = SKILL_EXPERIENCED,
+		SKILL_PILOT         = SKILL_EXPERIENCED,
+		SKILL_HAULING       = SKILL_UNSKILLED,
+		SKILL_COMPUTER      = SKILL_MASTER,
+		SKILL_BOTANY        = SKILL_EXPERIENCED,
+		SKILL_COOKING       = SKILL_EXPERIENCED,
+		SKILL_COMBAT        = SKILL_EXPERIENCED,
+		SKILL_WEAPONS       = SKILL_EXPERIENCED,
+		SKILL_FORENSICS     = SKILL_EXPERIENCED,
+		SKILL_CONSTRUCTION  = SKILL_EXPERIENCED,
+		SKILL_ELECTRICAL    = SKILL_EXPERIENCED,
+		SKILL_ATMOS         = SKILL_EXPERIENCED,
+		SKILL_ENGINES       = SKILL_EXPERIENCED,
+		SKILL_DEVICES       = SKILL_EXPERIENCED,
+		SKILL_SCIENCE       = SKILL_EXPERIENCED,
+		SKILL_MEDICAL       = SKILL_EXPERIENCED,
+		SKILL_ANATOMY       = SKILL_EXPERIENCED,
+		SKILL_CHEMISTRY     = SKILL_EXPERIENCED
 	)
 
 /datum/job/ai/equip(mob/living/carbon/human/H)
@@ -44,7 +43,7 @@
 	return 1
 
 /datum/job/ai/is_position_available()
-	return (empty_playable_ai_cores.len != 0)
+	return (length(empty_playable_ai_cores) != 0)
 
 /datum/job/ai/handle_variant_join(mob/living/carbon/human/H, alt_title)
 	return H
@@ -60,10 +59,9 @@
 	account_allowed = 0
 	economic_power = 0
 	loadout_allowed = FALSE
-	outfit_type = /decl/hierarchy/outfit/job/silicon/cyborg
+	outfit_type = /singleton/hierarchy/outfit/job/silicon/cyborg
 	hud_icon = "hudblank"
 	skill_points = 0
-	no_skill_buffs = TRUE
 
 /datum/job/cyborg/handle_variant_join(mob/living/carbon/human/H, alt_title)
 	return H && H.Robotize(SSrobots.get_mob_type_by_title(alt_title || title))

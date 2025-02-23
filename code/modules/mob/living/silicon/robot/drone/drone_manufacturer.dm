@@ -23,7 +23,7 @@
 	/// Boolean. Whether or not spawned drones should be locked to the machinery's z-level.
 	var/z_locked = TRUE
 
-	icon = 'icons/obj/machines/drone_fab.dmi'
+	icon = 'icons/obj/machines/fabricators/drone_fab.dmi'
 	icon_state = "drone_fab_idle"
 
 /obj/machinery/drone_fabricator/derelict
@@ -96,20 +96,20 @@
 /proc/try_drone_spawn(mob/user, obj/machinery/drone_fabricator/fabricator)
 
 	if(GAME_STATE < RUNLEVEL_GAME)
-		to_chat(user, "<span class='danger'>The game hasn't started yet!</span>")
+		to_chat(user, SPAN_DANGER("The game hasn't started yet!"))
 		return
 
 	if(!(config.allow_drone_spawn))
-		to_chat(user, "<span class='danger'>That verb is not currently permitted.</span>")
+		to_chat(user, SPAN_DANGER("That verb is not currently permitted."))
 		return
 
 	if(jobban_isbanned(user,"Robot"))
-		to_chat(user, "<span class='danger'>You are banned from playing synthetics and cannot spawn as a drone.</span>")
+		to_chat(user, SPAN_DANGER("You are banned from playing synthetics and cannot spawn as a drone."))
 		return
 
 	if(config.use_age_restriction_for_jobs && isnum(user.client.player_age))
 		if(user.client.player_age <= 3)
-			to_chat(user, "<span class='danger'> Your account is not old enough to play as a maintenance drone.</span>")
+			to_chat(user, SPAN_DANGER(" Your account is not old enough to play as a maintenance drone."))
 			return
 
 	if(!user.MayRespawn(1, DRONE_SPAWN_DELAY))
@@ -123,8 +123,8 @@
 				continue
 			all_fabricators[DF.fabricator_tag] = DF
 
-		if(!all_fabricators.len)
-			to_chat(user, "<span class='danger'>There are no available drone spawn points, sorry.</span>")
+		if(!length(all_fabricators))
+			to_chat(user, SPAN_DANGER("There are no available drone spawn points, sorry."))
 			return
 
 		var/choice = input(user,"Which fabricator do you wish to use?") as null|anything in all_fabricators
@@ -133,7 +133,7 @@
 		fabricator = all_fabricators[choice]
 
 	if(user && fabricator && !(!fabricator.is_powered() || !fabricator.produce_drones || fabricator.drone_progress < 100))
-		log_and_message_admins("has joined the round as a maintenance drone.")
+		log_and_message_admins("has joined the round as a maintenance drone.", user)
 		var/mob/drone = fabricator.create_drone(user.client)
 		if(drone)
 			drone.status_flags |= NO_ANTAG

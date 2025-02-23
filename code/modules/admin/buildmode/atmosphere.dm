@@ -106,7 +106,7 @@
 
 		if (!simmed)
 			for (var/turf/unsimulated/T in atmospheres)
-				var/new_moles = T.initial_gas.len / moles
+				var/new_moles = length(T.initial_gas) / moles
 
 				for (var/gas in T.initial_gas)
 					T.initial_gas[gas] = new_moles
@@ -211,7 +211,7 @@
 
 	if (mode == MODE_AREA && env_area.planetary_surface)
 		//exoplanets will slowly reset their atmosphere to default if we don't update it
-		var/obj/effect/overmap/visitable/sector/exoplanet/E = map_sectors["[env_area.z]"]
+		var/obj/overmap/visitable/sector/exoplanet/E = map_sectors["[env_area.z]"]
 		if (istype(E))
 			E.atmosphere.gas = enviroment.gas.Copy()
 			E.atmosphere.temperature = enviroment.temperature

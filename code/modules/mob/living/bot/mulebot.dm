@@ -38,8 +38,9 @@
 
 	var/static/amount = 0
 
-/mob/living/bot/mulebot/New()
-	..()
+
+/mob/living/bot/mulebot/Initialize()
+	. = ..()
 
 	var/turf/T = get_turf(loc)
 	var/obj/machinery/navbeacon/N = locate() in T
@@ -50,7 +51,13 @@
 		homeName = "Unset"
 
 	suffix = num2text(++amount)
-	name = "Mulebot #[suffix]"
+	SetName("Mulebot #[suffix]")
+
+
+/mob/living/bot/mulebot/get_antag_interactions_info()
+	. = ..()
+	.[CODEX_INTERACTION_EMAG] = "<p>Toggles the access panel lock.</p>"
+
 
 /mob/living/bot/mulebot/MouseDrop_T(atom/movable/C, mob/user)
 	if(user.stat)
@@ -71,19 +78,19 @@
 	. += "<br>Current Load: [load ? load.name : "<i>none</i>"]"
 
 /mob/living/bot/mulebot/GetInteractPanel()
-	. += "<a href='?src=\ref[src];command=stop'>Stop</a>"
-	. += "<br><a href='?src=\ref[src];command=go'>Proceed</a>"
-	. += "<br><a href='?src=\ref[src];command=home'>Return to home</a>"
-	. += "<br><a href='?src=\ref[src];command=destination'>Set destination</a>"
-	. += "<br><a href='?src=\ref[src];command=sethome'>Set home</a>"
-	. += "<br><a href='?src=\ref[src];command=autoret'>Toggle auto return home</a> ([auto_return ? "On" : "Off"])"
-	. += "<br><a href='?src=\ref[src];command=cargotypes'>Toggle non-standard cargo</a> ([crates_only ? "Off" : "On"])"
+	. += "<a href='byond://?src=\ref[src];command=stop'>Stop</a>"
+	. += "<br><a href='byond://?src=\ref[src];command=go'>Proceed</a>"
+	. += "<br><a href='byond://?src=\ref[src];command=home'>Return to home</a>"
+	. += "<br><a href='byond://?src=\ref[src];command=destination'>Set destination</a>"
+	. += "<br><a href='byond://?src=\ref[src];command=sethome'>Set home</a>"
+	. += "<br><a href='byond://?src=\ref[src];command=autoret'>Toggle auto return home</a> ([auto_return ? "On" : "Off"])"
+	. += "<br><a href='byond://?src=\ref[src];command=cargotypes'>Toggle non-standard cargo</a> ([crates_only ? "Off" : "On"])"
 
 	if(load)
-		. += "<br><a href='?src=\ref[src];command=unload'>Unload now</a>"
+		. += "<br><a href='byond://?src=\ref[src];command=unload'>Unload now</a>"
 
 /mob/living/bot/mulebot/GetInteractMaintenance()
-	. = "<a href='?src=\ref[src];command=safety'>Toggle safety</a> ([safety ? "On" : "Off - DANGER"])"
+	. = "<a href='byond://?src=\ref[src];command=safety'>Toggle safety</a> ([safety ? "On" : "Off - DANGER"])"
 
 /mob/living/bot/mulebot/ProcessCommand(mob/user, command, href_list)
 	..()
@@ -100,7 +107,7 @@
 			if("sethome")
 				var/new_dest
 				var/list/beaconlist = GetBeaconList()
-				if(beaconlist.len)
+				if(length(beaconlist))
 					new_dest = input("Select new home tag", "Mulebot [suffix ? "([suffix])" : ""]", null) in null|beaconlist
 				else
 					alert("No destination beacons available.")
@@ -119,10 +126,6 @@
 			if("safety")
 				safety = !safety
 
-/mob/living/bot/mulebot/attackby(obj/item/O, mob/user)
-	..()
-	update_icons()
-
 /mob/living/bot/mulebot/proc/obeyCommand(command)
 	switch(command)
 		if("Home")
@@ -132,7 +135,7 @@
 		if("SetD")
 			var/new_dest
 			var/list/beaconlist = GetBeaconList()
-			if(beaconlist.len)
+			if(length(beaconlist))
 				new_dest = input("Select new destination tag", "Mulebot [suffix ? "([suffix])" : ""]") in null|beaconlist
 			else
 				alert("No destination beacons available.")
@@ -147,16 +150,16 @@
 
 /mob/living/bot/mulebot/emag_act(remaining_charges, user)
 	locked = !locked
-	to_chat(user, "<span class='notice'>You [locked ? "lock" : "unlock"] the mulebot's controls.</span>")
+	to_chat(user, SPAN_NOTICE("You [locked ? "lock" : "unlock"] the mulebot's controls."))
 	flick("mulebot-emagged", src)
 	playsound(loc, 'sound/effects/sparks1.ogg', 100, 0)
 	return 1
 
-/mob/living/bot/mulebot/update_icons()
+/mob/living/bot/mulebot/on_update_icon()
 	if(open)
 		icon_state = "mulebot-hatch"
 		return
-	if(target_path.len && !paused)
+	if(length(target_path) && !paused)
 		icon_state = "mulebot1"
 		return
 	icon_state = "mulebot0"
@@ -164,7 +167,7 @@
 /mob/living/bot/mulebot/handleRegular()
 	if(!safety && prob(1))
 		flick("mulebot-emagged", src)
-	update_icons()
+	update_icon()
 
 /mob/living/bot/mulebot/handleFrustrated()
 	custom_emote(2, "makes a sighing buzz.")
@@ -186,7 +189,7 @@
 
 /mob/living/bot/mulebot/calcTargetPath()
 	..()
-	if(!target_path.len && target != home) // I presume that target is not null
+	if(!length(target_path) && target != home) // I presume that target is not null
 		resetTarget()
 		target = home
 		targetName = "Home"
@@ -200,16 +203,16 @@
 	if(T == src.loc)
 		unload(dir)
 
-/mob/living/bot/mulebot/Bump(mob/living/carbon/human/M)
+/mob/living/bot/mulebot/Bump(mob/living/carbon/human/M, called)
 	if(!safety && istype(M))
-		visible_message("<span class='warning'>[src] knocks over [M]!</span>")
+		visible_message(SPAN_WARNING("[src] knocks over [M]!"))
 		M.Stun(8)
 		M.Weaken(5)
 	..()
 
 /mob/living/bot/mulebot/proc/runOver(mob/living/carbon/human/H)
 	if(istype(H)) // No safety checks - WILL run over lying humans. Stop ERPing in the maint!
-		visible_message("<span class='warning'>[src] drives over [H]!</span>")
+		visible_message(SPAN_WARNING("[src] drives over [H]!"))
 		playsound(loc, 'sound/effects/splat.ogg', 50, 1)
 
 		var/damage = rand(5, 7)
@@ -229,7 +232,7 @@
 /mob/living/bot/mulebot/explode()
 	unload(pick(0, 1, 2, 4, 8))
 
-	visible_message("<span class='danger'>[src] blows apart!</span>")
+	visible_message(SPAN_DANGER("[src] blows apart!"))
 
 	var/turf/Tsec = get_turf(src)
 	new /obj/item/device/assembly/prox_sensor(Tsec)
@@ -237,11 +240,11 @@
 	new /obj/item/stack/material/rods(Tsec)
 	new /obj/item/stack/cable_coil/cut(Tsec)
 
-	var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+	var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 	s.set_up(3, 1, src)
 	s.start()
 
-	new /obj/effect/decal/cleanable/blood/oil(Tsec)
+	new /obj/decal/cleanable/blood/oil(Tsec)
 	..()
 
 /mob/living/bot/mulebot/proc/GetBeaconList()
@@ -283,7 +286,7 @@
 	if(C.layer < layer)
 		C.layer = layer + 0.1
 	C.plane = plane
-	overlays += C
+	AddOverlays(C)
 
 	if(ismob(C))
 		var/mob/M = C
@@ -298,7 +301,7 @@
 		return
 
 	busy = 1
-	overlays.Cut()
+	ClearOverlays()
 
 	load.forceMove(loc)
 	load.pixel_y -= 9

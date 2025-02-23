@@ -1,10 +1,11 @@
-/datum/species/golem
+/singleton/species/golem
 	name = SPECIES_GOLEM
 	name_plural = "Golems"
 
 	icobase = 'icons/mob/human_races/species/golem/body.dmi'
 	deform = 'icons/mob/human_races/species/golem/body.dmi'
 	husk_icon = 'icons/mob/human_races/species/golem/husk.dmi'
+	preview_icon = null
 
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/punch)
 	species_flags = SPECIES_FLAG_NO_PAIN | SPECIES_FLAG_NO_SCAN | SPECIES_FLAG_NO_POISON
@@ -36,6 +37,7 @@
 
 	death_message = "becomes completely motionless..."
 	genders = list(NEUTER)
+	pronouns = list(PRONOUNS_IT_ITS)
 
 	force_cultural_info = list(
 		TAG_CULTURE =   CULTURE_CULTIST,
@@ -44,12 +46,12 @@
 	)
 
 	traits = list(
-		/decl/trait/boon/clear_mind = TRAIT_LEVEL_MAJOR,
-		/decl/trait/general/metabolically_inert = TRAIT_LEVEL_MAJOR,
-		/decl/trait/general/nonpermeable_skin = TRAIT_LEVEL_EXISTS
+		/singleton/trait/boon/clear_mind = TRAIT_LEVEL_MAJOR,
+		/singleton/trait/general/metabolically_inert = TRAIT_LEVEL_MAJOR,
+		/singleton/trait/general/nonpermeable_skin = TRAIT_LEVEL_EXISTS
 	)
 
-/datum/species/golem/handle_post_spawn(mob/living/carbon/human/H)
+/singleton/species/golem/handle_post_spawn(mob/living/carbon/human/H)
 	if(H.mind)
 		H.mind.reset()
 		H.mind.assigned_role = "Golem"
@@ -59,8 +61,8 @@
 	H.status_flags |= NO_ANTAG
 	..()
 
-/datum/species/golem/post_organ_rejuvenate(obj/item/organ/org, mob/living/carbon/human/H)
+/singleton/species/golem/post_organ_rejuvenate(obj/item/organ/org, mob/living/carbon/human/H)
 	org.status |= (ORGAN_BRITTLE|ORGAN_CRYSTAL)
 
-/datum/species/golem/can_float(mob/living/carbon/human/H)
+/singleton/species/golem/can_float(mob/living/carbon/human/H)
 	return FALSE

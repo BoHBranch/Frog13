@@ -1,7 +1,11 @@
 /*
  * Torch Service
  */
-/decl/closet_appearance/secure_closet/torch/hydroponics
+/singleton/closet_appearance/closet/torch/hydroponics
+	color = COLOR_GRAY20
+	decals = list(
+		"lower_side_vent"
+	)
 	extra_decals = list(
 		"stripe_vertical_right_partial" = COLOR_GREEN_GRAY,
 		"stripe_vertical_mid_partial" =   COLOR_GREEN_GRAY,
@@ -11,7 +15,7 @@
 /obj/structure/closet/chefcloset_torch
 	name = "chef's closet"
 	desc = "It's a storage unit for foodservice equipment."
-	closet_appearance = /decl/closet_appearance/wardrobe/black
+	closet_appearance = /singleton/closet_appearance/wardrobe/black
 
 /obj/structure/closet/chefcloset_torch/WillContain()
 	return list(
@@ -26,12 +30,12 @@
 		/obj/item/clothing/gloves/latex
 	)
 
-/obj/structure/closet/secure_closet/hydroponics_torch //done so that it has no access reqs
-	name = "hydroponics locker"
-	req_access = list()
-	closet_appearance = /decl/closet_appearance/secure_closet/torch/hydroponics
+/obj/structure/closet/hydroponics_torch
+	name = "hydroponics closet"
+	desc = "It's a storage unit for gardening tools."
+	closet_appearance = /singleton/closet_appearance/closet/torch/hydroponics
 
-/obj/structure/closet/secure_closet/hydroponics_torch/WillContain()
+/obj/structure/closet/hydroponics_torch/WillContain()
 	return list(
 		/obj/item/clothing/head/soft/green,
 		/obj/item/storage/plants,
@@ -47,7 +51,7 @@
 /obj/structure/closet/jcloset_torch
 	name = "custodial closet"
 	desc = "It's a storage unit for janitorial equipment."
-	closet_appearance = /decl/closet_appearance/wardrobe/mixed
+	closet_appearance = /singleton/closet_appearance/wardrobe/mixed
 
 /obj/structure/closet/jcloset_torch/WillContain()
 	return list(
@@ -61,8 +65,10 @@
 		/obj/item/clothing/shoes/galoshes,
 		/obj/item/storage/box/detergent,
 		/obj/item/soap,
+		/obj/item/reagent_containers/glass/rag,
 		/obj/item/storage/belt/janitor,
-		/obj/item/clothing/glasses/hud/janitor
+		/obj/item/clothing/glasses/hud/janitor,
+		/obj/item/grenade/chem_grenade/cleaner = 2
 	)
 
 /obj/structure/closet/secure_closet/bar_torch

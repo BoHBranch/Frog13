@@ -21,7 +21,7 @@
 	. = ..()
 
 /datum/radiation_source/proc/update_rad_power(new_power = null)
-	if(new_power == null || new_power == rad_power)
+	if(isnull(new_power) || new_power == rad_power)
 		return // No change
 	else if(new_power <= config.radiation_lower_limit)
 		qdel(src) // Decayed to nothing
@@ -49,6 +49,11 @@
 /obj
 	var/rad_resistance_modifier = 1  // Allow overriding rad resistance
 
+/**
+ * Retrieves the atom's current radiation level. By default, this will return `loc.get_rads()`.
+ *
+ * Returns integer.
+ */
 /atom/proc/get_rads()
 	if(loc)
 		return loc.get_rads()
@@ -57,7 +62,14 @@
 /turf/get_rads()
 	return SSradiation.get_rads_at_turf(src)
 
-// If people expand the system, this may be useful. Here as a placeholder until then
+/**
+ * Called when radiation affects the atom.
+ *
+ * **Parameters**:
+ * - `severity` - The amount of radiation being applied. Also see `RAD_LEVEL_*`.
+ *
+ * Returns boolean
+ */
 /atom/proc/rad_act(severity)
 	return 1
 

@@ -44,9 +44,9 @@
 
 	dat += "<B>Holodeck Control System</B><BR>"
 	if(!islocked)
-		dat += "Holodeck is <A href='?src=\ref[src];togglehololock=1'><font color=green>(UNLOCKED)</font></A><BR>"
+		dat += "Holodeck is <A href='byond://?src=\ref[src];togglehololock=1'>[SPAN_COLOR("green", "(UNLOCKED)")]</A><BR>"
 	else
-		dat += "Holodeck is <A href='?src=\ref[src];togglehololock=1'><font color=red>(LOCKED)</font></A><BR>"
+		dat += "Holodeck is <A href='byond://?src=\ref[src];togglehololock=1'>[SPAN_COLOR("red", "(LOCKED)")]</A><BR>"
 		show_browser(user, dat, "window=computer;size=400x500")
 		onclose(user, "computer")
 		return
@@ -54,22 +54,22 @@
 	dat += "<HR>Current Loaded Programs:<BR>"
 
 	if(!linkedholodeck)
-		dat += "<span class='danger'>Warning: Unable to locate holodeck.<br></span>"
+		dat += SPAN_DANGER("Warning: Unable to locate holodeck.<br>")
 		show_browser(user, dat, "window=computer;size=400x500")
 		onclose(user, "computer")
 		return
 
-	if(!supported_programs.len)
-		dat += "<span class='danger'>Warning: No supported holo-programs loaded.<br></span>"
+	if(!length(supported_programs))
+		dat += SPAN_DANGER("Warning: No supported holo-programs loaded.<br>")
 		show_browser(user, dat, "window=computer;size=400x500")
 		onclose(user, "computer")
 		return
 
 	for(var/prog in supported_programs)
-		dat += "<A href='?src=\ref[src];program=[supported_programs[prog]]'>([prog])</A><BR>"
+		dat += "<A href='byond://?src=\ref[src];program=[supported_programs[prog]]'>([prog])</A><BR>"
 
 	dat += "<BR>"
-	dat += "<A href='?src=\ref[src];program=turnoff'>(Turn Off)</A><BR>"
+	dat += "<A href='byond://?src=\ref[src];program=turnoff'>(Turn Off)</A><BR>"
 
 	dat += "<BR>"
 	dat += "Please ensure that only holographic weapons are used in the holodeck if a combat simulation has been loaded.<BR>"
@@ -78,27 +78,27 @@
 		dat += "<BR>"
 		if(safety_disabled)
 			if (emagged)
-				dat += "<font color=red><b>ERROR</b>: Cannot re-enable Safety Protocols.</font><BR>"
+				dat += "[SPAN_COLOR("red", "<b>ERROR</b>: Cannot re-enable Safety Protocols.")]<BR>"
 			else
-				dat += "<A href='?src=\ref[src];AIoverride=1'>(<font color=green>Re-Enable Safety Protocols?</font>)</A><BR>"
+				dat += "<A href='byond://?src=\ref[src];AIoverride=1'>([SPAN_COLOR("green", "Re-Enable Safety Protocols?")])</A><BR>"
 		else
-			dat += "<A href='?src=\ref[src];AIoverride=1'>(<font color=red>Override Safety Protocols?</font>)</A><BR>"
+			dat += "<A href='byond://?src=\ref[src];AIoverride=1'>([SPAN_COLOR("red", "Override Safety Protocols?")])</A><BR>"
 
 	dat += "<BR>"
 
 	if(safety_disabled)
 		for(var/prog in restricted_programs)
-			dat += "<A href='?src=\ref[src];program=[restricted_programs[prog]]'>(<font color=red>Begin [prog]</font>)</A><BR>"
+			dat += "<A href='byond://?src=\ref[src];program=[restricted_programs[prog]]'>([SPAN_COLOR("red", "Begin [prog]")])</A><BR>"
 			dat += "Ensure the holodeck is empty before testing.<BR>"
 			dat += "<BR>"
-		dat += "Safety Protocols are <font color=red> DISABLED </font><BR>"
+		dat += "Safety Protocols are [SPAN_COLOR("red", " DISABLED ")]<BR>"
 	else
-		dat += "Safety Protocols are <font color=green> ENABLED </font><BR>"
+		dat += "Safety Protocols are [SPAN_COLOR("green", " ENABLED ")]<BR>"
 
 	if(linkedholodeck.has_gravity)
-		dat += "Gravity is <A href='?src=\ref[src];gravity=1'><font color=green>(ON)</font></A><BR>"
+		dat += "Gravity is <A href='byond://?src=\ref[src];gravity=1'>[SPAN_COLOR("green", "(ON)")]</A><BR>"
 	else
-		dat += "Gravity is <A href='?src=\ref[src];gravity=1'><font color=blue>(OFF)</font></A><BR>"
+		dat += "Gravity is <A href='byond://?src=\ref[src];gravity=1'>[SPAN_COLOR("blue", "(OFF)")]</A><BR>"
 	show_browser(user, dat, "window=computer;size=400x500")
 	onclose(user, "computer")
 	return
@@ -106,7 +106,7 @@
 /obj/machinery/computer/HolodeckControl/Topic(href, href_list)
 	if(..())
 		return 1
-	if((usr.contents.Find(src) || (in_range(src, usr) && istype(src.loc, /turf))) || (istype(usr, /mob/living/silicon)))
+	if((usr.contents.Find(src) || (in_range(src, usr) && isturf(loc))) || (istype(usr, /mob/living/silicon)))
 		usr.set_machine(src)
 
 		if(href_list["program"])
@@ -145,7 +145,7 @@
 		emagged = TRUE
 		safety_disabled = 1
 		update_projections()
-		to_chat(user, "<span class='notice'>You vastly increase projector power and override the safety and security protocols.</span>")
+		to_chat(user, SPAN_NOTICE("You vastly increase projector power and override the safety and security protocols."))
 		to_chat(user, "Warning.  Automatic shutoff and derezing protocols have been corrupted.  Please call [GLOB.using_map.company_name] maintenance and do not use the simulator.")
 		log_game("[key_name(usr)] emagged the Holodeck Control Computer")
 		src.updateUsrDialog()
@@ -196,7 +196,7 @@
 	if(!..())
 		return
 	if(active)
-		use_power_oneoff(item_power_usage * (holographic_objs.len + holographic_mobs.len))
+		use_power_oneoff(item_power_usage * (length(holographic_objs) + length(holographic_mobs)))
 
 		if(!checkInteg(linkedholodeck))
 			damaged = 1
@@ -209,16 +209,16 @@
 
 			for(var/turf/T in linkedholodeck)
 				if(prob(30))
-					var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+					var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 					s.set_up(2, 1, T)
 					s.start()
 				T.ex_act(EX_ACT_LIGHT)
-				T.hotspot_expose(1000,500,1)
+				T.hotspot_expose(1000)
 
 /obj/machinery/computer/HolodeckControl/proc/derez(obj/obj , silent = 1)
 	holographic_objs.Remove(obj)
 
-	if(obj == null)
+	if(isnull(obj))
 		return
 
 	if(!silent)
@@ -259,7 +259,7 @@
 			if(world.time < (last_change + 15))//To prevent super-spam clicking, reduced process size and annoyance -Sieve
 				return
 			for(var/mob/M in range(3,src))
-				M.show_message("<span class='warning'>ERROR. Recalibrating projection apparatus.</span>")
+				M.show_message(SPAN_WARNING("ERROR. Recalibrating projection apparatus."))
 				last_change = world.time
 				return
 
@@ -274,17 +274,14 @@
 		holographic_mobs -= C
 		C.death()
 
-	for(var/obj/effect/decal/cleanable/blood/B in linkedholodeck)
+	for(var/obj/decal/cleanable/blood/B in linkedholodeck)
 		qdel(B)
 
 	holographic_objs = A.copy_contents_to(linkedholodeck , 1)
 	for(var/obj/holo_obj in holographic_objs)
 		holo_obj.alpha *= 0.8 //give holodeck objs a slight transparency
 		holo_obj.holographic = TRUE
-		if(istype(holo_obj,/obj/item/storage))
-			set_extension(holo_obj,/datum/extension/chameleon/backpack)
-		if(istype(holo_obj,/obj/item/clothing))
-			set_extension(holo_obj,/datum/extension/chameleon/clothing)
+		holo_obj.SetupChameleonExtension(CHAMELEON_FLEXIBLE_OPTIONS_PARENT_TYPE, TRUE, FALSE)
 
 	if(HP.ambience)
 		linkedholodeck.forced_ambience = HP.ambience.Copy()
@@ -298,16 +295,16 @@
 	linkedholodeck.sound_env = A.sound_env
 
 	spawn(30)
-		for(var/obj/effect/landmark/L in linkedholodeck)
+		for(var/obj/landmark/L in linkedholodeck)
 			if(L.name=="Atmospheric Test Start")
 				spawn(20)
 					var/turf/T = get_turf(L)
-					var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+					var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 					s.set_up(2, 1, T)
 					s.start()
 					if(T)
 						T.temperature = 5000
-						T.hotspot_expose(50000,50000,1)
+						T.hotspot_expose(50000)
 			if(L.name=="Holocarp Spawn")
 				holographic_mobs += new /mob/living/simple_animal/hostile/carp/holodeck(L.loc)
 
@@ -323,7 +320,7 @@
 		if(world.time < (last_gravity_change + 15))//To prevent super-spam clicking
 			return
 		for(var/mob/M in range(3,src))
-			M.show_message("<span class='warning'>ERROR. Recalibrating gravity field.</span>")
+			M.show_message(SPAN_WARNING("ERROR. Recalibrating gravity field."))
 			last_change = world.time
 			return
 
@@ -351,10 +348,10 @@
 /obj/machinery/computer/HolodeckControl/proc/togglelock(mob/user)
 	if(cantogglelock(user))
 		islocked = !islocked
-		audible_message("<span class='notice'>\The [src] emits a series of beeps to announce it has been [islocked ? null : "un"]locked.</span>", hearing_distance = 3)
+		audible_message(SPAN_NOTICE("\The [src] emits a series of beeps to announce it has been [islocked ? null : "un"]locked."), hearing_distance = 3)
 		return 0
 	else
-		to_chat(user, "<span class='warning'>Access denied.</span>")
+		to_chat(user, SPAN_WARNING("Access denied."))
 		return 1
 
 /obj/machinery/computer/HolodeckControl/proc/cantogglelock(mob/user)

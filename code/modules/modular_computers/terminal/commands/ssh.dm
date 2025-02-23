@@ -8,7 +8,7 @@
 	)
 	pattern = "^ssh"
 	req_access = list(access_network_admin)
-	skill_needed = SKILL_EXPERT
+	skill_needed = SKILL_EXPERIENCED
 
 /datum/terminal_command/check_access(mob/user, datum/terminal/terminal)
 	if(terminal.computer.emagged() && !istype(terminal, /datum/terminal/remote))
@@ -19,7 +19,7 @@
 	if(istype(terminal, /datum/terminal/remote))
 		return "[name]: Error; [name] is not supported on remote terminals."
 	var/list/arguments = get_arguments(text)
-	if(isnull(arguments) || arguments.len != 1)
+	if(isnull(arguments) || length(arguments) != 1)
 		return syntax_error()
 	if(!terminal.computer.get_ntnet_status())
 		return network_error()

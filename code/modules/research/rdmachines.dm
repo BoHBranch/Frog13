@@ -5,7 +5,7 @@
 var/global/list/default_material_composition = list(MATERIAL_STEEL = 0, MATERIAL_ALUMINIUM = 0, MATERIAL_PLASTIC = 0, MATERIAL_GLASS = 0, MATERIAL_GOLD = 0, MATERIAL_SILVER = 0, MATERIAL_PHORON = 0, MATERIAL_URANIUM = 0, MATERIAL_DIAMOND = 0)
 /obj/machinery/r_n_d
 	name = "R&D Device"
-	icon = 'icons/obj/machines/research.dmi'
+	icon = 'icons/obj/machines/research/protolathe.dmi'
 	density = TRUE
 	anchored = TRUE
 	uncreated_component_parts = null
@@ -38,12 +38,12 @@ var/global/list/default_material_composition = list(MATERIAL_STEEL = 0, MATERIAL
 	for(var/f in materials)
 		. += materials[f]
 
-/obj/machinery/r_n_d/proc/getLackingMaterials(datum/design/D)
+/obj/machinery/r_n_d/proc/getLackingMaterials(datum/design/design)
 	var/list/ret = list()
-	for(var/M in D.materials)
-		if(materials[M] < D.materials[M])
-			ret += "[D.materials[M] - materials[M]] [M]"
-	for(var/C in D.chemicals)
-		if(!reagents.has_reagent(C, D.chemicals[C]))
-			ret += C
+	for(var/material_needed in design.materials)
+		if(materials[material_needed] < design.materials[material_needed])
+			ret += "[design.materials[material_needed] - materials[material_needed]] [material_needed]"
+	for(var/datum/reagent/chemical_needed as anything in design.chemicals)
+		if(!reagents.has_reagent(chemical_needed, design.chemicals[chemical_needed]))
+			ret += "[design.chemicals[chemical_needed] - reagents.get_reagent_amount(chemical_needed)]u [initial(chemical_needed.name)]"
 	return english_list(ret)

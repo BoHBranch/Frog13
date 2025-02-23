@@ -13,7 +13,7 @@
 	var/improvefloors = 0
 	var/eattiles = 0
 	var/maketiles = 0
-	var/floor_build_type = /decl/flooring/tiling // Basic steel floor.
+	var/floor_build_type = /singleton/flooring/tiling // Basic steel floor.
 	var/boxtype = "blue"
 
 /mob/living/bot/floorbot/premade
@@ -44,17 +44,17 @@
 	. += "<br>Tiles left: [amount]"
 
 /mob/living/bot/floorbot/GetInteractPanel()
-	. = "Improves floors: <a href='?src=\ref[src];command=improve'>[improvefloors ? "Yes" : "No"]</a>"
-	. += "<br>Finds tiles: <a href='?src=\ref[src];command=tiles'>[eattiles ? "Yes" : "No"]</a>"
-	. += "<br>Make single pieces of metal into tiles when empty: <a href='?src=\ref[src];command=make'>[maketiles ? "Yes" : "No"]</a>"
+	. = "Improves floors: <a href='byond://?src=\ref[src];command=improve'>[improvefloors ? "Yes" : "No"]</a>"
+	. += "<br>Finds tiles: <a href='byond://?src=\ref[src];command=tiles'>[eattiles ? "Yes" : "No"]</a>"
+	. += "<br>Make single pieces of metal into tiles when empty: <a href='byond://?src=\ref[src];command=make'>[maketiles ? "Yes" : "No"]</a>"
 
 /mob/living/bot/floorbot/GetInteractMaintenance()
 	. = "Disassembly mode: "
 	switch(emagged)
 		if(0)
-			. += "<a href='?src=\ref[src];command=emag'>Off</a>"
+			. += "<a href='byond://?src=\ref[src];command=emag'>Off</a>"
 		if(1)
-			. += "<a href='?src=\ref[src];command=emag'>On (Caution)</a>"
+			. += "<a href='byond://?src=\ref[src];command=emag'>On (Caution)</a>"
 		if(2)
 			. += "ERROROROROROR-----"
 
@@ -75,12 +75,26 @@
 				if(emagged < 2)
 					emagged = !emagged
 
+
+/mob/living/bot/floorbot/get_construction_info()
+	return list(
+		"Add <b>10 Floor Tiles</b> to a <b>Toolbox</b>.",
+		"Add a <b>Proximity Sensor</b>.",
+		"Add a robotic <b>Left Arm</b> or <b>Right Arm</b> to finish the floorbot."
+	)
+
+
+/mob/living/bot/floorbot/get_antag_interactions_info()
+	. = ..()
+	.[CODEX_INTERACTION_EMAG] += "<p>Causes \the [initial(name)] to tear up and remove floors instead of build them.</p>"
+
+
 /mob/living/bot/floorbot/emag_act(remaining_charges, mob/user)
 	. = ..()
 	if(!emagged)
 		emagged = TRUE
 		if(user)
-			to_chat(user, "<span class='notice'>The [src] buzzes and beeps.</span>")
+			to_chat(user, SPAN_NOTICE("The [src] buzzes and beeps."))
 		return 1
 
 /mob/living/bot/floorbot/handleRegular()
@@ -143,12 +157,12 @@
 		busy = 1
 		update_icons()
 		if(F.flooring)
-			visible_message("<span class='warning'>[src] begins to tear the floor tile from the floor.</span>")
+			visible_message(SPAN_WARNING("[src] begins to tear the floor tile from the floor."))
 			if(do_after(src, 5 SECONDS, F, DO_DEFAULT | DO_USER_UNIQUE_ACT | DO_PUBLIC_PROGRESS))
 				F.break_tile_to_plating()
 				addTiles(1)
 		else
-			visible_message("<span class='danger'>[src] begins to tear through the floor!</span>")
+			visible_message(SPAN_DANGER("[src] begins to tear through the floor!"))
 			if(do_after(src, 15 SECONDS, F, DO_DEFAULT | DO_USER_UNIQUE_ACT | DO_PUBLIC_PROGRESS)) // Extra time because this can and will kill.
 				F.ReplaceWithLattice()
 				addTiles(1)
@@ -159,7 +173,7 @@
 		if(F.broken || F.burnt)
 			busy = 1
 			update_icons()
-			visible_message("<span class='notice'>[src] begins to remove the broken floor.</span>")
+			visible_message(SPAN_NOTICE("[src] begins to remove the broken floor."))
 			anchored = TRUE
 			if(do_after(src, 5 SECONDS, F, DO_DEFAULT | DO_USER_UNIQUE_ACT | DO_PUBLIC_PROGRESS))
 				if(F.broken || F.burnt)
@@ -171,18 +185,18 @@
 		else if(!F.flooring && amount)
 			busy = 1
 			update_icons()
-			visible_message("<span class='notice'>[src] begins to improve the floor.</span>")
+			visible_message(SPAN_NOTICE("[src] begins to improve the floor."))
 			anchored = TRUE
 			if(do_after(src, 5 SECONDS, F, DO_DEFAULT | DO_USER_UNIQUE_ACT | DO_PUBLIC_PROGRESS))
 				if(!F.flooring)
-					F.set_flooring(decls_repository.get_decl(floor_build_type))
+					F.set_flooring(GET_SINGLETON(floor_build_type))
 					addTiles(-1)
 			anchored = FALSE
 			target = null
 			update_icons()
 	else if(istype(A, /obj/item/stack/tile/floor) && amount < maxAmount)
 		var/obj/item/stack/tile/floor/T = A
-		visible_message("<span class='notice'>\The [src] begins to collect tiles.</span>")
+		visible_message(SPAN_NOTICE("\The [src] begins to collect tiles."))
 		busy = 1
 		update_icons()
 		anchored = TRUE
@@ -197,7 +211,7 @@
 	else if(istype(A, /obj/item/stack/material) && amount + 4 <= maxAmount)
 		var/obj/item/stack/material/M = A
 		if(M.get_material_name() == MATERIAL_STEEL)
-			visible_message("<span class='notice'>\The [src] begins to make tiles.</span>")
+			visible_message(SPAN_NOTICE("\The [src] begins to make tiles."))
 			busy = 1
 			anchored = TRUE
 			update_icons()
@@ -209,7 +223,7 @@
 
 /mob/living/bot/floorbot/explode()
 	turn_off()
-	visible_message("<span class='danger'>[src] blows apart!</span>")
+	visible_message(SPAN_DANGER("[src] blows apart!"))
 	var/turf/Tsec = get_turf(src)
 
 
@@ -229,7 +243,7 @@
 		shrapnel += new /obj/item/robot_parts/l_arm(Tsec)
 	shrapnel += new /obj/item/device/assembly/prox_sensor(Tsec)
 
-	var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+	var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 	s.set_up(3, 1, src)
 	s.start()
 

@@ -1,6 +1,6 @@
 /obj/machinery/chemical_dispenser
 	name = "chemical dispenser"
-	icon = 'icons/obj/chemical.dmi'
+	icon = 'icons/obj/machines/dispensers.dmi'
 	icon_state = "dispenser"
 	layer = BELOW_OBJ_LAYER
 	clicksound = "button"
@@ -19,7 +19,7 @@
 	idle_power_usage = 100
 	density = TRUE
 	anchored = TRUE
-	obj_flags = OBJ_FLAG_ANCHORABLE
+	obj_flags = OBJ_FLAG_ANCHORABLE | OBJ_FLAG_ROTATABLE | OBJ_FLAG_CAN_TABLE
 	core_skill = SKILL_CHEMISTRY
 	var/can_contaminate = TRUE
 
@@ -32,32 +32,32 @@
 
 /obj/machinery/chemical_dispenser/examine(mob/user)
 	. = ..()
-	to_chat(user, "It has [cartridges.len] cartridges installed, and has space for [DISPENSER_MAX_CARTRIDGES - cartridges.len] more.")
+	to_chat(user, "It has [length(cartridges)] cartridges installed, and has space for [DISPENSER_MAX_CARTRIDGES - length(cartridges)] more.")
 
 /obj/machinery/chemical_dispenser/proc/add_cartridge(obj/item/reagent_containers/chem_disp_cartridge/C, mob/user)
 	if(!istype(C))
 		if(user)
-			to_chat(user, "<span class='warning'>\The [C] will not fit in \the [src]!</span>")
+			to_chat(user, SPAN_WARNING("\The [C] will not fit in \the [src]!"))
 		return
 
-	if(cartridges.len >= DISPENSER_MAX_CARTRIDGES)
+	if(length(cartridges) >= DISPENSER_MAX_CARTRIDGES)
 		if(user)
-			to_chat(user, "<span class='warning'>\The [src] does not have any slots open for \the [C] to fit into!</span>")
+			to_chat(user, SPAN_WARNING("\The [src] does not have any slots open for \the [C] to fit into!"))
 		return
 
 	if(!C.label)
 		if(user)
-			to_chat(user, "<span class='warning'>\The [C] does not have a label!</span>")
+			to_chat(user, SPAN_WARNING("\The [C] does not have a label!"))
 		return
 
 	if(cartridges[C.label])
 		if(user)
-			to_chat(user, "<span class='warning'>\The [src] already contains a cartridge with that label!</span>")
+			to_chat(user, SPAN_WARNING("\The [src] already contains a cartridge with that label!"))
 		return
 
 	if(user)
 		if(user.unEquip(C))
-			to_chat(user, "<span class='notice'>You add \the [C] to \the [src].</span>")
+			to_chat(user, SPAN_NOTICE("You add \the [C] to \the [src]."))
 		else
 			return
 
@@ -71,42 +71,43 @@
 	cartridges -= label
 	SSnano.update_uis(src)
 
-/obj/machinery/chemical_dispenser/attackby(obj/item/W, mob/user)
-	if(istype(W, /obj/item/reagent_containers/chem_disp_cartridge))
+/obj/machinery/chemical_dispenser/use_tool(obj/item/W, mob/living/user, list/click_params)
+	if (istype(W, /obj/item/reagent_containers/chem_disp_cartridge))
 		add_cartridge(W, user)
+		return TRUE
 
-	else if(isScrewdriver(W))
+	if (isScrewdriver(W))
 		var/label = input(user, "Which cartridge would you like to remove?", "Chemical Dispenser") as null|anything in cartridges
-		if(!label) return
+		if(!label) return TRUE
 		var/obj/item/reagent_containers/chem_disp_cartridge/C = remove_cartridge(label)
 		if(C)
-			to_chat(user, "<span class='notice'>You remove \the [C] from \the [src].</span>")
+			to_chat(user, SPAN_NOTICE("You remove \the [C] from \the [src]."))
 			C.dropInto(loc)
+		return TRUE
 
-	else if(istype(W, /obj/item/reagent_containers/glass) || istype(W, /obj/item/reagent_containers/food))
+	if (istype(W, /obj/item/reagent_containers/glass) || istype(W, /obj/item/reagent_containers/food) || istype(W, /obj/item/reagent_containers/ivbag))
 		if(container)
-			to_chat(user, "<span class='warning'>There is already \a [container] on \the [src]!</span>")
-			return
+			to_chat(user, SPAN_WARNING("There is already \a [container] on \the [src]!"))
+			return TRUE
 
 		var/obj/item/reagent_containers/RC = W
 
 		if(!accept_drinking && istype(RC,/obj/item/reagent_containers/food))
-			to_chat(user, "<span class='warning'>This machine only accepts beakers!</span>")
-			return
+			to_chat(user, SPAN_WARNING("This machine only accepts beakers and IV bags!"))
+			return TRUE
 
 		if(!RC.is_open_container())
-			to_chat(user, "<span class='warning'>You don't see how \the [src] could dispense reagents into \the [RC].</span>")
-			return
+			to_chat(user, SPAN_WARNING("You don't see how \the [src] could dispense reagents into \the [RC]."))
+			return TRUE
 		if(!user.unEquip(RC, src))
-			return
+			return TRUE
 		container =  RC
 		update_icon()
-		to_chat(user, "<span class='notice'>You set \the [RC] on \the [src].</span>")
+		to_chat(user, SPAN_NOTICE("You set \the [RC] on \the [src]."))
 		SSnano.update_uis(src) // update all UIs attached to src
+		return TRUE
 
-	else
-		..()
-	return
+	return ..()
 
 /obj/machinery/chemical_dispenser/proc/eject_beaker(mob/user)
 	if(!container)
@@ -123,9 +124,9 @@
 	data["isBeakerLoaded"] = container ? 1 : 0
 	data["glass"] = accept_drinking
 	var beakerD[0]
-	if(container && container.reagents && container.reagents.reagent_list.len)
+	if(container && container.reagents && length(container.reagents.reagent_list))
 		for(var/datum/reagent/R in container.reagents.reagent_list)
-			beakerD[++beakerD.len] = list("name" = R.name, "volume" = R.volume)
+			beakerD[LIST_PRE_INC(beakerD)] = list("name" = R.name, "volume" = R.volume)
 	data["beakerContents"] = beakerD
 
 	if(container)
@@ -138,7 +139,7 @@
 	var chemicals[0]
 	for(var/label in cartridges)
 		var/obj/item/reagent_containers/chem_disp_cartridge/C = cartridges[label]
-		chemicals[++chemicals.len] = list("label" = label, "amount" = C.reagents.total_volume)
+		chemicals[LIST_PRE_INC(chemicals)] = list("label" = label, "amount" = C.reagents.total_volume)
 	data["chemicals"] = chemicals
 
 	// update the ui if it exists, returns null if no ui is passed/found
@@ -159,9 +160,9 @@
 		var/label = href_list["dispense"]
 		if(cartridges[label] && container && container.is_open_container())
 			var/obj/item/reagent_containers/chem_disp_cartridge/C = cartridges[label]
-			var/mult = 1 + (-0.5 + round(rand(), 0.1))*(user.skill_fail_chance(core_skill, 0.3, SKILL_ADEPT))
+			var/mult = 1 + (-0.5 + round(rand(), 0.1))*(user.skill_fail_chance(core_skill, 0.3, SKILL_TRAINED))
 			C.reagents.trans_to(container, amount*mult)
-			var/contaminants_left = rand(0, max(SKILL_ADEPT - user.get_skill_value(core_skill), 0)) * can_contaminate
+			var/contaminants_left = rand(0, max(SKILL_TRAINED - user.get_skill_value(core_skill), 0)) * can_contaminate
 			var/choices = cartridges.Copy()
 			while(length(choices) && contaminants_left)
 				var/chosen_label = pick_n_take(choices)
@@ -182,17 +183,20 @@
 /obj/machinery/chemical_dispenser/AltClick(mob/user)
 	if(CanDefaultInteract(user))
 		eject_beaker(user)
-	else
-		..()
+		return TRUE
+	return ..()
 
 /obj/machinery/chemical_dispenser/interface_interact(mob/user)
 	ui_interact(user)
 	return TRUE
 
 /obj/machinery/chemical_dispenser/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
+	if(is_powered())
+		AddOverlays(emissive_appearance(icon, "[icon_state]_lights"))
+		AddOverlays("[icon_state]_lights")
 	if(container)
 		var/mutable_appearance/beaker_overlay
-		beaker_overlay = image('icons/obj/chemical.dmi', src, "lil_beaker")
+		beaker_overlay = image('icons/obj/machines/dispensers.dmi', src, "lil_beaker")
 		beaker_overlay.pixel_x = rand(-10, 5)
-		overlays += beaker_overlay
+		AddOverlays(beaker_overlay)

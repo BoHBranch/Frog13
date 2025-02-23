@@ -11,8 +11,8 @@
 	icon_living = "tunneler"
 	icon_dead = "tunneler_dead"
 
-	maxHealth = 100
-	health = 100
+	maxHealth = 60
+	health = 60
 
 	poison_chance = 15
 	poison_per_bite = 3
@@ -60,6 +60,8 @@
 	// Telegraph to give a small window to dodge if really close.
 	do_windup_animation(A, tunnel_warning)
 	sleep(tunnel_warning) // For the telegraphing.
+	if (QDELETED(src))
+		return FALSE
 
 	// Do the dig!
 	visible_message(SPAN_DANGER("\The [src] tunnels towards \the [A]!"))
@@ -121,7 +123,7 @@
 		// Update T.
 		T = get_step(src, get_dir(src, destination))
 		if (T.density)
-			to_chat(src, "<span class='critical'>You hit something really solid!</span>")
+			to_chat(src, SPAN_CLASS("critical", "You hit something really solid!"))
 			playsound(src, "punch", 75, 1)
 			Weaken(5)
 			return FALSE // Hit a wall.
@@ -143,18 +145,18 @@
 /mob/living/simple_animal/hostile/giant_spider/tunneler/proc/submerge()
 	alpha = 0
 	dig_under_floor(get_turf(src))
-	new /obj/effect/temporary/tunneler_hole(get_turf(src), 1 MINUTE)
+	new /obj/temporary/tunneler_hole(get_turf(src), 1 MINUTE)
 
 // Ditto.
 /mob/living/simple_animal/hostile/giant_spider/tunneler/proc/emerge()
 	alpha = 255
 	dig_under_floor(get_turf(src))
-	new /obj/effect/temporary/tunneler_hole(get_turf(src), 1 MINUTE)
+	new /obj/temporary/tunneler_hole(get_turf(src), 1 MINUTE)
 
 /mob/living/simple_animal/hostile/giant_spider/tunneler/proc/dig_under_floor(turf/T)
 	new /obj/item/ore/glass(T) // This will be rather weird when on station but the alternative is too much work.
 
-/obj/effect/temporary/tunneler_hole
+/obj/temporary/tunneler_hole
 	name = "hole"
 	desc = "A collapsing tunnel hole."
 	icon_state = "tunnel_hole"

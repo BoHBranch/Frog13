@@ -10,23 +10,23 @@
 	force = 30
 	throwforce = 10
 	hitsound = 'sound/weapons/bladeslice.ogg'
-	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
+	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "tore", "ripped", "diced", "cut")
 
-/obj/item/melee/cultblade/attack(mob/living/M, mob/living/user, target_zone)
-	if(iscultist(user))
-		return ..()
+/obj/item/melee/cultblade/use_before(mob/living/M, mob/living/user)
+	. = FALSE
+	if (iscultist(user))
+		return FALSE
 
 	var/zone = (user.hand ? BP_L_ARM : BP_R_ARM)
-
 	var/obj/item/organ/external/affecting = null
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
 		affecting = H.get_organ(zone)
 
 	if(affecting)
-		to_chat(user, "<span class='danger'>An unexplicable force rips through your [affecting.name], tearing the sword from your grasp!</span>")
+		to_chat(user, SPAN_DANGER("An unexplicable force rips through your [affecting.name], tearing the sword from your grasp!"))
 	else
-		to_chat(user, "<span class='danger'>An unexplicable force rips through you, tearing the sword from your grasp!</span>")
+		to_chat(user, SPAN_DANGER("An unexplicable force rips through you, tearing the sword from your grasp!"))
 
 	//random amount of damage between half of the blade's force and the full force of the blade.
 	user.apply_damage(rand(force/2, force), DAMAGE_BRUTE, zone, (DAMAGE_FLAG_SHARP | DAMAGE_FLAG_EDGE), armor_pen = 100)
@@ -37,12 +37,11 @@
 
 	var/spooky = pick('sound/hallucinations/growl1.ogg', 'sound/hallucinations/growl2.ogg', 'sound/hallucinations/growl3.ogg', 'sound/hallucinations/wail.ogg')
 	playsound(loc, spooky, 50, 1)
-
-	return 1
+	return TRUE
 
 /obj/item/melee/cultblade/pickup(mob/living/user as mob)
-	if(!iscultist(user))
-		to_chat(user, "<span class='warning'>An overwhelming feeling of dread comes over you as you pick up the cultist's sword. It would be wise to be rid of this blade quickly.</span>")
+	if (!iscultist(user))
+		to_chat(user, SPAN_WARNING("An overwhelming feeling of dread comes over you as you pick up the cultist's sword. It would be wise to be rid of this blade quickly."))
 		user.make_dizzy(120)
 
 

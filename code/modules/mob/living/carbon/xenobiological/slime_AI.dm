@@ -7,12 +7,12 @@
 			attacked = 50 // Let's not get into absurdly long periods of rage
 		--attacked
 
-	if(confused > 0)
-		--confused
+	handle_confused()
+	if (is_confused())
 		return
 
 	if(nutrition < get_starve_nutrition()) // If a slime is starving, it starts losing its friends
-		if(Friends.len > 0 && prob(1))
+		if(length(Friends) > 0 && prob(1))
 			var/mob/nofriend = pick(Friends)
 			if(nofriend && Friends[nofriend])
 				Friends[nofriend] -= 1
@@ -23,7 +23,7 @@
 
 	handle_targets()
 	if (!AIproc)
-		addtimer(CALLBACK(src, .proc/handle_AI), 0)
+		addtimer(new Callback(src, PROC_REF(handle_AI)), 0)
 	handle_speech_and_mood()
 
 /mob/living/carbon/slime/proc/handle_targets()
@@ -51,7 +51,7 @@
 				if(AssessTarget(L))
 					targets += L // Possible target found!
 
-			if(targets.len > 0)
+			if(length(targets) > 0)
 				if(attacked || rabid || hungry == 2)
 					Target = targets[1] // I am attacked and am fighting back or so hungry I don't even care
 				else
@@ -113,7 +113,7 @@
 		AIproc = 0
 		return // If we're dead or have a client, we don't need AI, if we're feeding, we continue feeding
 
-	if(confused)
+	if(is_confused())
 		AIproc = 0
 		return
 
@@ -179,13 +179,13 @@
 			UnarmedAttack(frenemy)
 
 	var/sleeptime = max(movement_delay(), 5) + addedDelay // Maximum one action per half a second
-	addtimer(CALLBACK(src, .proc/handle_AI), sleeptime)
+	addtimer(new Callback(src, PROC_REF(handle_AI)), sleeptime)
 
 
 /mob/living/carbon/slime/proc/UpdateFace()
 	var/newmood = ""
 	a_intent = I_HELP
-	if(confused)
+	if(is_confused())
 		newmood = "pout"
 	else if(rabid || attacked)
 		newmood = "angry"
@@ -209,7 +209,7 @@
 
 	//Speech understanding starts here
 	var/to_say
-	if (speech_buffer.len > 0)
+	if (length(speech_buffer) > 0)
 		var/who = speech_buffer[1] // Who said it?
 		var/phrase = speech_buffer[2] // What did they say?
 		if ((findtext(phrase, num2text(number)) || findtext(phrase, "slimes"))) // Talking to us

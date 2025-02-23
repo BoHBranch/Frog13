@@ -1,7 +1,7 @@
 /obj/structure/coatrack
 	name = "coat rack"
 	desc = "Rack that holds coats."
-	icon = 'icons/obj/coatrack.dmi'
+	icon = 'icons/obj/structures/coatrack.dmi'
 	icon_state = "coatrack0"
 	var/obj/item/clothing/suit/coat
 	var/list/allowed = list(/obj/item/clothing/suit/storage/toggle/labcoat, /obj/item/clothing/suit/storage/det_trench)
@@ -13,18 +13,26 @@
 	coat = null
 	update_icon()
 
-/obj/structure/coatrack/attackby(obj/item/W as obj, mob/user as mob)
-	var/can_hang = 0
-	for (var/T in allowed)
-		if(istype(W,T))
-			can_hang = 1
-	if (can_hang && !coat && user.unEquip(coat, src))
-		user.visible_message("[user] hangs [W] on \the [src].", "You hang [W] on the \the [src]")
-		coat = W
+
+/obj/structure/coatrack/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Anything - Attempt to hang item
+	if (is_type_in_list(tool, allowed))
+		if (coat)
+			USE_FEEDBACK_FAILURE("\The [src] already has \a [coat] on it.")
+			return TRUE
+		if (!user.unEquip(tool, src))
+			FEEDBACK_UNEQUIP_FAILURE(user, tool)
+			return TRUE
+		coat = tool
 		update_icon()
-	else
-		to_chat(user, "<span class='notice'>You cannot hang [W] on [src]</span>")
-		return ..()
+		user.visible_message(
+			SPAN_NOTICE("\The [user] hangs \a [tool] on \the [src]."),
+			SPAN_NOTICE("You hang \the [tool] on \the [src].")
+		)
+		return TRUE
+
+	return ..()
+
 
 /obj/structure/coatrack/CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
 	var/can_hang = 0
@@ -42,10 +50,10 @@
 		return 1
 
 /obj/structure/coatrack/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 	if (istype(coat, /obj/item/clothing/suit/storage/toggle/labcoat))
-		overlays += image(icon, icon_state = "coat_lab")
+		AddOverlays(image(icon, icon_state = "coat_lab"))
 	if (istype(coat, /obj/item/clothing/suit/storage/toggle/labcoat/cmo))
-		overlays += image(icon, icon_state = "coat_cmo")
+		AddOverlays(image(icon, icon_state = "coat_cmo"))
 	if (istype(coat, /obj/item/clothing/suit/storage/det_trench))
-		overlays += image(icon, icon_state = "coat_det")
+		AddOverlays(image(icon, icon_state = "coat_det"))

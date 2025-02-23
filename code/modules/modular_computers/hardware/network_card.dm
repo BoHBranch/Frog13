@@ -1,5 +1,3 @@
-var/global/ntnet_card_uid = 1
-
 /obj/item/stock_parts/computer/network_card
 	name = "basic NTNet network card"
 	desc = "A basic network card for usage with standard NTNet frequencies."
@@ -53,8 +51,7 @@ var/global/ntnet_card_uid = 1
 
 /obj/item/stock_parts/computer/network_card/Initialize()
 	. = ..()
-	identification_id = ntnet_card_uid
-	ntnet_card_uid++
+	identification_id = random_id("network_card_id", 1, 999)
 
 /obj/item/stock_parts/computer/network_card/Destroy()
 	ntnet_global.unregister(identification_id)
@@ -117,12 +114,12 @@ var/global/ntnet_card_uid = 1
 /// Returns the resolved signal strength, accounting for proxies
 /obj/item/stock_parts/computer/network_card/proc/get_signal(specific_action = 0)
 	var/list/cards = get_route()
-	for(var/i = cards.len; i > 0; i--)
+	for(var/i = length(cards); i > 0; i--)
 		var/obj/item/stock_parts/computer/network_card/nc = cards[i]
 		if(!nc)
 			return 0
 		// Some extra checks for the last card in the chain
-		if(i == cards.len)
+		if(i == length(cards))
 			if(nc.proxy_id) // We have an unresolved proxy chain. No signal
 				return 0
 			if(specific_action && ntnet_global && !ntnet_global.check_capability(specific_action))
@@ -140,7 +137,7 @@ var/global/ntnet_card_uid = 1
 /obj/item/stock_parts/computer/network_card/proc/get_network_tag()
 	. = "Unable to resolve external NID"
 	var/list/cards = get_route()
-	var/obj/item/stock_parts/computer/network_card/last_card = cards[cards.len]
+	var/obj/item/stock_parts/computer/network_card/last_card = cards[length(cards)]
 	if(last_card && !last_card.proxy_id)
 		return last_card.get_network_tag_direct()
 

@@ -17,7 +17,7 @@
 /obj/structure/closet/emcloset
 	name = "emergency closet"
 	desc = "It's a storage unit for emergency breathmasks and o2 tanks."
-	closet_appearance = /decl/closet_appearance/oxygen
+	closet_appearance = /singleton/closet_appearance/oxygen
 
 /obj/structure/closet/emcloset/WillContain()
 	return list(/obj/item/tank/oxygen_emergency = 2,
@@ -36,7 +36,7 @@
 /obj/structure/closet/firecloset
 	name = "fire-safety closet"
 	desc = "It's a storage unit for fire-fighting supplies."
-	closet_appearance = /decl/closet_appearance/oxygen/fire
+	closet_appearance = /singleton/closet_appearance/oxygen/fire
 
 
 /obj/structure/closet/firecloset/WillContain()
@@ -57,7 +57,8 @@
 		/obj/item/device/flashlight,
 		/obj/item/tank/oxygen_scba,
 		/obj/item/extinguisher,
-		/obj/item/clothing/head/hardhat/firefighter/Chief)
+		/obj/item/clothing/head/hardhat/firefighter/chief
+	)
 
 /*
  * Tool Closet
@@ -65,7 +66,7 @@
 /obj/structure/closet/toolcloset
 	name = "tool closet"
 	desc = "It's a storage unit for tools."
-	closet_appearance = /decl/closet_appearance/secure_closet/engineering/tools
+	closet_appearance = /singleton/closet_appearance/secure_closet/engineering/tools
 
 /obj/structure/closet/toolcloset/New()
 	..()
@@ -88,11 +89,11 @@
 	if(prob(20))
 		new /obj/item/storage/belt/utility(src)
 	if(prob(30))
-		new /obj/item/stack/cable_coil/random(src)
+		new /obj/random/single/color/cable_coil(src)
 	if(prob(30))
-		new /obj/item/stack/cable_coil/random(src)
+		new /obj/random/single/color/cable_coil(src)
 	if(prob(30))
-		new /obj/item/stack/cable_coil/random(src)
+		new /obj/random/single/color/cable_coil(src)
 	if(prob(20))
 		new /obj/item/device/multitool(src)
 	if(prob(5))
@@ -107,7 +108,7 @@
 /obj/structure/closet/radiation
 	name = "radiation suit closet"
 	desc = "It's a storage unit for rad-protective suits."
-	closet_appearance = /decl/closet_appearance/secure_closet/engineering/tools/radiation
+	closet_appearance = /singleton/closet_appearance/secure_closet/engineering/tools/radiation
 
 /obj/structure/closet/radiation/WillContain()
 	return list(
@@ -124,7 +125,7 @@
 /obj/structure/closet/bombcloset
 	name = "\improper EOD closet"
 	desc = "It's a storage unit for explosion-protective suits."
-	closet_appearance = /decl/closet_appearance/bomb
+	closet_appearance = /singleton/closet_appearance/bomb
 
 /obj/structure/closet/bombcloset/WillContain()
 	return list(
@@ -137,7 +138,7 @@
 /obj/structure/closet/bombclosetsecurity
 	name = "\improper EOD closet"
 	desc = "It's a storage unit for explosion-protective suits."
-	closet_appearance = /decl/closet_appearance/bomb/security
+	closet_appearance = /singleton/closet_appearance/bomb/security
 
 /obj/structure/closet/bombclosetsecurity/WillContain()
 	return list(
@@ -152,7 +153,7 @@
 /obj/structure/closet/hydrant //wall mounted fire closet
 	name = "fire-safety closet"
 	desc = "It's a storage unit for fire-fighting supplies."
-	closet_appearance = /decl/closet_appearance/wall/hydrant
+	closet_appearance = /singleton/closet_appearance/wall/hydrant
 	anchored = TRUE
 	density = FALSE
 	wall_mounted = TRUE
@@ -173,7 +174,7 @@
 /obj/structure/closet/medical_wall //wall mounted medical closet
 	name = "first-aid closet"
 	desc = "It's a wall-mounted storage unit for first aid supplies."
-	closet_appearance = /decl/closet_appearance/wall/medical
+	closet_appearance = /singleton/closet_appearance/wall/medical
 	anchored = TRUE
 	density = FALSE
 	wall_mounted = TRUE
@@ -188,7 +189,7 @@
 /obj/structure/closet/toolcloset/excavation/awaysite //no teleport beacons
 	name = "excavation equipment closet"
 	desc = "It's a storage unit for excavation equipment."
-	closet_appearance = /decl/closet_appearance/secure_closet/engineering/tools
+	closet_appearance = /singleton/closet_appearance/secure_closet/engineering/tools
 
 /obj/structure/closet/toolcloset/excavation/awaysite/WillContain()
 	return list(
@@ -207,13 +208,13 @@
 		/obj/item/pickaxe/xeno/hand,
 		/obj/item/storage/bag/fossils,
 		/obj/item/hand_labeler,
-		/obj/item/device/spaceflare
+		/obj/item/shuttle_beacon
 	)
 
 /obj/structure/closet/shipping_wall
 	name = "shipping supplies closet"
 	desc = "It's a wall-mounted storage unit containing supplies for preparing shipments."
-	closet_appearance = /decl/closet_appearance/wall/shipping
+	closet_appearance = /singleton/closet_appearance/wall/shipping
 	anchored = TRUE
 	density = FALSE
 	wall_mounted = TRUE
@@ -224,4 +225,4 @@
 	return list(
 		/obj/item/stack/material/cardboard/ten,
 		/obj/item/device/destTagger,
-		/obj/item/stack/package_wrap/twenty_five)
+		/obj/item/stack/package_wrap/cargo_wrap)

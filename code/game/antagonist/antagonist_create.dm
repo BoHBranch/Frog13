@@ -26,6 +26,10 @@
 	else
 		M = new /mob/living/carbon/human(get_turf(source))
 	M.ckey = source.ckey
+
+	if(!M.ckey && source.mind)
+		M.ckey = source.mind.key
+
 	add_antagonist(M.mind, 1, 0, 1) // Equip them and move them to spawn.
 	return M
 
@@ -59,12 +63,12 @@
 /datum/antagonist/proc/greet(datum/mind/player)
 
 	// Basic intro text.
-	to_chat(player.current, "<span class='danger'><font size=3>You are a [role_text]!</font></span>")
+	to_chat(player.current, SPAN_DANGER(FONT_LARGE("You are a [role_text]!")))
 	if(leader_welcome_text && player == leader)
-		to_chat(player.current, "<span class='antagdesc'>[get_leader_welcome_text(player.current)]</span>")
+		to_chat(player.current, SPAN_CLASS("antagdesc", "[get_leader_welcome_text(player.current)]"))
 	else
-		to_chat(player.current, "<span class='antagdesc'>[get_welcome_text(player.current)]</span>")
-	if (config.objectives_disabled == CONFIG_OBJECTIVE_NONE || !player.objectives.len)
+		to_chat(player.current, SPAN_CLASS("antagdesc", "[get_welcome_text(player.current)]"))
+	if (config.objectives_disabled == CONFIG_OBJECTIVE_NONE || !length(player.objectives))
 		to_chat(player.current, get_antag_text(player.current))
 
 	src.show_objectives_at_creation(player)

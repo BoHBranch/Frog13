@@ -1,4 +1,4 @@
-GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
+GLOBAL_TYPED_NEW(temp_reagents_holder, /obj)
 
 /datum/reagents
 	var/list/datum/reagent/reagent_list = list()
@@ -16,10 +16,11 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 
 /datum/reagents/Destroy()
 	. = ..()
-	del_info = "[my_atom]([reagent_list?.len||"_"]):[my_atom?.x||"_"],[my_atom?.y||"_"],[my_atom?.z||"_"]"
+	del_info = "[my_atom]([length(reagent_list)||"_"]):[my_atom?.x||"_"],[my_atom?.y||"_"],[my_atom?.z||"_"]"
 	UNQUEUE_REACTIONS(src) // While marking for reactions should be avoided just before deleting if possible, the async nature means it might be impossible.
 	QDEL_NULL_LIST(reagent_list)
 	my_atom = null
+
 
 /* Internal procs */
 /datum/reagents/proc/get_free_space() // Returns free space.
@@ -111,23 +112,23 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 
 			if(my_atom)
 				if(replace_message)
-					my_atom.visible_message("<span class='notice'>[icon2html(my_atom, viewers(get_turf(my_atom)))] [replace_message]</span>")
+					my_atom.visible_message(SPAN_NOTICE("[icon2html(my_atom, viewers(get_turf(my_atom)))] [replace_message]"))
 				if(replace_sound)
 					playsound(my_atom, replace_sound, 80, 1)
 
 		else // Otherwise, collect all possible reactions.
-			eligible_reactions |= SSchemistry.reactions_by_id[R.type]
+			eligible_reactions |= SSchemistry.id_reactions_map[R.type]
 
 	var/list/active_reactions = list()
 
-	for(var/datum/chemical_reaction/C in eligible_reactions)
+	for(var/singleton/reaction/C in eligible_reactions)
 		if(C.can_happen(src))
 			active_reactions[C] = 1 // The number is going to be 1/(fraction of remaining reagents we are allowed to use), computed below
 			reaction_occured = 1
 
 	var/list/used_reagents = list()
 	// if two reactions share a reagent, each is allocated half of it, so we compute this here
-	for(var/datum/chemical_reaction/C in active_reactions)
+	for(var/singleton/reaction/C in active_reactions)
 		var/list/adding = C.get_used_reagents()
 		for(var/R in adding)
 			LAZYADD(used_reagents[R], C)
@@ -136,7 +137,7 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 		var/counter = length(used_reagents[R])
 		if(counter <= 1)
 			continue // Only used by one reaction, so nothing we need to do.
-		for(var/datum/chemical_reaction/C in used_reagents[R])
+		for(var/singleton/reaction/C in used_reagents[R])
 			active_reactions[C] = max(counter, active_reactions[C])
 			counter-- //so the next reaction we execute uses more of the remaining reagents
 			// Note: this is not guaranteed to maximize the size of the reactions we do (if one reaction is limited by reagent A, we may be over-allocating reagent B to it)
@@ -144,11 +145,11 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 			// Further reactions may occur on the next tick, when this runs again.
 
 	for(var/thing in active_reactions)
-		var/datum/chemical_reaction/C = thing
+		var/singleton/reaction/C = thing
 		C.process(src, active_reactions[C])
 
 	for(var/thing in active_reactions)
-		var/datum/chemical_reaction/C = thing
+		var/singleton/reaction/C = thing
 		C.post_reaction(src)
 
 	update_total()
@@ -238,12 +239,20 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 
 /datum/reagents/proc/has_all_reagents(list/check_reagents)
 	//this only works if check_reagents has no duplicate entries... hopefully okay since it expects an associative list
-	var/missing = check_reagents.len
+	var/missing = length(check_reagents)
 	for(var/datum/reagent/current in reagent_list)
 		if(current.type in check_reagents)
 			if(current.volume >= check_reagents[current.type])
 				missing--
 	return !missing
+
+///Returns True if holder has a reagent that is not on the supplied list. Useful to check for forbidden reagents.
+/datum/reagents/proc/has_other_reagent(list/check_reagents)
+	for (var/datum/reagent/current in reagent_list)
+		if (!(current.type in check_reagents))
+			return TRUE
+
+	return FALSE
 
 /datum/reagents/proc/clear_reagents()
 	for(var/datum/reagent/current in reagent_list)
@@ -490,8 +499,36 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 			return TRUE
 	return FALSE
 
-/* Atom reagent creation - use it all the time */
 
+/datum/reagents/proc/Resize(new_volume = maximum_volume)
+	maximum_volume = max(1, new_volume)
+	var/over_volume = total_volume - maximum_volume
+	if (over_volume <= 0)
+		return
+	over_volume /= length(reagent_list)
+	total_volume = 0
+	var/list/removed = list()
+	for (var/datum/reagent/reagent as anything in reagent_list)
+		reagent.volume -= over_volume
+		if (reagent.volume >= MINIMUM_CHEMICAL_VOLUME)
+			total_volume += reagent.volume
+		else
+			removed += reagent
+	reagent_list -= removed
+	QDEL_NULL_LIST(removed)
+
+
+/**
+ * Creates a reagent holder for the atom. This shouldn't be used if a reagents holder already exists, but it will
+ * partially function by increasing the existing holder's maximum volume instead of creating a new one. If the existing
+ * holder's maximum already exceeded the given value, however, this will not reduce the volume.
+ *
+ * **Parameters**:
+ * - `max_vol` integer - The maximum volume of the new reagents holder.
+ *
+ * Returns instance of `/datum/reagents`. The newly created reagents holder or, if the atom already had a holder, the
+ * pre-existing holder.
+ */
 /atom/proc/create_reagents(max_vol)
 	if(reagents)
 		log_debug("Attempted to create a new reagents holder when already referencing one: [log_info_line(src)]")

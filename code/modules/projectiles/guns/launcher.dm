@@ -6,6 +6,8 @@
 	w_class = ITEM_SIZE_HUGE
 	obj_flags =  OBJ_FLAG_CONDUCTIBLE
 	slot_flags = SLOT_BACK
+	screen_shake = 1
+	space_recoil = 1
 
 	var/release_force = 0
 	var/throw_distance = 10
@@ -17,7 +19,7 @@
 
 //Override this to avoid a runtime with suicide handling.
 /obj/item/gun/launcher/handle_suicide(mob/living/user)
-	to_chat(user, "<span class='warning'>Shooting yourself with \a [src] is pretty tricky. You can't seem to manage it.</span>")
+	to_chat(user, SPAN_WARNING("Shooting yourself with \a [src] is pretty tricky. You can't seem to manage it."))
 	return
 
 /obj/item/gun/launcher/proc/update_release_force(obj/item/projectile)

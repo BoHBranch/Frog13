@@ -27,7 +27,7 @@
 /proc/sanitize_inlist(value, list/List, default)
 	if(value in List)	return value
 	if(default)			return default
-	if(List && List.len)return List[1]
+	if(List && length(List))return List[1]
 
 
 
@@ -74,7 +74,7 @@
 			fragment = ""
 	if(fragment)
 		return default //This means the format was improper.
-	return JOINTEXT(.)
+	return jointext(., null)
 
 //Internal proc, expects valid format and text input of equal length to format.
 /proc/sanitize_one_time(input, default, format)

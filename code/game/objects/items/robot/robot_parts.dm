@@ -78,7 +78,7 @@
 /obj/item/robot_parts/head/can_install(mob/user)
 	var/success = TRUE
 	if(!flash1 || !flash2)
-		to_chat(user, "<span class='warning'>You need to attach a flash to it first!</span>")
+		to_chat(user, SPAN_WARNING("You need to attach a flash to it first!"))
 		success = FALSE
 	return success && ..()
 
@@ -95,33 +95,37 @@
 /obj/item/robot_parts/chest/can_install(mob/user)
 	var/success = TRUE
 	if(!wires)
-		to_chat(user, "<span class='warning'>You need to attach wires to it first!</span>")
+		to_chat(user, SPAN_WARNING("You need to attach wires to it first!"))
 		success = FALSE
 	if(!cell)
-		to_chat(user, "<span class='warning'>You need to attach a cell to it first!</span>")
+		to_chat(user, SPAN_WARNING("You need to attach a cell to it first!"))
 		success = FALSE
 	return success && ..()
 
-/obj/item/robot_parts/chest/attackby(obj/item/W as obj, mob/user as mob)
-	..()
+/obj/item/robot_parts/chest/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(istype(W, /obj/item/cell))
-		if(src.cell)
-			to_chat(user, "<span class='warning'>You have already inserted a cell!</span>")
-			return
+		if(cell)
+			to_chat(user, SPAN_WARNING("You have already inserted a cell!"))
+			return TRUE
 		else
 			if(!user.unEquip(W, src))
-				return
-			src.cell = W
-			to_chat(user, "<span class='notice'>You insert the cell!</span>")
+				FEEDBACK_UNEQUIP_FAILURE(user, W)
+				return TRUE
+			cell = W
+			to_chat(user, SPAN_NOTICE("You insert the cell!"))
+			return TRUE
+
 	if(isCoil(W))
-		if(src.wires)
-			to_chat(user, "<span class='warning'>You have already inserted wire!</span>")
-			return
+		if(wires)
+			to_chat(user, SPAN_WARNING("You have already inserted wires!"))
+			return TRUE
 		else
 			var/obj/item/stack/cable_coil/coil = W
 			if(coil.use(1))
-				src.wires = 1.0
-				to_chat(user, "<span class='notice'>You insert the wire!</span>")
+				wires = 1.0
+				to_chat(user, SPAN_NOTICE("You insert the wire!"))
+			return TRUE
+
 	if(istype(W, /obj/item/robot_parts/head))
 		var/obj/item/robot_parts/head/head_part = W
 		// Attempt to create full-body prosthesis.
@@ -133,7 +137,7 @@
 			// Species selection.
 			var/species = input(user, "Select a species for the prosthetic.") as null|anything in GetCyborgSpecies()
 			if(!species)
-				return
+				return TRUE
 			var/name = sanitizeSafe(input(user,"Set a name for the new prosthetic."), MAX_NAME_LEN)
 			if(!name)
 				SetName("prosthetic ([random_id("prosthetic_id", 1, 999)])")
@@ -173,48 +177,53 @@
 			// Cleanup
 			qdel(W)
 			qdel(src)
+			return TRUE
+
+	return ..()
 
 /obj/item/robot_parts/chest/proc/GetCyborgSpecies()
 	. = list()
-	for(var/N in playable_species)
-		var/datum/species/S = all_species[N]
+	for(var/N in GLOB.playable_species)
+		var/singleton/species/S = GLOB.species_by_name[N]
 		if(S.spawn_flags & SPECIES_NO_FBP_CONSTRUCTION)
 			continue
 		. += N
 
-/obj/item/robot_parts/head/attackby(obj/item/W as obj, mob/user as mob)
-	..()
+/obj/item/robot_parts/head/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(istype(W, /obj/item/device/flash))
 		if(istype(user,/mob/living/silicon/robot))
 			var/current_module = user.get_active_hand()
 			if(current_module == W)
-				to_chat(user, "<span class='warning'>How do you propose to do that?</span>")
-				return
+				to_chat(user, SPAN_WARNING("How do you propose to do that?"))
+				return TRUE
 			else
 				add_flashes(W,user)
+				return TRUE
 		else
 			add_flashes(W,user)
+			return TRUE
+	return ..()
 
 /obj/item/robot_parts/head/proc/add_flashes(obj/item/W as obj, mob/user as mob) //Made into a seperate proc to avoid copypasta
 	if(src.flash1 && src.flash2)
-		to_chat(user, "<span class='notice'>You have already inserted the eyes!</span>")
+		to_chat(user, SPAN_NOTICE("You have already inserted the eyes!"))
 		return
 	else if(src.flash1)
 		if(!user.unEquip(W, src))
 			return
 		src.flash2 = W
-		to_chat(user, "<span class='notice'>You insert the flash into the eye socket!</span>")
+		to_chat(user, SPAN_NOTICE("You insert the flash into the eye socket!"))
 	else
 		if(!user.unEquip(W, src))
 			return
 		src.flash1 = W
-		to_chat(user, "<span class='notice'>You insert the flash into the eye socket!</span>")
+		to_chat(user, SPAN_NOTICE("You insert the flash into the eye socket!"))
 
 
 /obj/item/robot_parts/emag_act(remaining_charges, mob/user)
 	if(sabotaged)
-		to_chat(user, "<span class='warning'>[src] is already sabotaged!</span>")
+		to_chat(user, SPAN_WARNING("[src] is already sabotaged!"))
 	else
-		to_chat(user, "<span class='warning'>You short out the safeties.</span>")
+		to_chat(user, SPAN_WARNING("You short out the safeties."))
 		sabotaged = 1
 		return 1

@@ -8,7 +8,6 @@ SUBSYSTEM_DEF(mapping)
 	var/list/exoplanet_ruins_templates = list()
 	var/list/away_sites_templates = list()
 	var/list/submaps = list()
-	var/list/submap_archetypes = list()
 
 
 /datum/controller/subsystem/mapping/UpdateStat(time)
@@ -16,10 +15,7 @@ SUBSYSTEM_DEF(mapping)
 
 
 /datum/controller/subsystem/mapping/Initialize(start_uptime)
-	// Load templates and build away sites.
 	preloadTemplates()
-	for(var/atype in subtypesof(/decl/submap_archetype))
-		submap_archetypes[atype] = new atype
 
 
 /datum/controller/subsystem/mapping/Recover()
@@ -47,7 +43,7 @@ SUBSYSTEM_DEF(mapping)
 
 	var/list/banned_maps = list() + banned_exoplanet_dmms + banned_space_dmms + banned_away_site_dmms
 
-	for(var/item in sortList(subtypesof(/datum/map_template), /proc/cmp_ruincost_priority))
+	for(var/item in sortTim(subtypesof(/datum/map_template), GLOBAL_PROC_REF(cmp_ruincost_priority)))
 		var/datum/map_template/map_template_type = item
 		// screen out the abstract subtypes
 		if(!initial(map_template_type.id))
@@ -74,14 +70,15 @@ SUBSYSTEM_DEF(mapping)
 			away_sites_templates[MT.name] = MT
 
 /proc/generateMapList(filename)
+	RETURN_TYPE(/list)
 	var/list/potentialMaps = list()
 	var/list/Lines = world.file2list(filename)
-	if(!Lines.len)
+	if(!length(Lines))
 		return
 	for (var/t in Lines)
 		if (!t)
 			continue
-		t = trim(t)
+		t = trimtext(t)
 		if (length(t) == 0)
 			continue
 		else if (copytext(t, 1, 2) == "#")

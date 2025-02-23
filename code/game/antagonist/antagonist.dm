@@ -2,7 +2,6 @@
 
 	// Text shown when becoming this antagonist.
 	var/list/restricted_jobs = 		list()   // Jobs that cannot be this antagonist at roundstart (depending on config)
-	var/list/protected_jobs = 		list()   // As above.
 	var/list/blacklisted_jobs =		list(/datum/job/submap)   // Jobs that can NEVER be this antagonist
 
 	// Strings.
@@ -29,7 +28,9 @@
 	var/faction_descriptor                  // Description of the cause. Mandatory for faction role.
 	var/faction_verb                        // Verb added when becoming a member of the faction, if any.
 	var/faction_welcome                     // Message shown to faction members.
-	var/faction = "neutral"					// Actual faction name. Used primarily in stuff like simple_animals seeing if you are a threat or not.
+	var/faction 							// Actual faction name. Used primarily in stuff like simple_animals seeing if you are a threat or not.
+	/// Set to TRUE for offships and antags that wouldn't know the crew
+	var/no_prior_faction = FALSE
 
 	// Spawn values (autotraitor and game mode)
 	var/hard_cap = 3                        // Autotraitor var. Won't spawn more than this many antags.
@@ -94,8 +95,6 @@
 	get_starting_locations()
 	if(!role_text_plural)
 		role_text_plural = role_text
-	if(config.protect_roles_from_antagonist)
-		restricted_jobs |= protected_jobs
 	if(antaghud_indicator)
 		if(!GLOB.hud_icon_reference)
 			GLOB.hud_icon_reference = list()
@@ -177,12 +176,12 @@
 		return 0
 
 	build_candidate_list(SSticker.mode, flags & (ANTAG_OVERRIDE_MOB|ANTAG_OVERRIDE_JOB))
-	if(!candidates.len)
+	if(!length(candidates))
 		message_admins("Could not auto-spawn a [role_text], no candidates found.")
 		return 0
 
 	attempt_spawn(1) //auto-spawn antags one at a time
-	if(!pending_antagonists.len)
+	if(!length(pending_antagonists))
 		message_admins("Could not auto-spawn a [role_text], none of the available candidates could be selected.")
 		return 0
 
@@ -201,15 +200,15 @@
 //so that they do not occupy regular job slots. All other antag roles should be spawned after jobs are
 //assigned, so that job restrictions can be respected.
 /datum/antagonist/proc/attempt_spawn(spawn_target = null)
-	if(spawn_target == null)
+	if(isnull(spawn_target))
 		spawn_target = initial_spawn_target
 
 	// Update our boundaries.
-	if(!candidates.len)
+	if(!length(candidates))
 		return 0
 
 	//Grab candidates randomly until we have enough.
-	while(candidates.len && pending_antagonists.len < spawn_target)
+	while(length(candidates) && length(pending_antagonists) < spawn_target)
 		var/datum/mind/player = pick(candidates)
 		candidates -= player
 		draft_antagonist(player)

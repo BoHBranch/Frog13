@@ -30,7 +30,7 @@
 		var/mob/living/new_mob
 
 		var/options = list("robot", "slime")
-		for(var/t in all_species)
+		for(var/t in GLOB.species_by_name)
 			options += t
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
@@ -90,10 +90,10 @@
 			else
 				new_mob.key = M.key
 
-			to_chat(new_mob, "<span class='warning'>Your form morphs into that of \a [lowertext(randomize)].</span>")
+			to_chat(new_mob, SPAN_WARNING("Your form morphs into that of \a [lowertext(randomize)]."))
 
 			qdel(M)
 			return
 		else
-			to_chat(M, "<span class='warning'>Your form morphs into that of \a [lowertext(randomize)].</span>")
+			to_chat(M, SPAN_WARNING("Your form morphs into that of \a [lowertext(randomize)]."))
 			return

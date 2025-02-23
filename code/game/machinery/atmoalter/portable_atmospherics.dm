@@ -1,7 +1,7 @@
 /obj/machinery/portable_atmospherics
 	name = "atmoalter"
 	use_power = POWER_USE_OFF
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 
 	var/datum/gas_mixture/air_contents = new
 
@@ -32,7 +32,7 @@
 	..()
 	return INITIALIZE_HINT_LATELOAD
 
-/obj/machinery/portable_atmospherics/LateInitialize()
+/obj/machinery/portable_atmospherics/LateInitialize(mapload)
 	var/obj/machinery/atmospherics/portables_connector/port = locate() in loc
 	if(port)
 		connect(port)
@@ -103,38 +103,36 @@
 	if (network)
 		network.update = 1
 
-/obj/machinery/portable_atmospherics/attackby(obj/item/W as obj, mob/user as mob)
-	if ((istype(W, /obj/item/tank) && !( src.destroyed )))
-		if (src.holding)
+/obj/machinery/portable_atmospherics/use_tool(obj/item/W, mob/living/user, list/click_params)
+	if ((istype(W, /obj/item/tank) && !destroyed))
+		if (holding)
+			to_chat(user, SPAN_WARNING("\The [src] already contains a tank!"))
 			return
 		if(!user.unEquip(W, src))
-			return
-		src.holding = W
+			return TRUE
+		holding = W
 		update_icon()
-		return
+		return TRUE
 
-	else if(isWrench(W))
+	if(isWrench(W))
 		if(connected_port)
 			disconnect()
-			to_chat(user, "<span class='notice'>You disconnect \the [src] from the port.</span>")
+			to_chat(user, SPAN_NOTICE("You disconnect \the [src] from the port."))
 			update_icon()
-			return
+			return TRUE
 		else
 			var/obj/machinery/atmospherics/portables_connector/possible_port = locate(/obj/machinery/atmospherics/portables_connector) in loc
 			if(possible_port)
 				if(connect(possible_port))
-					to_chat(user, "<span class='notice'>You connect \the [src] to the port.</span>")
+					to_chat(user, SPAN_NOTICE("You connect \the [src] to the port."))
 					update_icon()
-					return
+					return TRUE
 				else
-					to_chat(user, "<span class='notice'>\The [src] failed to connect to the port.</span>")
-					return
+					to_chat(user, SPAN_NOTICE("\The [src] failed to connect to the port."))
+					return TRUE
 			else
-				to_chat(user, "<span class='notice'>Nothing happens.</span>")
-				return ..()
-
-	else if (istype(W, /obj/item/device/scanner/gas))
-		return
+				to_chat(user, SPAN_NOTICE("Nothing happens."))
+				return TRUE
 
 	return ..()
 
@@ -157,8 +155,8 @@
 /obj/machinery/portable_atmospherics/powered/components_are_accessible(path)
 	return panel_open
 
-/obj/machinery/portable_atmospherics/proc/log_open()
-	if(air_contents.gas.len == 0)
+/obj/machinery/portable_atmospherics/proc/log_open(mob/user)
+	if(length(air_contents.gas) == 0)
 		return
 
 	var/gases = ""
@@ -167,7 +165,7 @@
 			gases += ", [gas]"
 		else
 			gases = gas
-	log_and_message_admins("opened [src.name], containing [gases].")
+	log_and_message_admins("opened [src.name], containing [gases].", user)
 
 /obj/machinery/portable_atmospherics/powered/dismantle()
 	if(isturf(loc))

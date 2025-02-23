@@ -9,6 +9,7 @@
 	item_state = ""	//no inhands
 	slot_flags = SLOT_TIE
 	w_class = ITEM_SIZE_SMALL
+	default_action_type = /datum/action/item_action/accessory
 	var/accessory_flags = ACCESSORY_DEFAULT_FLAGS
 	var/slot = ACCESSORY_SLOT_DECOR
 	var/body_location = UPPER_TORSO //most accessories are here
@@ -19,7 +20,7 @@
 	var/list/accessory_icons = list(slot_w_uniform_str = 'icons/mob/onmob/onmob_accessories.dmi', slot_wear_suit_str = 'icons/mob/onmob/onmob_accessories.dmi')
 	sprite_sheets = list(
 		SPECIES_NABBER = 'icons/mob/species/nabber/onmob_accessories_gas.dmi',
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_accessories_unathi.dmi'
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_accessories_unathi.dmi'
 		)
 	/// String (One of `ACCESSORY_ROLLED_*` or a valid icon state). The icon_state or flag to use when the attached uniform is rolled down.
 	var/on_rolled_down = ACCESSORY_ROLLED_DEFAULT
@@ -84,33 +85,30 @@
 
 //when user attached an accessory to S
 /obj/item/clothing/accessory/proc/on_attached(obj/item/clothing/S, mob/user)
+	if(istype(src,/obj/item/clothing/accessory/chameleon/changeling))
+		if(is_type_in_list(S,changeling_fabricated_clothing))
+			return
 	if(!istype(S))
 		return
 	parent = S
 	forceMove(parent)
-	parent.overlays += get_inv_overlay()
+	parent.AddOverlays(get_inv_overlay())
 
 	if(user)
-		to_chat(user, "<span class='notice'>You attach \the [src] to \the [parent].</span>")
+		to_chat(user, SPAN_NOTICE("You attach \the [src] to \the [parent]."))
 		src.add_fingerprint(user)
 
 
 /obj/item/clothing/accessory/proc/on_removed(mob/user)
 	if(!parent)
 		return
-	parent.overlays -= get_inv_overlay()
+	parent.CutOverlays(get_inv_overlay())
 	parent = null
 	if(user)
 		usr.put_in_hands(src)
 		src.add_fingerprint(user)
 	else
 		dropInto(loc)
-
-
-//default attackby behaviour
-/obj/item/clothing/accessory/attackby(obj/item/I, mob/user)
-	..()
-
 
 //default attack_hand behaviour
 /obj/item/clothing/accessory/attack_hand(mob/user as mob)
@@ -128,10 +126,10 @@
 /obj/item/clothing/accessory/toggleable/var/icon_closed
 
 
-/obj/item/clothing/accessory/toggleable/New()
+/obj/item/clothing/accessory/toggleable/Initialize()
 	if (!icon_closed)
 		icon_closed = icon_state
-	..()
+	return ..()
 
 
 /obj/item/clothing/accessory/toggleable/on_attached(obj/item/clothing/under/S, mob/user as mob)

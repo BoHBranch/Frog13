@@ -5,7 +5,7 @@
 // So this cannot be abused for other uses, we make it two-handed and inable to have its storage looked into.
 /obj/item/storage/laundry_basket
 	name = "laundry basket"
-	icon = 'icons/obj/janitor.dmi'
+	icon = 'icons/obj/janitor_tools.dmi'
 	icon_state = "laundry-empty"
 	item_state = "laundry"
 	desc = "The peak of thousands of years of laundry evolution."
@@ -14,10 +14,8 @@
 	max_w_class = ITEM_SIZE_HUGE
 	max_storage_space = DEFAULT_BACKPACK_STORAGE //20 for clothes + a bit of additional space for non-clothing items that were worn on body
 	storage_slots = 14
-	use_to_pickup = 1
-	allow_quick_empty = 1
-	allow_quick_gather = 1
-	collection_mode = 1
+	allow_quick_empty = TRUE
+	allow_quick_gather = TRUE
 	var/linked
 
 
@@ -28,17 +26,17 @@
 		if (user.hand)
 			temp = H.get_organ(BP_L_HAND)
 		if(!temp)
-			to_chat(user, "<span class='warning'>You need two hands to pick this up!</span>")
+			to_chat(user, SPAN_WARNING("You need two hands to pick this up!"))
 			return
 
 	if(user.get_inactive_hand())
-		to_chat(user, "<span class='warning'>You need your other hand to be empty</span>")
+		to_chat(user, SPAN_WARNING("You need your other hand to be empty"))
 		return
 	return ..()
 
 /obj/item/storage/laundry_basket/attack_self(mob/user as mob)
 	var/turf/T = get_turf(user)
-	to_chat(user, "<span class='notice'>You dump the [src]'s contents onto \the [T].</span>")
+	to_chat(user, SPAN_NOTICE("You dump the [src]'s contents onto \the [T]."))
 	return ..()
 
 /obj/item/storage/laundry_basket/pickup(mob/user)
@@ -51,7 +49,7 @@
 	return
 
 /obj/item/storage/laundry_basket/on_update_icon()
-	if(contents.len)
+	if(length(contents))
 		icon_state = "laundry-full"
 	else
 		icon_state = "laundry-empty"
@@ -79,10 +77,10 @@
 	icon = 'icons/obj/weapons/other.dmi'
 	icon_state = "offhand"
 	name = "second hand"
-	use_to_pickup = 0
+	allow_quick_gather = FALSE
+	quick_gather_single = TRUE
 
 /obj/item/storage/laundry_basket/offhand/dropped(mob/user as mob)
 	..()
 	user.drop_from_inventory(linked)
 	return
-

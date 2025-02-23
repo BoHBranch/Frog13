@@ -1,6 +1,7 @@
 // Returns the atom sitting on the turf.
 // For example, using this on a disk, which is in a bag, on a mob, will return the mob because it's on the turf.
 /proc/get_atom_on_turf(atom/movable/M)
+	RETURN_TYPE(/atom)
 	var/atom/mloc = M
 	while(mloc && mloc.loc && !isturf(mloc.loc))
 		mloc = mloc.loc
@@ -15,7 +16,8 @@
 // Picks a turf without a mob from the given list of turfs, if one exists.
 // If no such turf exists, picks any random turf from the given list of turfs.
 /proc/pick_mobless_turf_if_exists(list/start_turfs)
-	if(!start_turfs.len)
+	RETURN_TYPE(/turf)
+	if(!length(start_turfs))
 		return null
 
 	var/list/available_turfs = list()
@@ -23,11 +25,27 @@
 		var/mob/M = locate() in start_turf
 		if(!M)
 			available_turfs += start_turf
-	if(!available_turfs.len)
+	if(!length(available_turfs))
 		available_turfs = start_turfs
 	return pick(available_turfs)
 
+/proc/get_random_edge_turf(dir, clearance = TRANSITIONEDGE + 1, Z)
+	RETURN_TYPE(/turf)
+	if(!dir)
+		return
+
+	switch(dir)
+		if(NORTH)
+			return locate(rand(clearance, world.maxx - clearance), world.maxy - clearance, Z)
+		if(SOUTH)
+			return locate(rand(clearance, world.maxx - clearance), clearance, Z)
+		if(EAST)
+			return locate(world.maxx - clearance, rand(clearance, world.maxy - clearance), Z)
+		if(WEST)
+			return locate(clearance, rand(clearance, world.maxy - clearance), Z)
+
 /proc/get_random_turf_in_range(atom/origin, outer_range, inner_range)
+	RETURN_TYPE(/turf)
 	origin = get_turf(origin)
 	if(!origin)
 		return
@@ -38,10 +56,11 @@
 			if(T.y >= world.maxy-TRANSITIONEDGE || T.y <= TRANSITIONEDGE)	continue
 		if(!inner_range || get_dist(origin, T) >= inner_range)
 			turfs += T
-	if(turfs.len)
+	if(length(turfs))
 		return pick(turfs)
 
 /proc/screen_loc2turf(text, turf/origin)
+	RETURN_TYPE(/turf)
 	if(!origin)
 		return null
 	var/tZ = splittext(text, ",")
@@ -116,6 +135,7 @@
 //Returns an assoc list that describes how turfs would be changed if the
 //turfs in turfs_src were translated by shifting the src_origin to the dst_origin
 /proc/get_turf_translation(turf/src_origin, turf/dst_origin, list/turfs_src)
+	RETURN_TYPE(/list)
 	var/list/turf_map = list()
 	for(var/turf/source in turfs_src)
 		var/x_pos = (source.x - src_origin.x)
@@ -147,16 +167,20 @@
 
 //Transports a turf from a source turf to a target turf, moving all of the turf's contents and making the target a copy of the source.
 /proc/transport_turf_contents(turf/source, turf/target)
+	RETURN_TYPE(/turf)
 
 	var/turf/new_turf = target.ChangeTurf(source.type, 1, 1)
 	new_turf.transport_properties_from(source)
 
 	for(var/obj/O in source)
-		if(O.simulated)
+		if (QDELETED(O))
+			testing("Failed to translate [O] to new turf as it was qdel'd.")
+			continue
+		if(O.simulated || HAS_FLAGS(O.movable_flags, MOVABLE_FLAG_EFFECTMOVE))
 			O.forceMove(new_turf)
 		else if(istype(O,/obj/effect))
-			var/obj/effect/E = O
-			if(E.movable_flags & MOVABLE_FLAG_EFFECTMOVE)
+			var/obj/E = O
+			if (HAS_FLAGS(E.movable_flags, MOVABLE_FLAG_EFFECTMOVE))
 				E.forceMove(new_turf)
 
 	for(var/mob/M in source)
@@ -178,6 +202,7 @@
 */
 
 /proc/get_turfs_in_range(turf/center, range, list/predicates)
+	RETURN_TYPE(/list)
 	. = list()
 
 	if (!istype(center))
@@ -192,6 +217,25 @@
 */
 
 /proc/pick_turf_in_range(turf/center, range, list/turf_predicates)
+	RETURN_TYPE(/list)
 	var/list/turfs = get_turfs_in_range(center, range, turf_predicates)
 	if (length(turfs))
 		return pick(turfs)
+
+
+/// Uses get_circle_coordinates to return a list of turfs on the in-bounds edge of the circle.
+/proc/get_circle_turfs(radius, center_x, center_y, z)
+	if (z < 1 || z > world.maxz)
+		return list()
+	var/maxx = world.maxx
+	var/maxy = world.maxx
+	var/list/result = list()
+	for (var/xy in get_circle_coordinates(radius, center_x, center_y))
+		var/x = xy & 0xFFF
+		var/y = SHIFTR(xy, 12)
+		if (x < 1 || x > maxx)
+			continue
+		if (y < 1 || y > maxy)
+			continue
+		result += locate(x, y, z)
+	return result

@@ -29,7 +29,7 @@
 	damage_flags = DAMAGE_FLAG_BULLET | DAMAGE_FLAG_SHARP | DAMAGE_FLAG_EDGE
 
 /obj/item/projectile/bullet/gyro/on_hit(atom/target, blocked = 0)
-	explosion(target, -1, 0, 2)
+	explosion(target, 2, EX_ACT_LIGHT)
 	return 1
 
 /obj/item/projectile/meteor
@@ -40,7 +40,7 @@
 	damage_type = DAMAGE_BRUTE
 	nodamage = TRUE
 
-/obj/item/projectile/meteor/Bump(atom/A as mob|obj|turf|area, forced=0)
+/obj/item/projectile/meteor/Bump(atom/A, called)
 	if(A == firer)
 		forceMove(A.loc)
 		return
@@ -73,12 +73,13 @@
 	var/mob/living/M = target
 	if(ishuman(target))
 		var/mob/living/carbon/human/H = M
+		var/datum/pronouns/pronouns = M.choose_from_pronouns()
 		if((H.species.species_flags & SPECIES_FLAG_IS_PLANT) && (H.nutrition < 500))
 			if(prob(15))
 				H.apply_damage((rand(30,80)), DAMAGE_RADIATION, damage_flags = DAMAGE_FLAG_DISPERSED)
 				H.Weaken(5)
 				for (var/mob/V in viewers(src))
-					V.show_message("<span class='warning'>[M] writhes in pain as \his vacuoles boil.</span>", 3, "<span class='warning'>You hear the crunching of leaves.</span>", 2)
+					V.show_message(SPAN_WARNING("\The [M] writhes in pain as [pronouns.his] vacuoles boil."), 3, SPAN_WARNING("You hear the crunching of leaves."), 2)
 			if(prob(35))
 				if(prob(80))
 					randmutb(M)
@@ -88,9 +89,9 @@
 					domutcheck(M,null)
 			else
 				M.adjustFireLoss(rand(5,15))
-				M.show_message("<span class='danger'>The radiation beam singes you!</span>")
+				M.show_message(SPAN_DANGER("The radiation beam singes you!"))
 	else if(istype(target, /mob/living/carbon))
-		M.show_message("<span class='notice'>The radiation beam dissipates harmlessly through your body.</span>")
+		M.show_message(SPAN_NOTICE("The radiation beam dissipates harmlessly through your body."))
 	else
 		return 1
 
@@ -101,7 +102,7 @@
 	damage = 0
 	damage_type = DAMAGE_TOXIN
 	nodamage = TRUE
-	var/decl/plantgene/gene = null
+	var/singleton/plantgene/gene = null
 
 /obj/item/projectile/energy/florayield
 	name = "beta somatoray"
@@ -118,7 +119,7 @@
 		if((H.species.species_flags & SPECIES_FLAG_IS_PLANT) && (H.nutrition < 500))
 			H.adjust_nutrition(30)
 	else if (istype(target, /mob/living/carbon))
-		M.show_message("<span class='notice'>The radiation beam dissipates harmlessly through your body.</span>")
+		M.show_message(SPAN_NOTICE("The radiation beam dissipates harmlessly through your body."))
 	else
 		return 1
 
@@ -129,7 +130,7 @@
 /obj/item/projectile/beam/mindflayer/on_hit(atom/target, blocked = 0)
 	if(ishuman(target))
 		var/mob/living/carbon/human/M = target
-		M.confused += rand(5,8)
+		M.mod_confused(rand(5, 8))
 
 /obj/item/projectile/chameleon
 	name = "bullet"
@@ -139,7 +140,7 @@
 	nodamage = TRUE
 	damage_type = DAMAGE_PAIN
 	damage_flags = 0
-	muzzle_type = /obj/effect/projectile/bullet/muzzle
+	muzzle_type = /obj/projectile/bullet
 
 /obj/item/projectile/bola
 	name = "bola"
@@ -170,10 +171,10 @@
 
 /obj/item/projectile/webball/on_hit(atom/target, blocked = 0)
 	if (isturf(target.loc))
-		var/obj/effect/spider/stickyweb/W = locate() in get_turf(target)
+		var/obj/spider/stickyweb/W = locate() in get_turf(target)
 		if (!W && prob(75))
 			visible_message(SPAN_DANGER("\The [src] splatters a layer of web on \the [target]!"))
-			new /obj/effect/spider/stickyweb(target.loc)
+			new /obj/spider/stickyweb(target.loc)
 
 			if (isliving(target))
 				var/mob/living/M = target
@@ -200,14 +201,14 @@
 		L.reagents.add_reagent(/datum/reagent/toxin/venom, 5)
 
 /obj/item/missile
-	icon = 'icons/obj/grenade.dmi'
+	icon = 'icons/obj/weapons/grenade.dmi'
 	icon_state = "missile"
 	var/primed = null
 	throwforce = 15
 
 /obj/item/missile/throw_impact(atom/hit_atom)
 	if(primed)
-		explosion(hit_atom, 0, 1, 2, 4)
+		explosion(hit_atom, 3, EX_ACT_HEAVY)
 		qdel(src)
 	else
 		..()

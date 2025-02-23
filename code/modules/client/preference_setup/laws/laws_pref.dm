@@ -3,7 +3,7 @@
 	var/is_shackled = FALSE
 
 /datum/preferences/proc/get_lawset()
-	if(!laws || !laws.len)
+	if(!laws || !length(laws))
 		return
 	var/datum/ai_laws/custom_lawset = new
 	for(var/law in laws)
@@ -25,7 +25,7 @@
 /datum/category_item/player_setup_item/law_pref/sanitize_character()
 	if(!istype(pref.laws))	pref.laws = list()
 
-	var/datum/species/species = all_species[pref.species]
+	var/singleton/species/species = GLOB.species_by_name[pref.species]
 	if(!(species && species.has_organ[BP_POSIBRAIN]))
 		pref.is_shackled = initial(pref.is_shackled)
 	else
@@ -33,32 +33,32 @@
 
 /datum/category_item/player_setup_item/law_pref/content()
 	. = list()
-	var/datum/species/species = all_species[pref.species]
+	var/singleton/species/species = GLOB.species_by_name[pref.species]
 
 	if(!(species && species.has_organ[BP_POSIBRAIN]))
 		. += "<b>Your Species Has No Laws</b><br>"
 	else
 		. += "<b>Shackle: </b>"
 		if(!pref.is_shackled)
-			. += "<span class='linkOn'>Off</span>"
-			. += "<a href='?src=\ref[src];toggle_shackle=[pref.is_shackled]'>On</a>"
+			. += SPAN_CLASS("linkOn", "Off")
+			. += "<a href='byond://?src=\ref[src];toggle_shackle=[pref.is_shackled]'>On</a>"
 			. += "<br>Only shackled positronics have laws in an integrated positronic chassis."
 			. += "<hr>"
 		else
-			. += "<a href='?src=\ref[src];toggle_shackle=[pref.is_shackled]'>Off</a>"
-			. += "<span class='linkOn'>On</span>"
+			. += "<a href='byond://?src=\ref[src];toggle_shackle=[pref.is_shackled]'>Off</a>"
+			. += SPAN_CLASS("linkOn", "On")
 			. += "<br>You are shackled and have laws that restrict your behaviour."
 			. += "<hr>"
 
 			. += "<b>Your Current Laws:</b><br>"
 
-			if(!pref.laws.len)
+			if(!length(pref.laws))
 				. += "<b>You currently have no laws.</b><br>"
 			else
-				for(var/i in 1 to pref.laws.len)
+				for(var/i in 1 to length(pref.laws))
 					. += "[i]) [pref.laws[i]]<br>"
 
-			. += "Law sets: <a href='?src=\ref[src];lawsets=1'>Load Set</a><br>"
+			. += "Law sets: <a href='byond://?src=\ref[src];lawsets=1'>Load Set</a><br>"
 
 	. = jointext(.,null)
 
@@ -74,8 +74,8 @@
 		for(var/law_set_type in all_lawsets)
 			var/datum/ai_laws/ai_laws = law_set_type
 			var/ai_law_name = initial(ai_laws.name)
-			if(initial(ai_laws.shackles)) // Now this is one terribly snowflaky var
-				ADD_SORTED(valid_lawsets, ai_law_name, /proc/cmp_text_asc)
+			if(initial(ai_laws.shackles))
+				ADD_SORTED(valid_lawsets, ai_law_name, GLOBAL_PROC_REF(cmp_text_asc))
 				valid_lawsets[ai_law_name] = law_set_type
 
 		// Post selection

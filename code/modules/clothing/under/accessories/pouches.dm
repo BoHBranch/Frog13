@@ -9,8 +9,12 @@
 	)
 	icon_state = "pouches"
 	gender = PLURAL
-	slot = ACCESSORY_SLOT_ARMOR_S
+	slot = ACCESSORY_SLOT_ARMOR_STORAGE
 	slots = 2 STORAGE_SLOTS
+
+	sprite_sheets = list(
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_modular_armor_unathi.dmi'
+		)
 
 
 /obj/item/clothing/accessory/storage/pouches/blue

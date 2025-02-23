@@ -1,7 +1,7 @@
 /obj/item/teleportation_scroll
 	name = "scroll of teleportation"
 	desc = "A scroll for moving around."
-	icon = 'icons/obj/wizard.dmi'
+	icon = 'icons/obj/cult.dmi'
 	icon_state = "scroll"
 	var/uses = 4.0
 	w_class = ITEM_SIZE_TINY
@@ -12,7 +12,7 @@
 
 /obj/item/teleportation_scroll/attack_self(mob/user as mob)
 	if((user.mind && !GLOB.wizards.is_antagonist(user.mind)))
-		to_chat(usr, "<span class='warning'>You stare at the scroll but cannot make sense of the markings!</span>")
+		to_chat(usr, SPAN_WARNING("You stare at the scroll but cannot make sense of the markings!"))
 		return
 
 	user.set_machine(src)
@@ -32,7 +32,7 @@
 	var/mob/living/carbon/human/H = usr
 	if (!( istype(H, /mob/living/carbon/human)))
 		return 1
-	if ((usr == src.loc || (in_range(src, usr) && istype(src.loc, /turf))))
+	if ((usr == src.loc || (in_range(src, usr) && isturf(loc))))
 		usr.set_machine(src)
 		if (href_list["spell_teleport"])
 			if (src.uses >= 1)
@@ -47,7 +47,7 @@
 	if (!thearea || CanUseTopic(user) != STATUS_INTERACTIVE)
 		return
 
-	var/datum/effect/effect/system/smoke_spread/smoke = new /datum/effect/effect/system/smoke_spread()
+	var/datum/effect/smoke_spread/smoke = new /datum/effect/smoke_spread()
 	smoke.set_up(5, 0, user.loc)
 	smoke.attach(user)
 	smoke.start()

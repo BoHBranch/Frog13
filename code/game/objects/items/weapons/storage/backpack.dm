@@ -6,6 +6,7 @@
 /obj/item/storage/backpack
 	name = "backpack"
 	desc = "You wear this on your back and put items into it."
+	icon = 'icons/obj/clothing/obj_backpacks.dmi'
 	item_icons = list(
 		slot_l_hand_str = 'icons/mob/onmob/items/lefthand_backpacks.dmi',
 		slot_r_hand_str = 'icons/mob/onmob/items/righthand_backpacks.dmi',
@@ -27,9 +28,9 @@
 	/// Can this backpack be opened while worn on the back?
 	var/worn_access = TRUE
 
-/obj/item/storage/backpack/attackby(obj/item/W as obj, mob/user as mob)
-	if (src.use_sound)
-		playsound(src.loc, src.use_sound, 50, 1, -5)
+/obj/item/storage/backpack/use_tool(obj/item/tool, mob/living/user, list/click_params)
+	if (use_sound)
+		playsound(loc, use_sound, 50, 1, -5)
 	return ..()
 
 /obj/item/storage/backpack/equipped(mob/user, slot)
@@ -45,7 +46,7 @@
 	if (!worn_access && usr?.isEquipped(src, slot_back))
 		to_chat(usr, SPAN_WARNING("You can't insert \the [W] while \the [src] is on your back."))
 		return
-	..()
+	return ..()
 
 /obj/item/storage/backpack/open(mob/user)
 	if (!worn_access && user.isEquipped(src, slot_back))
@@ -66,18 +67,17 @@
 		slot_l_hand_str = "holdingpack",
 		slot_r_hand_str = "holdingpack"
 	)
-	max_w_class = ITEM_SIZE_NORMAL
 	max_storage_space = 56
 
 /obj/item/storage/backpack/holding/New()
 	..()
 	return
 
-/obj/item/storage/backpack/holding/attackby(obj/item/W as obj, mob/user as mob)
+/obj/item/storage/backpack/holding/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(istype(W, /obj/item/storage/backpack/holding) || istype(W, /obj/item/storage/bag/trash/bluespace))
-		to_chat(user, "<span class='warning'>The Bluespace interfaces of the two devices conflict and malfunction.</span>")
+		to_chat(user, SPAN_WARNING("The Bluespace interfaces of the two devices conflict and malfunction."))
 		qdel(W)
-		return 1
+		return TRUE
 	return ..()
 
 	//Please don't clutter the parent storage item with stupid hacks.
@@ -85,11 +85,6 @@
 	if(istype(W, /obj/item/storage/backpack/holding))
 		return 1
 	return ..()
-
-/obj/item/storage/backpack/holding/duffle
-	name = "dufflebag of holding"
-	icon_state = "holdingduffle"
-	item_state_slots = list(slot_l_hand_str = "duffle", slot_r_hand_str = "duffle")
 
 /obj/item/storage/backpack/santabag
 	name = "\improper Santa's gift bag"
@@ -153,15 +148,6 @@
 		slot_r_hand_str = "engiepack"
 	)
 
-/obj/item/storage/backpack/toxins
-	name = "science backpack"
-	desc = "It's a stain-resistant light backpack, modeled for use in laboratories and other scientific settings."
-	icon_state = "ntpack"
-	item_state_slots = list(
-		slot_l_hand_str = "ntpack",
-		slot_r_hand_str = "ntpack"
-	)
-
 /obj/item/storage/backpack/hydroponics
 	name = "hydroponics backpack"
 	desc = "It's a green backpack, with many pockets to store plants and tools in."
@@ -180,13 +166,13 @@
 		slot_r_hand_str = "genpack"
 	)
 
-/obj/item/storage/backpack/virology
-	name = "sterile backpack"
-	desc = "It's a sterile backpack, specially designed for work in areas with a biosafety classification level."
-	icon_state = "viropack"
+/obj/item/storage/backpack/corpsci
+	name = "corporate science backpack"
+	desc = "It's a sterile backpack, specially designed for work in laboratory settings."
+	icon_state = "corpscipack"
 	item_state_slots = list(
-		slot_l_hand_str = "viropack",
-		slot_r_hand_str = "viropack"
+		slot_l_hand_str = "corpscipack",
+		slot_r_hand_str = "corpscipack"
 	)
 
 /obj/item/storage/backpack/chemistry
@@ -239,6 +225,15 @@
 		slot_r_hand_str = "rucksack_tan"
 	)
 
+/obj/item/storage/backpack/sci
+	name = "science backpack"
+	desc = "It's a stain-resistant light backpack, modeled for use by Expeditionary Corps science personnel in laboratories and other scientific settings."
+	icon_state = "scipack"
+	item_state_slots = list(
+		slot_l_hand_str = "scipack",
+		slot_r_hand_str = "scipack"
+	)
+
 /*
  * Duffle Types
  */
@@ -266,7 +261,7 @@
 
 /obj/item/storage/backpack/dufflebag/syndie/med/full
 	startswith = list(
-		/obj/item/roller,
+		/obj/item/roller_bed,
 		/obj/item/storage/box/syringes,
 		/obj/item/clothing/gloves/latex/nitrile,
 		/obj/item/clothing/glasses/hud/health,
@@ -397,10 +392,14 @@
 		slot_r_hand_str = "medicalpack",
 		)
 
-/obj/item/storage/backpack/satchel/vir
-	name = "sterile satchel"
-	desc = "It's a sterile satchel, rated for use in areas with a biosafety classification level."
-	icon_state = "satchel-vir"
+/obj/item/storage/backpack/satchel/corpsci
+	name = "corporate science satchel"
+	desc = "It's a sterile satchel, rated for use in laboratory settings."
+	icon_state = "satchel-corpsci"
+	item_state_slots = list(
+		slot_l_hand_str = "satchel-corpsci",
+		slot_r_hand_str = "satchel-corpsci"
+	)
 
 /obj/item/storage/backpack/satchel/chem
 	name = "pharmacy satchel"
@@ -411,11 +410,6 @@
 	name = "genetics satchel"
 	desc = "A green satchel, filled with slots for diskettes and other workplace tools."
 	icon_state = "satchel-gen"
-
-/obj/item/storage/backpack/satchel/tox
-	name = "science satchel"
-	desc = "It's a stain-resistant satchel, modeled for use in laboratories and other scientific settings."
-	icon_state = "satchel-nt"
 
 /obj/item/storage/backpack/satchel/sec
 	name = "security satchel"
@@ -445,18 +439,27 @@
 		slot_r_hand_str = "satchel-cap",
 		)
 
+/obj/item/storage/backpack/satchel/sci
+	name = "science satchel"
+	desc = "It's a stain-resistant satchel, modeled for use by Expeditionary Corps science personnel in laboratories and other scientific settings."
+	icon_state = "satchel-sci"
+	item_state_slots = list(
+		slot_l_hand_str = "satchel-sci",
+		slot_r_hand_str = "satchel-sci",
+		)
+
 //Smuggler's satchel
 /obj/item/storage/backpack/satchel/flat
 	name = "\improper Smuggler's satchel"
 	desc = "A very slim satchel, that can easily fit into tight spaces."
 	icon_state = "satchel-flat"
 	item_state = "satchel-norm"
-	level = 1
+	level = ATOM_LEVEL_UNDER_TILE
 	w_class = ITEM_SIZE_NORMAL //Can fit in backpacks itself.
 	storage_slots = 5
 	max_w_class = ITEM_SIZE_NORMAL
 	max_storage_space = 15
-	cant_hold = list(/obj/item/storage/backpack/satchel/flat) //muh recursive backpacks
+	contents_banned = list(/obj/item/storage/backpack/satchel/flat)
 	startswith = list(
 		/obj/item/stack/tile/floor,
 		/obj/item/crowbar
@@ -469,15 +472,15 @@
 	..()
 
 /obj/item/storage/backpack/satchel/flat/hide(i)
-	set_invisibility(i ? 101 : 0)
+	set_invisibility(i ? INVISIBILITY_ABSTRACT : 0)
 	anchored = i ? TRUE : FALSE
 	alpha = i ? 128 : initial(alpha)
 
-/obj/item/storage/backpack/satchel/flat/attackby(obj/item/W, mob/user)
+/obj/item/storage/backpack/satchel/flat/use_tool(obj/item/tool, mob/living/user, list/click_params)
 	var/turf/T = get_turf(src)
 	if(hides_under_flooring() && isturf(T) && !T.is_plating())
-		to_chat(user, "<span class='warning'>You must remove the plating first.</span>")
-		return 1
+		to_chat(user, SPAN_WARNING("You must remove the plating first."))
+		return TRUE
 	return ..()
 
 //ERT backpacks.
@@ -532,15 +535,10 @@
 	desc = "A small, sterile backpack worn over one shoulder. This one was designed for use in the sterile confines of the infirmary."
 	icon_state = "courierbagmed"
 
-/obj/item/storage/backpack/messenger/viro
-	name = "virology messenger bag"
-	desc = "A small, sterile backpack worn over one shoulder. This one was designed for work in areas with a biosafety classification level."
-	icon_state = "courierbagviro"
-
-/obj/item/storage/backpack/messenger/tox
-	name = "science messenger bag"
-	desc = "A small, stain-resistant backpack worn over one shoulder. This one was modeled for use in laboratories and other scientific settings."
-	icon_state = "courierbagnt"
+/obj/item/storage/backpack/messenger/corpsci
+	name = "corporate science messenger bag"
+	desc = "A small, sterile backpack worn over one shoulder. This one was designed for work in laboratory settings."
+	icon_state = "courierbagcorpsci"
 
 /obj/item/storage/backpack/messenger/com
 	name = "command messenger bag"
@@ -566,3 +564,24 @@
 	name = "corporate security messenger bag"
 	desc = "A small, tactical backpack worn over one shoulder. This one is in EXO colors."
 	icon_state = "courierbagsec_exo"
+
+
+/obj/item/storage/backpack/messenger/sci
+	name = "science messenger bag"
+	desc = "A small, stain-resistant backpack worn over one shoulder. This one was modeled for use by Expeditionary Corps science personnel in laboratories and other scientific settings."
+	icon_state = "courierbagsci"
+
+
+/obj/item/storage/backpack/messenger/black
+	name = "black messenger bag"
+	icon_state = "courierbag-black"
+
+
+/obj/item/storage/backpack/messenger/brown
+	name = "brown messenger bag"
+	icon_state = "courierbag-brown"
+
+
+// prevents consumption by dept versions
+/obj/item/storage/backpack/messenger/grey
+	name = "grey messenger bag"

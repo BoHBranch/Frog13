@@ -13,8 +13,8 @@
 	max_damage = 45
 	var/eye_icon = 'icons/mob/human_races/species/default_eyes.dmi'
 	var/apply_eye_colour = TRUE
-	var/tmp/last_cached_eye_colour
-	var/tmp/last_eye_cache_key
+	var/last_cached_eye_colour
+	var/last_eye_cache_key
 	var/flash_mod
 	var/darksight_range
 	var/darksight_tint
@@ -38,10 +38,7 @@
 	if(I)
 		var/cache_key = "[last_eye_cache_key]-glow"
 		if(!human_icon_cache[cache_key])
-			var/image/eye_glow = image(I)
-			eye_glow.layer = EYE_GLOW_LAYER
-			eye_glow.plane = EFFECTS_ABOVE_LIGHTING_PLANE
-			human_icon_cache[cache_key] = eye_glow
+			human_icon_cache[cache_key] = emissive_appearance(I)
 		return human_icon_cache[cache_key]
 
 /obj/item/organ/internal/eyes/proc/change_eye_color()
@@ -77,7 +74,7 @@
 	var/oldbroken = is_broken()
 	. = ..()
 	if(is_broken() && !oldbroken && owner && !owner.stat)
-		to_chat(owner, "<span class='danger'>You go blind!</span>")
+		to_chat(owner, SPAN_DANGER("You go blind!"))
 
 /obj/item/organ/internal/eyes/Process() //Eye damage replaces the old eye_stat var.
 	..()
@@ -88,8 +85,8 @@
 	if(is_broken())
 		owner.eye_blind = 20
 
-/obj/item/organ/internal/eyes/New()
-	..()
+/obj/item/organ/internal/eyes/Initialize()
+	. = ..()
 	flash_mod = species.flash_mod
 	darksight_range = species.darksight_range
 	darksight_tint = species.darksight_tint
@@ -104,8 +101,8 @@
 	name = "optical sensor"
 	status = ORGAN_ROBOTIC
 
-/obj/item/organ/internal/eyes/robot/New()
-	..()
+/obj/item/organ/internal/eyes/robot/Initialize()
+	. = ..()
 	robotize()
 
 /obj/item/organ/internal/eyes/robotize()

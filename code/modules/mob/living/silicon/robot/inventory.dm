@@ -28,11 +28,11 @@
 
 
 /mob/living/silicon/robot/HandsEmpty()
-	return module_state_1 == null && module_state_2 == null && module_state_3 == null
+	return isnull(module_state_1) && isnull(module_state_2) && isnull(module_state_3)
 
 
 /mob/living/silicon/robot/HasFreeHand()
-	return module_state_1 == null || module_state_2 == null || module_state_3 == null
+	return isnull(module_state_1) || isnull(module_state_2) || isnull(module_state_3)
 
 
 /mob/living/silicon/robot/GetAllHeld(item_path)
@@ -265,10 +265,10 @@
 	return
 
 /mob/living/silicon/robot/proc/activate_module(obj/item/O)
-	if(!(locate(O) in module.equipment) && O != src.module.emag)
+	if(!(locate(O) in module.equipment))
 		return
 	if (IsHolding(O))
-		to_chat(src, "<span class='notice'>Already activated</span>")
+		to_chat(src, SPAN_NOTICE("Already activated"))
 		return
 	if (!HasFreeHand())
 		to_chat(src, SPAN_NOTICE("You need to disable a module first!"))
@@ -310,6 +310,7 @@
 		for (var/obj/item/gripper/gripper in module?.equipment)
 			if (gripper.wrapped == thing)
 				gripper.wrapped = null
+				gripper.update_icon()
 
 //Robots don't use inventory slots, so we need to override this.
 /mob/living/silicon/robot/canUnEquip(obj/item/I)

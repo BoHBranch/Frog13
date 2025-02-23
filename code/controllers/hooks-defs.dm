@@ -11,6 +11,12 @@
 /hook/startup
 
 /**
+ * Game Ready hook.
+ * Called in master.dm once initialization is complete.
+ */
+/hook/game_ready
+
+/**
  * Roundstart hook.
  * Called in ticker.dm when a round starts.
  */
@@ -97,3 +103,17 @@
  * Parameters: var/obj/structure/closet/crate/sold, var/area/shuttle
  */
 /hook/sell_crate
+
+/**
+ * Anomaly cage sold hook.
+ * Called in supplyshuttle.dm when a anomaly container is sold on the shuttle.
+ * Parameters: var/obj/machinery/anomaly_container/sold, var/area/shuttle
+ */
+/hook/sell_anomalycage
+
+/**
+ * Animal sold hook.
+ * Called in supplyshuttle.dm when a anomaly container is sold on the shuttle.
+ * Parameters: var/obj/structure/stasis_cage/sold, var/area/shuttle
+ */
+/hook/sell_animal

@@ -15,7 +15,7 @@
 	var/list/T = list()
 	for (var/obj/machinery/camera/C in cameranet.cameras)
 		var/list/tempnetwork = C.network&src.network
-		if (tempnetwork.len)
+		if (length(tempnetwork))
 			T[text("[][]", C.c_tag, (C.can_use() ? null : " (Deactivated)"))] = C
 
 	track = new()
@@ -45,20 +45,20 @@
 
 	loc = sanitize(loc)
 	if(!loc)
-		to_chat(src, "<span class='warning'>Must supply a location name</span>")
+		to_chat(src, SPAN_WARNING("Must supply a location name"))
 		return
 
-	if(stored_locations.len >= max_locations)
-		to_chat(src, "<span class='warning'>Cannot store additional locations. Remove one first</span>")
+	if(length(stored_locations) >= max_locations)
+		to_chat(src, SPAN_WARNING("Cannot store additional locations. Remove one first"))
 		return
 
 	if(loc in stored_locations)
-		to_chat(src, "<span class='warning'>There is already a stored location by this name</span>")
+		to_chat(src, SPAN_WARNING("There is already a stored location by this name"))
 		return
 
 	var/L = src.eyeobj.getLoc()
 	if (InvalidPlayerTurf(get_turf(L)))
-		to_chat(src, "<span class='warning'>Unable to store this location</span>")
+		to_chat(src, SPAN_WARNING("Unable to store this location"))
 		return
 
 	stored_locations[loc] = L
@@ -73,7 +73,7 @@
 	set desc = "Returns to the selected camera location."
 
 	if (!(loc in stored_locations))
-		to_chat(src, "<span class='warning'>Location [loc] not found</span>")
+		to_chat(src, SPAN_WARNING("Location [loc] not found"))
 		return
 
 	var/L = stored_locations[loc]
@@ -85,7 +85,7 @@
 	set desc = "Deletes the selected camera location."
 
 	if (!(loc in stored_locations))
-		to_chat(src, "<span class='warning'>Location [loc] not found</span>")
+		to_chat(src, SPAN_WARNING("Location [loc] not found"))
 		return
 
 	stored_locations.Remove(loc)
@@ -159,7 +159,7 @@
 	cameraFollow = target
 	to_chat(src, SPAN_NOTICE("Tracking target ..."))
 	cameraFollow.tracking_initiated()
-	addtimer(CALLBACK(src, .proc/ai_actual_track_action), 0, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_NO_HASH_WAIT)
+	addtimer(new Callback(src, PROC_REF(ai_actual_track_action)), 0, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_NO_HASH_WAIT)
 
 
 /mob/living/silicon/ai/proc/ai_actual_track_action()
@@ -168,14 +168,14 @@
 	var/status = cameraFollow.tracking_status()
 	if (status == TRACKING_NO_COVERAGE)
 		to_chat(src, SPAN_WARNING("Target is not near any active cameras."))
-		addtimer(CALLBACK(src, .proc/ai_actual_track_action), 10 SECONDS, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_NO_HASH_WAIT)
+		addtimer(new Callback(src, PROC_REF(ai_actual_track_action)), 10 SECONDS, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_NO_HASH_WAIT)
 		return
 	else if (status == TRACKING_TERMINATE)
 		ai_cancel_tracking(TRUE)
 		return
 	if (eyeobj)
 		eyeobj.setLoc(get_turf(cameraFollow), FALSE)
-		addtimer(CALLBACK(src, .proc/ai_actual_track_action), 1 SECOND, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_NO_HASH_WAIT)
+		addtimer(new Callback(src, PROC_REF(ai_actual_track_action)), 1 SECOND, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_NO_HASH_WAIT)
 		return
 	view_core()
 
@@ -192,10 +192,11 @@
 	ai_camera_list()
 
 /proc/camera_sort(list/L)
+	RETURN_TYPE(/list)
 	var/obj/machinery/camera/a
 	var/obj/machinery/camera/b
 
-	for (var/i = L.len, i > 0, i--)
+	for (var/i = length(L), i > 0, i--)
 		for (var/j = 1 to i - 1)
 			a = L[j]
 			b = L[j + 1]
@@ -226,7 +227,7 @@
 		return TRACKING_TERMINATE
 	if(digitalcamo)
 		return TRACKING_TERMINATE
-	if(istype(loc,/obj/effect/dummy))
+	if(istype(loc,/obj/dummy))
 		return TRACKING_TERMINATE
 
 	 // Now, are they viewable by a camera? (This is last because it's the most intensive check)
@@ -251,14 +252,14 @@
 /mob/living/silicon/robot/tracking_initiated()
 	tracking_entities++
 	if(tracking_entities == 1 && has_zeroth_law())
-		to_chat(src, "<span class='warning'>Internal camera is currently being accessed.</span>")
+		to_chat(src, SPAN_WARNING("Internal camera is currently being accessed."))
 
 /mob/living/proc/tracking_cancelled()
 
 /mob/living/silicon/robot/tracking_cancelled()
 	tracking_entities--
 	if(!tracking_entities && has_zeroth_law())
-		to_chat(src, "<span class='notice'>Internal camera is no longer being accessed.</span>")
+		to_chat(src, SPAN_NOTICE("Internal camera is no longer being accessed."))
 
 
 #undef TRACKING_POSSIBLE

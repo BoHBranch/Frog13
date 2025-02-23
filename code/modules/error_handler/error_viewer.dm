@@ -8,10 +8,10 @@
 //   right here:
 
 #ifdef DEBUG
-GLOBAL_DATUM_INIT(error_cache, /datum/error_viewer/error_cache, new)
+GLOBAL_TYPED_NEW(error_cache, /datum/error_viewer/error_cache)
 #else
 // If debugging is disabled, there's nothing useful to log, so don't bother.
-GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
+GLOBAL_TYPED(error_cache, /datum/error_viewer/error_cache)
 #endif
 
 // - error_source datums exist for each line (of code) that generates an error,
@@ -28,7 +28,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 	if(href_list["viewruntime"])
 		var/datum/error_viewer/error_viewer = locate(href_list["viewruntime"])
 		if(!istype(error_viewer))
-			to_chat(usr, "<span class='warning'>That runtime viewer no longer exists.</span>")
+			to_chat(usr, SPAN_WARNING("That runtime viewer no longer exists."))
 			return
 
 		if(href_list["viewruntime_backto"])
@@ -83,7 +83,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 	if (linear)
 		back_to_param += ";viewruntime_linear=1"
 
-	return "<a href='?src=\ref[src];viewruntime=\ref[src][back_to_param]'>[linktext]</a>"
+	return "<a href='byond://?src=\ref[src];viewruntime=\ref[src][back_to_param]'>[linktext]</a>"
 
 /datum/error_viewer/error_cache
 	var/list/errors = list()
@@ -107,11 +107,11 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 
 	browse_to(user, html)
 
-/datum/error_viewer/error_cache/proc/log_error(exception/e, list/desclines, skip_count)
+/datum/error_viewer/error_cache/proc/log_error(exception/e, list/desclines, skip_count, actual_file, actual_line)
 	if (!istype(e))
 		return // Abnormal exception, don't even bother
 
-	var/erroruid = "[e.file],[e.line]"
+	var/erroruid = "[actual_file],[actual_line]"
 	var/datum/error_viewer/error_source/error_source = error_sources[erroruid]
 	if (!error_source)
 		error_source = new(e)
@@ -128,7 +128,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 	//  from the same source hasn't been shown too recently
 	if (error_source.next_message_at <= world.time)
 		var/const/viewtext = "\[view]" // Nesting these in other brackets went poorly
-		log_runtime("Runtime in <b>[e.file]</b>, line <b>[e.line]</b>: <b>[html_encode(e.name)]</b> [error_entry.make_link(viewtext)]")
+		log_runtime("Runtime in <b>[actual_file]</b>, line <b>[actual_line]</b>: <b>[html_encode(e.name)]</b> [error_entry.make_link(viewtext)]")
 		var/err_msg_delay
 		if(config)
 			err_msg_delay = config.error_msg_delay
@@ -186,7 +186,7 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 	if (istype(desclines))
 		for (var/line in desclines)
 			// There's probably a better way to do this than non-breaking spaces...
-			desc += "<span class='runtime_line'>[html_encode(line)]</span><br>"
+			desc += "[SPAN_CLASS("runtime_line", "[html_encode(line)]")]<br>"
 			info += "\n  " + line
 
 	if (usr)
@@ -200,12 +200,12 @@ GLOBAL_DATUM(error_cache, /datum/error_viewer/error_cache)
 	var/html = build_header(back_to, linear)
 	html += "[name]<div class='runtime'>[desc]</div>"
 	if (usr_ref)
-		html += "<br><b>usr</b>: <a href='?_src_=vars;Vars=[usr_ref]'>VV</a>"
-		html += " <a href='?_src_=holder;adminplayeropts=[usr_ref]'>PP</a>"
-		html += " <a href='?_src_=holder;adminplayerobservefollow=[usr_ref]'>Follow</a>"
+		html += "<br><b>usr</b>: <a href='byond://?_src_=vars;Vars=[usr_ref]'>VV</a>"
+		html += " <a href='byond://?_src_=holder;adminplayeropts=[usr_ref]'>PP</a>"
+		html += " <a href='byond://?_src_=holder;adminplayerobservefollow=[usr_ref]'>Follow</a>"
 		if (istype(usr_loc))
-			html += "<br><b>usr.loc</b>: <a href='?_src_=vars;Vars=\ref[usr_loc]'>VV</a>"
-			html += " <a href='?_src_=holder;adminplayerobservecoodjump=1;X=[usr_loc.x];Y=[usr_loc.y];Z=[usr_loc.z]'>JMP</a>"
+			html += "<br><b>usr.loc</b>: <a href='byond://?_src_=vars;Vars=\ref[usr_loc]'>VV</a>"
+			html += " <a href='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[usr_loc.x];Y=[usr_loc.y];Z=[usr_loc.z]'>JMP</a>"
 
 	browse_to(user, html)
 

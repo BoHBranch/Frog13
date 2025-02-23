@@ -17,6 +17,7 @@
 		return 1
 	return 0
 
+
 /proc/default_parry_check(mob/user, mob/attacker, atom/damage_source)
 	//parry only melee attacks
 	if(istype(damage_source, /obj/item/projectile) || (attacker && get_dist(user, attacker) > 1) || user.incapacitated())
@@ -29,10 +30,12 @@
 
 	return 1
 
+
 /obj/item/shield
 	name = "shield"
 	var/base_block_chance = 60
 	var/max_block = 0
+
 
 /obj/item/shield/handle_shield(mob/user, damage, atom/damage_source = null, mob/attacker = null, def_zone = null, attack_text = "the attack")
 	if(user.incapacitated())
@@ -42,12 +45,13 @@
 	var/bad_arc = reverse_direction(user.dir) //arc of directions from which we cannot block
 	if(check_shield_arc(user, bad_arc, damage_source, attacker))
 		if(prob(get_block_chance(user, damage, damage_source, attacker)))
-			user.visible_message("<span class='danger'>\The [user] blocks [attack_text] with \the [src]!</span>")
+			user.visible_message(SPAN_DANGER("\The [user] blocks [attack_text] with \the [src]!"))
 			return 1
 	return 0
 
 /obj/item/shield/proc/get_block_chance(mob/user, damage, atom/damage_source = null, mob/attacker = null)
 	return base_block_chance
+
 
 /obj/item/shield/riot
 	name = "riot shield"
@@ -68,9 +72,11 @@
 	var/cooldown = 0 //shield bash cooldown. based on world.time
 	var/can_block_lasers = FALSE
 
+
 /obj/item/shield/riot/handle_shield(mob/user)
 	. = ..()
 	if(.) playsound(user.loc, 'sound/weapons/Genhit.ogg', 50, 1)
+
 
 /obj/item/shield/riot/get_block_chance(mob/user, damage, atom/damage_source = null, mob/attacker = null)
 	if(istype(damage_source, /obj/item/projectile))
@@ -82,14 +88,17 @@
 			return 0
 	return base_block_chance
 
-/obj/item/shield/riot/attackby(obj/item/W as obj, mob/user as mob)
+
+/obj/item/shield/riot/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(istype(W, /obj/item/melee/baton))
 		if(cooldown < world.time - 25)
-			user.visible_message("<span class='warning'>[user] bashes [src] with [W]!</span>")
+			user.visible_message(SPAN_WARNING("\The [user] bashes \the [src] with \the [W]!"))
 			playsound(user.loc, 'sound/effects/shieldbash.ogg', 50, 1)
 			cooldown = world.time
+			return TRUE
 	else
-		..()
+		return ..()
+
 
 /obj/item/shield/riot/metal
 	name = "plasteel combat shield"
@@ -125,9 +134,11 @@
 	matter = list(MATERIAL_STEEL = 1000, MATERIAL_WOOD = 1000)
 	attack_verb = list("shoved", "bashed")
 
+
 /obj/item/shield/buckler/handle_shield(mob/user)
 	. = ..()
 	if(.) playsound(user.loc, 'sound/weapons/Genhit.ogg', 50, 1)
+
 
 /obj/item/shield/buckler/get_block_chance(mob/user, damage, atom/damage_source = null, mob/attacker = null)
 	if (istype(damage_source, /obj/item/projectile))
@@ -137,15 +148,12 @@
 			return (base_block_chance / 2)
 	return base_block_chance
 
-/*
- * Energy Shield
- */
 
 /obj/item/shield/energy
 	name = "energy combat shield"
 	desc = "A shield capable of stopping most projectile and melee attacks. It can be retracted, expanded, and stored anywhere."
 	icon = 'icons/obj/weapons/melee_energy.dmi'
-	icon_state = "eshield0" // eshield1 for expanded
+	icon_state = "eshield0"
 	obj_flags = OBJ_FLAG_CONDUCTIBLE
 	force = 3.0
 	throwforce = 5.0
@@ -154,56 +162,141 @@
 	w_class = ITEM_SIZE_SMALL
 	origin_tech = list(TECH_MATERIAL = 4, TECH_MAGNET = 3, TECH_ESOTERIC = 4)
 	attack_verb = list("shoved", "bashed")
-	var/active = 0
+	var/active = FALSE
+	var/next_action
+	var/sound_token
+	var/sound_id
+	var/damaged = FALSE
+	var/disabled
+	var/datum/effect/spark_spread/sparks
 
-/obj/item/shield/energy/handle_shield(mob/user)
-	if(!active)
-		return 0 //turn it on first!
+
+/obj/item/shield/energy/Destroy()
+	QDEL_NULL(sound_token)
+	QDEL_NULL(sparks)
+	return ..()
+
+
+/obj/item/shield/energy/Initialize()
 	. = ..()
+	sound_id = "[sequential_id(/obj/item/shield/energy)]"
+	sparks = new
 
-	if(.)
-		var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-		spark_system.set_up(5, 0, user.loc)
-		spark_system.start()
-		playsound(user.loc, 'sound/weapons/blade1.ogg', 50, 1)
 
-/obj/item/shield/energy/get_block_chance(mob/user, damage, atom/damage_source = null, mob/attacker = null)
-	if(istype(damage_source, /obj/item/projectile))
-		var/obj/item/projectile/P = damage_source
-		if((is_sharp(P) && damage > 10) || istype(P, /obj/item/projectile/beam))
-			return (base_block_chance - round(damage / 2.5)) //block bullets and beams using the old block chance
-	return base_block_chance
-
-/obj/item/shield/energy/attack_self(mob/living/user as mob)
-	if ((MUTATION_CLUMSY in user.mutations) && prob(50))
-		to_chat(user, "<span class='warning'>You beat yourself in the head with [src].</span>")
-		user.take_organ_damage(5, 0)
-	active = !active
+/obj/item/shield/energy/on_update_icon()
+	icon_state = "eshield[active]"
 	if (active)
-		force = 10
-		update_icon()
-		w_class = ITEM_SIZE_HUGE
-		playsound(user, 'sound/weapons/saberon.ogg', 50, 1)
-		to_chat(user, "<span class='notice'>\The [src] is now active.</span>")
-
+		set_light(1.5, 1.5, "#006aff")
 	else
-		force = 3
-		update_icon()
-		w_class = ITEM_SIZE_TINY
-		playsound(user, 'sound/weapons/saberoff.ogg', 50, 1)
-		to_chat(user, "<span class='notice'>\The [src] can now be concealed.</span>")
+		set_light(0)
 
-	if(istype(user,/mob/living/carbon/human))
+
+/obj/item/shield/energy/proc/activate(mob/living/user)
+	var/time = world.time
+
+	if (active)
+		return
+
+	if (time < next_action)
+		return
+
+	if (damaged)
+		if (world.time < disabled)
+			if (user)
+				user.show_message(SPAN_WARNING("\The [src] sputters. It's not going to work right now!"))
+			return
+		user.visible_message(SPAN_NOTICE("\The [src] resonates perfectly, once again."))
+		damaged = FALSE
+
+	next_action = time + 3 SECONDS
+	active = !active
+
+	if (active)
+		playsound(src, 'sound/obj/item/shield/energy/shield-start.ogg', 40)
+		force = 10
+		w_class = ITEM_SIZE_NO_CONTAINER
+
+	if (istype(user,/mob/living/carbon/human))
 		var/mob/living/carbon/human/H = user
 		H.update_inv_l_hand()
 		H.update_inv_r_hand()
 
-	add_fingerprint(user)
+	update_icon()
+	addtimer(new Callback(src, PROC_REF(UpdateSoundLoop)), 0.25 SECONDS)
+
+
+/obj/item/shield/energy/proc/deactivate(mob/living/user)
+	if (!active)
+		return
+
+	active = !active
+
+	if (!active)
+		playsound(src, 'sound/obj/item/shield/energy/shield-stop.ogg', 40)
+		force = initial(force)
+		w_class = initial(w_class)
+
+	update_icon()
+
+	if (istype(user,/mob/living/carbon/human))
+		var/mob/living/carbon/human/H = user
+		H.update_inv_l_hand()
+		H.update_inv_r_hand()
+
+	addtimer(new Callback(src, PROC_REF(UpdateSoundLoop)), 0.1 SECONDS)
+
+
+/obj/item/shield/energy/attack_self(mob/living/user)
+	if (!active)
+		activate(user)
+	else
+		deactivate(user)
 	return
 
-/obj/item/shield/energy/on_update_icon()
-	icon_state = "eshield[active]"
-	if(active)
-		set_light(0.4, 0.1, 1, 2, "#006aff")
+
+/obj/item/shield/energy/handle_shield(mob/living/user)
+	if (!active && damaged)
+		return FALSE
+	. = ..()
+	if (!.)
+		return
+	sparks.set_up(2, loca = user)
+	sparks.start()
+
+
+/obj/item/shield/energy/get_block_chance(mob/living/user, damage, atom/damage_source, mob/living/attacker)
+	if (isprojectile(damage_source))
+		if (damage > 10 && is_sharp(damage_source) || isbeam(damage_source))
+			return base_block_chance - round(damage / 2.5)
+	return base_block_chance
+
+
+/obj/item/shield/energy/emp_act(severity)
+	SHOULD_CALL_PARENT(FALSE)
+	if (!active)
+		return
+	if (damaged)
+		return
+	var/disabletime = 30 SECONDS
+	if (severity == EMP_ACT_HEAVY)
+		disabletime = 1 MINUTES
+
+	visible_message(SPAN_DANGER("\The [src] violently shudders!"))
+	new /obj/overlay/emp_pulse (get_turf(src))
+
+	disabled = world.time + disabletime
+	damaged = TRUE
+	var/mob/living/carbon/M = loc
+	if (M)
+		deactivate(M)
 	else
-		set_light(0)
+		deactivate()
+	update_icon()
+	GLOB.empd_event.raise_event(src, severity)
+
+
+/obj/item/shield/energy/proc/UpdateSoundLoop()
+	if (!active)
+		QDEL_NULL(sound_token)
+		return
+	sound_token = GLOB.sound_player.PlayLoopingSound(src, sound_id,'sound/obj/item/shield/energy/shield-loop.ogg', 10, 4)

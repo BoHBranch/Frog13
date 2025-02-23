@@ -8,10 +8,10 @@
 	)
 	pattern = "^relays$"
 	req_access = list(list(access_network, access_network_admin))
-	skill_needed = SKILL_EXPERT
+	skill_needed = SKILL_EXPERIENCED
 
 /datum/terminal_command/relays/proper_input_entered(text, mob/user, datum/terminal/terminal)
-	. = list("[name]: Number of relays found: [ntnet_global.relays.len]")
+	. = list("[name]: Number of relays found: [length(ntnet_global.relays)]")
 	for(var/obj/machinery/ntnet_relay/R in ntnet_global.relays)
 		. += "Quantum relay ([R.uid]) status: [(R.operable() ? "Reachable" : "Unreachable")]"
 		if(R.operable())

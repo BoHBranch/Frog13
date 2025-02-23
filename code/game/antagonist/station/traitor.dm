@@ -1,16 +1,17 @@
-GLOBAL_DATUM_INIT(traitors, /datum/antagonist/traitor, new)
+GLOBAL_TYPED_NEW(traitors, /datum/antagonist/traitor)
 
 // Inherits most of its vars from the base datum.
 /datum/antagonist/traitor
 	id = MODE_TRAITOR
 	antaghud_indicator = "hud_traitor"
 	blacklisted_jobs = list(/datum/job/ai, /datum/job/submap)
-	protected_jobs = list(/datum/job/officer, /datum/job/warden, /datum/job/detective, /datum/job/captain, /datum/job/lawyer, /datum/job/hos)
+	restricted_jobs = list(/datum/job/captain, /datum/job/lawyer, /datum/job/hos)
+	initial_spawn_target = 1
 	flags = ANTAG_SUSPICIOUS | ANTAG_RANDSPAWN | ANTAG_VOTABLE
 	skill_setter = /datum/antag_skill_setter/station
 
 /datum/antagonist/traitor/get_extra_panel_options(datum/mind/player)
-	return "<a href='?src=\ref[player];common=crystals'>\[set crystals\]</a><a href='?src=\ref[src];spawn_uplink=\ref[player.current]'>\[spawn uplink\]</a>"
+	return "<a href='byond://?src=\ref[player];common=crystals'>\[set crystals\]</a><a href='byond://?src=\ref[src];spawn_uplink=\ref[player.current]'>\[spawn uplink\]</a>"
 
 /datum/antagonist/traitor/Topic(href, href_list)
 	if (..())
@@ -75,7 +76,7 @@ GLOBAL_DATUM_INIT(traitors, /datum/antagonist/traitor, new)
 		if(istype(traitor_mob, /mob/living/silicon/robot))
 			var/mob/living/silicon/robot/R = traitor_mob
 			R.SetLockdown(0)
-			R.emagged = TRUE // Provides a traitor robot with its module's emag item
+			R.emag_act()
 			R.verbs |= /mob/living/silicon/robot/proc/ResetSecurityCodes
 			R.status_flags &= ~CANWEAKEN // Apply optical matrix protection (Flash resistance)
 		return 1
@@ -100,10 +101,10 @@ GLOBAL_DATUM_INIT(traitors, /datum/antagonist/traitor, new)
 
 /datum/antagonist/traitor/proc/give_codewords(mob/living/traitor_mob)
 	to_chat(traitor_mob, "<u><b>Your employers provided you with the following information on how to identify possible allies:</b></u>")
-	to_chat(traitor_mob, "<b>Code Phrase</b>: <span class='danger'>[GLOB.antag_code_phrase]</span>")
-	to_chat(traitor_mob, "<b>Code Response</b>: <span class='danger'>[GLOB.antag_code_response]</span>")
-	traitor_mob.StoreMemory("<b>Code Phrase</b>: [GLOB.antag_code_phrase]", /decl/memory_options/system)
-	traitor_mob.StoreMemory("<b>Code Response</b>: [GLOB.antag_code_response]", /decl/memory_options/system)
+	to_chat(traitor_mob, "<b>Code Phrase</b>: [SPAN_DANGER("[GLOB.antag_code_phrase]")]")
+	to_chat(traitor_mob, "<b>Code Response</b>: [SPAN_DANGER("[GLOB.antag_code_response]")]")
+	traitor_mob.StoreMemory("<b>Code Phrase</b>: [GLOB.antag_code_phrase]", /singleton/memory_options/system)
+	traitor_mob.StoreMemory("<b>Code Response</b>: [GLOB.antag_code_response]", /singleton/memory_options/system)
 	to_chat(traitor_mob, "Use the code words, preferably in the order provided, during regular conversation, to identify other agents. Proceed with caution, however, as everyone is a potential foe.")
 
 /datum/antagonist/traitor/proc/spawn_uplink(mob/living/carbon/human/traitor_mob)

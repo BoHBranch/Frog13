@@ -30,6 +30,7 @@
 
 #define MACHINE_BROKEN_GENERIC  FLAG(0)  // Standard legacy brokenness, used on a case-by-case basis
 #define MACHINE_BROKEN_NO_PARTS FLAG(1)  // Missing required parts
+#define MACHINE_BROKEN_HEALTH   FLAG(2)  // Standardized health state is dead
 
 #define MACHINE_IS_BROKEN(MACHINE) (!!MACHINE.reason_broken)
 
@@ -40,16 +41,17 @@
 #define AI_CAMERA_LUMINOSITY 6
 
 // Camera networks
-#define NETWORK_CRESCENT "Crescent"
-#define NETWORK_ENGINEERING "Engineering"
-#define NETWORK_ERT "ZeEmergencyResponseTeam"
-#define NETWORK_EXODUS "Exodus"
-#define NETWORK_MEDICAL "Medical"
-#define NETWORK_MERCENARY "MercurialNet"
-#define NETWORK_MINE "Mining"
-#define NETWORK_RESEARCH "Research"
-#define NETWORK_SECURITY "Security"
-#define NETWORK_THUNDER "Thunderdome"
+var/global/const/NETWORK_CRESCENT       = "Crescent"
+var/global/const/NETWORK_ENGINEERING       = "Engineering"
+var/global/const/NETWORK_ERT       = "ERT"
+var/global/const/NETWORK_EXODUS       = "Exodus"
+var/global/const/NETWORK_MEDICAL       = "Medical"
+var/global/const/NETWORK_MERCENARY       = "MercurialNet"
+var/global/const/NETWORK_MINE       = "Mining"
+var/global/const/NETWORK_RESEARCH       = "Research"
+var/global/const/NETWORK_SECURITY       = "Security"
+var/global/const/NETWORK_THUNDER       = "Thunderdome"
+var/global/const/NETWORK_HELMETS       = "Helmet Cameras"
 
 #define NETWORK_ALARM_ATMOS "Atmosphere Alarms"
 #define NETWORK_ALARM_CAMERA "Camera Alarms"

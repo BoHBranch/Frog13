@@ -37,7 +37,7 @@
 			prisoner.equip_to_slot_or_del(new /obj/item/clothing/under/color/orange(prisoner), slot_w_uniform)
 			prisoner.equip_to_slot_or_del(new /obj/item/clothing/shoes/orange(prisoner), slot_shoes)
 		spawn(50)
-			to_chat(M, "<span class='warning'>You have been sent to the prison station!</span>")
+			to_chat(M, SPAN_WARNING("You have been sent to the prison station!"))
 		log_and_message_admins("sent [key_name_admin(M)] to the prison station.")
 
 /client/proc/cmd_check_new_players()	//Allows admins to determine who the newer players are.
@@ -127,6 +127,7 @@
 			"warning",
 			"danger",
 			"occult",
+			"legion",
 			"unsafe"
 		)
 	if (!style)
@@ -166,6 +167,7 @@
 			if ("warning") result = SPAN_WARNING(result)
 			if ("danger")  result = SPAN_DANGER(result)
 			if ("occult")  result = SPAN_OCCULT(result)
+			if ("legion")  result = SPAN_LEGION(result)
 		switch (size)
 			if ("small")  result = FONT_SMALL(result)
 			if ("large")  result = FONT_LARGE(result)
@@ -222,7 +224,7 @@
 	var/size
 
 	var/result = cmd_admin_narrate_helper(src, style, size)
-	if (!result)
+	if (!result || !M)
 		return
 
 	to_chat(M, result[1])
@@ -301,7 +303,7 @@
 		to_chat(src, "Only administrators may use this command.")
 		return
 	M.status_flags ^= GODMODE
-	to_chat(usr, "<span class='notice'>Toggled [(M.status_flags & GODMODE) ? "ON" : "OFF"]</span>")
+	to_chat(usr, SPAN_NOTICE("Toggled [(M.status_flags & GODMODE) ? "ON" : "OFF"]"))
 	log_admin("[key_name(usr)] has toggled [key_name(M)]'s nodamage to [(M.status_flags & GODMODE) ? "On" : "Off"]")
 	message_admins("[key_name_admin(usr)] has toggled [key_name_admin(M)]'s nodamage to [(M.status_flags & GODMODE) ? "On" : "Off"]", 1)
 
@@ -320,12 +322,12 @@
 	if(!usr || !usr.client)
 		return
 	if(!usr.client.holder)
-		to_chat(usr, "<font color='red'>Error: cmd_admin_mute: You don't have permission to do this.</font>")
+		to_chat(usr, SPAN_COLOR("red", "Error: cmd_admin_mute: You don't have permission to do this."))
 		return
 	if(!M.client)
-		to_chat(usr, "<font color='red'>Error: cmd_admin_mute: This mob doesn't have a client tied to it.</font>")
+		to_chat(usr, SPAN_COLOR("red", "Error: cmd_admin_mute: This mob doesn't have a client tied to it."))
 	if(M.client.holder)
-		to_chat(usr, "<font color='red'>Error: cmd_admin_mute: You cannot mute an admin/mod.</font>")
+		to_chat(usr, SPAN_COLOR("red", "Error: cmd_admin_mute: You cannot mute an admin/mod."))
 	if(!M.client)		return
 	if(M.client.holder)	return
 
@@ -351,7 +353,7 @@
 
 	log_admin("[key_name(usr)] has [muteunmute] [key_name(M)] from [mute_string]")
 	message_staff("[key_name_admin(usr)] has [muteunmute] [key_name_admin(M)] from [mute_string].", 1)
-	to_chat(M, "<span class = 'alert'>You have been [muteunmute] from [mute_string].</span>")
+	to_chat(M, SPAN_CLASS("alert", "You have been [muteunmute] from [mute_string]."))
 
 /client/proc/cmd_admin_add_random_ai_law()
 	set category = "Fun"
@@ -416,7 +418,7 @@ Ccomp's first proc.
 	var/list/ghosts = get_ghosts_by_key()
 	var/mob/observer/ghost/G = ghosts[selection]
 	if(!istype(G))
-		to_chat(src, "<span class='warning'>[selection] no longer has an associated ghost.</span>")
+		to_chat(src, SPAN_WARNING("[selection] no longer has an associated ghost."))
 		return
 
 	if(G.has_enabled_antagHUD == 1 && config.antag_hud_restricted)
@@ -433,7 +435,7 @@ Ccomp's first proc.
 	G.has_enabled_antagHUD = 2
 	G.can_reenter_corpse = CORPSE_CAN_REENTER_AND_RESPAWN
 
-	G.show_message("<span class=notice><b>You may now respawn.  You should roleplay as if you learned nothing about the round during your time with the dead.</b></span>", 1)
+	G.show_message(SPAN_NOTICE("<b>You may now respawn.  You should roleplay as if you learned nothing about the round during your time with the dead.</b>"), 1)
 	log_and_message_admins("has allowed [key_name(G)] to bypass the [config.respawn_delay] minute respawn limit.")
 
 
@@ -517,19 +519,19 @@ Ccomp's first proc.
 			if(g.antagHUD)
 				g.antagHUD = 0						// Disable it on those that have it enabled
 				g.has_enabled_antagHUD = 2				// We'll allow them to respawn
-				to_chat(g, "<span class='danger'>The Administrator has disabled AntagHUD</span>")
+				to_chat(g, SPAN_DANGER("The Administrator has disabled AntagHUD"))
 		config.antag_hud_allowed = 0
-		to_chat(src, "<span class='danger'>AntagHUD usage has been disabled</span>")
+		to_chat(src, SPAN_DANGER("AntagHUD usage has been disabled"))
 		action = "disabled"
 	else
 		for(var/mob/observer/ghost/g in get_ghosts())
 			if(!g.client.holder)						// Add the verb back for all non-admin ghosts
 				g.verbs += /mob/observer/ghost/verb/toggle_antagHUD
-				to_chat(g, "<span class='notice'><B>The Administrator has enabled AntagHUD </B></span>")// Notify all observers they can now use AntagHUD
+				to_chat(g, SPAN_NOTICE("<B>The Administrator has enabled AntagHUD </B>"))// Notify all observers they can now use AntagHUD
 
 		config.antag_hud_allowed = 1
 		action = "enabled"
-		to_chat(src, "<span class='notice'><B>AntagHUD usage has been enabled</B></span>")
+		to_chat(src, SPAN_NOTICE("<B>AntagHUD usage has been enabled</B>"))
 
 
 	log_admin("[key_name(usr)] has [action] antagHUD usage for observers")
@@ -546,19 +548,19 @@ Ccomp's first proc.
 	var/action=""
 	if(config.antag_hud_restricted)
 		for(var/mob/observer/ghost/g in get_ghosts())
-			to_chat(g, "<span class='notice'><B>The administrator has lifted restrictions on joining the round if you use AntagHUD</B></span>")
+			to_chat(g, SPAN_NOTICE("<B>The administrator has lifted restrictions on joining the round if you use AntagHUD</B>"))
 		action = "lifted restrictions"
 		config.antag_hud_restricted = 0
-		to_chat(src, "<span class='notice'><B>AntagHUD restrictions have been lifted</B></span>")
+		to_chat(src, SPAN_NOTICE("<B>AntagHUD restrictions have been lifted</B>"))
 	else
 		for(var/mob/observer/ghost/g in get_ghosts())
-			to_chat(g, "<span class='danger'>The administrator has placed restrictions on joining the round if you use AntagHUD</span>")
-			to_chat(g, "<span class='danger'>Your AntagHUD has been disabled, you may choose to re-enabled it but will be under restrictions</span>")
+			to_chat(g, SPAN_DANGER("The administrator has placed restrictions on joining the round if you use AntagHUD"))
+			to_chat(g, SPAN_DANGER("Your AntagHUD has been disabled, you may choose to re-enabled it but will be under restrictions"))
 			g.antagHUD = 0
 			g.has_enabled_antagHUD = 0
 		action = "placed restrictions"
 		config.antag_hud_restricted = 1
-		to_chat(src, "<span class='danger'>AntagHUD restrictions have been enabled</span>")
+		to_chat(src, SPAN_DANGER("AntagHUD restrictions have been enabled"))
 
 	log_admin("[key_name(usr)] has [action] on joining the round if they use AntagHUD")
 	message_admins("Admin [key_name_admin(usr)] has [action] on joining the round if they use AntagHUD", 1)
@@ -580,7 +582,7 @@ Ccomp's first proc.
 		else
 			M.add_ion_law(input)
 			for(var/mob/living/silicon/ai/O in SSmobs.mob_list)
-				to_chat(O, "<span class='warning'>" + input + "...LAWS UPDATED</span>")
+				to_chat(O, SPAN_WARNING("" + input + "...LAWS UPDATED"))
 				O.show_laws()
 
 	log_admin("Admin [key_name(usr)] has added a new AI law - [input]")
@@ -668,30 +670,31 @@ Ccomp's first proc.
 
 	if(!check_rights(R_DEBUG|R_FUN))	return
 
-	var/devastation = input("Range of total devastation. -1 to none", text("Input"))  as num|null
-	if(devastation == null) return
-	var/heavy = input("Range of heavy impact. -1 to none", text("Input"))  as num|null
-	if(heavy == null) return
-	var/light = input("Range of light impact. -1 to none", text("Input"))  as num|null
-	if(light == null) return
-	var/flash = input("Range of flash. -1 to none", text("Input"))  as num|null
-	if(flash == null) return
+	var/range = input("Explosion radius (in tiles):") as num|null
+	if (isnull(range) || range <= 0)
+		return
+	var/max_power_input = input("Maximum explosion power:") as null|anything in list("Devastating", "Heavy", "Light")
+	if (isnull(max_power_input))
+		return
+	var/max_power
+	switch (max_power_input)
+		if ("Devastating")
+			max_power = EX_ACT_DEVASTATING
+		if ("Heavy")
+			max_power = EX_ACT_HEAVY
+		if ("Light")
+			max_power = EX_ACT_LIGHT
 	var/shaped = 0
-	if(config.use_recursive_explosions)
-		if(alert(src, "Shaped explosion?", "Shape", "Yes", "No") == "Yes")
-			shaped = input("Shaped where to?", "Input")  as anything in list("NORTH","SOUTH","EAST","WEST")
-			shaped = text2dir(shaped)
-	if ((devastation != -1) || (heavy != -1) || (light != -1) || (flash != -1))
-		if ((devastation > 20) || (heavy > 20) || (light > 20))
-			if (alert(src, "Are you sure you want to do this? It will laaag.", "Confirmation", "Yes", "No") == "No")
-				return
+	if(alert(src, "Shaped explosion?", "Shape", "Yes", "No") == "Yes")
+		shaped = input("Shaped where to?", "Input")  as anything in list("NORTH","SOUTH","EAST","WEST")
+		shaped = text2dir(shaped)
+	if (range > 20)
+		if (alert(src, "Are you sure you want to do this? It may lag.", "Confirmation", "Yes", "No") == "No")
+			return
 
-		explosion(O, devastation, heavy, light, flash, shaped=shaped)
-		log_admin("[key_name(usr)] created an explosion ([devastation],[heavy],[light],[flash]) at ([O.x],[O.y],[O.z])")
-		message_admins("[key_name_admin(usr)] created an explosion ([devastation],[heavy],[light],[flash]) at ([O.x],[O.y],[O.z])", 1)
-		return
-	else
-		return
+	explosion(O, range, max_power, shaped=shaped)
+	log_admin("[key_name(usr)] created an explosion ([range], [max_power_input]) at ([O.x],[O.y],[O.z])")
+	message_admins("[key_name_admin(usr)] created an explosion ([range], [max_power_input]) at ([O.x],[O.y],[O.z])", 1)
 
 /client/proc/cmd_admin_emp(atom/O as obj|mob|turf in range(world.view))
 	set category = "Special Verbs"
@@ -700,9 +703,9 @@ Ccomp's first proc.
 	if(!check_rights(R_DEBUG|R_FUN))	return
 
 	var/heavy = input("Range of heavy pulse.", text("Input"))  as num|null
-	if(heavy == null) return
+	if(isnull(heavy)) return
 	var/light = input("Range of light pulse.", text("Input"))  as num|null
-	if(light == null) return
+	if(isnull(light)) return
 
 	if (heavy || light)
 
@@ -855,7 +858,7 @@ Ccomp's first proc.
 	set category = "Special Verbs"
 	set name = "Attack Log"
 
-	to_chat(usr, text("<span class='danger'>Attack Log for []</span>", mob))
+	to_chat(usr, SPAN_DANGER("Attack Log for [mob]"))
 	for(var/t in M.attack_logs_)
 		to_chat(usr, t)
 
@@ -911,7 +914,7 @@ Ccomp's first proc.
 			mode = 1
 	var/affected = 0
 	var/floored = 0
-	for (mob as anything in GLOB.player_list)
+	for (mob in GLOB.player_list)
 		var/living = isliving(mob)
 		if (!living && !isobserver(mob))
 			continue
@@ -973,18 +976,16 @@ Ccomp's first proc.
 		break_turfs = FALSE
 
 	var/range
-	var/high_intensity
-	var/low_intensity
+	var/max_power
 	while(booms > 0)
-		range = rand(0, 2)
-		high_intensity = rand(5,8)
-		low_intensity = rand(7,10)
+		max_power = prob(45) ? EX_ACT_DEVASTATING : EX_ACT_HEAVY
+		range = rand(8, 13)
 		var/turf/T
 		if (connected == "Yes")
-			T = pick_area_turf_in_connected_z_levels(list(/proc/is_not_space_area), z_level = zlevel)
+			T = pick_area_turf_in_connected_z_levels(list(GLOBAL_PROC_REF(is_not_space_area)), z_level = zlevel)
 		else
-			T = pick_area_turf_in_single_z_level(list(/proc/is_not_space_area), z_level = zlevel)
-		explosion(T, range, high_intensity, low_intensity, turf_breaker = break_turfs)
+			T = pick_area_turf_in_single_z_level(list(GLOBAL_PROC_REF(is_not_space_area)), z_level = zlevel)
+		explosion(T, range, max_power, turf_breaker = break_turfs)
 		booms = booms - 1
 		sleep(delay SECONDS)
 
@@ -993,7 +994,7 @@ Ccomp's first proc.
 	set name = "Rename Ship"
 	set desc = "Rename a ship (Does not rename areas on the ship)"
 
-	var/obj/effect/overmap/visitable/ship/ship = input("What ship?", "Rename Ship") as null | anything in SSshuttle.ships
+	var/obj/overmap/visitable/ship/ship = input("What ship?", "Rename Ship") as null | anything in SSshuttle.ships
 	if (!ship)
 		return
 
@@ -1013,21 +1014,21 @@ Ccomp's first proc.
 			shuttle.name = name
 			break
 
-	for (var/obj/effect/shuttle_landmark/ship/S in landmarks_list)
+	for (var/obj/shuttle_landmark/ship/S in landmarks_list)
 		if (S.name == original_name)
 			S.shuttle_name = name
-		if (istype(S, /obj/effect/overmap/visitable/ship/landable))
-			var/obj/effect/overmap/visitable/ship/landable/SL = S
+		if (istype(S, /obj/overmap/visitable/ship/landable))
+			var/obj/overmap/visitable/ship/landable/SL = S
 			SL.landmark.landmark_tag = "ship_[name]"
 			SL.landmark.shuttle_name = name
 	//rename waypoints based on the origin ship name
-	for (var/obj/effect/overmap/visitable/ship/S in SSshuttle.ships)
+	for (var/obj/overmap/visitable/ship/S in SSshuttle.ships)
 		for (var/key in S.restricted_waypoints)
 			if (key == original_name)
 				S.add_landmark(S.restricted_waypoints[key][1], name)
 				S.remove_landmark(S.restricted_waypoints[key][1], original_name)
-				if (istype(S, /obj/effect/overmap/visitable/ship/landable))
-					var/obj/effect/overmap/visitable/ship/landable/SL = S
+				if (istype(S, /obj/overmap/visitable/ship/landable))
+					var/obj/overmap/visitable/ship/landable/SL = S
 					SL.landmark.landmark_tag = "ship_[name]"
 					SL.landmark.shuttle_name = name
 					SL.shuttle = name
@@ -1037,4 +1038,4 @@ Ccomp's first proc.
 			S.shuttle_tag = name
 			S.name = "[name] Control Console"
 
-	log_and_message_admins("renamed \the [original_name] ship to [name].", )
+	log_and_message_admins("renamed \the [original_name] ship to [name].")

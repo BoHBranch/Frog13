@@ -254,7 +254,7 @@ var/global/list/DEPT_FREQS = list(AI_FREQ, COMM_FREQ, ENG_FREQ, MED_FREQ, SEC_FR
 
 
 /proc/assign_away_freq(channel)
-	if (!AWAY_FREQS_UNASSIGNED.len)
+	if (!length(AWAY_FREQS_UNASSIGNED))
 		return FALSE
 
 	if (channel in AWAY_FREQS_ASSIGNED)
@@ -285,7 +285,7 @@ var/global/const/RADIO_MULEBOT = "radio_mulebot"
 var/global/const/RADIO_MAGNETS = "radio_magnet"
 
 // These are exposed to players, by name.
-GLOBAL_LIST_INIT(all_selectable_radio_filters, list(
+GLOBAL_LIST_AS(all_selectable_radio_filters, list(
 	RADIO_DEFAULT,
 	RADIO_TO_AIRALARM,
 	RADIO_FROM_AIRALARM,
@@ -332,7 +332,7 @@ var/global/datum/controller/radio/radio_controller
 	if(frequency)
 		frequency.remove_listener(device)
 
-		if(frequency.devices.len == 0)
+		if(length(frequency.devices) == 0)
 			qdel(frequency)
 			frequencies -= f_text
 
@@ -402,7 +402,7 @@ var/global/datum/controller/radio/radio_controller
 		devices_line-=device
 		while (null in devices_line)
 			devices_line -= null
-		if (devices_line.len==0)
+		if (length(devices_line)==0)
 			devices -= devices_filter
 
 /datum/signal

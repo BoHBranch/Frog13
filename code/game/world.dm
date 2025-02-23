@@ -4,29 +4,11 @@
 #define SET_THROTTLE(TIME, REASON) throttle[1] = base_throttle + (TIME); throttle[2] = (REASON);
 
 
-var/global/server_name = "Baystation 12"
-var/global/game_id = null
+
+var/global/game_id = randhex(8)
 
 GLOBAL_VAR(href_logfile)
 
-/hook/global_init/proc/generate_gameid()
-	if(game_id != null)
-		return
-	game_id = ""
-
-	var/list/c = list("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
-	var/l = c.len
-
-	var/t = world.timeofday
-	for(var/_ = 1 to 4)
-		game_id = "[c[(t % l) + 1]][game_id]"
-		t = round(t / l)
-	game_id = "-[game_id]"
-	t = round(world.realtime / (10 * 60 * 60 * 24))
-	for(var/_ = 1 to 3)
-		game_id = "[c[(t % l) + 1]][game_id]"
-		t = round(t / l)
-	return 1
 
 // Find mobs matching a given string
 //
@@ -88,36 +70,33 @@ GLOBAL_VAR(href_logfile)
 #ifndef UNIT_TEST
 /hook/startup/proc/set_visibility()
 	world.update_hub_visibility(config.hub_visible)
+	return TRUE
 #endif
 
 /world/New()
 	var/debug_server = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 	if (debug_server)
-		call(debug_server, "auxtools_init")()
+		call_ext(debug_server, "auxtools_init")()
 		enable_debugging()
 
-	name = "[server_name] - [GLOB.using_map.full_name]"
-
-	//logs
 	SetupLogs()
 	var/date_string = time2text(world.realtime, "YYYY/MM/DD")
 	to_file(global.diary, "[log_end]\n[log_end]\nStarting up. (ID: [game_id]) [time2text(world.timeofday, "hh:mm.ss")][log_end]\n---------------------[log_end]")
 
-	if(config && config.server_name != null && config.server_suffix && world.port > 0)
-		config.server_name += " #[(world.port % 1000) / 100]"
+	if (config)
+		if (config.server_name)
+			name = "[config.server_name]"
+		if (config.log_runtime)
+			var/runtime_log = file("data/logs/runtime/[date_string]_[time2text(world.timeofday, "hh:mm")]_[game_id].log")
+			to_file(runtime_log, "Game [game_id] starting up at [time2text(world.timeofday, "hh:mm.ss")]")
+			log = runtime_log
+		if (config.log_hrefs)
+			GLOB.href_logfile = file("data/logs/[date_string] hrefs.htm")
 
-	if(config && config.log_runtime)
-		var/runtime_log = file("data/logs/runtime/[date_string]_[time2text(world.timeofday, "hh:mm")]_[game_id].log")
-		to_file(runtime_log, "Game [game_id] starting up at [time2text(world.timeofday, "hh:mm.ss")]")
-		log = runtime_log // Note that, as you can see, this is misnamed: this simply moves world.log into the runtime log file.
-
-	if (config && config.log_hrefs)
-		GLOB.href_logfile = file("data/logs/[date_string] hrefs.htm")
-
-	if(byond_version < RECOMMENDED_VERSION)
+	if (byond_version < RECOMMENDED_VERSION)
 		to_world_log("Your server's byond version does not meet the recommended requirements for this server. Please update BYOND")
-
 	callHook("startup")
+	QDEL_NULL(__global_init)
 	..()
 
 #ifdef UNIT_TEST
@@ -130,13 +109,13 @@ GLOBAL_VAR(href_logfile)
 /world/Del()
 	var/debug_server = world.GetConfig("env", "AUXTOOLS_DEBUG_DLL")
 	if (debug_server)
-		call(debug_server, "auxtools_shutdown")()
+		call_ext(debug_server, "auxtools_shutdown")()
 	callHook("shutdown")
 	return ..()
 
 
 GLOBAL_LIST_EMPTY(world_topic_throttle)
-GLOBAL_VAR_INIT(world_topic_last, world.timeofday)
+GLOBAL_VAR_AS(world_topic_last, world.timeofday)
 
 
 /world/Topic(T, addr, master, key)
@@ -200,13 +179,13 @@ GLOBAL_VAR_INIT(world_topic_last, world.timeofday)
 					continue	//so stealthmins aren't revealed by the hub
 				admins[C.key] = C.holder.rank
 			if(legacy)
-				s["player[players.len]"] = C.key
+				s["player[length(players)]"] = C.key
 			players += C.key
 			if(istype(C.mob, /mob/living))
 				active++
 
-		s["players"] = players.len
-		s["admins"] = admins.len
+		s["players"] = length(players)
+		s["admins"] = length(admins)
 		if(!legacy)
 			s["playerlist"] = list2params(players)
 			s["adminlist"] = list2params(admins)
@@ -220,9 +199,11 @@ GLOBAL_VAR_INIT(world_topic_last, world.timeofday)
 		// We rebuild the list in the format external tools expect
 		for(var/dept in nano_crew_manifest)
 			var/list/dept_list = nano_crew_manifest[dept]
-			if(dept_list.len > 0)
+			if(length(dept_list) > 0)
 				positions[dept] = list()
 				for(var/list/person in dept_list)
+					if (person["status"] == "Stored")
+						continue
 					positions[dept][person["name"]] = person["rank"]
 
 		for(var/k in positions)
@@ -296,9 +277,9 @@ GLOBAL_VAR_INIT(world_topic_last, world.timeofday)
 
 		var/list/match = text_find_mobs(input["laws"], /mob/living/silicon)
 
-		if(!match.len)
+		if(!length(match))
 			return "No matches"
-		else if(match.len == 1)
+		else if(length(match) == 1)
 			var/mob/living/silicon/S = match[1]
 			var/info = list()
 			info["name"] = S.name
@@ -343,9 +324,9 @@ GLOBAL_VAR_INIT(world_topic_last, world.timeofday)
 
 		var/list/match = text_find_mobs(input["info"])
 
-		if(!match.len)
+		if(!length(match))
 			return "No matches"
-		else if(match.len == 1)
+		else if(length(match) == 1)
 			var/mob/M = match[1]
 			var/info = list()
 			info["key"] = M.key
@@ -417,13 +398,12 @@ GLOBAL_VAR_INIT(world_topic_last, world.timeofday)
 		if(rank == "Unknown")
 			rank = "Staff"
 
-		var/message =	"<span class=\"pm\">[rank] PM from <b><a href='?irc_msg=[input["sender"]]'>[input["sender"]]</a></b>: [input["msg"]]</span>"
-		var/amessage =  "<span class=\"staff_pm\">[rank] PM from <a href='?irc_msg=[input["sender"]]'>[input["sender"]]</a> to <b>[key_name(C)]</b> : [input["msg"]]</span>"
+		var/message =	SPAN_CLASS("pm", "[rank] PM from <b><a href='byond://?irc_msg=[input["sender"]]'>[input["sender"]]</a></b>: [input["msg"]]")
+		var/amessage =  SPAN_CLASS("staff_pm", "[rank] PM from <a href='byond://?irc_msg=[input["sender"]]'>[input["sender"]]</a> to <b>[key_name(C)]</b> : [input["msg"]]")
 
 		C.received_irc_pm = world.time
-		C.irc_admin = input["sender"]
 
-		sound_to(C, 'sound/misc/staff_message.ogg')
+		sound_to(C, sound('sound/ui/pm-notify.ogg', volume = 40))
 		to_chat(C, message)
 
 		for(var/client/A as anything in GLOB.admins)
@@ -467,18 +447,17 @@ GLOBAL_VAR_INIT(world_topic_last, world.timeofday)
 
 	Master.Shutdown()
 
-	var/datum/chatOutput/co
-	for(var/client/C in GLOB.clients)
-		co = C.chatOutput
-		if(co)
-			co.ehjax_send(data = "roundrestart")
-	if(config.server)	//if you set a server location in config.txt, it sends you there instead of trying to reconnect to the same world address. -- NeoFite
-		for(var/client/C in GLOB.clients)
-			send_link(C, "byond://[config.server]")
+	var/datum/chatOutput/chat_output
+	for (var/client/client in GLOB.clients)
+		chat_output = client.chatOutput
+		if (chat_output)
+			chat_output.ehjax_send(data = "roundrestart")
+		if (config.server_address)
+			send_link(client, config.server_address)
 
 	if(config.wait_for_sigusr1_reboot && reason != 3)
 		text2file("foo", "reboot_called")
-		to_world("<span class=danger>World reboot waiting for external scripts. Please be patient.</span>")
+		to_world(SPAN_DANGER("World reboot waiting for external scripts. Please be patient."))
 		return
 
 	..(reason)
@@ -493,7 +472,7 @@ GLOBAL_VAR_INIT(world_topic_last, world.timeofday)
 		return
 
 	var/list/Lines = file2list("data/mode.txt")
-	if(Lines.len)
+	if(length(Lines))
 		if(Lines[1])
 			SSticker.master_mode = Lines[1]
 			log_misc("Saved mode is '[SSticker.master_mode]'")
@@ -516,9 +495,6 @@ GLOBAL_VAR_INIT(world_topic_last, world.timeofday)
 		GLOB.log_directory += "[game_id]"
 	else
 		GLOB.log_directory += "[replacetext(time_stamp(), ":", ".")]"
-
-	GLOB.world_qdel_log = file("[GLOB.log_directory]/qdel.log")
-	to_file(GLOB.world_qdel_log, "\n\nStarting up round ID [game_id]. [time_stamp()]\n---------------------")
 
 
 var/global/failed_db_connections = 0

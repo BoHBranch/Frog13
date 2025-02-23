@@ -6,9 +6,9 @@
 	if(!client) return
 	client.inquisitive_ghost = !client.inquisitive_ghost
 	if(client.inquisitive_ghost)
-		to_chat(src, "<span class='notice'>You will now examine everything you click on.</span>")
+		to_chat(src, SPAN_NOTICE("You will now examine everything you click on."))
 	else
-		to_chat(src, "<span class='notice'>You will no longer examine things you click on.</span>")
+		to_chat(src, SPAN_NOTICE("You will no longer examine things you click on."))
 
 /mob/observer/ghost/DblClickOn(atom/A, params)
 	if(can_reenter_corpse && mind && mind.current)
@@ -17,7 +17,7 @@
 			return
 
 	// Things you might plausibly want to follow
-	if(istype(A,/atom/movable))
+	if(ismovable(A))
 		start_following(A)
 	// Otherwise jump
 	else
@@ -40,7 +40,7 @@
 			AltClickOn(target_turf)
 		return
 	if(modifiers["shift"])
-		examinate(A)
+		examinate(src, A)
 		return
 	A.attack_ghost(src)
 
@@ -55,10 +55,10 @@
 	if(!istype(user))
 		return
 	if(user.client && user.client.inquisitive_ghost)
-		user.examinate(src)
+		examinate(user, src)
 	return
 
 
-/obj/effect/portal/attack_ghost(mob/user as mob)
+/obj/portal/attack_ghost(mob/user as mob)
 	if(target)
 		user.forceMove(get_turf(target))

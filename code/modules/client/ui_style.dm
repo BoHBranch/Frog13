@@ -9,6 +9,15 @@ var/global/all_ui_styles = list(
 	"minimalist"   = 'icons/mob/screen/minimalist.dmi'
 	)
 
+var/global/all_tooltip_styles = list(
+	"Midnight", //Default for everyone is the first one,
+	"Plasmafire",
+	"Retro",
+	"Slimecore",
+	"Operative",
+	"Clockwork"
+	)
+
 /proc/ui_style2icon(ui_style)
 	if(ui_style in all_ui_styles)
 		return all_ui_styles[ui_style]
@@ -21,7 +30,7 @@ var/global/all_ui_styles = list(
 	set desc = "Configure your user interface"
 
 	if(!ishuman(usr))
-		to_chat(usr, "<span class='warning'>You must be human to use this verb.</span>")
+		to_chat(usr, SPAN_WARNING("You must be human to use this verb."))
 		return
 
 	var/UI_style_new = input(usr, "Select a style. White is recommended for customization") as null|anything in all_ui_styles

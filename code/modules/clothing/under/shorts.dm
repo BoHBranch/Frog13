@@ -8,7 +8,7 @@
 	body_parts_covered = LOWER_TORSO
 	item_icons = list(slot_w_uniform_str = 'icons/mob/onmob/onmob_under_pants.dmi')
 	sprite_sheets = list(
-		SPECIES_UNATHI = 'icons/mob/species/unathi/generated/onmob_under_pants_unathi.dmi',
+		SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_under_pants_unathi.dmi',
 		)
 
 /obj/item/clothing/under/shorts/red
@@ -17,7 +17,7 @@
 
 /obj/item/clothing/under/shorts/green
 	name = "green athletic shorts"
-	color = "#3c1818"
+	color = "#159113"
 
 /obj/item/clothing/under/shorts/blue
 	name = "blue athletic shorts"

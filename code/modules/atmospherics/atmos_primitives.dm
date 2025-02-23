@@ -327,7 +327,7 @@
 //Similar deal as the other atmos process procs.
 //mix_sources maps input gas mixtures to mix ratios. The mix ratios MUST add up to 1.
 /proc/mix_gas(obj/machinery/M, list/mix_sources, datum/gas_mixture/sink, total_transfer_moles = null, available_power = null)
-	if (!mix_sources.len)
+	if (!length(mix_sources))
 		return -1
 
 	var/total_specific_power = 0	//the power needed to mix one mole of gas
@@ -508,9 +508,9 @@
 	if(returntext)
 		return jointext(status, " ")
 	else
-		return status.len
+		return length(status)
 
-/decl/public_access/public_variable/power_draw
+/singleton/public_access/public_variable/power_draw
 	expected_type = /obj/machinery/atmospherics
 	name = "last power draw"
 	desc = "The most recent data on the amount of power the machine used."
@@ -518,10 +518,10 @@
 	has_updates = FALSE
 	var_type = IC_FORMAT_NUMBER
 
-/decl/public_access/public_variable/power_draw/access_var(obj/machinery/atmospherics/machine)
+/singleton/public_access/public_variable/power_draw/access_var(obj/machinery/atmospherics/machine)
 	return machine.last_power_draw
 
-/decl/public_access/public_variable/flow_rate
+/singleton/public_access/public_variable/flow_rate
 	expected_type = /obj/machinery/atmospherics
 	name = "last flow_rate"
 	desc = "The most recent data on the volume of air the machine moved."
@@ -529,5 +529,5 @@
 	has_updates = FALSE
 	var_type = IC_FORMAT_NUMBER
 
-/decl/public_access/public_variable/flow_rate/access_var(obj/machinery/atmospherics/machine)
+/singleton/public_access/public_variable/flow_rate/access_var(obj/machinery/atmospherics/machine)
 	return machine.last_flow_rate

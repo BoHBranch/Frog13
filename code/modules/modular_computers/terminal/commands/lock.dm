@@ -8,7 +8,7 @@
 		"WARNING: All files on affected device will be read-only, and new files cannot be created."
 	)
 	pattern = "^lock"
-	skill_needed = SKILL_ADEPT
+	skill_needed = SKILL_TRAINED
 
 /datum/terminal_command/lock/proper_input_entered(text, mob/user, datum/terminal/terminal)
 	var/list/arguments = get_arguments(text)
@@ -22,7 +22,7 @@
 		return "[name]: Error; hard drive not found."
 	. = syntax_error()
 	var/obj/item/stock_parts/computer/hard_drive/D
-	if(!arguments.len)
+	if(!length(arguments))
 		. = list()
 		. += "[name]: Listing storage device status..."
 		for(var/did in drives)
@@ -32,7 +32,7 @@
 			. += ""
 			. += "** Device mounted on device id [did]: **"
 			. += D.diagnostics()
-	else if(arguments.len == 1)
+	else if(length(arguments) == 1)
 		if(length(arguments[1]) != 1)
 			return
 		D = drives[arguments[1]]

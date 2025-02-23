@@ -37,24 +37,33 @@
 				var/turf/playerTurf = get_turf(Player)
 				if(evacuation_controller.round_over() && evacuation_controller.emergency_evacuation)
 					if(isStationLevel(playerTurf.z))
-						to_chat(Player, "<span class='info'><b>You managed to survive, but were marooned on [station_name()] as [Player.real_name]...</b></span>")
+						to_chat(Player, SPAN_INFO("<b>You managed to survive, but were marooned on [station_name()] as [Player.real_name]...</b>"))
 					else if (isEscapeLevel(playerTurf.z))
-						to_chat(Player, "<font color='green'><b>You managed to survive the events on [station_name()] as [Player.real_name].</b></font>")
+						to_chat(Player, SPAN_COLOR("green", "<b>You managed to survive the events on [station_name()] as [Player.real_name].</b>"))
 					else
-						to_chat(Player, "<span class='info'><b>You managed to survive, but were marooned in the sector as [Player.real_name]...</b></span>")
+						to_chat(Player, SPAN_INFO("<b>You managed to survive, but were marooned in the sector as [Player.real_name]...</b>"))
 				else if(issilicon(Player))
-					to_chat(Player, "<font color='green'><b>You remain operational after the events on [station_name()] as [Player.real_name].</b></font>")
+					to_chat(Player, SPAN_COLOR("green", "<b>You remain operational after the events on [station_name()] as [Player.real_name].</b>"))
 				else if (isNotStationLevel(playerTurf.z))
-					to_chat(Player, "<span class='info'><b>You managed to survive, but were marooned in the sector as [Player.real_name]...</b></span>")
+					to_chat(Player, SPAN_INFO("<b>You managed to survive, but were marooned in the sector as [Player.real_name]...</b>"))
 				else
-					to_chat(Player, "<span class='info'><b>You got through just another workday on [station_name()] as [Player.real_name].</b></span>")
+					to_chat(Player, SPAN_INFO("<b>You got through just another workday on [station_name()] as [Player.real_name].</b>"))
 			else
 				if(isghost(Player))
 					var/mob/observer/ghost/O = Player
 					if(!O.started_as_observer)
-						to_chat(Player, "<font color='red'><b>You did not survive the events on [station_name()]...</b></font>")
+						to_chat(Player, SPAN_COLOR("red", "<b>You did not survive the events on [station_name()]...</b>"))
 				else
-					to_chat(Player, "<font color='red'><b>You did not survive the events on [station_name()]...</b></font>")
+					to_chat(Player, SPAN_COLOR("red", "<b>You did not survive the events on [station_name()]...</b>"))
+
+
+/datum/map/torch/ship_jump()
+	for(var/obj/overmap/visitable/ship/torch/torch)
+		new /obj/ftl (get_turf(torch))
+		qdel(torch)
+		animate(torch, time = 0.5 SECONDS)
+		animate(alpha = 0, time = 0.5 SECONDS)
+
 
 /datum/map/torch/roundend_summary(list/data)
 	var/desc
@@ -73,3 +82,19 @@
 		desc += "There were <b>no survivors</b>, <b>[offship_players] off-ship players</b>, (<b>[ghosts] ghosts</b>)."
 
 	return desc
+
+/datum/map/torch/do_interlude_teleport(atom/movable/target, atom/destination, duration = 30 SECONDS, precision, type)
+	var/turf/T = pick_area_turf(/area/bluespace_interlude/platform, list(
+		GLOBAL_PROC_REF(not_turf_contains_dense_objects),
+		GLOBAL_PROC_REF(IsTurfAtmosSafe)
+	))
+
+	if (!T && destination)
+		do_teleport(target, destination)
+		return
+
+	if (isliving(target))
+		to_chat(target, FONT_LARGE(SPAN_WARNING("Your vision goes blurry and nausea strikes your stomach. Where are you...?")))
+	do_teleport(target, T, precision, type)
+	if (destination)
+		addtimer(new Callback(GLOBAL_PROC, GLOBAL_PROC_REF(do_teleport), target, destination), duration)

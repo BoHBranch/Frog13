@@ -1,7 +1,7 @@
 /obj/machinery/psi_meter
 	name = "psi-meter"
 	desc = "A bulky psi-meter for conducting assays of psi-operants."
-	icon = 'icons/obj/machines/psimeter.dmi'
+	icon = 'icons/obj/machines/research/psimeter.dmi'
 	icon_state = "meter_on"
 	use_power = POWER_USE_ACTIVE
 	anchored = TRUE
@@ -33,7 +33,7 @@
 		var/found
 		for(var/mob/living/H in range(1, src))
 			found = TRUE
-			dat += "<tr><td>[H.name]</td><td><a href='?src=\ref[src];assay=\ref[H]'>Conduct Assay</a>"
+			dat += "<tr><td>[H.name]</td><td><a href='byond://?src=\ref[src];assay=\ref[H]'>Conduct Assay</a>"
 		if(!found)
 			dat += "<tr><td colspan = 2>No candidates found.</td></tr>"
 		dat += "<table>"
@@ -54,7 +54,7 @@
 			if(last_assay)
 				var/obj/item/paper/P = new(loc)
 				P.name = "paper - Psi-Assay ([last_assayed.name])"
-				P.info = jointext(last_assay - last_assay[last_assay.len],null) // Last line is 'print | clear' link line.
+				P.info = jointext(last_assay - last_assay[length(last_assay)],null) // Last line is 'print | clear' link line.
 				return TRUE
 
 		if(href_list["clear"])

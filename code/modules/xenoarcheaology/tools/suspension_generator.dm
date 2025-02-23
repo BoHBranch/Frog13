@@ -1,16 +1,17 @@
 /obj/machinery/suspension_gen
 	name = "suspension field generator"
 	desc = "It has stubby bolts bolted up against its tracks for stabilizing."
-	icon = 'icons/obj/xenoarchaeology.dmi'
+	icon = 'icons/obj/machines/research/suspension_generator.dmi'
 	icon_state = "suspension"
 	density = TRUE
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 	uncreated_component_parts = null
 	stat_immune = 0
 	active_power_usage = 5 KILOWATTS
 	machine_name = "suspension generator"
 	machine_desc = "Projects a pacifying energy field, used to hold xenofauna (among other things) for safe study."
-	var/obj/effect/suspension_field/suspension_field
+	var/obj/suspension_field/suspension_field
+	obj_flags = OBJ_FLAG_ANCHORABLE
 
 /obj/machinery/suspension_gen/Process()
 	if(suspension_field)
@@ -25,14 +26,14 @@
 			M.weakened = max(M.weakened, 3)
 			victims++
 			if(prob(5))
-				to_chat(M, "<span class='warning'>[pick("You feel tingly","You feel like floating","It is hard to speak","You can barely move")].</span>")
+				to_chat(M, SPAN_WARNING("[pick("You feel tingly","You feel like floating","It is hard to speak","You can barely move")]."))
 		if(victims)
 			use_power_oneoff(active_power_usage * victims)
 
 		for(var/obj/item/I in T)
-			if(!suspension_field.contents.len)
+			if(!length(suspension_field.contents))
 				suspension_field.icon_state = "energynet"
-				suspension_field.overlays += "shield2"
+				suspension_field.AddOverlays("shield2")
 			I.forceMove(suspension_field)
 
 /obj/machinery/suspension_gen/interact(mob/user)
@@ -46,14 +47,14 @@
 			colour = "green"
 		else if(percent > 33)
 			colour = "orange"
-		dat += "<b>Energy cell</b>: <font color='[colour]'>[percent]%</font><br>"
+		dat += "<b>Energy cell</b>: [SPAN_COLOR("[colour]", "[percent]%")]<br>"
 	else
 		dat += "<b>Energy cell</b>: None<br>"
-	dat += "<b><A href='?src=\ref[src];toggle_field=1'>[suspension_field ? "Disable" : "Enable"] field</a></b><br>"
+	dat += "<b><A href='byond://?src=\ref[src];toggle_field=1'>[suspension_field ? "Disable" : "Enable"] field</a></b><br>"
 	dat += "<hr>"
 	dat += "<hr>"
-	dat += "<font style='color: cyan;'><b>Always wear safety gear and consult a field manual before operation.</b></font><br>"
-	dat += "<A href='?src=\ref[src];close=1'>Close console</A>"
+	dat += "[SPAN_COLOR("cyan", "<b>Always wear safety gear and consult a field manual before operation.</b>")]<br>"
+	dat += "<A href='byond://?src=\ref[src];close=1'>Close console</A>"
 	var/datum/browser/popup = new(user, "suspension", "Suspension Generator", 500, 400)
 	popup.set_content(dat)
 	popup.open()
@@ -67,7 +68,7 @@
 				if(anchored)
 					activate()
 				else
-					to_chat(user, "<span class='warning'>You are unable to activate [src] until it is properly secured on the ground.</span>")
+					to_chat(user, SPAN_WARNING("You are unable to activate [src] until it is properly secured on the ground."))
 		else
 			deactivate()
 		. = TOPIC_REFRESH
@@ -90,23 +91,20 @@
 		return SPAN_NOTICE("Turn \the [src] off first.")
 	return ..()
 
-/obj/machinery/suspension_gen/attackby(obj/item/W, mob/user)
-	if(component_attackby(W, user))
-		return TRUE
-	else if(isWrench(W))
-		if(!suspension_field)
-			anchored = !anchored
-			to_chat(user, "<span class='info'>You wrench the stabilising bolts [anchored ? "into place" : "loose"].</span>")
-			if(anchored)
-				desc = "Its tracks are securely held in place with securing bolts."
-				icon_state = "suspension_wrenched"
-			else
-				desc = "It has stubby bolts bolted up against its tracks for stabilizing."
-				icon_state = "suspension"
-			playsound(loc, 'sound/items/Ratchet.ogg', 40)
-			update_icon()
-		else
-			to_chat(user, "<span class='warning'>You are unable to secure [src] while it is active!</span>")
+/obj/machinery/suspension_gen/can_anchor(obj/item/tool, mob/user, silent)
+	if (suspension_field)
+		to_chat(user, SPAN_WARNING("You are unable to wrench \the [src] while it is active!"))
+		return FALSE
+	return ..()
+
+/obj/machinery/suspension_gen/post_anchor_change()
+	if (anchored)
+		desc = "Its tracks are securely held in place with securing bolts."
+		icon_state = "suspension_wrenched"
+	else
+		desc = "It has stubby bolts bolted up against its tracks for stabilizing."
+		icon_state = "suspension"
+	..()
 
 //checks for whether the machine can be activated or not should already have occurred by this point
 /obj/machinery/suspension_gen/proc/activate()
@@ -115,10 +113,10 @@
 
 	for(var/mob/living/M in T)
 		M.weakened += 5
-		M.visible_message("<span class='notice'>[icon2html(M, viewers(get_turf(M)))] [M] begins to float in the air!</span>","You feel tingly and light, but it is difficult to move.")
+		M.visible_message(SPAN_NOTICE("[icon2html(M, viewers(get_turf(M)))] [M] begins to float in the air!"),"You feel tingly and light, but it is difficult to move.")
 
 	suspension_field = new(T)
-	src.visible_message("<span class='notice'>[icon2html(src, viewers(get_turf(src)))] [src] activates with a low hum.</span>")
+	src.visible_message(SPAN_NOTICE("[icon2html(src, viewers(get_turf(src)))] [src] activates with a low hum."))
 	icon_state = "suspension_on"
 	playsound(loc, 'sound/machines/quiet_beep.ogg', 40)
 	update_icon()
@@ -130,8 +128,8 @@
 
 	if(collected)
 		suspension_field.icon_state = "energynet"
-		suspension_field.overlays += "shield2"
-		src.visible_message("<span class='notice'>[icon2html(suspension_field, viewers(get_turf(src)))] [suspension_field] gently absconds [collected > 1 ? "something" : "several things"].</span>")
+		suspension_field.AddOverlays("shield2")
+		src.visible_message(SPAN_NOTICE("[icon2html(suspension_field, viewers(get_turf(src)))] [suspension_field] gently absconds [collected > 1 ? "something" : "several things"]."))
 	else
 		if(istype(T,/turf/simulated/mineral) || istype(T,/turf/simulated/wall))
 			suspension_field.icon_state = "shieldsparkles"
@@ -145,10 +143,10 @@
 	var/turf/T = get_turf(suspension_field)
 
 	for(var/mob/living/M in T)
-		to_chat(M, "<span class='info'>You no longer feel like floating.</span>")
+		to_chat(M, SPAN_INFO("You no longer feel like floating."))
 		M.weakened = min(M.weakened, 3)
 
-	src.visible_message("<span class='notice'>[icon2html(src, viewers(get_turf(src)))] [src] deactivates with a gentle shudder.</span>")
+	src.visible_message(SPAN_NOTICE("[icon2html(src, viewers(get_turf(src)))] [src] deactivates with a gentle shudder."))
 	qdel(suspension_field)
 	suspension_field = null
 	icon_state = "suspension_wrenched"
@@ -166,7 +164,7 @@
 	set category = "Object"
 
 	if(anchored)
-		to_chat(usr, "<span class='warning'>You cannot rotate [src], it has been firmly fixed to the floor.</span>")
+		to_chat(usr, SPAN_WARNING("You cannot rotate [src], it has been firmly fixed to the floor."))
 	else
 		set_dir(turn(dir, 90))
 
@@ -176,23 +174,23 @@
 	set category = "Object"
 
 	if(anchored)
-		to_chat(usr, "<span class='warning'>You cannot rotate [src], it has been firmly fixed to the floor.</span>")
+		to_chat(usr, SPAN_WARNING("You cannot rotate [src], it has been firmly fixed to the floor."))
 	else
 		set_dir(turn(dir, -90))
 
 /obj/machinery/suspension_gen/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 	if(panel_open)
-		overlays += "suspension_panel"
+		AddOverlays("suspension_panel")
 	. = ..()
 
-/obj/effect/suspension_field
+/obj/suspension_field
 	name = "energy field"
 	icon = 'icons/effects/effects.dmi'
 	anchored = TRUE
 	density = TRUE
 
-/obj/effect/suspension_field/Destroy()
+/obj/suspension_field/Destroy()
 	for(var/atom/movable/I in src)
 		I.dropInto(loc)
 	return ..()

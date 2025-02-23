@@ -1,4 +1,4 @@
-GLOBAL_LIST_INIT(local_networks, new)
+GLOBAL_LIST_EMPTY(local_networks)
 
 /datum/local_network
 	var/id_tag
@@ -38,9 +38,9 @@ GLOBAL_LIST_INIT(local_networks, new)
 		return TRUE
 
 	entities -= device
-	if(entities.len <= 0)
+	if(length(entities) <= 0)
 		network_entities -= device.type
-	if(network_entities.len <= 0)
+	if(length(network_entities) <= 0)
 		qdel(src)
 	return isnull(entities[device])
 
@@ -58,7 +58,7 @@ GLOBAL_LIST_INIT(local_networks, new)
 
 
 //Multilevel network
-GLOBAL_LIST_INIT(multilevel_local_networks, new)
+GLOBAL_LIST_EMPTY(multilevel_local_networks)
 
 /datum/local_network/multilevel/New(_id)
 	id_tag = _id

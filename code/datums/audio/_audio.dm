@@ -1,39 +1,50 @@
-/decl/audio
-	var/source //Path to file source
-	var/display //A display title we use in the game
-	var/volume //If present, a `normal` volume
-	var/title //The real title
+/singleton/audio
+	/// Path to file source
+	var/source
+
+	/// The real (ie, artist's) audio title
+	var/title
+
+	/// The display title to use in game, if different
+	var/display
+
+	/// The normal volume to play the audio at, if set
+	var/volume
+
+	/// The artist's name
 	var/author
+
+	/// The collection (eg album) the audio belongs to
 	var/collection
-	var/decl/license/license
+
+	/// The license under which the audio was made available
+	var/singleton/license/license
+
+	/// A link to the audio's source, if available
 	var/url
 
 
-//Repository scopes
-/decl/audio/effect
-/decl/audio/track
-
-
-/decl/audio/New()
+/singleton/audio/Initialize()
 	. = ..()
-	license = decls_repository.get_decl(license)
+	license = GET_SINGLETON(license)
 
 
-/decl/audio/VV_static()
+/singleton/audio/VV_static()
 	return ..() + vars
 
-/decl/audio/proc/get_info(with_meta = TRUE)
+
+/singleton/audio/proc/get_info(with_meta = TRUE)
 	. = SPAN_GOOD("[title][!author?"":" by [author]"][!collection?"":" ([collection])"]")
 	if (with_meta)
 		. = "[.][!url?"":"\[<a href='[url]'>link</a>\]"]\[<a href='[license.url]'>license</a>\]"
 
 
-/decl/audio/proc/get_sound(channel)
-	var/sound/S = sound(source, FALSE, FALSE, channel, volume || 100)
-	return S
+/singleton/audio/proc/get_sound(channel)
+	var/sound/sound = sound(source, FALSE, FALSE, channel, volume || 100)
+	return sound
 
 
-/decl/audio/track/get_sound(channel = GLOB.lobby_sound_channel)
-	var/sound/S = ..()
-	S.repeat = TRUE
-	return S
+/singleton/audio/track/get_sound(channel = GLOB.lobby_sound_channel)
+	var/sound/sound = ..()
+	sound.repeat = TRUE
+	return sound

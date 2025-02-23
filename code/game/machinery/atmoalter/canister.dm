@@ -1,12 +1,13 @@
 /obj/machinery/portable_atmospherics/canister
 	name = "\improper Canister: \[CAUTION\]"
-	icon = 'icons/obj/atmos.dmi'
+	icon = 'icons/obj/atmospherics/atmos.dmi'
 	icon_state = "yellow"
 	density = TRUE
-	var/health = 100.0
+	health_max = 100
 	obj_flags = OBJ_FLAG_CONDUCTIBLE
 	w_class = ITEM_SIZE_GARGANTUAN
 	construct_state = null
+	health_resistances = DAMAGE_RESIST_PHYSICAL
 
 	var/valve_open = 0
 	var/release_pressure = ONE_ATMOSPHERE
@@ -121,55 +122,43 @@
 
 /obj/machinery/portable_atmospherics/canister/on_update_icon()
 	if (destroyed)
-		overlays.Cut()
+		ClearOverlays()
 		icon_state = "[canister_color]-1"
 		return
 
 	if (icon_state != "[canister_color]")
 		icon_state = "[canister_color]"
 
-	overlays.Cut()
+	ClearOverlays()
 
 	if (holding)
-		overlays += "can-open"
+		AddOverlays("can-open")
 	if (connected_port)
-		overlays += "can-connector"
+		AddOverlays("can-connector")
 
 	var/tank_pressure = return_pressure()
 	if (tank_pressure <= CANISTER_PRESSURE_EMPTY)
-		overlays += "can-o0"
+		AddOverlays("can-o0")
 	else if (tank_pressure <= CANISTER_PRESSURE_LOW)
-		overlays += "can-o1"
+		AddOverlays("can-o1")
 	else if (tank_pressure <= CANISTER_PRESSURE_MID)
-		overlays += "can-o2"
+		AddOverlays("can-o2")
 	else
-		overlays += "can-o3"
+		AddOverlays("can-o3")
 
-/obj/machinery/portable_atmospherics/canister/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
-	if(exposed_temperature > temperature_resistance)
-		health -= 5
-		healthcheck()
+/obj/machinery/portable_atmospherics/canister/get_material_melting_point()
+	return temperature_resistance
 
-/obj/machinery/portable_atmospherics/canister/proc/healthcheck()
-	if(destroyed)
-		return 1
-
-	if (src.health <= 10)
-		var/atom/location = src.loc
-		location.assume_air(air_contents)
-
-		src.destroyed = 1
-		playsound(src.loc, 'sound/effects/spray.ogg', 10, 1, -3)
-		src.set_density(0)
-		update_icon()
-
-		if (src.holding)
-			src.holding.dropInto(loc)
-			src.holding = null
-
-		return 1
-	else
-		return 1
+/obj/machinery/portable_atmospherics/canister/on_death()
+	var/atom/location = loc
+	location.assume_air(air_contents)
+	destroyed = TRUE
+	playsound(src, 'sound/effects/spray.ogg', 10, TRUE, -3)
+	set_density(FALSE)
+	if (holding)
+		holding.dropInto(loc)
+		holding = null
+	..()
 
 /obj/machinery/portable_atmospherics/canister/Process()
 	if (destroyed)
@@ -216,21 +205,7 @@
 		return GM.return_pressure()
 	return 0
 
-/obj/machinery/portable_atmospherics/canister/bullet_act(obj/item/projectile/Proj)
-	if (!(Proj.damage_type == DAMAGE_BRUTE || Proj.damage_type == DAMAGE_BURN))
-		return
-
-	if(Proj.damage)
-		src.health -= round(Proj.damage / 2)
-		healthcheck()
-	..()
-
-/obj/machinery/portable_atmospherics/canister/attackby(obj/item/W as obj, mob/user as mob)
-	if(!isWrench(W) && !istype(W, /obj/item/tank) && !istype(W, /obj/item/device/scanner/gas) && !istype(W, /obj/item/modular_computer/pda))
-		visible_message("<span class='warning'>\The [user] hits \the [src] with \a [W]!</span>")
-		src.health -= W.force
-		healthcheck()
-
+/obj/machinery/portable_atmospherics/canister/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(istype(user, /mob/living/silicon/robot) && istype(W, /obj/item/tank/jetpack))
 		var/datum/gas_mixture/thejetpack = W:air_contents
 		var/env_pressure = thejetpack.return_pressure()
@@ -242,9 +217,9 @@
 			var/datum/gas_mixture/removed = air_contents.remove(transfer_moles)
 			thejetpack.merge(removed)
 			to_chat(user, "You pulse-pressurize your jetpack from the tank.")
-		return
+		return TRUE
 
-	..()
+	. = ..()
 
 	SSnano.update_uis(src) // Update all NanoUIs attached to src
 
@@ -279,7 +254,7 @@
 	if(href_list["toggle"])
 		if (!valve_open)
 			if(!holding)
-				log_open()
+				log_open(user)
 		valve_open = !valve_open
 		. = TOPIC_REFRESH
 

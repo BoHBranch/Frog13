@@ -11,7 +11,7 @@
 	connect_types = CONNECT_TYPE_REGULAR|CONNECT_TYPE_SCRUBBER //connects to regular and scrubber pipes
 	identifier = "AScr"
 
-	level = 1
+	level = ATOM_LEVEL_UNDER_TILE
 
 	var/hibernate = 0 //Do we even process?
 	var/scrubbing = SCRUBBER_EXCHANGE
@@ -29,28 +29,28 @@
 		/obj/item/stock_parts/radio/transmitter/on_event,
 	)
 	public_variables = list(
-		/decl/public_access/public_variable/input_toggle,
-		/decl/public_access/public_variable/area_uid,
-		/decl/public_access/public_variable/identifier,
-		/decl/public_access/public_variable/use_power,
-		/decl/public_access/public_variable/name,
-		/decl/public_access/public_variable/scrubbing,
-		/decl/public_access/public_variable/panic,
-		/decl/public_access/public_variable/scrubbing_gas
+		/singleton/public_access/public_variable/input_toggle,
+		/singleton/public_access/public_variable/area_uid,
+		/singleton/public_access/public_variable/identifier,
+		/singleton/public_access/public_variable/use_power,
+		/singleton/public_access/public_variable/name,
+		/singleton/public_access/public_variable/scrubbing,
+		/singleton/public_access/public_variable/panic,
+		/singleton/public_access/public_variable/scrubbing_gas
 	)
 	public_methods = list(
-		/decl/public_access/public_method/toggle_power,
-		/decl/public_access/public_method/refresh,
-		/decl/public_access/public_method/toggle_panic_siphon,
-		/decl/public_access/public_method/set_scrub_gas
+		/singleton/public_access/public_method/toggle_power,
+		/singleton/public_access/public_method/refresh,
+		/singleton/public_access/public_method/toggle_panic_siphon,
+		/singleton/public_access/public_method/set_scrub_gas
 	)
 	stock_part_presets = list(
-		/decl/stock_part_preset/radio/receiver/vent_scrubber = 1,
-		/decl/stock_part_preset/radio/event_transmitter/vent_scrubber = 1
+		/singleton/stock_part_preset/radio/receiver/vent_scrubber = 1,
+		/singleton/stock_part_preset/radio/event_transmitter/vent_scrubber = 1
 	)
 
 	frame_type = /obj/item/pipe
-	construct_state = /decl/machine_construction/default/item_chassis
+	construct_state = /singleton/machine_construction/default/item_chassis
 	base_type = /obj/machinery/atmospherics/unary/vent_scrubber
 
 /obj/machinery/atmospherics/unary/vent_scrubber/on
@@ -66,7 +66,7 @@
 	if(!check_icon_cache())
 		return
 
-	overlays.Cut()
+	ClearOverlays()
 
 
 	var/turf/T = get_turf(src)
@@ -83,7 +83,7 @@
 	else
 		scrubber_icon += "on"
 
-	overlays += icon_manager.get_atmos_icon("device", , , scrubber_icon)
+	AddOverlays(icon_manager.get_atmos_icon("device", , , scrubber_icon))
 
 /obj/machinery/atmospherics/unary/vent_scrubber/update_underlays()
 	if(..())
@@ -91,7 +91,7 @@
 		var/turf/T = get_turf(src)
 		if(!istype(T))
 			return
-		if(!T.is_plating() && node && node.level == 1 && istype(node, /obj/machinery/atmospherics/pipe))
+		if(!T.is_plating() && node && node.level == ATOM_LEVEL_UNDER_TILE && istype(node, /obj/machinery/atmospherics/pipe))
 			return
 		else
 			if(node)
@@ -106,7 +106,7 @@
 		reset_scrubbing()
 	var/area/A = get_area(src)
 	if(A && !A.air_scrub_names[id_tag])
-		var/new_name = "[A.name] Vent Scrubber #[A.air_scrub_names.len+1]"
+		var/new_name = "[A.name] Vent Scrubber #[length(A.air_scrub_names)+1]"
 		A.air_scrub_names[id_tag] = new_name
 		SetName(new_name)
 	. = ..()
@@ -182,7 +182,7 @@
 	update_underlays()
 
 /obj/machinery/atmospherics/unary/vent_scrubber/proc/toggle_panic()
-	var/decl/public_access/public_variable/panic/panic = decls_repository.get_decl(/decl/public_access/public_variable/panic)
+	var/singleton/public_access/public_variable/panic/panic = GET_SINGLETON(/singleton/public_access/public_variable/panic)
 	panic.write_var(src, !panic)
 
 /obj/machinery/atmospherics/unary/vent_scrubber/proc/set_scrub_gas(list/gases)
@@ -191,11 +191,11 @@
 			scrubbing_gas ^= gas_id
 
 /obj/machinery/atmospherics/unary/vent_scrubber/cannot_transition_to(state_path, mob/user)
-	if(state_path == /decl/machine_construction/default/deconstructed)
+	if(state_path == /singleton/machine_construction/default/deconstructed)
 		if (is_powered() && use_power)
 			return SPAN_WARNING("You cannot take this [src] apart, turn it off first.")
 		var/turf/T = get_turf(src)
-		if (node && node.level==1 && isturf(T) && !T.is_plating())
+		if (node && node.level==ATOM_LEVEL_UNDER_TILE && isturf(T) && !T.is_plating())
 			return SPAN_WARNING("You must remove the plating first.")
 		var/datum/gas_mixture/int_air = return_air()
 		var/datum/gas_mixture/env_air = loc.return_air()
@@ -203,40 +203,31 @@
 			return SPAN_WARNING("You cannot take this [src] apart, it too exerted due to internal pressure.")
 	return ..()
 
-/obj/machinery/atmospherics/unary/vent_scrubber/attackby(obj/item/W as obj, mob/user as mob)
-	if(istype(W, /obj/item/weldingtool))
-
+/obj/machinery/atmospherics/unary/vent_scrubber/use_tool(obj/item/W, mob/living/user, list/click_params)
+	if(isWelder(W))
 		var/obj/item/weldingtool/WT = W
 
-		if(!WT.isOn())
-			to_chat(user, "<span class='notice'>The welding tool needs to be on to start this task.</span>")
-			return 1
 
-		if(!WT.remove_fuel(0,user))
-			to_chat(user, "<span class='warning'>You need more welding fuel to complete this task.</span>")
-			return 1
+		if(!WT.can_use(1,user))
+			return TRUE
 
-		to_chat(user, "<span class='notice'>Now welding \the [src].</span>")
+		to_chat(user, SPAN_NOTICE("Now welding \the [src]."))
 		playsound(src, 'sound/items/Welder.ogg', 50, 1)
 
-		if(!do_after(user, 2 SECONDS, src, DO_REPAIR_CONSTRUCT))
-			to_chat(user, "<span class='notice'>You must remain close to finish this task.</span>")
-			return 1
+		if(!do_after(user, (W.toolspeed * 2) SECONDS, src, DO_REPAIR_CONSTRUCT))
+			return TRUE
 
-		if(!src)
-			return 1
-
-		if(!WT.isOn())
-			to_chat(user, "<span class='notice'>The welding tool needs to be on to finish this task.</span>")
-			return 1
+		if(!src || !WT.remove_fuel(1, user))
+			return TRUE
 
 		welded = !welded
 		update_icon()
 		playsound(src, 'sound/items/Welder2.ogg', 50, 1)
-		user.visible_message("<span class='notice'>\The [user] [welded ? "welds \the [src] shut" : "unwelds \the [src]"].</span>", \
-			"<span class='notice'>You [welded ? "weld \the [src] shut" : "unweld \the [src]"].</span>", \
+		user.visible_message(
+			SPAN_NOTICE("\The [user] [welded ? "welds \the [src] shut" : "unwelds \the [src]"]."), \
+			SPAN_NOTICE("You [welded ? "weld \the [src] shut" : "unweld \the [src]"]."), \
 			"You hear welding.")
-		return 1
+		return TRUE
 
 	return ..()
 
@@ -258,7 +249,7 @@
 	..()
 	remove_from_scrubbing(GAS_STEAM)
 
-/decl/public_access/public_variable/scrubbing
+/singleton/public_access/public_variable/scrubbing
 	expected_type = /obj/machinery/atmospherics/unary/vent_scrubber
 	name = "scrubbing mode"
 	desc = "The scrubbing mode code, which identifies what the scrubber is doing."
@@ -266,10 +257,10 @@
 	has_updates = FALSE
 	var_type = IC_FORMAT_STRING
 
-/decl/public_access/public_variable/scrubbing/access_var(obj/machinery/atmospherics/unary/vent_scrubber/machine)
+/singleton/public_access/public_variable/scrubbing/access_var(obj/machinery/atmospherics/unary/vent_scrubber/machine)
 	return machine.scrubbing
 
-/decl/public_access/public_variable/scrubbing/write_var(obj/machinery/atmospherics/unary/vent_scrubber/machine, new_value)
+/singleton/public_access/public_variable/scrubbing/write_var(obj/machinery/atmospherics/unary/vent_scrubber/machine, new_value)
 	if(!(new_value in list(SCRUBBER_EXCHANGE, SCRUBBER_SCRUB, SCRUBBER_SIPHON)))
 		return FALSE
 	. = ..()
@@ -278,7 +269,7 @@
 		if(new_value != SCRUBBER_SIPHON)
 			machine.panic = FALSE
 
-/decl/public_access/public_variable/panic
+/singleton/public_access/public_variable/panic
 	expected_type = /obj/machinery/atmospherics/unary/vent_scrubber
 	name = "panic state"
 	desc = "Whether or not the scrubber is in panic mode."
@@ -286,10 +277,10 @@
 	has_updates = FALSE
 	var_type = IC_FORMAT_BOOLEAN
 
-/decl/public_access/public_variable/panic/access_var(obj/machinery/atmospherics/unary/vent_scrubber/machine)
+/singleton/public_access/public_variable/panic/access_var(obj/machinery/atmospherics/unary/vent_scrubber/machine)
 	return machine.panic
 
-/decl/public_access/public_variable/panic/write_var(obj/machinery/atmospherics/unary/vent_scrubber/machine, new_value)
+/singleton/public_access/public_variable/panic/write_var(obj/machinery/atmospherics/unary/vent_scrubber/machine, new_value)
 	if(!(new_value in list(TRUE, FALSE)))
 		return FALSE
 	. = ..()
@@ -301,7 +292,7 @@
 		else
 			machine.scrubbing = SCRUBBER_EXCHANGE
 
-/decl/public_access/public_variable/scrubbing_gas
+/singleton/public_access/public_variable/scrubbing_gas
 	expected_type = /obj/machinery/atmospherics/unary/vent_scrubber
 	name = "gasses scrubbing"
 	desc = "A list of gases that this scrubber is scrubbing."
@@ -309,58 +300,58 @@
 	has_updates = FALSE
 	var_type = IC_FORMAT_LIST
 
-/decl/public_access/public_variable/scrubbing_gas/access_var(obj/machinery/atmospherics/unary/vent_scrubber/machine)
+/singleton/public_access/public_variable/scrubbing_gas/access_var(obj/machinery/atmospherics/unary/vent_scrubber/machine)
 	return machine.scrubbing_gas.Copy()
 
-/decl/public_access/public_method/toggle_panic_siphon
+/singleton/public_access/public_method/toggle_panic_siphon
 	name = "toggle panic siphon"
 	desc = "Toggles the panic siphon function."
-	call_proc = /obj/machinery/atmospherics/unary/vent_scrubber/proc/toggle_panic
+	call_proc = TYPE_PROC_REF(/obj/machinery/atmospherics/unary/vent_scrubber, toggle_panic)
 
-/decl/public_access/public_method/set_scrub_gas
+/singleton/public_access/public_method/set_scrub_gas
 	name = "set filter gases"
 	desc = "Given a list of gases, sets whether the gas is being scrubbed to the value of the gas in the list."
 	forward_args = TRUE
-	call_proc = /obj/machinery/atmospherics/unary/vent_scrubber/proc/set_scrub_gas
+	call_proc = TYPE_PROC_REF(/obj/machinery/atmospherics/unary/vent_scrubber, set_scrub_gas)
 
-/decl/stock_part_preset/radio/event_transmitter/vent_scrubber
+/singleton/stock_part_preset/radio/event_transmitter/vent_scrubber
 	frequency = PUMP_FREQ
 	filter = RADIO_TO_AIRALARM
-	event = /decl/public_access/public_variable/input_toggle
+	event = /singleton/public_access/public_variable/input_toggle
 	transmit_on_event = list(
-		"area" = /decl/public_access/public_variable/area_uid,
-		"device" = /decl/public_access/public_variable/identifier,
-		"power" = /decl/public_access/public_variable/use_power,
-		"panic" = /decl/public_access/public_variable/panic,
-		"scrubbing" = /decl/public_access/public_variable/scrubbing,
-		"scrubbing_gas" = /decl/public_access/public_variable/scrubbing_gas
+		"area" = /singleton/public_access/public_variable/area_uid,
+		"device" = /singleton/public_access/public_variable/identifier,
+		"power" = /singleton/public_access/public_variable/use_power,
+		"panic" = /singleton/public_access/public_variable/panic,
+		"scrubbing" = /singleton/public_access/public_variable/scrubbing,
+		"scrubbing_gas" = /singleton/public_access/public_variable/scrubbing_gas
 	)
 
-/decl/stock_part_preset/radio/receiver/vent_scrubber
+/singleton/stock_part_preset/radio/receiver/vent_scrubber
 	frequency = PUMP_FREQ
 	filter = RADIO_FROM_AIRALARM
 	receive_and_call = list(
-		"power_toggle" = /decl/public_access/public_method/toggle_power,
-		"toggle_panic_siphon" = /decl/public_access/public_method/toggle_panic_siphon,
-		"set_scrub_gas" = /decl/public_access/public_method/set_scrub_gas,
-		"status" = /decl/public_access/public_method/refresh
+		"power_toggle" = /singleton/public_access/public_method/toggle_power,
+		"toggle_panic_siphon" = /singleton/public_access/public_method/toggle_panic_siphon,
+		"set_scrub_gas" = /singleton/public_access/public_method/set_scrub_gas,
+		"status" = /singleton/public_access/public_method/refresh
 	)
 	receive_and_write = list(
-		"set_power" = /decl/public_access/public_variable/use_power,
-		"panic_siphon" = /decl/public_access/public_variable/panic,
-		"set_scrubbing" = /decl/public_access/public_variable/scrubbing,
-		"init" = /decl/public_access/public_variable/name
+		"set_power" = /singleton/public_access/public_variable/use_power,
+		"panic_siphon" = /singleton/public_access/public_variable/panic,
+		"set_scrubbing" = /singleton/public_access/public_variable/scrubbing,
+		"init" = /singleton/public_access/public_variable/name
 	)
 
-/decl/stock_part_preset/radio/receiver/vent_scrubber/shuttle
+/singleton/stock_part_preset/radio/receiver/vent_scrubber/shuttle
 	frequency = SHUTTLE_AIR_FREQ
 
-/decl/stock_part_preset/radio/event_transmitter/vent_scrubber/shuttle
+/singleton/stock_part_preset/radio/event_transmitter/vent_scrubber/shuttle
 	frequency = SHUTTLE_AIR_FREQ
 
 // Similar to the vent of the same name, for hybrid airlock-rooms
 /obj/machinery/atmospherics/unary/vent_scrubber/on/shuttle_auxiliary
 	stock_part_presets = list(
-		/decl/stock_part_preset/radio/receiver/vent_scrubber/shuttle = 1,
-		/decl/stock_part_preset/radio/event_transmitter/vent_scrubber/shuttle = 1
+		/singleton/stock_part_preset/radio/receiver/vent_scrubber/shuttle = 1,
+		/singleton/stock_part_preset/radio/event_transmitter/vent_scrubber/shuttle = 1
 	)

@@ -20,7 +20,7 @@
 
 /proc/any_predicate_true(list/input, list/predicates)
 	PREPARE_INPUT
-	if(!predicates.len)
+	if(!length(predicates))
 		return TRUE
 
 	for(var/predicate in predicates)
@@ -32,15 +32,25 @@
 #undef PREPARE_ARGUMENTS
 #undef PREPARE_INPUT
 
-/proc/is_atom_predicate(value, feedback_receiver)
-	. = isatom(value)
+/proc/is_loc_predicate(value, feedback_receiver)
+	. = isloc(value)
 	if(!. && feedback_receiver)
-		to_chat(feedback_receiver, "<span class='warning'>Value must be an atom.</span>")
+		to_chat(feedback_receiver, SPAN_WARNING("Value must be an atom."))
+
+/proc/is_tom_predicate(value, feedback_receiver)
+	. = istom(value)
+	if(!. && feedback_receiver)
+		to_chat(feedback_receiver, SPAN_WARNING("Value must be a turf or movable."))
 
 /proc/is_num_predicate(value, feedback_receiver)
 	. = isnum(value)
 	if(!. && feedback_receiver)
-		to_chat(feedback_receiver, "<span class='warning'>Value must be a numeral.</span>")
+		to_chat(feedback_receiver, SPAN_WARNING("Value must be a numeral."))
+
+/proc/is_int_predicate(value, feedback_receiver)
+	. = value == round(value)
+	if (!. && feedback_receiver)
+		to_chat(feedback_receiver, SPAN_WARNING("Value must be a whole number."))
 
 /proc/is_non_zero_predicate(value, feedback_receiver)
 	. = value != 0
@@ -60,12 +70,12 @@
 /proc/is_text_predicate(value, feedback_receiver)
 	. = !value || istext(value)
 	if(!. && feedback_receiver)
-		to_chat(feedback_receiver, "<span class='warning'>Value must be a text.</span>")
+		to_chat(feedback_receiver, SPAN_WARNING("Value must be a text."))
 
 /proc/is_dir_predicate(value, feedback_receiver)
 	. = (value in GLOB.alldirs)
 	if(!. && feedback_receiver)
-		to_chat(feedback_receiver, "<span class='warning'>Value must be a direction.</span>")
+		to_chat(feedback_receiver, SPAN_WARNING("Value must be a direction."))
 
 /proc/is_strict_bool_predicate(value, feedback_receiver)
 	. = (value == TRUE || value == FALSE)
@@ -80,6 +90,7 @@
 
 
 /proc/where(list/list_to_filter, list/predicates, list/extra_predicate_input)
+	RETURN_TYPE(/list)
 	. = list()
 	for(var/entry in list_to_filter)
 		var/predicate_input
@@ -92,6 +103,7 @@
 			. += entry
 
 /proc/map(list/list_to_map, map_proc)
+	RETURN_TYPE(/list)
 	. = list()
 	for(var/entry in list_to_map)
 		. += call(map_proc)(entry)

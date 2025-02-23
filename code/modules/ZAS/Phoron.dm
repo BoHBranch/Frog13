@@ -51,11 +51,11 @@ var/global/image/contamination_overlay = image('icons/effects/contamination.dmi'
 	//Do a contamination overlay? Temporary measure to keep contamination less deadly than it was.
 	if(!contaminated)
 		contaminated = 1
-		overlays += contamination_overlay
+		AddOverlays(contamination_overlay)
 
 /obj/item/proc/decontaminate()
 	contaminated = 0
-	overlays -= contamination_overlay
+	CutOverlays(contamination_overlay)
 
 /mob/proc/contaminate()
 
@@ -88,7 +88,7 @@ var/global/image/contamination_overlay = image('icons/effects/contamination.dmi'
 	if(vsc.plc.SKIN_BURNS)
 		if(!pl_head_protected() || !pl_suit_protected())
 			burn_skin(0.75)
-			if(prob(20)) to_chat(src, "<span class='danger'>Your skin burns!</span>")
+			if(prob(20)) to_chat(src, SPAN_DANGER("Your skin burns!"))
 			updatehealth()
 
 	//Burn eyes if exposed.
@@ -111,18 +111,18 @@ var/global/image/contamination_overlay = image('icons/effects/contamination.dmi'
 	if(vsc.plc.GENETIC_CORRUPTION)
 		if(rand(1,10000) < vsc.plc.GENETIC_CORRUPTION)
 			randmutb(src)
-			to_chat(src, "<span class='danger'>High levels of toxins cause you to spontaneously mutate!</span>")
+			to_chat(src, SPAN_DANGER("High levels of toxins cause you to spontaneously mutate!"))
 			domutcheck(src,null)
 
 
 /mob/living/carbon/human/proc/burn_eyes()
 	var/obj/item/organ/internal/eyes/E = internal_organs_by_name[BP_EYES]
 	if(E && !E.phoron_guard)
-		if(prob(20)) to_chat(src, "<span class='danger'>Your eyes burn!</span>")
+		if(prob(20)) to_chat(src, SPAN_DANGER("Your eyes burn!"))
 		E.damage += 2.5
 		eye_blurry = min(eye_blurry+1.5,50)
 		if (prob(max(0,E.damage - 15) + 1) &&!eye_blind)
-			to_chat(src, "<span class='danger'>You are blinded!</span>")
+			to_chat(src, SPAN_DANGER("You are blinded!"))
 			eye_blind += 20
 
 /mob/living/carbon/human/proc/pl_head_protected()

@@ -1,7 +1,7 @@
 SUBSYSTEM_DEF(chat)
 	name = "Chat"
 	wait = 1
-	runlevels = RUNLEVELS_DEFAULT | RUNLEVEL_LOBBY
+	runlevels = RUNLEVELS_PREGAME | RUNLEVELS_GAME
 	priority = SS_PRIORITY_CHAT
 	init_order = SS_INIT_CHAT
 	var/static/list/payload = list()
@@ -47,9 +47,9 @@ SUBSYSTEM_DEF(chat)
 	if (!C)
 		return
 	legacy_chat(C, original)
-	if (C.get_preference_value(/datum/client_preference/goonchat) != GLOB.PREF_YES)
+	if (C?.get_preference_value(/datum/client_preference/goonchat) != GLOB.PREF_YES)
 		return
-	if (!C?.chatOutput || C.chatOutput.broken)
+	if (!C.chatOutput || C.chatOutput.broken)
 		return
 	if (!C.chatOutput.loaded)
 		C.chatOutput.messageQueue += message

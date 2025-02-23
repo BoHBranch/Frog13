@@ -1,7 +1,6 @@
 SUBSYSTEM_DEF(plants)
 	name = "Plants"
 	priority = SS_PRIORITY_PLANTS
-	runlevels = RUNLEVEL_GAME | RUNLEVEL_POSTGAME
 	flags = SS_BACKGROUND | SS_POST_FIRE_TIMING
 	init_order = SS_INIT_PLANTS
 	wait = 5 SECONDS
@@ -52,7 +51,7 @@ SUBSYSTEM_DEF(plants)
 /datum/controller/subsystem/plants/fire(resumed, no_mc_tick)
 	if (!resumed)
 		queue = active_plants.Copy()
-		if (!queue.len)
+		if (!length(queue))
 			return
 		run_plant_counter = 0
 	var/cut_until = 1
@@ -74,7 +73,7 @@ SUBSYSTEM_DEF(plants)
 
 
 /datum/controller/subsystem/plants/Initialize(start_uptime)
-	for (var/state in icon_states('icons/obj/hydroponics_growing.dmi'))
+	for (var/state in icon_states('icons/obj/flora/hydroponics_growing.dmi'))
 		var/split = findtext_char(state, "-")
 		if (!split)
 			continue
@@ -86,7 +85,7 @@ SUBSYSTEM_DEF(plants)
 		if (!plant_sprites[plant] || plant_sprites[plant] < growth_level)
 			plant_sprites[plant] = growth_level
 
-	for (var/state in icon_states('icons/obj/hydroponics_products.dmi'))
+	for (var/state in icon_states('icons/obj/flora/hydroponics_products.dmi'))
 		var/split = findtext_char(state, "-")
 		if (!split)
 			continue
@@ -101,17 +100,18 @@ SUBSYSTEM_DEF(plants)
 	for (var/obj/item/seeds/seeds)
 		seeds.update_seed()
 
-	var/list/gene_datums = decls_repository.get_decls_of_subtype(/decl/plantgene)
+	var/list/gene_datums = GET_SINGLETON_SUBTYPE_MAP(/singleton/plantgene)
 	var/list/used_masks = list()
+	var/list/plant_genes = shuffle(ALL_GENES)
 
-	for (var/tag in ALL_GENES)
+	for (var/tag in plant_genes)
 		var/mask = uppertext(num2hex(rand(0, 0xFF)))
 		while (mask in used_masks)
 			mask = uppertext(num2hex(rand(0, 0xFF)))
 
-		var/decl/plantgene/plantgene
+		var/singleton/plantgene/plantgene
 		for (var/key in gene_datums)
-			var/decl/plantgene/other = gene_datums[key]
+			var/singleton/plantgene/other = gene_datums[key]
 			if (tag == other.gene_tag)
 				gene_datums -= key
 				plantgene = other
@@ -125,7 +125,7 @@ SUBSYSTEM_DEF(plants)
 /datum/controller/subsystem/plants/proc/create_random_seed(station_environment)
 	var/datum/seed/seed = new
 	seed.randomize()
-	seed.uid = seeds.len + 1
+	seed.uid = length(seeds) + 1
 	seed.name = "[seed.uid]"
 	seeds[seed.name] = seed
 

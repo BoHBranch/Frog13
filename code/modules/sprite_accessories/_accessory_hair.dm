@@ -422,9 +422,19 @@
 	icon_state = "hair_shavedbun"
 	flags = HAIR_TIEABLE
 
+/datum/sprite_accessory/hair/shavedbunalt
+	name = "Shaved Bun Alt"
+	icon_state = "hair_shavedbun_alt"
+	flags = HAIR_TIEABLE
+
 /datum/sprite_accessory/hair/halfshaved
 	name = "Half-Shaved"
 	icon_state = "hair_halfshaved"
+	flags = HAIR_TIEABLE
+
+/datum/sprite_accessory/hair/halfshavedalt
+	name = "Half-Shaved Alt"
+	icon_state = "hair_halfshaved_alt"
 	flags = HAIR_TIEABLE
 
 /datum/sprite_accessory/hair/softmohawk
@@ -867,3 +877,13 @@
 /datum/sprite_accessory/hair/mullethawk
 	name = "Mullet-Hawk"
 	icon_state = "hair_mullethawk"
+
+/datum/sprite_accessory/hair/maneshort
+	name = "Mane Short"
+	icon_state = "hair_mane_short"
+	flags = HAIR_TIEABLE
+
+/datum/sprite_accessory/hair/manelong
+	name = "Mane Long"
+	icon_state = "hair_mane_long"
+	flags = HAIR_TIEABLE

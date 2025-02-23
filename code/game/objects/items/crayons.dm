@@ -46,11 +46,6 @@
 	color_description = "purple crayon"
 	crayon_reagent = /datum/reagent/crayon_dust/purple
 
-/obj/item/pen/crayon/random/Initialize()
-	..()
-	var/crayon_type = pick(subtypesof(/obj/item/pen/crayon) - /obj/item/pen/crayon/random)
-	new crayon_type(loc)
-	return INITIALIZE_HINT_QDEL
 
 /obj/item/pen/crayon/mime
 	icon_state = "crayonmime"
@@ -87,8 +82,7 @@
 	shadeColour = input(user, "Please select the shade colour.", "Crayon colour") as color
 	return
 
-/obj/item/pen/crayon/afterattack(atom/target, mob/user as mob, proximity)
-	if(!proximity) return
+/obj/item/pen/crayon/use_after(atom/target, mob/user)
 	if(istype(target,/turf/simulated/floor))
 		var/drawtype = input("Choose what you'd like to draw.", "Crayon scribbles") in list("graffiti","rune","letter","arrow", "defector graffiti")
 		switch(drawtype)
@@ -105,17 +99,17 @@
 			if("defector graffiti")
 				to_chat(user, "You start drawing defector graffiti on the [target.name].")
 		if(instant || do_after(user, 5 SECONDS, target, DO_PUBLIC_UNIQUE))
-			new /obj/effect/decal/cleanable/crayon(target,colour,shadeColour,drawtype)
+			new /obj/decal/cleanable/crayon(target,colour,shadeColour,drawtype)
 			to_chat(user, "You finish drawing.")
 			target.add_fingerprint(user)		// Adds their fingerprints to the floor the crayon is drawn on.
 			if(uses)
 				uses--
 				if(!uses)
-					to_chat(user, "<span class='warning'>You used up your crayon!</span>")
+					to_chat(user, SPAN_WARNING("You used up your crayon!"))
 					qdel(src)
-	return
+		return TRUE
 
-/obj/item/pen/crayon/attack(mob/living/carbon/M as mob, mob/user as mob)
+/obj/item/pen/crayon/use_before(mob/living/carbon/M as mob, mob/user as mob)
 	if(istype(M) && M == user)
 		to_chat(M, "You take a bite of the crayon and swallow it.")
 		M.adjust_nutrition(1)
@@ -123,7 +117,17 @@
 		if(uses)
 			uses -= 5
 			if(uses <= 0)
-				to_chat(M, "<span class='warning'>You ate your crayon!</span>")
+				to_chat(M, SPAN_WARNING("You ate your crayon!"))
 				qdel(src)
-	else
-		..()
+		return TRUE
+
+
+/obj/random/crayon
+	name = "Random Crayon"
+	desc = "This is a random crayon."
+	icon = 'icons/obj/crayons.dmi'
+	icon_state = "crayonrainbow"
+
+
+/obj/random/crayon/spawn_choices()
+	return subtypesof(/obj/item/pen/crayon)

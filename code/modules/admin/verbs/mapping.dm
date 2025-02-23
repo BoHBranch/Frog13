@@ -22,19 +22,20 @@
 var/global/camera_range_display_status = 0
 var/global/intercom_range_display_status = 0
 
-/obj/effect/debugging/camera_range
+/obj/debugging/camera_range
 	icon = 'icons/480x480.dmi'
 	icon_state = "25percent"
 
-/obj/effect/debugging/camera_range/New()
+/obj/debugging/camera_range/Initialize()
+	. = ..()
 	pixel_x = -224
 	pixel_y = -224
 
-/obj/effect/debugging/marker
+/obj/debugging/marker
 	icon = 'icons/turf/areas.dmi'
 	icon_state = "yellow"
 
-/obj/effect/debugging/marker/Move()
+/obj/debugging/marker/Move()
 	return 0
 
 /client/proc/do_not_use_these()
@@ -52,12 +53,12 @@ var/global/intercom_range_display_status = 0
 
 
 
-	for(var/obj/effect/debugging/camera_range/C in world)
+	for(var/obj/debugging/camera_range/C in world)
 		qdel(C)
 
 	if(camera_range_display_status)
 		for(var/obj/machinery/camera/C in cameranet.cameras)
-			new/obj/effect/debugging/camera_range(C.loc)
+			new/obj/debugging/camera_range(C.loc)
 
 
 
@@ -77,11 +78,11 @@ var/global/intercom_range_display_status = 0
 		for(var/obj/machinery/camera/C2 in CL)
 			if(C1 != C2)
 				if(C1.c_tag == C2.c_tag)
-					output += "<li><font color='red'>c_tag match for sec. cameras at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) and \[[C2.x], [C2.y], [C2.z]\] ([C2.loc.loc]) - c_tag is [C1.c_tag]</font></li>"
+					output += "<li>[SPAN_COLOR("red", "c_tag match for sec. cameras at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) and \[[C2.x], [C2.y], [C2.z]\] ([C2.loc.loc]) - c_tag is [C1.c_tag]")]</li>"
 				if(C1.loc == C2.loc && C1.dir == C2.dir && C1.pixel_x == C2.pixel_x && C1.pixel_y == C2.pixel_y)
-					output += "<li><font color='red'>FULLY overlapping sec. cameras at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) Networks: [C1.network] and [C2.network]</font></li>"
+					output += "<li>[SPAN_COLOR("red", "FULLY overlapping sec. cameras at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) Networks: [C1.network] and [C2.network]")]</li>"
 				if(C1.loc == C2.loc)
-					output += "<li>overlapping sec. cameras at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) Networks: [C1.network] and [C2.network]</font></li>"
+					output += "<li>[SPAN_COLOR("red", "overlapping sec. cameras at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) Networks: [C1.network] and [C2.network]")]</li>"
 		var/turf/T = get_step(C1,turn(C1.dir,180))
 		if(!T || !isturf(T) || !T.density )
 			if(!(locate(/obj/structure/grille,T)))
@@ -91,7 +92,7 @@ var/global/intercom_range_display_status = 0
 						window_check = 1
 						break
 				if(!window_check)
-					output += "<li><font color='red'>Camera not connected to wall at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) Network: [C1.network]</color></li>"
+					output += "<li>[SPAN_COLOR("red", "Camera not connected to wall at \[[C1.x], [C1.y], [C1.z]\] ([C1.loc.loc]) Network: [C1.network]")]</li>"
 
 	output += "</ul>"
 	show_browser(usr, output,"window=airreport;size=1000x500")
@@ -105,46 +106,46 @@ var/global/intercom_range_display_status = 0
 	else
 		intercom_range_display_status = 1
 
-	for(var/obj/effect/debugging/marker/M in world)
+	for(var/obj/debugging/marker/M in world)
 		qdel(M)
 
 	if(intercom_range_display_status)
 		for(var/obj/item/device/radio/intercom/I in world)
 			for(var/turf/T in orange(7,I))
-				var/obj/effect/debugging/marker/F = new/obj/effect/debugging/marker(T)
+				var/obj/debugging/marker/F = new/obj/debugging/marker(T)
 				if (!(F in view(7,I.loc)))
 					qdel(F)
 
 var/global/list/debug_verbs = list (
-		/client/proc/do_not_use_these
-		,/client/proc/camera_view
-		,/client/proc/sec_camera_report
-		,/client/proc/intercom_view
-		,/client/proc/Cell
-		,/client/proc/atmosscan
-		,/client/proc/powerdebug
-		,/client/proc/count_objects_on_z_level
-		,/client/proc/count_objects_all
-		,/client/proc/cmd_assume_direct_control
-		,/client/proc/startSinglo
-		,/client/proc/cmd_admin_grantfullaccess
-		,/client/proc/cmd_admin_areatest
-		,/client/proc/cmd_admin_rejuvenate
-		,/datum/admins/proc/show_traitor_panel
-		,/client/proc/print_jobban_old
-		,/client/proc/print_jobban_old_filter
-		,/client/proc/forceEvent
-		,/client/proc/Zone_Info
-		,/client/proc/Test_ZAS_Connection
-		,/client/proc/rebootAirMaster
-		,/client/proc/hide_debug_verbs
-		,/client/proc/testZAScolors
-		,/client/proc/testZAScolors_remove
-		,/datum/admins/proc/setup_supermatter
-		,/client/proc/atmos_toggle_debug
-		,/client/proc/spawn_tanktransferbomb
-		,/client/proc/find_leaky_pipes
-		,/client/proc/analyze_openturf
+		/client/proc/do_not_use_these,
+		/client/proc/camera_view,
+		/client/proc/sec_camera_report,
+		/client/proc/intercom_view,
+		/client/proc/Cell,
+		/client/proc/atmosscan,
+		/client/proc/powerdebug,
+		/client/proc/count_objects_on_z_level,
+		/client/proc/count_objects_all,
+		/client/proc/cmd_assume_direct_control,
+		/client/proc/startSinglo,
+		/client/proc/cmd_admin_grantfullaccess,
+		/client/proc/cmd_admin_areatest,
+		/client/proc/cmd_admin_rejuvenate,
+		/datum/admins/proc/show_traitor_panel,
+		/client/proc/print_jobban_old,
+		/client/proc/print_jobban_old_filter,
+		/client/proc/forceEvent,
+		/client/proc/Zone_Info,
+		/client/proc/Test_ZAS_Connection,
+		/client/proc/rebootAirMaster,
+		/client/proc/hide_debug_verbs,
+		/client/proc/testZAScolors,
+		/client/proc/testZAScolors_remove,
+		/datum/admins/proc/setup_supermatter,
+		/client/proc/atmos_toggle_debug,
+		/client/proc/spawn_tanktransferbomb,
+		/client/proc/find_leaky_pipes,
+		/client/proc/analyze_openturf
 	)
 
 
@@ -195,7 +196,7 @@ var/global/list/debug_verbs = list (
 	var/turf/simulated/location = get_turf(usr)
 
 	if(!istype(location, /turf/simulated))
-		to_chat(src, "<Span class='warning'>This debug tool can only be used while on a simulated turf.</span>")
+		to_chat(src, SPAN_WARNING("This debug tool can only be used while on a simulated turf."))
 		return
 
 	if(!usedZAScolors)
@@ -281,10 +282,10 @@ var/global/list/debug_verbs = list (
 					atom_list += A
 	/*
 	var/atom/temp_atom
-	for(var/i = 0; i <= (atom_list.len/10); i++)
+	for(var/i = 0; i <= (length(atom_list)/10); i++)
 		var/line = ""
 		for(var/j = 1; j <= 10; j++)
-			if(i*10+j <= atom_list.len)
+			if(i*10+j <= length(atom_list))
 				temp_atom = atom_list[i*10+j]
 				line += " no.[i+10+j]@\[[temp_atom.x], [temp_atom.y], [temp_atom.z]\]; "
 		log_debug(line) */
@@ -307,10 +308,10 @@ var/global/list/debug_verbs = list (
 			count++
 	/*
 	var/atom/temp_atom
-	for(var/i = 0; i <= (atom_list.len/10); i++)
+	for(var/i = 0; i <= (length(atom_list)/10); i++)
 		var/line = ""
 		for(var/j = 1; j <= 10; j++)
-			if(i*10+j <= atom_list.len)
+			if(i*10+j <= length(atom_list))
 				temp_atom = atom_list[i*10+j]
 				line += " no.[i+10+j]@\[[temp_atom.x], [temp_atom.y], [temp_atom.z]\]; "
 		log_debug(line) */
@@ -318,6 +319,7 @@ var/global/list/debug_verbs = list (
 	log_debug("There are [count] objects of type [type_path] in the game world")
 
 /proc/get_zas_image(turf/T, icon_state)
+	RETURN_TYPE(/image)
 	return image_repository.atom_image(T, 'icons/misc/debug_group.dmi', icon_state, plane = DEFAULT_PLANE, layer = ABOVE_TILE_LAYER)
 
 //Special for Cakey
@@ -328,6 +330,6 @@ var/global/list/debug_verbs = list (
 	var/list/baddies = list("LEAKY PIPES")
 	for(var/obj/machinery/atmospherics/pipe/P in SSmachines.machinery)
 		if(P.leaking)
-			baddies += "[P] ([P.x],[P.y],[P.z] - <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[P.x];Y=[P.y];Z=[P.z]'>JMP</a>)"
+			baddies += "[P] ([P.x],[P.y],[P.z] - <A HREF='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[P.x];Y=[P.y];Z=[P.z]'>JMP</a>)"
 
 	to_chat(usr,jointext(baddies, "<br>"))

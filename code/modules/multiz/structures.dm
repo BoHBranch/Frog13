@@ -6,18 +6,26 @@
 	name = "ladder"
 	desc = "A ladder. You can climb it up and down."
 	icon_state = "ladder01"
-	icon = 'icons/obj/structures.dmi'
+	icon = 'icons/obj/structures/structures.dmi'
 	density = FALSE
 	opacity = 0
 	anchored = TRUE
 	obj_flags = OBJ_FLAG_NOFALL
 
+	var/const/climb_time = 2 SECONDS
+
+	var/static/list/climbsounds = list('sound/effects/ladder.ogg','sound/effects/ladder2.ogg','sound/effects/ladder3.ogg','sound/effects/ladder4.ogg')
+
 	var/allowed_directions = DOWN
 	var/obj/structure/ladder/target_up
 	var/obj/structure/ladder/target_down
 
-	var/const/climb_time = 2 SECONDS
-	var/static/list/climbsounds = list('sound/effects/ladder.ogg','sound/effects/ladder2.ogg','sound/effects/ladder3.ogg','sound/effects/ladder4.ogg')
+	/// Used by the BSD Instability event. If TRUE, it may cause the user to be teleported to a random other ladder.
+	var/bluespace_affected = FALSE
+
+	///Chance for a person climbing the ladder to be teleported to a random other ladder while bluespace affected.
+	var/displacement_chance = 15
+
 
 /obj/structure/ladder/Initialize()
 	. = ..()
@@ -45,8 +53,12 @@
 		target_up = null
 	return ..()
 
-/obj/structure/ladder/attackby(obj/item/I, mob/user)
-	climb(user, I)
+
+/obj/structure/ladder/use_tool(obj/item/tool, mob/user, list/click_params)
+	SHOULD_CALL_PARENT(FALSE)
+	climb(user, tool)
+	return TRUE
+
 
 /turf/hitby(atom/movable/AM)
 	if(isobj(AM))
@@ -59,9 +71,10 @@
 /obj/structure/ladder/hitby(obj/item/I)
 	if (istype(src, /obj/structure/ladder/up))
 		return
-	var/area/room = get_area(src)
-	if(!room.has_gravity())
+
+	if(!has_gravity())
 		return
+
 	var/atom/blocker
 	var/turf/landing = get_turf(target_down)
 	for(var/atom/A in landing)
@@ -102,8 +115,15 @@
 	var/obj/structure/ladder/target_ladder = getTargetLadder(M)
 	if(!target_ladder)
 		return
+	if (bluespace_affected && prob(displacement_chance))
+		var/list/obj/structure/ladder/other_ladders= list()
+		var/list/zlevels = GetConnectedZlevels(z)
+		for (var/obj/structure/ladder/ladder)
+			if (src != ladder && (ladder.z in zlevels))
+				other_ladders += ladder
+		target_ladder = pick(other_ladders)
 	if(!M.Move(get_turf(src)))
-		to_chat(M, "<span class='notice'>You fail to reach \the [src].</span>")
+		to_chat(M, SPAN_NOTICE("You fail to reach \the [src]."))
 		return
 
 	for (var/obj/item/grab/G in M)
@@ -111,14 +131,17 @@
 
 	var/direction = target_ladder == target_up ? "up" : "down"
 
-	M.visible_message("<span class='notice'>\The [M] begins climbing [direction] \the [src]!</span>",
+	M.visible_message(SPAN_NOTICE("\The [M] begins climbing [direction] \the [src]!"),
 	"You begin climbing [direction] \the [src]!",
 	"You hear the grunting and clanging of a metal ladder being used.")
 
-	target_ladder.audible_message("<span class='notice'>You hear something coming [direction] \the [src]</span>")
+	target_ladder.audible_message(SPAN_NOTICE("You hear something coming [direction] \the [src]"))
 
 	if(do_after(M, climb_time, src, DO_PUBLIC_UNIQUE))
 		climbLadder(M, target_ladder, I)
+		if (bluespace_affected && prob(20))
+			to_chat(M, SPAN_WARNING("You feel like you didn't end up where you were supposed to..."))
+
 		for (var/obj/item/grab/G in M)
 			G.adjust_position(force = 1)
 
@@ -126,9 +149,10 @@
 	instant_climb(M)
 
 /obj/structure/ladder/proc/getTargetLadder(mob/M)
-	if((!target_up && !target_down) || (target_up && !istype(target_up.loc, /turf/simulated/open) || (target_down && !istype(target_down.loc, /turf))))
-		to_chat(M, "<span class='notice'>\The [src] is incomplete and can't be climbed.</span>")
+	if((!target_up && !target_down) || (target_up && !istype(target_up.loc, /turf/simulated/open) || (target_down && !isturf(target_down.loc))))
+		to_chat(M, SPAN_NOTICE("\The [src] is incomplete and can't be climbed."))
 		return
+
 	if(target_down && target_up)
 		var/direction = alert(M,"Do you want to go up or down?", "Ladder", "Up", "Down", "Cancel")
 
@@ -148,21 +172,21 @@
 
 /mob/proc/may_climb_ladders(ladder)
 	if(!Adjacent(ladder))
-		to_chat(src, "<span class='warning'>You need to be next to \the [ladder] to start climbing.</span>")
+		to_chat(src, SPAN_WARNING("You need to be next to \the [ladder] to start climbing."))
 		return FALSE
 	if(incapacitated())
-		to_chat(src, "<span class='warning'>You are physically unable to climb \the [ladder].</span>")
+		to_chat(src, SPAN_WARNING("You are physically unable to climb \the [ladder]."))
 		return FALSE
 
 	var/carry_count = 0
 	for(var/obj/item/grab/G in src)
 		if(!G.ladder_carry())
-			to_chat(src, "<span class='warning'>You can't carry [G.affecting] up \the [ladder].</span>")
+			to_chat(src, SPAN_WARNING("You can't carry [G.affecting] up \the [ladder]."))
 			return FALSE
 		else
 			carry_count++
 	if(carry_count > 1)
-		to_chat(src, "<span class='warning'>You can't carry more than one person up \the [ladder].</span>")
+		to_chat(src, SPAN_WARNING("You can't carry more than one person up \the [ladder]."))
 		return FALSE
 
 	return TRUE
@@ -174,15 +198,15 @@
 	var/turf/T = get_turf(target_ladder)
 	for(var/atom/A in T)
 		if(!A.CanPass(user, user.loc, 1.5, 0))
-			to_chat(user, "<span class='notice'>\The [A] is blocking \the [src].</span>")
+			to_chat(user, SPAN_NOTICE("\The [A] is blocking \the [src]."))
 
 			//We cannot use the ladder, but we probably can remove the obstruction
 			var/atom/movable/M = A
-			if(istype(M) && M.movable_flags & MOVABLE_FLAG_Z_INTERACT)
+			if (istype(M) && HAS_FLAGS(M.movable_flags, MOVABLE_FLAG_Z_INTERACT))
 				if(isnull(I))
 					M.attack_hand(user)
 				else
-					M.attackby(I, user)
+					M.use_tool(I, user)
 
 			return FALSE
 
@@ -207,11 +231,19 @@
 /obj/structure/stairs
 	name = "stairs"
 	desc = "Stairs leading to another deck.  Not too useful if the gravity goes out."
-	icon = 'icons/obj/stairs.dmi'
+	icon = 'icons/obj/structures/stairs.dmi'
+	icon_state = "above"
 	density = FALSE
 	opacity = 0
 	anchored = TRUE
 	layer = RUNE_LAYER
+
+	///Used by the BSD instability event. Causes users to sometimes randomly appear on the wrong stairs
+	var/bluespace_affected = FALSE
+
+	/// Chance of a user being displaced to a random set of stairs while its bluespace affected.
+	var/displacement_chance = 15
+
 
 /obj/structure/stairs/Initialize()
 	for(var/turf/turf in locs)
@@ -234,6 +266,16 @@
 		var/turf/target = get_step(above, dir)
 		var/turf/source = A.loc
 		if(above.CanZPass(source, UP) && target.Enter(A, src))
+			if (bluespace_affected)
+				var/list/obj/structure/other_stairs= list()
+				for (var/obj/structure/stairs/stair)
+					if (src != stair && (stair.z in GetConnectedZlevels(above.z)))
+						other_stairs += stair
+				var/obj/structure/stairs/other_stair = pick(other_stairs)
+				if (prob(displacement_chance))
+					target = get_turf(other_stair)
+					if (prob(20))
+						to_chat(A, SPAN_WARNING("You feel turned around..."))
 			A.forceMove(target)
 			if(isliving(A))
 				var/mob/living/L = A
@@ -245,7 +287,7 @@
 					playsound(source, 'sound/effects/stairs_step.ogg', 50)
 					playsound(target, 'sound/effects/stairs_step.ogg', 50)
 		else
-			to_chat(A, "<span class='warning'>Something blocks the path.</span>")
+			to_chat(A, SPAN_WARNING("Something blocks the path."))
 	else
 		to_chat(A, SPAN_NOTICE("There is nothing of interest in this direction."))
 

@@ -88,12 +88,29 @@
 	name = "heliodor surgical cap"
 	color = "#aad539"
 
+/obj/item/clothing/head/surgery/lavender
+	name = "lavender surgical cap"
+	color = "#bebbee"
+
 //Berets
 /obj/item/clothing/head/beret
 	name = "beret"
 	desc = "A beret, an artists favorite headwear."
 	icon_state = "beret"
+	slot_flags = SLOT_HEAD | SLOT_BELT
 	body_parts_covered = 0
+
+/obj/item/clothing/head/beret/equipped(mob/user, slot)
+	switch(slot)
+		if(slot_belt)
+			sprite_sheets = list()
+		if(slot_head)
+			sprite_sheets = list(
+				SPECIES_VOX = 'icons/mob/species/vox/onmob_head_vox.dmi',
+				SPECIES_UNATHI = 'icons/mob/species/unathi/onmob_head_unathi.dmi',
+				SPECIES_NABBER = 'icons/mob/species/nabber/onmob_head_gas.dmi'
+				)
+	return ..()
 
 /obj/item/clothing/head/beret/sec
 	name = "corporate security beret"
@@ -133,7 +150,7 @@
 /obj/item/clothing/head/beret/engineering
 	name = "corporate engineering beret"
 	desc = "A beret with the engineering insignia emblazoned on it. For engineers that are more inclined towards style than safety."
-	icon_state = "beret_orange"
+	icon_state = "beret_corporate_navy"
 
 /obj/item/clothing/head/beret/purple
 	name = "purple beret"
@@ -153,14 +170,14 @@
 /obj/item/clothing/head/beret/deathsquad
 	name = "heavy asset protection beret"
 	desc = "An armored red beret adorned with the crest of corporate asset protection. Doesn't sacrifice style or safety."
-	icon_state = "beret_red"
+	icon_state = "beret_corporate_red"
 	armor = list(
-		melee = ARMOR_MELEE_VERY_HIGH, 
-		bullet = ARMOR_BALLISTIC_RIFLE, 
+		melee = ARMOR_MELEE_VERY_HIGH,
+		bullet = ARMOR_BALLISTIC_RIFLE,
 		laser = ARMOR_LASER_HANDGUNS,
-		energy = ARMOR_ENERGY_SMALL, 
-		bomb = ARMOR_BOMB_PADDED, 
-		bio = ARMOR_BIO_RESISTANT, 
+		energy = ARMOR_ENERGY_SMALL,
+		bomb = ARMOR_BOMB_PADDED,
+		bio = ARMOR_BIO_RESISTANT,
 		rad = ARMOR_RAD_MINOR
 	)
 	siemens_coefficient = 0.9

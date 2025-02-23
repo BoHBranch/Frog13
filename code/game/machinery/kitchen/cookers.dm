@@ -13,12 +13,12 @@
 /obj/machinery/cooker
 	name = "cooker"
 	desc = "You shouldn't be seeing this!"
-	icon = 'icons/obj/cooking_machines.dmi'
+	icon = 'icons/obj/machines/cooking_machines.dmi'
 	density = TRUE
 	anchored = TRUE
 	idle_power_usage = 0
 	active_power_usage = 1000
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 	uncreated_component_parts = null
 	stat_immune = 0
 	init_flags = EMPTY_BITFIELD
@@ -32,7 +32,7 @@
 	var/threshold //Whether (world.time - started) has passed cook_time or burn_time
 	var/started //The world.time when cooking started
 	var/default_color //The fallback color to assign to cooked things if the mode does not supply one
-	var/datum/effect/effect/system/smoke_spread/bad/smoke
+	var/datum/effect/smoke_spread/bad/smoke
 
 
 /obj/machinery/cooker/Initialize()
@@ -56,7 +56,7 @@
 		if (is_processing)
 			to_chat(user, "It is[is_processing ? "" : " not"] running.")
 		if (distance < 3)
-			if (cooking.len)
+			if (length(cooking))
 				to_chat(user, "You can see \an [english_list(cooking)] inside.")
 			else
 				to_chat(user, "It is empty.")
@@ -99,7 +99,7 @@
 	if (stat)
 		to_chat(user, SPAN_WARNING("\The [src] is in no condition to operate."))
 		return
-	var/option = alert(user, "", "[src] Options", "Empty", "Turn [is_processing ? "Off" : "On"]", cook_modes.len > 1 ? "Cook Mode" : null)
+	var/option = alert(user, "", "[src] Options", "Empty", "Turn [is_processing ? "Off" : "On"]", length(cook_modes) > 1 ? "Cook Mode" : null)
 	if (!option || QDELETED(src) || stat)
 		return
 	if (!Adjacent(user) || user.stat)
@@ -134,31 +134,35 @@
 			to_chat(user, "The contents of \the [src] will now be [cook_modes[mode]["desc"]].")
 
 
-/obj/machinery/cooker/attackby(obj/item/I, mob/user)
+/obj/machinery/cooker/use_tool(obj/item/I, mob/living/user, list/click_params)
 	if (is_processing)
 		to_chat(user, SPAN_WARNING("Turn off \the [src] first."))
-		return
-	. = component_attackby(I, user)
-	if (.)
+		return TRUE
+	if ((. = ..()))
 		return
 	if (stat)
 		to_chat(user, SPAN_WARNING("\The [src] is in no condition to operate."))
-		return
+		return TRUE
 	if (!istype(I, /obj/item/reagent_containers/food/snacks))
 		to_chat(user, SPAN_WARNING("Cooking \a [I] wouldn't be very tasty."))
-		return
-	if (cooking.len >= capacity)
+		return TRUE
+	var/obj/item/reagent_containers/food/snacks/F = I
+	if (!F.can_use_cooker)
+		to_chat(user, SPAN_WARNING("Cooking \a [I] wouldn't be very tasty."))
+		return TRUE
+	if (length(cooking) >= capacity)
 		to_chat(user, SPAN_WARNING("\The [src] is already full up."))
-		return
+		return TRUE
 	if (!user.unEquip(I))
-		return
+		return TRUE
 	user.visible_message("\The [user] puts \the [I] into \the [src].")
 	I.forceMove(src)
 	cooking += I
+	return TRUE
 
 
 /obj/machinery/cooker/Process()
-	if (!cooking.len)
+	if (!length(cooking))
 		disable()
 	var/time = world.time - started
 	if (time < cook_time)
@@ -166,7 +170,7 @@
 	if (!threshold)
 		var/list/source = cooking.Copy()
 		cooking.Cut()
-		var/index = source.len
+		var/index = length(source)
 		while (index)
 			cooking += cook_item(source[index])
 			--index
@@ -183,7 +187,7 @@
 	if (threshold < 2)
 		var/list/source = cooking.Copy()
 		cooking.Cut()
-		var/index = source.len
+		var/index = length(source)
 		while (index)
 			cooking += new /obj/item/reagent_containers/food/snacks/badrecipe(src)
 			--index
@@ -225,7 +229,7 @@
 	var/result_name = source.name
 	if (flags & COOKER_STRIP_RAW)
 		if (text_starts_with(result_name, "raw"))
-			result_name = trim(copytext(result_name, 4))
+			result_name = trimtext(copytext(result_name, 4))
 	result.SetName("[prefix ? "[prefix] " : ""][result_name][suffix ? " [suffix]" : ""]")
 	var/list/combined_names = result.combined_names
 	if (combined_names)
@@ -249,11 +253,11 @@
 		result.filling_color = BlendRGB(source.color || "#ffffff", tint, 0.5)
 	else
 		result.filling_color = (source.color || source.filling_color || "#ffffff")
-	if (result.type != /obj/item/reagent_containers/food/snacks/variable && istype(result, /obj/item/reagent_containers/food/snacks/variable))
+	if (result.type != /obj/item/reagent_containers/food/snacks/variable)
 		var/image/I = image(result.icon, result, "[result.icon_state]_filling")
 		I.appearance_flags = DEFAULT_APPEARANCE_FLAGS | RESET_COLOR
 		I.color = result.filling_color
-		result.overlays += I
+		result.AddOverlays(I)
 
 
 /obj/machinery/cooker/candy
@@ -387,15 +391,15 @@
 			"desc" = "roasted",
 			"flags" = COOKER_STRIP_RAW
 		),
-		"Personal Pizza" = list(
-			"type" = /obj/item/reagent_containers/food/snacks/variable/pizza,
+		"Pizza" = list(
+			"type" = /obj/item/reagent_containers/food/snacks/sliceable/variable/pizza,
 			"suffix" = "pizza",
 			"desc" = "made into a pizza",
 			"color" = null,
 			"flags" = COOKER_STRIP_RAW
 		),
 		"Bread" = list(
-			"type" = /obj/item/reagent_containers/food/snacks/variable/bread,
+			"type" = /obj/item/reagent_containers/food/snacks/sliceable/variable/bread,
 			"suffix" = "bread",
 			"desc" = "made into bread",
 			"color" = null,
@@ -408,8 +412,8 @@
 			"color" = null,
 			"flags" = COOKER_STRIP_RAW
 		),
-		"Small Cake" = list(
-			"type" = /obj/item/reagent_containers/food/snacks/variable/cake,
+		"Cake" = list(
+			"type" = /obj/item/reagent_containers/food/snacks/sliceable/variable/cake,
 			"suffix" = "cake",
 			"desc" = "made into a cake",
 			"color" = null,
@@ -451,7 +455,7 @@
 			"flags" = COOKER_STRIP_RAW
 		),
 		"Donut" = list(
-			"type" = /obj/item/reagent_containers/food/snacks/variable/donut,
+			"type" = /obj/item/reagent_containers/food/snacks/donut/variable,
 			"suffix" = "donut",
 			"desc" = "made into a donut",
 			"color" = null,
@@ -490,55 +494,106 @@
 	if (cook_mode == "Make Cereal")
 		var/image/I = image(source.icon, source.icon_state)
 		I.color = source.color
-		I.overlays += source.overlays
+		I.CopyOverlays(source)
 		I.SetTransform(scale = 0.5)
-		result.icon = 'icons/obj/food.dmi'
+		result.icon = 'icons/obj/food/food.dmi'
 		result.icon_state = "cereal_box"
 		result.color = null
-		result.overlays += I
+		result.AddOverlays(I)
 		result.filling_color = BlendRGB(source.color || source.filling_color , "#fcaf32") //for cereal contents
 
 
 /obj/item/reagent_containers/food/snacks/variable
 	name = "cooked food"
-	icon = 'icons/obj/food_custom.dmi'
+	icon = 'icons/obj/food/food_custom.dmi'
+	bitesize = 2
+
+/obj/item/reagent_containers/food/snacks/sliceable/variable
+	name = "cooked food"
+	icon = 'icons/obj/food/food_custom.dmi'
+	slice_path = /obj/item/reagent_containers/food/snacks/slice
+	slices_num = 5
 	bitesize = 2
 
 
-/obj/item/reagent_containers/food/snacks/variable/pizza
-	name = "personal pizza"
-	desc = "A personalized pan pizza meant for only one person."
-	icon_state = "personal_pizza"
+/obj/item/reagent_containers/food/snacks/slice/variable
+	name = "cooked food slice"
+	icon = 'icons/obj/food/food_custom.dmi'
+	whole_path = /obj/item/reagent_containers/food/snacks/sliceable/variable
+	bitesize = 2
 
 
-/obj/item/reagent_containers/food/snacks/variable/bread
+/obj/item/reagent_containers/food/snacks/sliceable/variable/pizza
+	name = "pizza"
+	desc = "A tasty oven pizza meant to be shared."
+	icon_state = "pizza"
+	slice_path = /obj/item/reagent_containers/food/snacks/slice/variable/pizza
+	slices_num = 6
+	nutriment_amt = 15
+	nutriment_desc = list("pizza crust" = 8, "cheese" = 7)
+
+
+/obj/item/reagent_containers/food/snacks/slice/variable/pizza
+	name = "pizza slice"
+	desc = "A tasty slice of pizza."
+	icon_state = "pizza_slice"
+	whole_path = /obj/item/reagent_containers/food/snacks/sliceable/variable/pizza
+
+
+/obj/item/reagent_containers/food/snacks/sliceable/variable/bread
 	name = "bread"
 	desc = "Tasty bread."
 	icon_state = "breadcustom"
+	slice_path = /obj/item/reagent_containers/food/snacks/slice/variable/bread
+	nutriment_amt = 6
+	nutriment_desc = list("bread" = 6)
+
+/obj/item/reagent_containers/food/snacks/slice/variable/bread
+	name = "bread slice"
+	desc = "A tasty slice of bread."
+	icon_state = "breadcustom_slice"
+	whole_path = /obj/item/reagent_containers/food/snacks/sliceable/variable/bread
 
 
 /obj/item/reagent_containers/food/snacks/variable/pie
 	name = "pie"
 	desc = "Tasty pie."
 	icon_state = "piecustom"
+	nutriment_amt = 4
+	nutriment_desc = list("pie" = 4)
 
 
-/obj/item/reagent_containers/food/snacks/variable/cake
+/obj/item/reagent_containers/food/snacks/sliceable/variable/cake
 	name = "cake"
 	desc = "A popular band."
 	icon_state = "cakecustom"
+	slice_path = /obj/item/reagent_containers/food/snacks/slice/variable/cake
+	nutriment_amt = 15
+	nutriment_desc = list("cake" = 8, "sweetness" = 7)
+
+
+/obj/item/reagent_containers/food/snacks/slice/variable/cake
+	name = "cake slice"
+	desc = "A tasty slice of cake."
+	icon_state = "cakecustom_slice"
+	whole_path = /obj/item/reagent_containers/food/snacks/sliceable/variable/cake
+	trash = /obj/item/trash/plate
 
 
 /obj/item/reagent_containers/food/snacks/variable/pocket
 	name = "hot pocket"
 	desc = "You wanna put a bangin- oh, nevermind."
 	icon_state = "donk"
+	nutriment_amt = 2
+	nutriment_desc = list("heartiness" = 1,"dough" = 2)
 
 
 /obj/item/reagent_containers/food/snacks/variable/kebab
 	name = "kebab"
 	desc = "Remove this!"
 	icon_state = "kabob"
+	nutriment_amt = 3
+	nutriment_desc = list("kebab" = 3)
 
 
 /obj/item/reagent_containers/food/snacks/variable/waffles
@@ -546,6 +601,9 @@
 	desc = "Made with love."
 	icon_state = "waffles"
 	gender = PLURAL
+	nutriment_amt = 4
+	nutriment_desc = list("waffle" = 4)
+	trash = /obj/item/trash/waffles
 
 
 /obj/item/reagent_containers/food/snacks/variable/pancakes
@@ -553,48 +611,67 @@
 	desc = "How does an oven make pancakes?"
 	icon_state = "pancakescustom"
 	gender = PLURAL
+	nutriment_amt = 4
+	nutriment_desc = list("pancake" = 4)
+	trash = /obj/item/trash/plate
 
 
 /obj/item/reagent_containers/food/snacks/variable/cookie
 	name = "cookie"
 	desc = "Sugar snap!"
 	icon_state = "cookie"
+	nutriment_amt = 3
+	nutriment_desc = list("sweetness" = 1, "cookie" = 2)
 
 
-/obj/item/reagent_containers/food/snacks/variable/donut
-	name = "filled donut"
+/obj/item/reagent_containers/food/snacks/donut/variable
+	name = "donut"
 	desc = "Donut eat this!"
+	icon = 'icons/obj/food/food_custom.dmi'
 	icon_state = "donut"
+	nutriment_amt = 2
+	nutriment_desc = list("donut" = 2)
 
 
 /obj/item/reagent_containers/food/snacks/variable/jawbreaker
 	name = "flavored jawbreaker"
 	desc = "It's like cracking a molar on a rainbow."
 	icon_state = "jawbreaker"
+	nutriment_amt = 2
+	nutriment_desc = list("a toothache" = 1, "sweetness" = 1)
 
 
 /obj/item/reagent_containers/food/snacks/variable/candybar
 	name = "flavored chocolate bar"
 	desc = "Made in a factory downtown."
 	icon_state = "bar"
+	nutriment_amt = 2
+	nutriment_desc = list("chocolate" = 2)
 
 
 /obj/item/reagent_containers/food/snacks/variable/sucker
 	name = "flavored sucker"
 	desc = "Suck, suck, suck."
 	icon_state = "sucker"
+	nutriment_amt = 2
+	nutriment_desc = list("sweetness" = 2)
 
 
 /obj/item/reagent_containers/food/snacks/variable/jelly
 	name = "jelly"
 	desc = "All your friends will be jelly."
 	icon_state = "jellycustom"
+	nutriment_amt = 3
+	nutriment_desc = list("sweetness" = 3)
+	trash = /obj/item/trash/snack_bowl
 
 
 /obj/item/reagent_containers/food/snacks/variable/stuffing
 	name = "stuffing"
 	desc = "Get stuffed."
 	icon_state = "stuffing"
+	nutriment_amt = 3
+	nutriment_desc = list("stuffing" = 3)
 
 
 /obj/item/reagent_containers/food/snacks/variable/shreds
@@ -606,12 +683,15 @@
 	name = "stew"
 	desc = "A hearty classic."
 	icon_state = "stew"
+	nutriment_amt = 4
+	nutriment_desc = list("stew" = 3)
+	trash = /obj/item/trash/pot
 
 
 /obj/item/material/chopping_board
 	name = "chopping board"
 	desc = "A food preparation surface that allows you to combine food more easily."
-	icon = 'icons/obj/chopping_board.dmi'
+	icon = 'icons/obj/food/chopping_board.dmi'
 	icon_state = "chopping_board"
 	w_class = ITEM_SIZE_NORMAL
 	default_material = MATERIAL_MAPLE
@@ -623,12 +703,13 @@
 /obj/item/material/chopping_board/bamboo/default_material = MATERIAL_BAMBOO
 
 
-/obj/item/material/chopping_board/attackby(obj/item/item, mob/living/user)
+/obj/item/material/chopping_board/use_tool(obj/item/item, mob/living/user, list/click_params)
 	if (istype(item, /obj/item/reagent_containers/food/snacks))
 		if (istype(item, /obj/item/reagent_containers/food/snacks/variable))
 			to_chat(user, SPAN_WARNING("\The [item] is already combinable."))
 			return TRUE
 		if (!user.unEquip(item, src))
+			FEEDBACK_UNEQUIP_FAILURE(user, item)
 			return TRUE
 		var/obj/item/reagent_containers/food/snacks/source = item
 		var/obj/item/reagent_containers/food/snacks/variable/result = new (get_turf(src))
@@ -641,15 +722,16 @@
 		result.icon = source.icon
 		result.icon_state = source.icon_state
 		result.color = source.color
-		result.overlays += source.overlays
+		result.CopyOverlays(source)
 		result.name = source.name
 		result.desc = source.desc
 		qdel(source)
 		return TRUE
+
 	return ..()
 
 
-/obj/item/reagent_containers/food/snacks/variable/attackby(obj/item/I, mob/living/user)
+/obj/item/reagent_containers/food/snacks/variable/use_tool(obj/item/I, mob/living/user, list/click_params)
 	if (istype(I, /obj/item/reagent_containers/food/snacks))
 		combine(I, user)
 		return TRUE
@@ -670,11 +752,11 @@
 			to_chat(user, SPAN_WARNING("This food is partially eaten.") + SPAN_NOTICE(" You combine it anyway."))
 		else
 			response = alert(user, "Combine Food Scraps?", "Combine Food", "Yes", "No") == "Yes"
-			if (!response)
+			if (!response || !user.use_sanity_check(src, other))
 				return FALSE
 	if (!response && user.a_intent == I_HELP)
 		response = alert(user, "Combine Food?", "Combine Food", "Yes", "No") == "Yes"
-		if (!response)
+		if (!response || !user.use_sanity_check(src, other))
 			return FALSE
 	if (!user.unEquip(other, src))
 		return FALSE
@@ -702,9 +784,9 @@
 	I.pixel_x = rand(-8, 8)
 	I.pixel_y = rand(-8, 8)
 	I.color = other.color
-	I.overlays += other.overlays
+	I.CopyOverlays(other)
 	I.SetTransform(scale = 0.8)
-	overlays += I
+	AddOverlays(I)
 	qdel(other)
 	return TRUE
 

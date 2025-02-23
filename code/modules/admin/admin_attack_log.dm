@@ -18,7 +18,7 @@
 	message_staff(user ? "[key_name_admin(user)] [message]" : "EVENT [message]")
 
 /proc/log_and_message_admins_many(list/mob/users, message)
-	if(!users || !users.len)
+	if(!users || !length(users))
 		return
 
 	var/list/user_keys = list()
@@ -54,16 +54,16 @@
 		if (attacker.zone_sel?.selecting)
 			zone_sel = "(ZONE_SEL: [uppertext(attacker.zone_sel.selecting)])"
 		if(victim)
-			attacker.attack_logs_ += text("\[[time_stamp()]\] <font color='red'>[key_name(victim)] - [attacker_message] [intent] [zone_sel]</font>")
+			attacker.attack_logs_ += text("\[[time_stamp()]\] [SPAN_COLOR("red", "[key_name(victim)] - [attacker_message] [intent] [zone_sel]")]")
 		else
-			attacker.attack_logs_ += text("\[[time_stamp()]\] <font color='red'>[attacker_message] [intent] [zone_sel]</font>")
+			attacker.attack_logs_ += text("\[[time_stamp()]\] [SPAN_COLOR("red", "[attacker_message] [intent] [zone_sel]")]")
 		attacker.last_attacked_ = mob_repository.get_lite_mob(victim)
 		attack_location = get_turf(attacker)
 	if(victim)
 		if(attacker)
-			victim.attack_logs_ += text("\[[time_stamp()]\] <font color='orange'>[key_name(attacker)] - [victim_message] [intent] [zone_sel]</font>")
+			victim.attack_logs_ += text("\[[time_stamp()]\] [SPAN_COLOR("orange", "[key_name(attacker)] - [victim_message] [intent] [zone_sel]")]")
 		else
-			victim.attack_logs_ += text("\[[time_stamp()]\] <font color='orange'>[victim_message]</font>")
+			victim.attack_logs_ += text("\[[time_stamp()]\] [SPAN_COLOR("orange", "[victim_message]")]")
 		victim.last_attacker_ = mob_repository.get_lite_mob(attacker)
 		if(!attack_location)
 			attack_location = get_turf(victim)
@@ -102,7 +102,7 @@
 	return FALSE
 
 /proc/admin_attacker_log_many_victims(mob/attacker, list/mob/victims, attacker_message, victim_message, admin_message)
-	if(!victims || !victims.len)
+	if(!victims || !length(victims))
 		return
 
 	for(var/mob/victim in victims)
@@ -121,7 +121,7 @@
 
 /proc/append_admin_tools(message, mob, turf/location)
 	if(location)
-		message = message + " (<a HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[location.x];Y=[location.y];Z=[location.z]'>LOC</a>)"
+		message = message + " (<a HREF='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[location.x];Y=[location.y];Z=[location.z]'>LOC</a>)"
 	if(mob)
-		message = message + " (<a HREF='?_src_=holder;adminplayerobservefollow=\ref[mob]'>MOB</a>)"
+		message = message + " (<a HREF='byond://?_src_=holder;adminplayerobservefollow=\ref[mob]'>MOB</a>)"
 	return message

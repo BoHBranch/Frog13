@@ -4,11 +4,11 @@
 	icon_state = "boxing"
 	item_state = "boxing"
 
-/obj/item/clothing/gloves/boxing/attackby(obj/item/W, mob/user)
+/obj/item/clothing/gloves/boxing/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(isWirecutter(W) || istype(W, /obj/item/scalpel))
-		to_chat(user, "<span class='notice'>That won't work.</span>")//Nope
-	else
-		..()
+		to_chat(user, SPAN_WARNING("That won't work."))
+		return TRUE
+	return ..()
 
 /obj/item/clothing/gloves/boxing/green
 	icon_state = "boxinggreen"

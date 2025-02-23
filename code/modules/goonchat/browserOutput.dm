@@ -2,10 +2,6 @@
 For the main html chat area
 *********************************/
 
-/// Cache of icons for the browser output
-GLOBAL_DATUM_INIT(iconCache, /savefile, new("data/tmp/iconCache.sav"))
-
-
 /// Should match the value set in the browser js
 #define MAX_COOKIE_LENGTH 5
 #define SPAM_TRIGGER_AUTOMUTE 10
@@ -42,7 +38,7 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("data/tmp/iconCache.sav"))
 	var/list/connectionHistory = list()
 
 
-/datum/chatOutput/Destroy(force)
+/datum/chatOutput/Destroy()
 	SSping.chats -= src
 	return ..()
 
@@ -99,6 +95,9 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("data/tmp/iconCache.sav"))
 			swaptodarkmode()
 		if ("swaptolightmode")
 			swaptolightmode()
+		if ("reload")
+			loaded = FALSE
+			start()
 	if(data)
 		ehjax_send(data = data)
 
@@ -115,6 +114,7 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("data/tmp/iconCache.sav"))
 	sendClientData()
 	syncRegex()
 	legacy_chat(owner, SPAN_DANGER("Failed to load fancy chat. Some features won't work.")) // do NOT convert to to_chat()
+	legacy_chat(owner, SPAN_DANGER("Shall we <a href='byond://?_src_=chat&proc=reload'>try again</a>?")) // do NOT convert to to_chat()
 
 
 /datum/chatOutput/proc/showChat()
@@ -139,7 +139,7 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("data/tmp/iconCache.sav"))
 
 /datum/chatOutput/proc/syncRegex()
 	var/list/regexes = list()
-	if (regexes.len)
+	if (length(regexes))
 		ehjax_send(data = list("syncRegex" = regexes))
 
 
@@ -173,24 +173,24 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("data/tmp/iconCache.sav"))
 		return
 	if(cookie != "none")
 		var/list/connData = json_decode(cookie)
-		if (connData && islist(connData) && connData.len > 0 && connData["connData"])
+		if (connData && islist(connData) && length(connData) > 0 && connData["connData"])
 			connectionHistory = connData["connData"]
 			var/list/found = new()
-			if(connectionHistory.len > MAX_COOKIE_LENGTH)
+			if(length(connectionHistory) > MAX_COOKIE_LENGTH)
 				message_admins("[key_name(src.owner)] was kicked for an invalid ban cookie)")
 				qdel(owner)
 				return
-			for(var/i in connectionHistory.len to 1 step -1)
+			for(var/i in length(connectionHistory) to 1 step -1)
 				if(QDELETED(owner))
 					return
 				var/list/row = src.connectionHistory[i]
-				if (!row || row.len < 3 || (!row["ckey"] || !row["compid"] || !row["ip"]))
+				if (!row || length(row) < 3 || (!row["ckey"] || !row["compid"] || !row["ip"]))
 					return
 				if (world.IsBanned(row["ckey"], row["ip"], row["compid"]))
 					found = row
 					break
 				CHECK_TICK
-			if (found.len > 0)
+			if (length(found) > 0)
 				var/msg = "[key_name(src.owner)] has a cookie from a banned account! (Matched: [found["ckey"]], [found["ip"]], [found["compid"]])"
 				message_admins(msg)
 				log_admin(msg)
@@ -268,6 +268,8 @@ GLOBAL_DATUM_INIT(iconCache, /savefile, new("data/tmp/iconCache.sav"))
 
 /proc/to_chat(target, message, handle_whitespace = TRUE, trailing_newline = TRUE)
 	set waitfor = FALSE
+	if (!target)
+		return
 	if(Master.current_runlevel == RUNLEVEL_INIT || !SSchat?.initialized)
 		to_chat_immediate(target, message, handle_whitespace, trailing_newline)
 		return

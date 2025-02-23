@@ -38,7 +38,7 @@
 		return
 
 	matter = material.get_matter()
-	if(matter.len)
+	if(length(matter))
 		for(var/material_type in matter)
 			if(!isnull(matter[material_type]))
 				matter[material_type] *= force_multiplier // May require a new var instead.
@@ -84,14 +84,14 @@
 		update_icon()
 
 /obj/item/material/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 	if(applies_material_colour && istype(material))
 		color = material.icon_colour
 		alpha = 100 + material.opacity * 255
 	if(furniture_icon)
 		var/image/I = image(icon, icon_state = furniture_icon)
 		I.appearance_flags = DEFAULT_APPEARANCE_FLAGS | RESET_COLOR
-		overlays += I
+		AddOverlays(I)
 
 /obj/item/material/Destroy()
 	STOP_PROCESSING(SSobj, src)
@@ -118,7 +118,7 @@
 
 /obj/item/material/proc/shatter()
 	var/turf/T = get_turf(src)
-	T.visible_message("<span class='danger'>\The [src] [material.destruction_desc]!</span>")
+	T.visible_message(SPAN_DANGER("\The [src] [material.destruction_desc]!"))
 	playsound(src, "shatter", 70, 1)
 	if(drops_debris)
 		material.place_shard(T)

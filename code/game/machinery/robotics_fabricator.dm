@@ -1,15 +1,15 @@
 /obj/machinery/robotics_fabricator
-	name = "Exosuit Fabricator"
+	name = "exosuit fabricator"
 	desc = "A machine used for construction of robotics and mechs."
-	icon = 'icons/obj/robotics.dmi'
-	icon_state = "fab-idle"
+	icon = 'icons/obj/machines/fabricators/robotics_fabricator.dmi'
+	icon_state = "fab"
 	density = TRUE
 	anchored = TRUE
 	idle_power_usage = 20
 	active_power_usage = 5000
 	req_access = list(access_robotics)
 	base_type = /obj/machinery/robotics_fabricator
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 	uncreated_component_parts = null
 	stat_immune = 0
 
@@ -49,13 +49,16 @@
 	update_icon()
 
 /obj/machinery/robotics_fabricator/on_update_icon()
-	overlays.Cut()
+	ClearOverlays()
 	if(panel_open)
-		icon_state = "fab-o"
-	else
-		icon_state = "fab-idle"
-	if(busy)
-		overlays += "fab-active"
+		AddOverlays("[icon_state]_panel")
+	if(is_powered())
+		if (busy)
+			AddOverlays(emissive_appearance(icon, "[icon_state]_lights_working"))
+			AddOverlays("[icon_state]_lights_working")
+		else
+			AddOverlays(emissive_appearance(icon, "[icon_state]_lights"))
+			AddOverlays("[icon_state]_lights")
 
 /obj/machinery/robotics_fabricator/dismantle()
 	for(var/f in materials)
@@ -78,7 +81,7 @@
 /obj/machinery/robotics_fabricator/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
 	var/data[0]
 
-	var/datum/design/current = queue.len ? queue[1] : null
+	var/datum/design/current = length(queue) ? queue[1] : null
 	if(current)
 		data["current"] = current.name
 	data["queue"] = get_queue_names()
@@ -89,7 +92,7 @@
 		var/list/T = list()
 		for(var/A in all_robolimbs)
 			var/datum/robolimb/R = all_robolimbs[A]
-			if(R.unavailable_at_fab || R.applies_to_part.len)
+			if(R.unavailable_at_fab || length(R.applies_to_part))
 				continue
 			T += list(list("id" = A, "company" = R.company))
 		data["manufacturers"] = T
@@ -143,10 +146,10 @@
 		return SPAN_NOTICE("\The [src] is busy. Please wait for completion of previous operation.")
 	return ..()
 
-/obj/machinery/robotics_fabricator/attackby(obj/item/I, mob/user)
+/obj/machinery/robotics_fabricator/use_tool(obj/item/I, mob/living/user, list/click_params)
 	if(busy)
-		to_chat(user, "<span class='notice'>\The [src] is busy. Please wait for completion of previous operation.</span>")
-		return 1
+		to_chat(user, SPAN_NOTICE("\The [src] is busy. Please wait for completion of previous operation."))
+		return TRUE
 	if(!istype(I, /obj/item/stack/material))
 		return ..()
 
@@ -160,15 +163,15 @@
 		return
 
 	if(!(material in materials))
-		to_chat(user, "<span class=warning>\The [src] does not accept [stack_plural]!</span>")
-		return
+		to_chat(user, SPAN_WARNING("\The [src] does not accept [stack_plural]!"))
+		return TRUE
 
 	if(materials[material] + amnt <= res_max_amount)
 		if(stack && stack.can_use(1))
 			var/count = 0
-			overlays += "fab-load-metal"
+			AddOverlays("fab-load-metal")
 			spawn(10)
-				overlays -= "fab-load-metal"
+				CutOverlays("fab-load-metal")
 			while(materials[material] + amnt <= res_max_amount && stack.amount >= 1)
 				materials[material] += amnt
 				stack.use(1)
@@ -178,6 +181,7 @@
 			update_busy()
 	else
 		to_chat(user, "The fabricator cannot hold more [stack_plural].")// use the plural form even if the given sheet is singular
+	return TRUE
 
 
 /obj/machinery/robotics_fabricator/emag_act(remaining_charges, mob/user)
@@ -190,7 +194,7 @@
 	return 1
 
 /obj/machinery/robotics_fabricator/proc/update_busy()
-	if(queue.len)
+	if(length(queue))
 		if(can_build(queue[1]))
 			busy = 1
 		else
@@ -217,7 +221,7 @@
 	return 1
 
 /obj/machinery/robotics_fabricator/proc/check_build()
-	if(!queue.len)
+	if(!length(queue))
 		progress = 0
 		return
 	var/datum/design/D = queue[1]
@@ -232,20 +236,20 @@
 		var/obj/new_item = D.Fabricate(loc, src)
 		visible_message("\The [src] pings, indicating that \the [D] is complete.", "You hear a ping.")
 		if(mat_efficiency != 1)
-			if(new_item.matter && new_item.matter.len > 0)
+			if(new_item.matter && length(new_item.matter) > 0)
 				for(var/i in new_item.matter)
 					new_item.matter[i] = new_item.matter[i] * mat_efficiency
 	remove_from_queue(1)
 
 /obj/machinery/robotics_fabricator/proc/get_queue_names()
 	. = list()
-	for(var/i = 2 to queue.len)
+	for(var/i = 2 to length(queue))
 		var/datum/design/D = queue[i]
 		. += D.name
 
 /obj/machinery/robotics_fabricator/proc/get_build_options()
 	. = list()
-	for(var/i = 1 to files.known_designs.len)
+	for(var/i = 1 to length(files.known_designs))
 		var/datum/design/D = files.known_designs[i]
 		if(!D.build_path || !(D.build_type & MECHFAB))
 			continue

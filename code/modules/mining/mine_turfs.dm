@@ -50,6 +50,7 @@ var/global/list/mining_floors = list()
 /turf/simulated/mineral/Destroy()
 	if (mining_walls["[src.z]"])
 		mining_walls["[src.z]"] -= src
+	GLOB.xeno_artifact_turfs -= src
 	return ..()
 
 /turf/simulated/mineral/can_build_cable()
@@ -65,7 +66,7 @@ var/global/list/mining_floors = list()
 	else
 		SetName("[mineral.ore_name] deposit")
 
-	overlays.Cut()
+	ClearOverlays()
 
 	for(var/direction in GLOB.cardinal)
 		var/turf/turf_to_check = get_step(src,direction)
@@ -84,16 +85,16 @@ var/global/list/mining_floors = list()
 					rock_side.pixel_x += world.icon_size
 				if(WEST)
 					rock_side.pixel_x -= world.icon_size
-			overlays += rock_side
+			AddOverlays(rock_side)
 
 	if(ore_overlay)
-		overlays += ore_overlay
+		AddOverlays(ore_overlay)
 
 	if(excav_overlay)
-		overlays += excav_overlay
+		AddOverlays(excav_overlay)
 
 	if(archaeo_overlay)
-		overlays += archaeo_overlay
+		AddOverlays(archaeo_overlay)
 
 /turf/simulated/mineral/ex_act(severity)
 	switch(severity)
@@ -121,7 +122,7 @@ var/global/list/mining_floors = list()
 		var/mob/mob = AM
 		var/obj/item/pickaxe/pickaxe = mob.IsHolding(/obj/item/pickaxe)
 		if (pickaxe)
-			attackby(pickaxe, mob)
+			use_tool(pickaxe, mob)
 
 /turf/simulated/mineral/proc/MineralSpread()
 	if(istype(mineral) && mineral.ore_spread_chance > 0)
@@ -144,50 +145,50 @@ var/global/list/mining_floors = list()
 	ore_overlay.turf_decal_layerise()
 	update_icon()
 
-//Not even going to touch this pile of spaghetti
-/turf/simulated/mineral/attackby(obj/item/W as obj, mob/user as mob)
+/turf/simulated/mineral/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if (!user.IsAdvancedToolUser())
-		to_chat(usr, "<span class='warning'>You don't have the dexterity to do this!</span>")
-		return
+		to_chat(usr, SPAN_WARNING("You don't have the dexterity to do this!"))
+		return TRUE
 
 	if (istype(W, /obj/item/device/core_sampler))
 		geologic_data.UpdateNearbyArtifactInfo(src)
 		var/obj/item/device/core_sampler/C = W
 		C.sample_item(src, user)
-		return
+		return TRUE
 
 	if (istype(W, /obj/item/device/depth_scanner))
 		var/obj/item/device/depth_scanner/C = W
 		C.scan_atom(user, src)
-		return
+		return TRUE
 
 	if (istype(W, /obj/item/device/measuring_tape))
 		var/obj/item/device/measuring_tape/P = W
-		user.visible_message("<span class='notice'>\The [user] extends [P] towards [src].</span>","<span class='notice'>You extend [P] towards [src].</span>")
+		user.visible_message(SPAN_NOTICE("\The [user] extends [P] towards [src]."),SPAN_NOTICE("You extend [P] towards [src]."))
 		if(do_after(user, 1 SECOND, src, DO_PUBLIC_UNIQUE))
-			to_chat(user, "<span class='notice'>\The [src] has been excavated to a depth of [excavation_level]cm.</span>")
-		return
+			to_chat(user, SPAN_NOTICE("\The [src] has been excavated to a depth of [excavation_level]cm."))
+		return TRUE
 
 	if (istype(W, /obj/item/pickaxe))
-		if(!istype(user.loc, /turf))
+		if(!isturf(user.loc))
 			return
 
 		var/obj/item/pickaxe/P = W
 		if(last_act + P.digspeed > world.time)//prevents message spam
-			return
-		last_act = world.time
+			to_chat(user, SPAN_WARNING("You cannot use \the [W] again so soon!"))
+			return TRUE
 
+		last_act = world.time
 		playsound(user, P.drill_sound, 20, 1)
 
 		var/newDepth = excavation_level + P.excavation_amount // Used commonly below
 		//handle any archaeological finds we might uncover
 		var/fail_message = ""
-		if(finds && finds.len)
+		if(finds && length(finds))
 			var/datum/find/F = finds[1]
 			if(newDepth > F.excavation_required) // Digging too deep can break the item. At least you won't summon a Balrog (probably)
 				fail_message = ". <b>[pick("There is a crunching noise","[W] collides with some different rock","Part of the rock face crumbles away","Something breaks under [W]")]</b>"
 
-		to_chat(user, "<span class='notice'>You start [P.drill_verb][fail_message].</span>")
+		to_chat(user, SPAN_NOTICE("You start [P.drill_verb][fail_message]."))
 
 		if(fail_message && prob(90))
 			if(prob(25))
@@ -198,14 +199,14 @@ var/global/list/mining_floors = list()
 					artifact_debris()
 
 		if(do_after(user, P.digspeed, src,  DO_DEFAULT | DO_PUBLIC_PROGRESS))
-			if(finds && finds.len)
+			if(finds && length(finds))
 				var/datum/find/F = finds[1]
 				if(newDepth == F.excavation_required) // When the pick hits that edge just right, you extract your find perfectly, it's never confined in a rock
 					excavate_find(1, F)
 				else if(newDepth > F.excavation_required - F.clearance_range) // Not quite right but you still extract your find, the closer to the bottom the better, but not above 80%
 					excavate_find(prob(80 * (F.excavation_required - newDepth) / F.clearance_range), F)
 
-			to_chat(user, "<span class='notice'>You finish [P.drill_verb] \the [src].</span>")
+			to_chat(user, SPAN_NOTICE("You finish [P.drill_verb] \the [src]."))
 
 			if(newDepth >= 200) // This means the rock is mined out fully
 				var/obj/structure/boulder/B
@@ -225,19 +226,19 @@ var/global/list/mining_floors = list()
 					GetDrilled(0)
 				else
 					GetDrilled(1)
-				return
+				return TRUE
 
 			excavation_level += P.excavation_amount
 			var/updateIcon = 0
 
 			//archaeo overlays
-			if(!archaeo_overlay && finds && finds.len)
+			if(!archaeo_overlay && finds && length(finds))
 				var/datum/find/F = finds[1]
 				if(F.excavation_required <= excavation_level + F.view_range)
 					archaeo_overlay = image('icons/turf/excavation_overlays.dmi',"overlay_archaeo[rand(1,3)]")
 					updateIcon = 1
 
-			else if(archaeo_overlay && (!finds || !finds.len))
+			else if(archaeo_overlay && (!finds || !length(finds)))
 				archaeo_overlay = null
 				updateIcon = 1
 
@@ -269,12 +270,13 @@ var/global/list/mining_floors = list()
 				var/obj/item/ore/O = new(src)
 				geologic_data.UpdateNearbyArtifactInfo(src)
 				O.geologic_data = geologic_data
+		return TRUE
 
 	else
 		return ..()
 
 /turf/simulated/mineral/proc/clear_ore_effects()
-	overlays -= ore_overlay
+	CutOverlays(ore_overlay)
 	ore_overlay = null
 
 /turf/simulated/mineral/proc/DropMineral()
@@ -303,7 +305,7 @@ var/global/list/mining_floors = list()
 		if(prob(50))
 			pain = 1
 		for(var/mob/living/M in range(src, 200))
-			to_chat(M, "<font color='red'><b>[pick("A high pitched [pick("keening","wailing","whistle")]","A rumbling noise like [pick("thunder","heavy machinery")]")] somehow penetrates your mind before fading away!</b></font>")
+			to_chat(M, SPAN_COLOR("red", "<b>[pick("A high pitched [pick("keening","wailing","whistle")]","A rumbling noise like [pick("thunder","heavy machinery")]")] somehow penetrates your mind before fading away!</b>"))
 			if(pain)
 				flick("pain",M.pain)
 				if(prob(50))
@@ -329,9 +331,9 @@ var/global/list/mining_floors = list()
 
 	//many finds are ancient and thus very delicate - luckily there is a specialised energy suspension field which protects them when they're being extracted
 	if(prob(F.prob_delicate))
-		var/obj/effect/suspension_field/S = locate() in src
+		var/obj/suspension_field/S = locate() in src
 		if(!S)
-			visible_message("<span class='danger'>[pick("An object in the rock crumbles away into dust.","Something falls out of the rock and shatters onto the ground.")]</span>")
+			visible_message(SPAN_CLASS("danger", "[pick("An object in the rock crumbles away into dust.","Something falls out of the rock and shatters onto the ground.")]"))
 			finds.Remove(F)
 			return
 
@@ -349,9 +351,6 @@ var/global/list/mining_floors = list()
 
 
 /turf/simulated/mineral/proc/artifact_debris(severity = 0)
-	//cael's patented random limited drop componentized loot system!
-	//sky's patented not-fucking-retarded overhaul!
-
 	//Give a random amount of loot from 1 to 3 or 5, varying on severity.
 	for(var/j in 1 to rand(1, 3 + max(min(severity, 1), 0) * 2))
 		switch(rand(1,7))
@@ -413,7 +412,7 @@ var/global/list/mining_floors = list()
 	base_desc = "Gritty and unpleasant."
 	base_icon = 'icons/turf/flooring/asteroid.dmi'
 	base_icon_state = "asteroid"
-	footstep_type = /decl/footsteps/asteroid
+	footstep_type = /singleton/footsteps/asteroid
 
 	initial_flooring = null
 	initial_gas = null
@@ -449,10 +448,7 @@ var/global/list/mining_floors = list()
 /turf/simulated/floor/asteroid/is_plating()
 	return !density
 
-/turf/simulated/floor/asteroid/attackby(obj/item/W as obj, mob/user as mob)
-	if(!W || !user)
-		return 0
-
+/turf/simulated/floor/asteroid/use_tool(obj/item/W, mob/living/user, list/click_params)
 	var/list/usable_tools = list(
 		/obj/item/shovel,
 		/obj/item/pickaxe/diamonddrill,
@@ -468,37 +464,37 @@ var/global/list/mining_floors = list()
 
 	if(valid_tool)
 		if (dug)
-			to_chat(user, "<span class='warning'>This area has already been dug</span>")
-			return
+			to_chat(user, SPAN_WARNING("This area has already been dug"))
+			return TRUE
 
 		var/turf/T = user.loc
 		if (!(istype(T)))
 			return
 
-		to_chat(user, "<span class='warning'>You start digging.</span>")
+		to_chat(user, SPAN_WARNING("You start digging."))
 		playsound(user.loc, 'sound/effects/rustle1.ogg', 50, 1)
 
-		if(!do_after(user, 4 SECONDS, src,  DO_DEFAULT | DO_PUBLIC_PROGRESS)) return
+		if (!do_after(user, 4 SECONDS, src,  DO_DEFAULT | DO_PUBLIC_PROGRESS))
+			return TRUE
 
-		to_chat(user, "<span class='notice'>You dug a hole.</span>")
+		to_chat(user, SPAN_NOTICE("You dug a hole."))
 		gets_dug()
+		return TRUE
 
 	else if(istype(W,/obj/item/storage/ore))
 		var/obj/item/storage/ore/S = W
-		if(S.collection_mode)
+		if(!S.quick_gather_single)
 			for(var/obj/item/ore/O in contents)
-				O.attackby(W,user)
-				return
+				O.use_tool(W, user)
+				return TRUE
 	else if(istype(W,/obj/item/storage/bag/fossils))
 		var/obj/item/storage/bag/fossils/S = W
-		if(S.collection_mode)
+		if(!S.quick_gather_single)
 			for(var/obj/item/fossil/F in contents)
-				F.attackby(W,user)
-				return
-
+				F.use_tool(W, user)
+				return TRUE
 	else
-		..(W,user)
-	return
+		return ..()
 
 /turf/simulated/floor/asteroid/proc/gets_dug()
 
@@ -514,7 +510,7 @@ var/global/list/mining_floors = list()
 
 /turf/simulated/floor/asteroid/proc/updateMineralOverlays(update_neighbors)
 
-	overlays.Cut()
+	ClearOverlays()
 
 	var/list/step_overlays = list("n" = NORTH, "s" = SOUTH, "e" = EAST, "w" = WEST)
 	for(var/direction in step_overlays)
@@ -522,18 +518,18 @@ var/global/list/mining_floors = list()
 		if(istype(get_step(src, step_overlays[direction]), /turf/space))
 			var/image/aster_edge = image('icons/turf/flooring/asteroid.dmi', "asteroid_edges", dir = step_overlays[direction])
 			aster_edge.turf_decal_layerise()
-			overlays += aster_edge
+			AddOverlays(aster_edge)
 
 		if(istype(get_step(src, step_overlays[direction]), /turf/simulated/mineral))
 			var/image/rock_wall = image('icons/turf/walls.dmi', "rock_side", dir = step_overlays[direction])
 			rock_wall.turf_decal_layerise()
-			overlays += rock_wall
+			AddOverlays(rock_wall)
 
 	//todo cache
 	if(overlay_detail)
 		var/image/floor_decal = image(icon = 'icons/turf/flooring/decals.dmi', icon_state = overlay_detail)
 		floor_decal.turf_decal_layerise()
-		overlays |= floor_decal
+		AddOverlays(floor_decal)
 
 	if(update_neighbors)
 		var/list/all_step_directions = list(NORTH,NORTHEAST,EAST,SOUTHEAST,SOUTH,SOUTHWEST,WEST,NORTHWEST)
@@ -548,4 +544,4 @@ var/global/list/mining_floors = list()
 	if(istype(M,/mob/living/silicon/robot))
 		var/mob/living/silicon/robot/R = M
 		for (var/obj/item/item as anything in R.GetAllHeld(/obj/item/storage/ore))
-			attackby(item, R)
+			use_tool(item, R)

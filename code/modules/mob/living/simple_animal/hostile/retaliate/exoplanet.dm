@@ -39,14 +39,14 @@
 	if (isghost(usr))
 		return
 
-	for(var/obj/effect/overmap/visitable/sector/exoplanet/E)
+	for(var/obj/overmap/visitable/sector/exoplanet/E)
 		if(src in E.animals)
 			newname = sanitizeName(newname, allow_numbers = TRUE, force_first_letter_uppercase = FALSE)
 			if(newname && CanInteract(usr, GLOB.conscious_state))
 				if(E.rename_species(type, newname))
-					to_chat(usr,"<span class='notice'>This species will be known from now on as '[newname]'.</span>")
+					to_chat(usr,SPAN_NOTICE("This species will be known from now on as '[newname]'."))
 				else
-					to_chat(usr,"<span class='warning'>This species has already been named!</span>")
+					to_chat(usr,SPAN_WARNING("This species has already been named!"))
 			return
 
 /mob/living/simple_animal/hostile/retaliate/beast/samak
@@ -198,9 +198,8 @@
 
 /datum/ai_holder/simple_animal/melee/charbaby/engage_target()
 	. = ..()
-	var/mob/living/simple_animal/hostile/retaliate/beast/charbaby/C = holder
-	if(isliving(C.target_mob) && prob(25))
-		var/mob/living/L = C.target_mob
+	if(isliving(target) && prob(25))
+		var/mob/living/L = target
 		if(prob(10))
 			L.adjust_fire_stacks(1)
 			L.IgniteMob()

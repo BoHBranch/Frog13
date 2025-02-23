@@ -37,7 +37,7 @@
 			to_receive.Add(CR.get_name())
 
 	// Nobody got any mail :(
-	if(!to_receive.len)
+	if(!length(to_receive))
 		log_debug("Nobody got any mail. Aborting event.")
 		kill(TRUE)
 
@@ -76,11 +76,10 @@
 
 		var/obj/item/gift = new gift_path()
 
-		// Wrap it all up in a parcel
-		var/obj/item/smallDelivery/parcel = new /obj/item/smallDelivery()
+		// Add the gift as the 'wrapped' item in the parcel
+		var/obj/item/smallDelivery/parcel = new /obj/item/smallDelivery(null, gift)
 		parcel.SetName("normal-sized parcel (to [name])")
 		letter.forceMove(parcel)
-		gift.forceMove(parcel)
 
 		parcel.forceMove(gift_crate)
 

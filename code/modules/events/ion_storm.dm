@@ -29,7 +29,7 @@
 			continue
 		to_chat(S, SPAN_WARNING("Your integrated sensors detect an ionospheric anomaly. Your systems will be impacted as you begin a partial restart."))
 		var/ionbug = rand(5, 15)
-		S.confused += ionbug
+		S.mod_confused(ionbug)
 		S.eye_blurry += ionbug-1
 	for(var/mob/living/silicon/S in SSmobs.mob_list)
 		if(isdrone(S) || !(isAI(S) || isrobot(S)))
@@ -136,19 +136,19 @@
 			continue
 		players += player.real_name
 
-	if(players.len)
+	if(length(players))
 		return pick(players)
 	return default_if_none
 
 /datum/event/ionstorm/proc/get_random_species_name(default_if_none = "Humans")
 	var/list/species = list()
-	for(var/S in typesof(/datum/species))
-		var/datum/species/specimen = S
+	for(var/S in typesof(/singleton/species))
+		var/singleton/species/specimen = S
 		if(initial(specimen.spawn_flags) & SPECIES_CAN_JOIN)
 			species += initial(specimen.name_plural)
 
-	if(species.len)
-		return pick(species.len)
+	if(length(species))
+		return pick(length(species))
 	return default_if_none
 
 /datum/event/ionstorm/proc/get_random_language(mob/living/silicon/S)
@@ -161,7 +161,7 @@
 		else if(L.flags & (HIVEMIND|NONVERBAL|SIGNLANG))
 			languages -= L
 
-	if(languages.len)
+	if(length(languages))
 		var/datum/language/L = pick(languages)
 		return L.name
 	else // Highly unlikely but it is a failsafe fallback.

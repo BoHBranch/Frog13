@@ -3,7 +3,7 @@
 
 /obj/machinery/oxygen_pump
 	name = "emergency oxygen pump"
-	icon = 'icons/obj/walllocker.dmi'
+	icon = 'icons/obj/structures/walllocker.dmi'
 	desc = "A wall mounted oxygen pump with a retractable face mask that you can pull over your face in case of emergencies."
 	icon_state = "emerg"
 
@@ -26,19 +26,29 @@
 	..()
 	tank = new spawn_type (src)
 	contained = new mask_type (src)
+	GLOB.destroyed_event.register(tank, src, PROC_REF(fix_deleted_tank))
+	GLOB.destroyed_event.register(contained, src, PROC_REF(fix_deleted_mask))
 
 /obj/machinery/oxygen_pump/Destroy()
 	if(breather)
-		breather.set_internals(null)
-	if(tank)
-		qdel(tank)
-	if(breather)
-		breather.drop_from_inventory(contained)
-		src.visible_message("<span class='notice'>The mask rapidly retracts just before /the [src] is destroyed!</span>")
-	qdel(contained)
-	contained = null
-	breather = null
+		detach_mask(breather)
+	GLOB.destroyed_event.unregister(tank, src, PROC_REF(fix_deleted_tank))
+	GLOB.destroyed_event.unregister(contained, src, PROC_REF(fix_deleted_mask))
+	QDEL_NULL(tank)
+	QDEL_NULL(contained)
 	return ..()
+
+/// Handler for the pump's tank being deleted, for any reason.
+/obj/machinery/oxygen_pump/proc/fix_deleted_tank(obj/item/tank/_tank)
+	GLOB.destroyed_event.unregister(_tank, src, PROC_REF(fix_deleted_tank))
+	tank = new spawn_type(src)
+	GLOB.destroyed_event.register(tank, src, PROC_REF(fix_deleted_tank))
+
+/// Handler for the pump's mask being deleted, for any reason.
+/obj/machinery/oxygen_pump/proc/fix_deleted_mask(obj/item/clothing/mask/breath/_mask)
+	GLOB.destroyed_event.unregister(_mask, src, PROC_REF(fix_deleted_mask))
+	contained = new spawn_type(src)
+	GLOB.destroyed_event.register(contained, src, PROC_REF(fix_deleted_mask))
 
 /obj/machinery/oxygen_pump/MouseDrop(mob/living/carbon/human/target, src_location, over_location)
 	..()
@@ -57,7 +67,7 @@
 
 /obj/machinery/oxygen_pump/physical_attack_hand(mob/user)
 	if(GET_FLAGS(stat, MACHINE_STAT_MAINT) && tank)
-		user.visible_message("<span class='notice'>\The [user] removes \the [tank] from \the [src].</span>", "<span class='notice'>You remove \the [tank] from \the [src].</span>")
+		user.visible_message(SPAN_NOTICE("\The [user] removes \the [tank] from \the [src]."), SPAN_NOTICE("You remove \the [tank] from \the [src]."))
 		user.put_in_hands(tank)
 		src.add_fingerprint(user)
 		tank.add_fingerprint(user)
@@ -78,6 +88,7 @@
 		if(tank)
 			tank.forceMove(C)
 		breather = C
+		GLOB.destroyed_event.register(breather, src, PROC_REF(detach_mask))
 
 /obj/machinery/oxygen_pump/proc/set_internals(mob/living/carbon/C)
 	if(C && istype(C))
@@ -90,11 +101,12 @@
 		tank.forceMove(src)
 	breather.drop_from_inventory(contained, src)
 	if(user)
-		visible_message("<span class='notice'>\The [user] detaches \the [contained] and it rapidly retracts back into \the [src]!</span>")
+		visible_message(SPAN_NOTICE("\The [user] detaches \the [contained] and it rapidly retracts back into \the [src]!"))
 	else
-		visible_message("<span class='notice'>\The [contained] rapidly retracts back into \the [src]!</span>")
+		visible_message(SPAN_NOTICE("\The [contained] rapidly retracts back into \the [src]!"))
 	if(breather.internals)
 		breather.internals.icon_state = "internal0"
+	GLOB.destroyed_event.unregister(breather, src, PROC_REF(detach_mask))
 	breather = null
 	update_use_power(POWER_USE_IDLE)
 
@@ -103,63 +115,72 @@
 		user = target
 	// Check target validity
 	if(!target.organs_by_name[BP_HEAD])
-		to_chat(user, "<span class='warning'>\The [target] doesn't have a head.</span>")
+		to_chat(user, SPAN_WARNING("\The [target] doesn't have a head."))
 		return
 	if(!target.check_has_mouth())
-		to_chat(user, "<span class='warning'>\The [target] doesn't have a mouth.</span>")
+		to_chat(user, SPAN_WARNING("\The [target] doesn't have a mouth."))
 		return
 	if(target.wear_mask && target != breather)
-		to_chat(user, "<span class='warning'>\The [target] is already wearing a mask.</span>")
+		to_chat(user, SPAN_WARNING("\The [target] is already wearing a mask."))
 		return
 	if(target.head && (target.head.body_parts_covered & FACE))
-		to_chat(user, "<span class='warning'>Remove their [target.head] first.</span>")
+		to_chat(user, SPAN_WARNING("Remove their [target.head] first."))
 		return
 	if(!tank)
-		to_chat(user, "<span class='warning'>There is no tank in \the [src].</span>")
+		to_chat(user, SPAN_WARNING("There is no tank in \the [src]."))
 		return
 	if(GET_FLAGS(stat, MACHINE_STAT_MAINT))
-		to_chat(user, "<span class='warning'>Please close \the maintenance hatch first.</span>")
+		to_chat(user, SPAN_WARNING("Please close the maintenance hatch first."))
 		return
 	if(!Adjacent(target))
-		to_chat(user, "<span class='warning'>Please stay close to \the [src].</span>")
+		to_chat(user, SPAN_WARNING("Please stay close to \the [src]."))
 		return
 	//when there is a breather:
 	if(breather && target != breather)
-		to_chat(user, "<span class='warning'>\The pump is already in use.</span>")
+		to_chat(user, SPAN_WARNING("The pump is already in use."))
 		return
 	//Checking if breather is still valid
 	if(target == breather && target.wear_mask != contained)
-		to_chat(user, "<span class='warning'>\The [target] is not using the supplied mask.</span>")
+		to_chat(user, SPAN_WARNING("\The [target] is not using the supplied mask."))
 		return
 	return 1
 
-/obj/machinery/oxygen_pump/attackby(obj/item/W as obj, mob/user as mob)
+/obj/machinery/oxygen_pump/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(isScrewdriver(W))
 		toggle_stat(MACHINE_STAT_MAINT)
-		user.visible_message("<span class='notice'>\The [user] [GET_FLAGS(stat, MACHINE_STAT_MAINT) ? "opens" : "closes"] \the [src].</span>", "<span class='notice'>You [GET_FLAGS(stat, MACHINE_STAT_MAINT) ? "open" : "close"] \the [src].</span>")
+		user.visible_message(
+			SPAN_NOTICE("\The [user] [GET_FLAGS(stat, MACHINE_STAT_MAINT) ? "opens" : "closes"] \the [src]."),
+			SPAN_NOTICE("You [GET_FLAGS(stat, MACHINE_STAT_MAINT) ? "open" : "close"] \the [src].")
+		)
 		if(GET_FLAGS(stat, MACHINE_STAT_MAINT))
 			icon_state = icon_state_open
 		if(!stat)
 			icon_state = icon_state_closed
-		//TO-DO: Open icon
+		return TRUE
+
 	if(istype(W, /obj/item/tank) && (GET_FLAGS(stat, MACHINE_STAT_MAINT)))
 		if(tank)
-			to_chat(user, "<span class='warning'>\The [src] already has a tank installed!</span>")
-		else
-			if(!user.unEquip(W, src))
-				return
-			tank = W
-			user.visible_message("<span class='notice'>\The [user] installs \the [tank] into \the [src].</span>", "<span class='notice'>You install \the [tank] into \the [src].</span>")
-			src.add_fingerprint(user)
+			to_chat(user, SPAN_WARNING("\The [src] already has a tank installed!"))
+			return TRUE
+
+		if(!user.unEquip(W, src))
+			return TRUE
+		tank = W
+		user.visible_message(SPAN_NOTICE("\The [user] installs \the [tank] into \the [src]."), SPAN_NOTICE("You install \the [tank] into \the [src]."))
+		return TRUE
+
 	if(istype(W, /obj/item/tank) && !stat)
-		to_chat(user, "<span class='warning'>Please open the maintenance hatch first.</span>")
+		to_chat(user, SPAN_WARNING("You need to open the maintenance hatch first."))
+		return TRUE
+
+	return ..()
 
 /obj/machinery/oxygen_pump/examine(mob/user)
 	. = ..()
 	if(tank)
 		to_chat(user, "The meter shows [round(tank.air_contents.return_pressure())]")
 	else
-		to_chat(user, "<span class='warning'>It is missing a tank!</span>")
+		to_chat(user, SPAN_WARNING("It is missing a tank!"))
 
 
 /obj/machinery/oxygen_pump/Process()
@@ -181,7 +202,7 @@
 /obj/machinery/oxygen_pump/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
 	var/data[0]
 	if(!tank)
-		to_chat(usr, "<span class='warning'>It is missing a tank!</span>")
+		to_chat(usr, SPAN_WARNING("It is missing a tank!"))
 		data["tankPressure"] = 0
 		data["releasePressure"] = 0
 		data["defaultReleasePressure"] = 0

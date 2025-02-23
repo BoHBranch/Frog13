@@ -1,5 +1,3 @@
-#include "_map_include.dm"
-
 #include "mapsystem\map_preferences.dm"
 #include "mapsystem\map_ranks.dm"
 #include "mapsystem\maps.dm"
@@ -13,7 +11,7 @@
 
 #include "using.dm"
 
-GLOBAL_DATUM_INIT(using_map, /datum/map, new using_map_DATUM)
+GLOBAL_TYPED_AS(using_map, /datum/map, new using_map_DATUM)
 
 #include "antag_spawn\antag_spawn_bases.dm"
 #include "antag_spawn\ert\ert.dm"
@@ -26,10 +24,13 @@ GLOBAL_DATUM_INIT(using_map, /datum/map, new using_map_DATUM)
 #include "away\away_sites.dm"
 #include "away_sites_testing\away_sites_testing_define.dm"
 #include "random_ruins\exoplanet_ruins\exoplanet_ruins.dm"
+#include "random_ruins\exoplanet_ruins\excavation_site\excavation_site.dm"
+#include "random_ruins\exoplanet_ruins\transshipment\transshipment.dm"
 #include "random_ruins\exoplanet_ruins\crashed_pod\crashed_pod.dm"
-#include "random_ruins\exoplanet_ruins\datacapsule\datacapsule.dm"
+#include "random_ruins\exoplanet_ruins\ejected_datapod\ejected_datapod.dm"
 #include "random_ruins\exoplanet_ruins\deserted_lab\deserted_lab.dm"
 #include "random_ruins\exoplanet_ruins\drill_site\drill_site.dm"
+#include "random_ruins\exoplanet_ruins\droppod\droppod.dm"
 #include "random_ruins\exoplanet_ruins\fountain\fountain_ruin.dm"
 #include "random_ruins\exoplanet_ruins\hut\hut.dm"
 #include "random_ruins\exoplanet_ruins\hydrobase\hydrobase.dm"
@@ -47,4 +48,8 @@ GLOBAL_DATUM_INIT(using_map, /datum/map, new using_map_DATUM)
 #include "random_ruins\exoplanet_ruins\spider_nest\spider_nest.dm"
 #include "random_ruins\exoplanet_ruins\tar_anomaly\tar_anomaly.dm"
 #include "random_ruins\exoplanet_ruins\trash_heap\trash_heap.dm"
+#include "random_ruins\exoplanet_ruins\crashed_probe\crashed_probe.dm"
+#include "random_ruins\exoplanet_ruins\crashed_shuttle\crashed_shuttle.dm"
+#include "random_ruins\exoplanet_ruins\skrell_biodome\skrell_biodome.dm"
 #include "random_ruins\space_ruins\space_ruins.dm"
+#include "map_tools_showcase\portal_showcase.dm"

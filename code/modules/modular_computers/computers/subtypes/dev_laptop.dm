@@ -11,7 +11,7 @@
 	base_active_power_usage = 200
 	max_hardware_size = 2
 	light_strength = 3
-	max_damage = 200
+	health_max = 200
 	broken_damage = 100
 	w_class = ITEM_SIZE_NORMAL
 	var/icon_state_closed = "laptop-closed"
@@ -26,19 +26,20 @@
 // Prevents carrying of open laptops inhand.
 // While they work inhand, i feel it'd make tablets lose some of their high-mobility advantage they have over laptops now.
 	if(!CanPhysicallyInteract(user))
-		return
+		return FALSE
 	if(!isturf(loc))
 		to_chat(usr, "\The [src] has to be on a stable surface first!")
-		return
+		return TRUE
 	anchored = !anchored
 	screen_on = anchored
 	update_icon()
+	return TRUE
 
 /obj/item/modular_computer/laptop/on_update_icon()
 	if(anchored)
 		..()
 	else
-		overlays.Cut()
+		ClearOverlays()
 		icon_state = icon_state_closed
 
 /obj/item/modular_computer/laptop/preset

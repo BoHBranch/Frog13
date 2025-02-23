@@ -10,20 +10,16 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 
 /turf/var/obj/hotspot/hotspot = null
 
-//Some legacy definitions so fires can be started.
-/atom/proc/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
-	return null
-
 /atom/movable/proc/is_burnable()
 	return FALSE
 
 /mob/is_burnable()
 	return simulated
 
-/turf/proc/hotspot_expose(exposed_temperature, exposed_volume, soh = 0)
+/turf/proc/hotspot_expose(exposed_temperature)
+	return
 
-
-/turf/simulated/hotspot_expose(exposed_temperature, exposed_volume, soh)
+/turf/simulated/hotspot_expose(exposed_temperature)
 	if(fire_protection > world.time-300)
 		return 0
 	if(locate(/obj/hotspot) in src)
@@ -33,7 +29,7 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 		return 0
 
 	var/igniting = 0
-	var/obj/effect/decal/cleanable/liquid_fuel/liquid = locate() in src
+	var/obj/decal/cleanable/liquid_fuel/liquid = locate() in src
 	if(liquid && air_contents.check_combustability(liquid))
 		IgniteTurf(liquid.amount * 10)
 		QDEL_NULL(liquid)
@@ -43,7 +39,7 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 	return igniting
 
 /zone/proc/process_fire()
-	var/datum/gas_mixture/burn_gas = air.remove_ratio(vsc.fire_consuption_rate, fire_tiles.len)
+	var/datum/gas_mixture/burn_gas = air.remove_ratio(vsc.fire_consuption_rate, length(fire_tiles))
 
 	var/firelevel = burn_gas.react(src, fire_tiles, force_burn = 1, no_check = 1)
 
@@ -61,7 +57,7 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 				qdel(T.hotspot)
 		fire_tiles.Cut()
 
-	if(!fire_tiles.len)
+	if(!length(fire_tiles))
 		SSair.active_fire_zones.Remove(src)
 
 /turf/proc/create_fire(fl)
@@ -116,13 +112,13 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 
 	if(firelevel > 6)
 		icon_state = "3"
-		set_light(1, 2, 7)
+		set_light(7, 1)
 	else if(firelevel > 2.5)
 		icon_state = "2"
-		set_light(0.7, 2, 5)
+		set_light(5, 0.7)
 	else
 		icon_state = "1"
-		set_light(0.5, 1, 3)
+		set_light(3, 0.5)
 
 	for(var/mob/living/L in loc)
 		L.FireBurn(firelevel, air_contents.temperature, air_contents.return_pressure())  //Burn the mobs!
@@ -140,7 +136,7 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 				if(!enemy_tile.zone || enemy_tile.hotspot)
 					continue
 
-				//if(!enemy_tile.zone.fire_tiles.len) TODO - optimize
+				//if(!length(enemy_tile.zone.fire_tiles)) TODO - optimize
 				var/datum/gas_mixture/acs = enemy_tile.return_air()
 				if(!acs || !acs.check_combustability())
 					continue
@@ -164,7 +160,7 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 /obj/hotspot/New(newLoc,fl)
 	..()
 
-	if(!istype(loc, /turf))
+	if(!isturf(loc))
 		qdel(src)
 		return
 
@@ -172,7 +168,7 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 
 	var/datum/gas_mixture/air_contents = loc.return_air()
 	color = fire_color(air_contents.temperature)
-	set_light(0.5, 1, 3, l_color = color)
+	set_light(3, 0.5, l_color = color)
 
 	firelevel = fl
 	SSair.active_hotspots.Add(src)
@@ -258,7 +254,7 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 
 		//if the reaction is progressing too slow then it isn't self-sustaining anymore and burns out
 		if(zone) //be less restrictive with canister and tank reactions
-			if((!gas_fuel || used_fuel <= FIRE_GAS_MIN_BURNRATE*zone.contents.len))
+			if((!gas_fuel || used_fuel <= FIRE_GAS_MIN_BURNRATE*length(zone.contents)))
 				return 0
 
 
@@ -298,7 +294,7 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 	if(!.)
 		return 0
 
-	if(fuel_objs && fuel_objs.len)
+	if(fuel_objs && length(fuel_objs))
 		return 1
 
 	. = 0
@@ -307,7 +303,7 @@ If it gains pressure too slowly, it may leak or just rupture instead of explodin
 			. = 1
 			break
 
-/datum/gas_mixture/proc/check_combustability(obj/effect/decal/cleanable/liquid_fuel/liquid=null)
+/datum/gas_mixture/proc/check_combustability(obj/decal/cleanable/liquid_fuel/liquid=null)
 	. = 0
 	for(var/g in gas)
 		if(gas_data.flags[g] & XGM_GAS_OXIDIZER && QUANTIZE(gas[g] * vsc.fire_consuption_rate) >= 0.1)

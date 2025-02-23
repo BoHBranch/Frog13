@@ -2,14 +2,14 @@
 /obj/machinery/pointdefense_control
 	name = "fire assist mainframe"
 	desc = "A specialized computer designed to synchronize a variety of weapon systems and a vessel's astronav data."
-	icon = 'icons/obj/artillery.dmi'
+	icon = 'icons/obj/machines/artillery.dmi'
 	icon_state = "control"
 	var/ui_template = "pointdefense_control.tmpl"
 	var/initial_id_tag
 	density = TRUE
 	anchored = TRUE
 	base_type =       /obj/machinery/pointdefense_control
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 	var/list/targets = list()
 	atom_flags =  ATOM_FLAG_NO_TEMP_CHANGE | ATOM_FLAG_CLIMBABLE
 	machine_name = "fire assist mainframe"
@@ -25,7 +25,7 @@
 		var/datum/local_network/lan = pointdefense.get_local_network()
 		if(lan)
 			var/list/pointdefense_controllers = lan.get_devices(/obj/machinery/pointdefense_control)
-			if(pointdefense_controllers.len > 1)
+			if(length(pointdefense_controllers) > 1)
 				lan.remove_device(src)
 
 /obj/machinery/pointdefense_control/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
@@ -82,7 +82,7 @@
 	data["turrets"] = turrets
 	return data
 
-/obj/machinery/pointdefense_control/attackby(obj/item/thing, mob/user)
+/obj/machinery/pointdefense_control/use_tool(obj/item/thing, mob/living/user, list/click_params)
 	if(isMultitool(thing))
 		var/datum/extension/local_network_member/pointdefense = get_extension(src, /datum/extension/local_network_member)
 		pointdefense.get_new_tag(user)
@@ -90,25 +90,25 @@
 		var/datum/local_network/lan = pointdefense.get_local_network()
 		if(lan)
 			var/list/pointdefense_controllers = lan.get_devices(/obj/machinery/pointdefense_control)
-			if(pointdefense_controllers && pointdefense_controllers.len > 1)
+			if(pointdefense_controllers && length(pointdefense_controllers) > 1)
 				lan.remove_device(src)
-		return
+		return TRUE
 	else
 		return ..()
 
 /obj/machinery/pointdefense
-	name = "\improper point defense battery"
-	icon = 'icons/obj/artillery.dmi'
+	name = "point defense battery"
+	icon = 'icons/obj/machines/artillery.dmi'
 	icon_state = "pointdefense"
 	desc = "A Kuiper pattern anti-meteor battery. Capable of destroying most threats in a single salvo."
 	density = TRUE
 	anchored = TRUE
 	atom_flags =  ATOM_FLAG_NO_TEMP_CHANGE | ATOM_FLAG_CLIMBABLE
 	idle_power_usage = 0.1 KILOWATTS
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 	maximum_component_parts = list(/obj/item/stock_parts = 10)         //null - no max. list(type part = number max).
 	base_type = /obj/machinery/pointdefense
-	stock_part_presets = list(/decl/stock_part_preset/terminal_setup)
+	stock_part_presets = list(/singleton/stock_part_preset/terminal_setup)
 	uncreated_component_parts = null
 	appearance_flags = DEFAULT_APPEARANCE_FLAGS | PIXEL_SCALE
 	machine_name = "point defense battery"
@@ -128,10 +128,13 @@
 		var/datum/extension/local_network_member/pointdefense = get_extension(src, /datum/extension/local_network_member)
 		pointdefense.set_tag(null, initial_id_tag)
 
-/obj/machinery/pointdefense/attackby(obj/item/thing, mob/user)
+/obj/machinery/pointdefense/use_tool(obj/item/thing, mob/living/user, list/click_params)
 	if(isMultitool(thing))
 		var/datum/extension/local_network_member/pointdefense = get_extension(src, /datum/extension/local_network_member)
 		pointdefense.get_new_tag(user)
+		return TRUE
+
+	return ..()
 
 //Guns cannot shoot through hull or generally dense turfs.
 /obj/machinery/pointdefense/proc/space_los(meteor)
@@ -141,11 +144,11 @@
 	return TRUE
 
 /obj/machinery/pointdefense/proc/Shoot(weakref/target)
-	var/obj/effect/meteor/M = target.resolve()
+	var/obj/meteor/M = target.resolve()
 	if(!istype(M))
 		return
 	engaging = TRUE
-	addtimer(CALLBACK(src, .proc/finish_shot, target), rotation_speed)
+	addtimer(new Callback(src, PROC_REF(finish_shot), target), rotation_speed)
 	var/Angle = round(Get_Angle(src, M))
 	animate(
 		src,
@@ -170,7 +173,7 @@
 
 	engaging = FALSE
 	last_shot = world.time
-	var/obj/effect/meteor/M = target.resolve()
+	var/obj/meteor/M = target.resolve()
 	if(!istype(M))
 		return
 	//We throw a laser but it doesnt have to hit for meteor to explode
@@ -193,7 +196,7 @@
 	if(engaging || ((world.time - last_shot) < charge_cooldown))
 		return
 
-	if(GLOB.meteor_list.len == 0)
+	if(length(GLOB.meteor_list) == 0)
 		return
 	var/datum/extension/local_network_member/pointdefense = get_extension(src, /datum/extension/local_network_member)
 	var/datum/local_network/lan = pointdefense.get_local_network()
@@ -205,10 +208,10 @@
 	if(!istype(PC))
 		return
 
-	for(var/obj/effect/meteor/M in GLOB.meteor_list)
+	for(var/obj/meteor/M in GLOB.meteor_list)
 		var/already_targeted = FALSE
 		for(var/weakref/WR in PC.targets)
-			var/obj/effect/meteor/m = WR.resolve()
+			var/obj/meteor/m = WR.resolve()
 			if(m == M)
 				already_targeted = TRUE
 				break

@@ -26,7 +26,7 @@ var/global/list/all_objectives = list()
 	for(var/datum/mind/possible_target in SSticker.minds)
 		if(possible_target != owner && ishuman(possible_target.current) && (possible_target.current.stat != DEAD))
 			possible_targets += possible_target
-	if(possible_targets.len > 0)
+	if(length(possible_targets) > 0)
 		target = pick(possible_targets)
 
 
@@ -60,7 +60,7 @@ var/global/list/all_objectives = list()
 /datum/objective/anti_revolution/execute/find_target()
 	..()
 	if(target && target.current)
-		explanation_text = "[target.current.real_name], the [target.assigned_role] has extracted confidential information above their clearance. Execute \him[target.current]."
+		explanation_text = "[target.current.real_name], the [target.assigned_role] has extracted confidential information above their clearance. Execute them."
 	else
 		explanation_text = "Free Objective"
 	return target
@@ -68,7 +68,7 @@ var/global/list/all_objectives = list()
 /datum/objective/anti_revolution/execute/find_target_by_role(role, role_type = 0)
 	..(role, role_type)
 	if(target && target.current)
-		explanation_text = "[target.current.real_name], the [!role_type ? target.assigned_role : target.special_role] has extracted confidential information above their clearance. Execute \him[target.current]."
+		explanation_text = "[target.current.real_name], the [!role_type ? target.assigned_role : target.special_role] has extracted confidential information above their clearance. Execute them."
 	else
 		explanation_text = "Free Objective"
 	return target
@@ -99,7 +99,7 @@ var/global/list/all_objectives = list()
 /datum/objective/anti_revolution/demote/find_target()
 	..()
 	if(target && target.current)
-		explanation_text = "[target.current.real_name], the [target.assigned_role]  has been classified as harmful to [GLOB.using_map.company_name]'s goals. Demote \him[target.current] to assistant."
+		explanation_text = "[target.current.real_name], the [target.assigned_role]  has been classified as harmful to [GLOB.using_map.company_name]'s goals. Demote them to assistant."
 	else
 		explanation_text = "Free Objective"
 	return target
@@ -107,7 +107,7 @@ var/global/list/all_objectives = list()
 /datum/objective/anti_revolution/demote/find_target_by_role(role, role_type = 0)
 	..(role, role_type)
 	if(target && target.current)
-		explanation_text = "[target.current.real_name], the [!role_type ? target.assigned_role : target.special_role] has been classified as harmful to [GLOB.using_map.company_name]'s goals. Demote \him[target.current] to assistant."
+		explanation_text = "[target.current.real_name], the [!role_type ? target.assigned_role : target.special_role] has been classified as harmful to [GLOB.using_map.company_name]'s goals. Demote them to assistant."
 	else
 		explanation_text = "Free Objective"
 	return target
@@ -338,9 +338,9 @@ var/global/list/all_objectives = list()
 					priority_targets += possible_target
 					continue
 
-	if(priority_targets.len > 0)
+	if(length(priority_targets) > 0)
 		target = pick(priority_targets)
-	else if(possible_targets.len > 0)
+	else if(length(possible_targets) > 0)
 		target = pick(possible_targets)
 
 	if(target && target.current)
@@ -445,11 +445,11 @@ var/global/list/all_objectives = list()
 
 /datum/objective/cult/sacrifice/find_target()
 	var/list/possible_targets = list()
-	if(!possible_targets.len)
+	if(!length(possible_targets))
 		for(var/mob/living/carbon/human/player in GLOB.player_list)
 			if(player.mind && !(player.mind in GLOB.cult.current_antagonists))
 				possible_targets += player.mind
-	if(possible_targets.len > 0)
+	if(length(possible_targets) > 0)
 		target = pick(possible_targets)
 	if(target) explanation_text = "Sacrifice [target.name], the [target.assigned_role]. You will need the sacrifice rune (Hell blood join) and three acolytes to do so."
 

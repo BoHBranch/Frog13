@@ -5,7 +5,7 @@
 /obj/random/date_based
 	name = "random object (date based)"
 	icon_state = "yup"
-	spawn_method = .proc/check_date
+	spawn_method = PROC_REF(check_date)
 	var/datum/is_date/date_check
 
 /obj/random/date_based/Destroy()
@@ -118,4 +118,4 @@
 	if(date_check.IsValid())
 		return spawn_item()
 	else
-		return new /obj/structure/fountain/mundane(loc) //spawns fountain instead of tree
+		return new /obj/structure/fountain(loc)

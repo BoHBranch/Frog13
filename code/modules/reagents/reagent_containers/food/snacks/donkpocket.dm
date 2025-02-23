@@ -44,9 +44,15 @@
 		SetInitialReagents(filling_options)
 
 
-/obj/item/reagent_containers/food/snacks/donkpocket/OnConsume(mob/living/consumer)
+/obj/item/reagent_containers/food/snacks/donkpocket/OnConsume(mob/living/consumer, mob/living/feeder)
 	if (can_self_heat)
-		to_chat(consumer, SPAN_ITALIC("You tear open \the [src], destroying the self-heating packaging."))
+		if (feeder)
+			feeder.visible_message(
+				SPAN_ITALIC("\The [feeder] tears open \a [src], destroying the self-heating packaging."),
+				SPAN_ITALIC("You tear open \the [src], destroying the self-heating packaging."),
+				SPAN_ITALIC("You hear plastic packaging crinkling."),
+				range = 3
+			)
 		can_self_heat = FALSE
 	..()
 
@@ -85,7 +91,7 @@
 			reagents.add_reagent(reagent, hot_reagents[reagent])
 		was_heated = TRUE
 	SetName("hot " + name)
-	addtimer(CALLBACK(src, .proc/UnsetHot), 7 MINUTES)
+	addtimer(new Callback(src, PROC_REF(UnsetHot)), 7 MINUTES)
 
 
 /obj/item/reagent_containers/food/snacks/donkpocket/proc/UnsetHot()
@@ -185,7 +191,7 @@
 /obj/random/donkpocket
 	name = "random donk-pocket"
 	desc = "This is a random donk-pocket."
-	icon = 'icons/obj/food.dmi'
+	icon = 'icons/obj/food/food.dmi'
 	icon_state = "donkpocket"
 
 
@@ -261,7 +267,7 @@
 /obj/random/donkpocket_box
 	name = "random box of donk-pockets"
 	desc = "This is a random box of donk-pockets."
-	icon = 'icons/obj/storage.dmi'
+	icon = 'icons/obj/boxes.dmi'
 	icon_state = "donk_kit"
 
 

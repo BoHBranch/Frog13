@@ -28,7 +28,7 @@
 	//Being hit while using a deadman switch
 	var/obj/item/device/assembly/signaler/signaler = get_active_hand()
 	if(istype(signaler) && signaler.deadman)
-		log_and_message_admins("has triggered a signaler deadman's switch")
+		log_and_message_admins("has triggered a signaler deadman's switch", src)
 		visible_message(SPAN_WARNING("[src] triggers their deadman's switch"))
 		signaler.signal()
 
@@ -55,6 +55,30 @@
 /mob/living/get_bullet_impact_effect_type(def_zone)
 	return BULLET_IMPACT_MEAT
 
+/**
+ * Checks the mob for auras and interactions of the given type.
+ *
+ * Calls one of the `aura_check_*` procs for each aura in the mobs `auras` list, based on type provided.
+ * All parameters after `type` are passed on to the called proc.
+ *
+ * **Parameters**:
+ * - `type` (String - One of `AURA_TYPE_*`) - The type of check to be performed any any found auras.
+ * - Additional parameters depend on aura type:
+ *   - `AURA_TYPE_WEAPON (obj/item/weapon, mob/user, click_params)`:
+ *     - `weapon` - The item used to attack/interact with the mob.
+ *     - `attacker` - The mob performing the attack/interaction.
+ *     - `click_params` - List of click parameters.
+ *   - `AURA_TYPE_BULLET (obj/item/projectile/proj, def_zone)`:
+ *     - `proj` - Projectile impacting the mob.
+ *     - `def_zone` - Impacted body part target zone.
+ *   - `AURA_TYPE_THROWN (atom/movable/thrown_atom, datum/thrownthing/thrown_datum)`:
+ *     - `thrown_atom` - Atom impacting the mob.
+ *     - `thrown_datum` - thrownthing datum instance for the throw chain.
+ *   - `AURA_TYPE_LIFE` (No additional parameters)
+ *
+ * Returns boolean - `TRUE` if no auras were found or if no auras passed `AURA_FALSE` in their checks.
+ * Generally, a `FALSE` return value means the aura blocks further interaction.
+ */
 /mob/living/proc/aura_check(type)
 	if(!auras)
 		return TRUE
@@ -62,16 +86,16 @@
 	var/list/newargs = args - args[1]
 	for(var/a in auras)
 		var/obj/aura/aura = a
-		var/result = 0
+		var/result = EMPTY_BITFIELD
 		switch(type)
 			if(AURA_TYPE_WEAPON)
-				result = aura.attackby(arglist(newargs))
+				result = aura.aura_check_weapon(arglist(newargs))
 			if(AURA_TYPE_BULLET)
-				result = aura.bullet_act(arglist(newargs))
+				result = aura.aura_check_bullet(arglist(newargs))
 			if(AURA_TYPE_THROWN)
-				result = aura.hitby(arglist(newargs))
+				result = aura.aura_check_thrown(arglist(newargs))
 			if(AURA_TYPE_LIFE)
-				result = aura.life_tick()
+				result = aura.aura_check_life()
 		if(result & AURA_FALSE)
 			. = FALSE
 		if(result & AURA_CANCEL)
@@ -89,7 +113,7 @@
 		apply_effect(stun_amount, EFFECT_EYE_BLUR)
 
 	if (agony_amount)
-		apply_damage(agony_amount, DAMAGE_PAIN, def_zone, used_weapon)
+		apply_damage(agony_amount, DAMAGE_PAIN, def_zone, used_weapon = used_weapon)
 		apply_effect(agony_amount/10, EFFECT_STUTTER)
 		apply_effect(agony_amount/10, EFFECT_EYE_BLUR)
 
@@ -107,31 +131,18 @@
 /mob/living/proc/resolve_item_attack(obj/item/I, mob/living/user, target_zone)
 	return target_zone
 
-//Called when the mob is hit with an item in combat. Returns the blocked result
+///Called when the mob is hit with an item in combat. Returns the blocked result
 /mob/living/proc/hit_with_weapon(obj/item/I, mob/living/user, effective_force, hit_zone)
-	var/weapon_mention
-	if(I.attack_message_name())
-		weapon_mention = " with [I.attack_message_name()]"
-	visible_message(SPAN_DANGER("\The [src] has been [I.attack_verb.len? pick(I.attack_verb) : "attacked"][weapon_mention] by \the [user]!"))
-
-	. = standard_weapon_hit_effects(I, user, effective_force, hit_zone)
-
-	if (I.damtype == DAMAGE_BRUTE && prob(33)) // Added blood for whacking non-humans too
-		var/turf/simulated/location = get_turf(src)
-		if(istype(location)) location.add_blood_floor(src)
-
-	if (ai_holder)
-		ai_holder.react_to_attack(user)
-
-///returns false if the effects failed to apply for some reason, true otherwise.
-/mob/living/proc/standard_weapon_hit_effects(obj/item/I, mob/living/user, effective_force, hit_zone)
 	if(!effective_force)
 		return FALSE
 
-	//Apply weapon damage
 	var/damage_flags = I.damage_flags()
-
 	return apply_damage(effective_force, I.damtype, hit_zone, damage_flags, used_weapon=I, armor_pen=I.armor_penetration)
+
+/mob/living/post_use_item(obj/item/tool, mob/living/user, interaction_handled, use_call)
+	if (interaction_handled && ai_holder && (use_call == "use" || use_call == "weapon"))
+		ai_holder.react_to_attack(user)
+	..()
 
 //this proc handles being hit by a thrown atom
 /mob/living/hitby(atom/movable/AM, datum/thrownthing/TT)
@@ -155,7 +166,7 @@
 
 		var/miss_chance = max(15*(TT.dist_travelled-2),0)
 
-		if (prob(miss_chance))
+		if (prob(miss_chance) || (istype(src, /mob/living/exosuit) && prob(miss_chance * 0.75)))
 			visible_message(SPAN_NOTICE("\The [O] misses [src] narrowly!"))
 			return
 
@@ -170,32 +181,45 @@
 			if (ai_holder)
 				ai_holder.react_to_attack(TT.thrower)
 
-		// Begin BS12 momentum-transfer code.
-		var/mass = 1.5
-		if(istype(O, /obj/item))
-			var/obj/item/I = O
-			mass = I.w_class/THROWNOBJ_KNOCKBACK_DIVISOR
-		var/momentum = TT.speed*mass
+		if(O.can_embed() && (throw_damage > 5*O.w_class)) //Handles embedding for non-humans and simple_animals.
+			embed(O)
 
-		if(momentum >= THROWNOBJ_KNOCKBACK_SPEED)
-			var/dir = TT.init_dir
+	process_momentum(AM, TT)
 
-			visible_message(SPAN_WARNING("\The [src] staggers under the impact!"),SPAN_WARNING("You stagger under the impact!"))
-			throw_at(get_edge_target_turf(src,dir),1,momentum)
+/mob/living/momentum_power(atom/movable/AM, datum/thrownthing/TT)
+	if(anchored || buckled)
+		return 0
 
-			if(!O || !src) return
+	. = (AM.get_mass()*TT.speed)/(get_mass()*min(AM.throw_speed,2))
+	if(has_gravity() || check_space_footing())
+		. *= 0.5
 
-			if(O.can_embed() && !(mob_flags & MOB_FLAG_UNPINNABLE)) //Projectile is suitable for pinning.
-				//Handles embedding for non-humans and simple_animals.
-				embed(O)
+/mob/living/momentum_do(power, datum/thrownthing/TT, atom/movable/AM)
+	if(power >= 0.75)		//snowflake to enable being pinned to walls
+		var/direction = TT.init_dir
+		var/range = min((TT.maxrange - TT.dist_travelled) * power, 10)
+		var/speed = throw_speed * min(power, 1.5)
+		var/callback = new Callback(src, PROC_REF(pin_to_wall), AM, direction)
+		throw_at(get_edge_target_turf(src, direction), range, speed, callback = callback)
+		visible_message(
+			SPAN_DANGER("\The [src] staggers under the impact!"),
+			SPAN_DANGER("You stagger under the impact!")
+		)
+		return
 
-				var/turf/T = near_wall(dir,2)
+	. = ..()
 
-				if(T)
-					forceMove(T)
-					visible_message(SPAN_WARNING("[src] is pinned to the wall by [O]!"),SPAN_WARNING("You are pinned to the wall by [O]!"))
-					anchored = TRUE
-					pinned += O
+/mob/living/proc/pin_to_wall(obj/O, direction)
+	if(!istype(O) || O.loc != src || !O.can_embed())//Projectile is suitable for pinning.
+		return
+
+	var/turf/T = near_wall(direction,2)
+
+	if(T)
+		forceMove(T)
+		visible_message(SPAN_DANGER("[src] is pinned to the wall by [O]!"),SPAN_DANGER("You are pinned to the wall by [O]!"))
+		src.anchored = TRUE
+		src.pinned += O
 
 /mob/living/proc/embed(obj/O, def_zone=null, datum/wound/supplied_wound)
 	O.forceMove(src)
@@ -239,12 +263,10 @@
 	if (ai_holder)
 		ai_holder.react_to_attack(user)
 
-	return TRUE
-
 /mob/living/proc/IgniteMob()
 	if(fire_stacks > 0 && !on_fire)
 		on_fire = 1
-		set_light(0.6, 0.1, 4, l_color = COLOR_ORANGE)
+		set_light(4, 0.6, l_color = COLOR_ORANGE)
 		update_fire()
 
 /mob/living/proc/ExtinguishMob()
@@ -278,7 +300,7 @@
 		return TRUE
 
 	var/turf/location = get_turf(src)
-	location.hotspot_expose(fire_burn_temperature(), 50, 1)
+	location.hotspot_expose(fire_burn_temperature())
 
 /mob/living/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if (status_flags & GODMODE)
@@ -319,6 +341,18 @@
 			I.action.name = I.action_button_name
 			I.action.SetTarget(I)
 			I.action.Grant(src)
+
+		//Clothing accessories
+		var/obj/item/clothing/C = I
+		if (istype(C))
+			for(var/obj/item/clothing/accessory/CA in C.accessories)
+				if(CA.action_button_name)
+					if(!CA.action)
+						CA.action = new CA.default_action_type
+					CA.action.name = CA.action_button_name
+					CA.action.SetTarget(CA)
+					CA.action.Grant(src)
+
 	return
 
 /mob/living/update_action_buttons()
@@ -348,9 +382,8 @@
 	var/button_number = 0
 	for(var/datum/action/A in actions)
 		button_number++
-		if(A.button == null)
-			var/obj/screen/movable/action_button/N = new(hud_used)
-			N.owner = A
+		if(isnull(A.button))
+			var/obj/screen/movable/action_button/N = new(hud_used, A)
 			A.button = N
 
 		var/obj/screen/movable/action_button/B = A.button

@@ -146,9 +146,9 @@
 /datum/reagent/uranium/touch_turf(turf/T)
 	if(volume >= 3)
 		if(!istype(T, /turf/space))
-			var/obj/effect/decal/cleanable/greenglow/glow = locate(/obj/effect/decal/cleanable/greenglow, T)
+			var/obj/decal/cleanable/greenglow/glow = locate(/obj/decal/cleanable/greenglow, T)
 			if(!glow)
-				new /obj/effect/decal/cleanable/greenglow(T)
+				new /obj/decal/cleanable/greenglow(T)
 			return
 
 /datum/reagent/water/holywater
@@ -166,8 +166,8 @@
 			if(prob(10))
 				GLOB.cult.offer_uncult(M)
 			if(prob(2))
-				var/obj/effect/spider/spiderling/S = new /obj/effect/spider/spiderling(M.loc)
-				M.visible_message("<span class='warning'>\The [M] coughs up \the [S]!</span>")
+				var/obj/spider/spiderling/S = new /obj/spider/spiderling(M.loc)
+				M.visible_message(SPAN_WARNING("\The [M] coughs up \the [S]!"))
 
 /datum/reagent/water/holywater/touch_turf(turf/T)
 	if(volume >= 5)
@@ -211,7 +211,7 @@
 		if(istype(T, /turf/simulated/wall))
 			var/turf/simulated/wall/W = T
 			W.thermite = 1
-			W.overlays += image('icons/effects/effects.dmi',icon_state = "#673910")
+			W.AddOverlays(image('icons/effects/effects.dmi',icon_state = "#673910"))
 			remove_self(5)
 	return
 
@@ -232,7 +232,7 @@
 	accelerant_quality = 20
 
 /datum/reagent/napalm/touch_turf(turf/T)
-	new /obj/effect/decal/cleanable/liquid_fuel(T, volume)
+	new /obj/decal/cleanable/liquid_fuel(T, volume)
 	remove_self(volume)
 
 /datum/reagent/napalm/touch_mob(mob/living/L, amount)
@@ -302,7 +302,7 @@
 
 /datum/reagent/oil/touch_turf(turf/simulated/T)
 	if(!istype(T, /turf/space))
-		new /obj/effect/decal/cleanable/blood/oil/streak(T)
+		new /obj/decal/cleanable/blood/oil/streak(T)
 
 /datum/reagent/glycerol
 	name = "Glycerol"
@@ -353,7 +353,7 @@
 		var/removed_heat = clamp(volume * COOLANT_LATENT_HEAT, 0, -environment.get_thermal_energy_change(min_temperature))
 		environment.add_thermal_energy(-removed_heat)
 		if (prob(5) && environment && environment.temperature > T100C)
-			T.visible_message("<span class='warning'>The water sizzles as it lands on \the [T]!</span>")
+			T.visible_message(SPAN_WARNING("The water sizzles as it lands on \the [T]!"))
 
 
 /datum/reagent/ultraglue
@@ -453,7 +453,7 @@
 	else
 		M.co2_alert = 0
 	if(warning_message && prob(warning_prob))
-		to_chat(M, "<span class='warning'>You feel [warning_message].</span>")
+		to_chat(M, SPAN_WARNING("You feel [warning_message]."))
 
 /datum/reagent/dye
 	name = "Dye"
@@ -576,3 +576,11 @@
 
 /datum/reagent/colored_hair_dye/chaos/affect_touch(mob/living/carbon/human/H, removed)
 	apply_dye_color(H, Frand(1, 254), Frand(1, 254), Frand(1, 254))
+
+/datum/reagent/gunpowder
+	name = "Gunpowder"
+	description = "The earliest chemical explosive known to mankind."
+	taste_description = "spicy toasted beans"
+	reagent_state = SOLID
+	color = "#161414"
+	value = 7

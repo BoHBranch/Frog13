@@ -2,7 +2,7 @@
 	name = "grenade"
 	desc = "A hand held grenade, with an adjustable timer."
 	w_class = ITEM_SIZE_SMALL
-	icon = 'icons/obj/grenade.dmi'
+	icon = 'icons/obj/weapons/grenade.dmi'
 	icon_state = "grenade"
 	item_state = "grenade"
 	throw_speed = 4
@@ -17,7 +17,7 @@
 
 /obj/item/grenade/proc/clown_check(mob/living/user)
 	if((MUTATION_CLUMSY in user.mutations) && prob(50))
-		to_chat(user, "<span class='warning'>Huh? How does this thing work?</span>")
+		to_chat(user, SPAN_WARNING("Huh? How does this thing work?"))
 		det_time = fail_det_time
 		activate(user)
 		add_fingerprint(user)
@@ -31,7 +31,7 @@
 		if(det_time > 1)
 			to_chat(user, "The timer is set to [det_time/10] seconds.")
 			return
-		if(det_time == null)
+		if(isnull(det_time))
 			return
 		to_chat(user, "\The [src] is set for instant detonation.")
 
@@ -39,7 +39,7 @@
 /obj/item/grenade/attack_self(mob/living/user)
 	if(!active)
 		if(clown_check(user))
-			to_chat(user, "<span class='warning'>You prime \the [name]! [det_time/10] seconds!</span>")
+			to_chat(user, SPAN_WARNING("You prime \the [name]! [det_time/10] seconds!"))
 			activate(user)
 			add_fingerprint(user)
 			if(iscarbon(user))
@@ -51,35 +51,35 @@
 	if (active)
 		return
 	if (user)
-		msg_admin_attack("[user.name] ([user.ckey]) primed \a [src] (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[user.x];Y=[user.y];Z=[user.z]'>JMP</a>)")
+		msg_admin_attack("[user.name] ([user.ckey]) primed \a [src] (<A HREF='byond://?_src_=holder;adminplayerobservecoodjump=1;X=[user.x];Y=[user.y];Z=[user.z]'>JMP</a>)")
 	icon_state = initial(icon_state) + "_active"
 	active = TRUE
 	playsound(loc, arm_sound, 75, 0, -3)
-	addtimer(CALLBACK(src, .proc/detonate, user), det_time)
+	addtimer(new Callback(src, PROC_REF(detonate), user), det_time)
 
 
 /obj/item/grenade/proc/detonate(mob/living/user)
 	var/turf/T = get_turf(src)
 	if(T)
-		T.hotspot_expose(700,125)
+		T.hotspot_expose(700)
 
-/obj/item/grenade/attackby(obj/item/W as obj, mob/user as mob)
+/obj/item/grenade/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(isScrewdriver(W))
 		switch(det_time)
 			if (1)
 				det_time = 10
-				to_chat(user, "<span class='notice'>You set the [name] for 1 second detonation time.</span>")
+				to_chat(user, SPAN_NOTICE("You set the [name] for 1 second detonation time."))
 			if (10)
 				det_time = 30
-				to_chat(user, "<span class='notice'>You set the [name] for 3 second detonation time.</span>")
+				to_chat(user, SPAN_NOTICE("You set the [name] for 3 second detonation time."))
 			if (30)
 				det_time = 50
-				to_chat(user, "<span class='notice'>You set the [name] for 5 second detonation time.</span>")
+				to_chat(user, SPAN_NOTICE("You set the [name] for 5 second detonation time."))
 			if (50)
 				det_time = 1
-				to_chat(user, "<span class='notice'>You set the [name] for instant detonation.</span>")
-		add_fingerprint(user)
-	..()
+				to_chat(user, SPAN_NOTICE("You set the [name] for instant detonation."))
+		return TRUE
+	return ..()
 
 /obj/item/grenade/attack_hand()
 	walk(src, null, null)

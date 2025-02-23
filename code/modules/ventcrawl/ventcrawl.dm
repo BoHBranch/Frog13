@@ -26,10 +26,10 @@ var/global/list/ventcrawl_machinery = list(
 	if(!client)
 		return FALSE
 	if(!(/mob/living/proc/ventcrawl in verbs))
-		to_chat(src, "<span class='warning'>You don't possess the ability to ventcrawl!</span>")
+		to_chat(src, SPAN_WARNING("You don't possess the ability to ventcrawl!"))
 		return FALSE
 	if(incapacitated())
-		to_chat(src, "<span class='warning'>You cannot ventcrawl in your current state!</span>")
+		to_chat(src, SPAN_WARNING("You cannot ventcrawl in your current state!"))
 		return FALSE
 	return ventcrawl_carry()
 
@@ -65,10 +65,15 @@ var/global/list/ventcrawl_machinery = list(
 		return carried_item.w_class <= ITEM_SIZE_NORMAL
 	return ..()
 
+/mob/living/simple_animal/is_allowed_vent_crawl_item(obj/item/carried_item)
+	if(get_natural_weapon() == carried_item)
+		return TRUE
+	return ..()
+
 /mob/living/proc/ventcrawl_carry()
 	for(var/atom/A in contents)
 		if(!is_allowed_vent_crawl_item(A))
-			to_chat(src, "<span class='warning'>You can't carry \the [A] while ventcrawling!</span>")
+			to_chat(src, SPAN_WARNING("You can't carry \the [A] while ventcrawling!"))
 			return FALSE
 	return TRUE
 
@@ -84,10 +89,10 @@ var/global/list/ventcrawl_machinery = list(
 	for(var/obj/machinery/atmospherics/unary/U in range(1))
 		if(is_type_in_list(U,ventcrawl_machinery) && Adjacent(U) && U.can_crawl_through())
 			pipes |= U
-	if(!pipes || !pipes.len)
+	if(!pipes || !length(pipes))
 		to_chat(src, "There are no pipes that you can ventcrawl into within range!")
 		return
-	if(pipes.len == 1)
+	if(length(pipes) == 1)
 		pipe = pipes[1]
 	else
 		pipe = input("Crawl Through Vent", "Pick a pipe") as null|anything in pipes
@@ -119,29 +124,29 @@ var/global/list/ventcrawl_machinery = list(
 				break
 
 	if(vent_found)
-		if(vent_found.network && (vent_found.network.normal_members.len || vent_found.network.line_members.len))
+		if(vent_found.network && (length(vent_found.network.normal_members) || length(vent_found.network.line_members)))
 
 			to_chat(src, "You begin climbing into the ventilation system...")
 			if(vent_found.air_contents && !issilicon(src))
 
 				switch(vent_found.air_contents.temperature)
 					if(0 to BODYTEMP_COLD_DAMAGE_LIMIT)
-						to_chat(src, "<span class='danger'>You feel a painful freeze coming from the vent!</span>")
+						to_chat(src, SPAN_DANGER("You feel a painful freeze coming from the vent!"))
 					if(BODYTEMP_COLD_DAMAGE_LIMIT to T0C)
-						to_chat(src, "<span class='warning'>You feel an icy chill coming from the vent.</span>")
+						to_chat(src, SPAN_WARNING("You feel an icy chill coming from the vent."))
 					if(T0C + 40 to BODYTEMP_HEAT_DAMAGE_LIMIT)
-						to_chat(src, "<span class='warning'>You feel a hot wash coming from the vent.</span>")
+						to_chat(src, SPAN_WARNING("You feel a hot wash coming from the vent."))
 					if(BODYTEMP_HEAT_DAMAGE_LIMIT to INFINITY)
-						to_chat(src, "<span class='danger'>You feel a searing heat coming from the vent!</span>")
+						to_chat(src, SPAN_DANGER("You feel a searing heat coming from the vent!"))
 				switch(vent_found.air_contents.return_pressure())
 					if(0 to HAZARD_LOW_PRESSURE)
-						to_chat(src, "<span class='danger'>You feel a rushing draw pulling you into the vent!</span>")
+						to_chat(src, SPAN_DANGER("You feel a rushing draw pulling you into the vent!"))
 					if(HAZARD_LOW_PRESSURE to WARNING_LOW_PRESSURE)
-						to_chat(src, "<span class='warning'>You feel a strong drag pulling you into the vent.</span>")
+						to_chat(src, SPAN_WARNING("You feel a strong drag pulling you into the vent."))
 					if(WARNING_HIGH_PRESSURE to HAZARD_HIGH_PRESSURE)
-						to_chat(src, "<span class='warning'>You feel a strong current pushing you away from the vent.</span>")
+						to_chat(src, SPAN_WARNING("You feel a strong current pushing you away from the vent."))
 					if(HAZARD_HIGH_PRESSURE to INFINITY)
-						to_chat(src, "<span class='danger'>You feel a roaring wind pushing you away from the vent!</span>")
+						to_chat(src, SPAN_DANGER("You feel a roaring wind pushing you away from the vent!"))
 			if(!do_after(src, 4.5 SECONDS, vent_found, DO_PUBLIC_UNIQUE))
 				return
 			if(!can_ventcrawl())
@@ -179,4 +184,4 @@ var/global/list/ventcrawl_machinery = list(
 			client.images -= current_image
 		client.eye = src
 
-	pipes_shown.len = 0
+	pipes_shown.Cut()

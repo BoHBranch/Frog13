@@ -12,8 +12,8 @@
 	desc = "Small machine which transmits data about specific powernet."
 	anchored = TRUE
 	density = FALSE
-	level = 1
-	icon = 'icons/obj/objects.dmi'
+	level = ATOM_LEVEL_UNDER_TILE
+	icon = 'icons/obj/structures/floor_magnet.dmi'
 	icon_state = "floor_beacon" // If anyone wants to make better sprite, feel free to do so without asking me.
 
 	var/name_tag = "#UNKN#" // ID tag displayed in list of powernet sensors. Each sensor should have it's own tag!
@@ -94,7 +94,7 @@
 
 	var/list/L = find_apcs()
 	var/total_apc_load = 0
-	if(L.len <= 0) 	// No APCs found.
+	if(length(L) <= 0) 	// No APCs found.
 		out = "<b>No APCs located in connected powernet!</b>"
 	else			// APCs found. Create very ugly (but working!) HTML table.
 
@@ -144,7 +144,7 @@
 	var/list/L = find_apcs()
 	var/total_apc_load = 0
 	var/list/APC_data = list()
-	if(L.len > 0)
+	if(length(L) > 0)
 		// These lists are used as replacement for number based APC settings
 		var/list/S = list("M-OFF", "DC-OFF","A-OFF","M-ON", "A-ON")
 		var/list/chg = list("N","C","F")

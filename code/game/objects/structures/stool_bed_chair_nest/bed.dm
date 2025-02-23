@@ -1,26 +1,20 @@
-/* Beds... get your mind out of the gutter, they're for sleeping!
- * Contains:
- * 		Beds
- *		Roller beds
- *		Mattresses
- */
-
-/*
- * Beds
- */
 /obj/structure/bed
 	name = "bed"
 	desc = "This is used to lie in, sleep in or strap on."
-	icon = 'icons/obj/furniture.dmi'
+	icon = 'icons/obj/structures/furniture.dmi'
 	icon_state = "bed"
 	anchored = TRUE
-	can_buckle = 1
+	can_buckle = TRUE
 	buckle_dir = SOUTH
-	buckle_lying = 1
+	buckle_stance = BUCKLE_FORCE_PRONE
 	var/material/padding_material
 	var/base_icon = "bed"
 	var/material_alteration = MATERIAL_ALTERATION_ALL
-	var/buckling_sound = 'sound/effects/buckle.ogg'
+	/// Bitflags. Bed/chair specific flags.
+	var/bed_flags = EMPTY_BITFIELD
+	/// How many sheets should be given when dismantled, based on their stack_recipe datum
+	var/dismantle_return = 2
+
 
 /obj/structure/bed/New(newloc, new_material = DEFAULT_FURNITURE_MATERIAL, new_padding_material)
 	..(newloc)
@@ -40,15 +34,15 @@
 /obj/structure/bed/on_update_icon()
 	// Prep icon.
 	icon_state = ""
-	overlays.Cut()
+	ClearOverlays()
 	// Base icon.
 	var/cache_key = "[base_icon]-[material.name]"
 	if(isnull(stool_cache[cache_key]))
-		var/image/I = image('icons/obj/furniture.dmi', base_icon)
+		var/image/I = image('icons/obj/structures/furniture.dmi', base_icon)
 		if(material_alteration & MATERIAL_ALTERATION_COLOR)
 			I.color = material.icon_colour
 		stool_cache[cache_key] = I
-	overlays |= stool_cache[cache_key]
+	AddOverlays(stool_cache[cache_key])
 	// Padding overlay.
 	if(padding_material)
 		var/padding_cache_key = "[base_icon]-padding-[padding_material.name]"
@@ -57,7 +51,7 @@
 			if(material_alteration & MATERIAL_ALTERATION_COLOR)
 				I.color = padding_material.icon_colour
 			stool_cache[padding_cache_key] = I
-		overlays |= stool_cache[padding_cache_key]
+		AddOverlays(stool_cache[padding_cache_key])
 
 	// Strings.
 	if(material_alteration & MATERIAL_ALTERATION_NAME)
@@ -87,71 +81,99 @@
 				qdel(src)
 				return
 
-/obj/structure/bed/attackby(obj/item/W as obj, mob/user as mob)
-	if(isWrench(W))
-		playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
-		dismantle()
-		qdel(src)
-	else if(istype(W,/obj/item/stack))
-		if(padding_material)
-			to_chat(user, "\The [src] is already padded.")
-			return
-		var/obj/item/stack/C = W
-		if(C.get_amount() < 1) // How??
-			qdel(C)
-			return
-		var/padding_type //This is awful but it needs to be like this until tiles are given a material var.
-		if(istype(W,/obj/item/stack/tile/carpet))
+
+/obj/structure/bed/use_tool(obj/item/tool, mob/user, list/click_params)
+	// Material Stack - Add padding
+	if (isstack(tool))
+		if (HAS_FLAGS(bed_flags, BED_FLAG_CANNOT_BE_PADDED))
+			USE_FEEDBACK_FAILURE("\The [src] cannot be padded.")
+			return TRUE
+		if (padding_material)
+			USE_FEEDBACK_FAILURE("\The [src] is already padded with [padding_material.display_name].")
+			return TRUE
+		var/obj/item/stack/stack = tool
+		if (!stack.can_use(1))
+			USE_FEEDBACK_STACK_NOT_ENOUGH(stack, 1, "to pad \the [src].")
+			return TRUE
+		var/padding_type
+		if (istype(tool, /obj/item/stack/tile/carpet))
 			padding_type = MATERIAL_CARPET
-		else if(istype(W,/obj/item/stack/material))
-			var/obj/item/stack/material/M = W
-			if(M.material && (M.material.flags & MATERIAL_PADDING))
-				padding_type = "[M.material.name]"
-		if(!padding_type)
-			to_chat(user, "You cannot pad \the [src] with that.")
-			return
-		C.use(1)
-		if(!istype(src.loc, /turf))
-			src.forceMove(get_turf(src))
-		to_chat(user, "You add padding to \the [src].")
-		add_padding(padding_type)
-		return
-
-	else if(isWirecutter(W))
-		if(!padding_material)
-			to_chat(user, "\The [src] has no padding to remove.")
-			return
-		to_chat(user, "You remove the padding from \the [src].")
-		playsound(src, 'sound/items/Wirecutter.ogg', 100, 1)
-		remove_padding()
-
-	else if(istype(W, /obj/item/grab))
-		var/obj/item/grab/G = W
-		var/mob/living/affecting = G.affecting
-		user.visible_message("<span class='notice'>[user] attempts to buckle [affecting] into \the [src]!</span>")
-		if(do_after(user, 2 SECONDS, src, DO_PUBLIC_UNIQUE))
-			if(user_buckle_mob(affecting, user))
-				qdel(W)
-	else
-		..()
-
-/obj/structure/bed/buckle_mob(mob/living/M)
-	. = ..()
-	if(. && buckling_sound)
-		playsound(src, buckling_sound, 20)
-
-/obj/structure/bed/Move()
-	. = ..()
-	if(buckled_mob)
-		buckled_mob.forceMove(src.loc)
-
-/obj/structure/bed/forceMove()
-	. = ..()
-	if(buckled_mob)
-		if(isturf(src.loc))
-			buckled_mob.forceMove(src.loc)
+		else if (istype(tool, /obj/item/stack/material))
+			var/obj/item/stack/material/material_stack = tool
+			if (!material_stack.material || !HAS_FLAGS(material_stack.material.flags, MATERIAL_PADDING))
+				USE_FEEDBACK_FAILURE("\The [tool] can't be used to pad \the [src].")
+				return TRUE
+			padding_type = material_stack.get_material_name()
 		else
-			unbuckle_mob()
+			USE_FEEDBACK_FAILURE("\The [tool] can't be used to pad \the [src].")
+			return TRUE
+		stack.use(1)
+		user.visible_message(
+			SPAN_NOTICE("\The [user] pads \the [src] with \a [tool]."),
+			SPAN_NOTICE("You pad \the [src] with \the [tool].")
+		)
+		add_padding(padding_type)
+		return TRUE
+
+	// Sharp items - Remove padding
+	if (is_sharp(tool))
+		if (!padding_material)
+			USE_FEEDBACK_FAILURE("\The [src] has no padding to remove.")
+			return TRUE
+		user.visible_message(
+			SPAN_NOTICE("\The [user] removes \the [src]'s padding with \a [tool]."),
+			SPAN_NOTICE("You remove \the [src]'s padding with \the [tool].")
+		)
+		playsound(src, 'sound/items/Wirecutter.ogg', 50, TRUE)
+		remove_padding()
+		return TRUE
+
+	// Wrench - Dismantle
+	if (isWrench(tool))
+		if (HAS_FLAGS(bed_flags, BED_FLAG_CANNOT_BE_DISMANTLED))
+			USE_FEEDBACK_FAILURE("\The [src] cannot be dismantled.")
+			return TRUE
+		playsound(src, 'sound/items/Ratchet.ogg', 50, TRUE)
+		dismantle()
+		user.visible_message(
+			SPAN_NOTICE("\The [user] dismantles \the [src] with \a [tool]."),
+			SPAN_NOTICE("You dismantle \the [src] with \the [tool].")
+		)
+		qdel_self()
+		return TRUE
+
+	return ..()
+
+
+/obj/structure/bed/use_grab(obj/item/grab/grab, list/click_params)
+	// Force-buckle
+	grab.assailant.visible_message(
+		SPAN_WARNING("\The [grab.assailant] starts to buckle \the [grab.affecting] to \the [src]."),
+		SPAN_DANGER("You start to buckle \the [grab.affecting] to \the [src]!"),
+		SPAN_ITALIC("You hear the sound of struggling."),
+		exclude_mobs = list(grab.affecting)
+	)
+	grab.affecting.show_message(
+		SPAN_DANGER("\The [grab.assailant] starts to buckle you to \the [src]!"),
+		VISIBLE_MESSAGE,
+		SPAN_DANGER("You feel someone trying to force you into a bed or chair!")
+	)
+	if (!do_after(grab.assailant, 2 SECONDS, src, DO_PUBLIC_UNIQUE) || !grab.use_sanity_check(src))
+		return TRUE
+	grab.assailant.visible_message(
+		SPAN_WARNING("\The [grab.assailant] buckles \the [grab.affecting] to \the [src]."),
+		SPAN_DANGER("You buckle \the [grab.affecting] to \the [src]!"),
+		SPAN_ITALIC("You hear the sound of buckling."),
+		exclude_mobs = list(grab.affecting)
+	)
+	grab.affecting.show_message(
+		SPAN_DANGER("\The [grab.assailant] buckles you to \the [src]!"),
+		VISIBLE_MESSAGE,
+		SPAN_DANGER("You feel someone buckle you into a bed or chair!")
+	)
+	qdel(grab)
+	return TRUE
+
 
 /obj/structure/bed/proc/remove_padding()
 	if(padding_material)
@@ -164,7 +186,7 @@
 	update_icon()
 
 /obj/structure/bed/proc/dismantle()
-	material.place_sheet(get_turf(src))
+	material.place_sheet(get_turf(src), dismantle_return)
 	if(padding_material)
 		padding_material.place_sheet(get_turf(src))
 
@@ -180,153 +202,10 @@
 /obj/structure/bed/padded/New(newloc)
 	..(newloc,MATERIAL_ALUMINIUM,MATERIAL_CLOTH)
 
-/*
- * Roller beds
- */
-/obj/structure/bed/roller
-	name = "roller bed"
-	icon = 'icons/obj/rollerbed.dmi'
-	icon_state = "down"
-	anchored = FALSE
-	buckle_pixel_shift = "x=0;y=0;z=6"
-	var/item_form_type = /obj/item/roller	//The folded-up object path.
-	var/obj/item/reagent_containers/beaker
-	var/iv_attached = 0
-	var/iv_stand = TRUE
 
-/obj/structure/bed/roller/on_update_icon()
-	overlays.Cut()
-	if(density)
-		icon_state = "up"
-	else
-		icon_state = "down"
-	if(beaker)
-		var/image/iv = image(icon, "iv[iv_attached]")
-		var/percentage = round((beaker.reagents.total_volume / beaker.volume) * 100, 25)
-		var/image/filling = image(icon, "iv_filling[percentage]")
-		filling.color = beaker.reagents.get_color()
-		iv.overlays += filling
-		if(percentage < 25)
-			iv.overlays += image(icon, "light_low")
-		if(density)
-			iv.pixel_y = 6
-		overlays += iv
-
-/obj/structure/bed/roller/attackby(obj/item/I, mob/user)
-	if(isWrench(I) || istype(I, /obj/item/stack) || isWirecutter(I))
-		return 1
-	if(iv_stand && !beaker && istype(I, /obj/item/reagent_containers/ivbag))
-		if(!user.unEquip(I, src))
-			return
-		to_chat(user, "You attach \the [I] to \the [src].")
-		beaker = I
-		queue_icon_update()
-		return 1
-	..()
-
-/obj/structure/bed/roller/attack_hand(mob/living/user)
-	if(beaker && !buckled_mob)
-		remove_beaker(user)
-	else
-		..()
-
-/obj/structure/bed/roller/proc/collapse()
-	visible_message("[usr] collapses [src].")
-	new item_form_type(get_turf(src))
-	qdel(src)
-
-/obj/structure/bed/roller/post_buckle_mob(mob/living/M)
-	. = ..()
-	if(M == buckled_mob)
-		set_density(1)
-		queue_icon_update()
-	else
-		set_density(0)
-		if(iv_attached)
-			detach_iv(M, usr)
-		queue_icon_update()
-
-/obj/structure/bed/roller/Process()
-	if(!iv_attached || !buckled_mob || !beaker)
-		return PROCESS_KILL
-
-	//SSObj fires twice as fast as SSMobs, so gotta slow down to not OD our victims.
-	if(SSobj.times_fired % 2)
-		return
-
-	if(beaker.volume > 0)
-		beaker.reagents.trans_to_mob(buckled_mob, beaker.amount_per_transfer_from_this, CHEM_BLOOD)
-		queue_icon_update()
-
-/obj/structure/bed/roller/proc/remove_beaker(mob/user)
-	to_chat(user, "You detach \the [beaker] to \the [src].")
-	iv_attached = FALSE
-	beaker.dropInto(loc)
-	beaker = null
-	queue_icon_update()
-
-/obj/structure/bed/roller/proc/attach_iv(mob/living/carbon/human/target, mob/user)
-	if(!beaker)
-		return
-	if(do_IV_hookup(target, user, beaker))
-		iv_attached = TRUE
-		queue_icon_update()
-		START_PROCESSING(SSobj,src)
-
-/obj/structure/bed/roller/proc/detach_iv(mob/living/carbon/human/target, mob/user)
-	visible_message("\The [target] is taken off the IV on \the [src].")
-	iv_attached = FALSE
-	queue_icon_update()
-	STOP_PROCESSING(SSobj,src)
-
-/obj/structure/bed/roller/MouseDrop(over_object, src_location, over_location)
-	..()
-	if(!CanMouseDrop(over_object))	return
-	if(!(ishuman(usr) || isrobot(usr)))	return
-	if(over_object == buckled_mob && beaker)
-		if(iv_attached)
-			detach_iv(buckled_mob, usr)
-		else
-			attach_iv(buckled_mob, usr)
-		return
-	if(over_object != usr && ishuman(over_object))
-		if(user_buckle_mob(over_object, usr))
-			attach_iv(buckled_mob, usr)
-			return
-	if(beaker)
-		remove_beaker(usr)
-		return
-	if(buckled_mob)	return
-	collapse()
-
-/obj/item/roller
-	name = "roller bed"
-	desc = "A collapsed roller bed that can be carried around."
-	icon = 'icons/obj/rollerbed.dmi'
-	icon_state = "folded"
-	item_state = "rbed"
-	slot_flags = SLOT_BACK
-	w_class = ITEM_SIZE_LARGE
-	var/structure_form_type = /obj/structure/bed/roller	//The deployed form path.
-
-/obj/item/roller/attack_self(mob/user)
-	var/obj/structure/bed/roller/R = new structure_form_type(user.loc)
-	R.add_fingerprint(user)
-	qdel(src)
-
-/obj/item/robot_rack/roller
-	name = "roller bed rack"
-	desc = "A rack for carrying collapsed roller beds. Can also be used for carrying ironing boards."
-	icon = 'icons/obj/rollerbed.dmi'
-	icon_state = "folded"
-	object_type = /obj/item/roller
-	interact_type = /obj/structure/bed/roller
-/*
- * Mattresses
- */
 /obj/structure/mattress
 	name = "mattress"
-	icon = 'icons/obj/furniture.dmi'
+	icon = 'icons/obj/structures/furniture.dmi'
 	icon_state = "mattress"
 	desc = "A bare mattress. It doesn't look very comfortable."
 	anchored = FALSE

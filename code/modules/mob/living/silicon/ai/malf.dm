@@ -37,7 +37,7 @@
 	hacked_apcs = null
 	// Stop the delta alert, and, if applicable, self-destruct timer.
 	bombing_station = 0
-	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.using_map.security_state)
+	var/singleton/security_state/security_state = GET_SINGLETON(GLOB.using_map.security_state)
 	if(security_state.current_security_level == security_state.severe_security_level)
 		security_state.decrease_security_level(TRUE)
 	// Reset our verbs
@@ -94,7 +94,7 @@
 		return
 	if(hardware_integrity() < 50)
 		if(!shutup)
-			to_chat(src, "<span class='notice'>Starting APU... <b>FAULT</b>(System Damaged)</span>")
+			to_chat(src, SPAN_NOTICE("Starting APU... <b>FAULT</b>(System Damaged)"))
 		return
 	if(!shutup)
 		to_chat(src, "Starting APU... ONLINE")
@@ -124,7 +124,7 @@
 /mob/living/silicon/ai/show_malf_ai()
 	if(src.is_malf())
 		if(src.hacked_apcs)
-			stat("Hacked APCs", "[src.hacked_apcs.len]")
+			stat("Hacked APCs", "[length(src.hacked_apcs)]")
 		stat("System Status", "[src.hacking ? "Busy" : "Stand-By"]")
 		if(src.research)
 			stat("Available CPU", "[src.research.stored_cpu] TFlops")

@@ -1,14 +1,14 @@
 SUBSYSTEM_DEF(misc)
 	name = "Misc Updates"
 	wait = 30 SECONDS
-	runlevels = RUNLEVEL_GAME | RUNLEVEL_POSTGAME
+
+	var/const/STAGE_TRADERS = FLAG(0)
+	var/const/STAGE_SOLARS = FLAG(1)
+
 	var/static/list/queue = list()
 	var/static/stage = STAGE_TRADERS
 	var/static/cost_traders = 0
 	var/static/cost_solars = 0
-
-	var/const/STAGE_TRADERS = FLAG(0)
-	var/const/STAGE_SOLARS = FLAG(1)
 
 
 /datum/controller/subsystem/misc/VV_static()
@@ -22,7 +22,7 @@ SUBSYSTEM_DEF(misc)
 	if (PreventUpdateStat(time))
 		return ..()
 	..({"\
-		TR: [GLOB.traders.len],[Roundm(cost_traders, 0.1)] \
+		TR: [length(GLOB.traders)],[Roundm(cost_traders, 0.1)] \
 		SO: [Roundm(GLOB.sun_angle, 0.1)],[Roundm(GLOB.sun_rate, 0.1)],[Roundm(cost_solars, 0.1)]
 	"})
 
@@ -57,18 +57,18 @@ SUBSYSTEM_DEF(misc)
 
 GLOBAL_LIST_EMPTY(traders)
 GLOBAL_LIST_EMPTY(trader_types)
-GLOBAL_VAR_INIT(trader_max, 10)
-GLOBAL_VAR_INIT(trader_station_count, 3)
-GLOBAL_VAR_INIT(trader_unique_chance, 5)
-GLOBAL_LIST_INIT(trader_stations, subtypesof(/datum/trader) - typesof(/datum/trader/ship))
-GLOBAL_LIST_INIT(trader_ships, subtypesof(/datum/trader/ship) - typesof(/datum/trader/ship/unique))
-GLOBAL_LIST_INIT(trader_uniques, subtypesof(/datum/trader/ship/unique))
+GLOBAL_VAR_AS(trader_max, 10)
+GLOBAL_VAR_AS(trader_station_count, 3)
+GLOBAL_VAR_AS(trader_unique_chance, 5)
+GLOBAL_LIST_AS(trader_stations, subtypesof(/datum/trader) - typesof(/datum/trader/ship))
+GLOBAL_LIST_AS(trader_ships, subtypesof(/datum/trader/ship) - typesof(/datum/trader/ship/unique))
+GLOBAL_LIST_AS(trader_uniques, subtypesof(/datum/trader/ship/unique))
 
 
 /datum/controller/subsystem/misc/proc/UpdateTraders(resumed, no_mc_tick, generate_stations = 0)
 	if (!resumed)
 		queue = GLOB.trader_types.Copy()
-	var/count = queue.len
+	var/count = length(queue)
 	var/max = GLOB.trader_max
 	var/trader_type
 	var/datum/trader/trader
@@ -108,10 +108,10 @@ GLOBAL_LIST_INIT(trader_uniques, subtypesof(/datum/trader/ship/unique))
 			return
 
 
-GLOBAL_VAR_INIT(sun_dx, 0)
-GLOBAL_VAR_INIT(sun_dy, 0)
-GLOBAL_VAR_INIT(sun_angle, rand(0, 359))
-GLOBAL_VAR_INIT(sun_rate, (rand(0, 1) || -1) * rand(50, 200) * 0.01 * 18)
+GLOBAL_VAR_AS(sun_dx, 0)
+GLOBAL_VAR_AS(sun_dy, 0)
+GLOBAL_VAR_AS(sun_angle, rand(0, 359))
+GLOBAL_VAR_AS(sun_rate, (rand(0, 1) || -1) * rand(50, 200) * 0.01 * 18)
 GLOBAL_LIST_EMPTY(solar_controllers)
 
 
@@ -135,7 +135,7 @@ GLOBAL_LIST_EMPTY(solar_controllers)
 		GLOB.sun_angle = angle
 		queue = GLOB.solar_controllers.Copy()
 	var/obj/machinery/power/solar_control/controller
-	for (var/i = queue.len to 1 step -1)
+	for (var/i = length(queue) to 1 step -1)
 		controller = queue[i]
 		if (QDELETED(controller) || !controller.powernet)
 			GLOB.solar_controllers -= controller

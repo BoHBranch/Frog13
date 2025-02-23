@@ -1,3 +1,5 @@
+#include "../../../../packs/factions/scgec/_pack.dm"
+
 /datum/map_template/ruin/exoplanet/ec_old_crash
 	name = "Expeditionary Ship"
 	id = "ec_old_wreck"
@@ -14,6 +16,7 @@
 /area/map_template/ecship/crew
 	name = "\improper Crew Area"
 	icon_state = "crew_quarters"
+	turfs_airless = TRUE
 
 /area/map_template/ecship/science
 	name = "\improper Science Module"
@@ -30,11 +33,11 @@
 /area/map_template/ecship/engine
 	name = "\improper Engine Exterior"
 	icon_state = "engine"
-	area_flags = AREA_FLAG_EXTERNAL
 
 /area/map_template/ecship/cockpit
 	name = "\improper Cockpit"
 	icon_state = "bridge"
+	turfs_airless = TRUE
 
 //Low pressure setup
 /obj/machinery/atmospherics/unary/vent_pump/low
@@ -47,14 +50,6 @@
 
 /turf/simulated/floor/tiled/white/lowpressure
 	initial_gas = list(GAS_CO2 = MOLES_O2STANDARD)
-
-/obj/item/disk/astrodata
-	name = "astronomical data disk"
-	desc = "A disk with a wealth of astronomical data recorded. Astrophysicists at the EC Observatory would love to see this."
-	icon = 'icons/obj/cloning.dmi'
-	icon_state = "datadisk0"
-	item_state = "card-id"
-	w_class = ITEM_SIZE_SMALL
 
 /obj/item/ecletters
 	name = "bundle of letters"
@@ -72,7 +67,7 @@
 /obj/item/paper/ecrashlog/Initialize()
 	. = ..()
 	var/shipname = "TEV [pick("Magellan", "Gagarin", "Drake", "Horizon", "Aurora")]"
-	var/decl/cultural_info/S = SSculture.get_culture(CULTURE_HUMAN_EARTH)
+	var/singleton/cultural_info/S = SSculture.get_culture(CULTURE_HUMAN_EARTH)
 	var/new_info = {"
 	I am Lieutenant Hao Ru, captain of [shipname], of the Terran Commonwealth Expeditionary Corps.<br>
 	We are dying. The Ran Mission has failed.<br>

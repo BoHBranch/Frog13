@@ -86,13 +86,6 @@
 	sort_category = "Xenowear"
 
 // IPC clothing
-/datum/gear/ipc_monitor
-	display_name = "display monitor (IPC)"
-	path = /obj/item/clothing/mask/monitor
-	sort_category = "Xenowear"
-	whitelisted = list(SPECIES_IPC)
-	cost = 0
-
 /datum/gear/suit/lab_xyn_machine
 	display_name = "Xynergy labcoat"
 	path = /obj/item/clothing/suit/storage/toggle/labcoat/xyn_machine
@@ -115,6 +108,17 @@
 /datum/gear/shoes/wrk_toeless
 	display_name = "toeless workboots"
 	path = /obj/item/clothing/shoes/workboots/toeless
+	sort_category = "Xenowear"
+
+/datum/gear/shoes/clogs_toeless
+	display_name = "toeless foam clogs"
+	path = /obj/item/clothing/shoes/foamclog/toeless
+	flags = GEAR_HAS_COLOR_SELECTION
+	sort_category = "Xenowear"
+
+/datum/gear/shoes/flipflobsters_toeless
+	display_name = "toeless flip flobsters"
+	path = /obj/item/clothing/shoes/foamclog/flipflobster/toeless
 	sort_category = "Xenowear"
 
 // Pre-modified gloves

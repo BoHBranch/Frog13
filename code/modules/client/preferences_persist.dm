@@ -1,4 +1,4 @@
-#define PREF_SER_VERSION 2
+#define PREF_SER_VERSION 3
 
 /datum/preferences/proc/get_path(ckey, record_key, extension="json")
 	return "data/player_saves/[copytext_char(ckey,1,2)]/[ckey]/[record_key].[extension]"
@@ -9,7 +9,7 @@
 	if(!fexists(path))
 		return null
 	var/text = file2text(path)
-	if(text == null)
+	if(isnull(text))
 		CRASH("failed to read [path]")
 	var/list/data = json_decode(text)
 	if(!istype(data))
@@ -19,7 +19,7 @@
 /datum/preferences/proc/save_pref_record(record_key, list/data)
 	var/path = get_path(client_ckey, record_key)
 	var/text = json_encode(data)
-	if(text == null)
+	if(isnull(text))
 		CRASH("failed to encode JSON for [path]")
 
 	// Why this dance? If text2file fails, we want to leave the record as it was.

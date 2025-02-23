@@ -5,15 +5,15 @@
 #define BG_EMPTY 4
 
 /obj/machinery/biogenerator
-	name = "Biogenerator"
+	name = "biogenerator"
 	desc = ""
-	icon = 'icons/obj/biogenerator.dmi'
-	icon_state = "biogen-stand"
+	icon = 'icons/obj/machines/biogenerator.dmi'
+	icon_state = "biogen"
 	density = TRUE
 	anchored = TRUE
 	idle_power_usage = 40
 	base_type = /obj/machinery/biogenerator
-	construct_state = /decl/machine_construction/default/panel_closed
+	construct_state = /singleton/machine_construction/default/panel_closed
 	uncreated_component_parts = null
 	stat_immune = 0
 	machine_name = "biogenerator"
@@ -32,13 +32,14 @@
 			/obj/item/reagent_containers/food/drinks/small_milk = 30,
 			/obj/item/reagent_containers/food/drinks/milk = 50,
 			/obj/item/reagent_containers/food/snacks/meat/syntiflesh = 50,
-			/obj/item/storage/fancy/egg_box = 300),
+			/obj/item/storage/fancy/egg_box/full = 300),
 		"Nutrients" = list(
 			/obj/item/reagent_containers/glass/bottle/eznutrient = 60,
 			/obj/item/reagent_containers/glass/bottle/left4zed = 120,
 			/obj/item/reagent_containers/glass/bottle/robustharvest = 120),
 		"Leather" = list(
-			/obj/item/storage/wallet/leather = 100,
+			/obj/item/storage/wallet = 100,
+			/obj/item/stack/material/leather = 100,
 			/obj/item/clothing/gloves/thick/botany = 250,
 			/obj/item/storage/belt/utility = 300,
 			/obj/item/storage/backpack/satchel = 400,
@@ -60,12 +61,18 @@
 	update_icon()
 
 /obj/machinery/biogenerator/on_update_icon()
-	if(state == BG_NO_BEAKER)
-		icon_state = "biogen-empty"
-	else if(state == BG_READY || state == BG_COMPLETE)
-		icon_state = "biogen-stand"
-	else
-		icon_state = "biogen-work"
+	ClearOverlays()
+	if(panel_open)
+		AddOverlays("[icon_state]_panel")
+	if(is_powered())
+		AddOverlays(emissive_appearance(icon, "[icon_state]_lights"))
+		AddOverlays("[icon_state]_lights")
+	if(state == BG_READY || state == BG_COMPLETE)
+		AddOverlays("biogen_stand")
+	else if (state == BG_PROCESSING)
+		AddOverlays(emissive_appearance(icon, "[icon_state]_lights_working"))
+		AddOverlays("[icon_state]_lights_working")
+		AddOverlays("biogen_stand")
 	return
 
 /obj/machinery/biogenerator/components_are_accessible(path)
@@ -76,14 +83,19 @@
 		return SPAN_NOTICE("You must turn \the [src] off first.")
 	return ..()
 
-/obj/machinery/biogenerator/attackby(obj/item/O, mob/user)
-	if((. = component_attackby(O, user)))
+/obj/machinery/biogenerator/examine(mob/user)
+	. = ..()
+	if (processing)
+		to_chat(user, SPAN_NOTICE("\The [src] is currently processing."))
+	if (ingredients >= capacity)
+		to_chat(user, SPAN_NOTICE("\The [src] is full!"))
+
+/obj/machinery/biogenerator/use_tool(obj/item/O, mob/living/user, list/click_params)
+	if((. = ..()))
 		return
-	if(processing)
-		to_chat(user, "<span class='notice'>\The [src] is currently processing.</span>")
-	if(istype(O, /obj/item/reagent_containers/glass))
+	if (istype(O, /obj/item/reagent_containers/glass))
 		if(beaker)
-			to_chat(user, "<span class='notice'>]The [src] is already loaded.</span>")
+			to_chat(user, SPAN_NOTICE("The [src] is already loaded."))
 			return TRUE
 		else if(user.unEquip(O, src))
 			beaker = O
@@ -91,9 +103,7 @@
 			updateUsrDialog()
 			return TRUE
 
-	if(ingredients >= capacity)
-		to_chat(user, "<span class='notice'>\The [src] is already full! Activate it.</span>")
-	else if(istype(O, /obj/item/storage/plants))
+	if (istype(O, /obj/item/storage/plants))
 		var/obj/item/storage/plants/P = O
 		var/hadPlants = 0
 		for(var/obj/item/reagent_containers/food/snacks/grown/G in P.contents)
@@ -101,21 +111,24 @@
 			P.remove_from_storage(G, src, 1) //No UI updates until we are all done.
 			ingredients++
 			if(ingredients >= capacity)
-				to_chat(user, "<span class='notice'>You fill \the [src] to its capacity.</span>")
+				to_chat(user, SPAN_NOTICE("You fill \the [src] to its capacity."))
 				break
 		P.finish_bulk_removal() //Now do the UI stuff once.
 		if(!hadPlants)
-			to_chat(user, "<span class='notice'>\The [P] has no produce inside.</span>")
-		else if(ingredients < capacity)
-			to_chat(user, "<span class='notice'>You empty \the [P] into \the [src].</span>")
+			to_chat(user, SPAN_NOTICE("\The [P] has no produce inside."))
+		if (ingredients < capacity)
+			to_chat(user, SPAN_NOTICE("You empty \the [P] into \the [src]."))
+		return TRUE
 
+	if (!istype(O, /obj/item/reagent_containers/food/snacks/grown))
+		to_chat(user, SPAN_NOTICE("You cannot put this in \the [src]."))
+		return TRUE
 
-	else if(!istype(O, /obj/item/reagent_containers/food/snacks/grown))
-		to_chat(user, "<span class='notice'>You cannot put this in \the [src].</span>")
-	else if(user.unEquip(O, src))
+	if(user.unEquip(O, src))
 		ingredients++
-		to_chat(user, "<span class='notice'>You put \the [O] in \the [src]</span>")
+		to_chat(user, SPAN_NOTICE("You put \the [O] in \the [src]"))
 	update_icon()
+	return TRUE
 
 /**
  *  Display the NanoUI window for the vending machine.
@@ -133,11 +146,11 @@
 	if (state == BG_READY)
 		data["points"] = points
 		var/list/listed_types = list()
-		for(var/c_type =1 to products.len)
+		for(var/c_type =1 to length(products))
 			type_name = products[c_type]
 			var/list/current_content = products[type_name]
 			var/list/listed_products = list()
-			for(var/c_product =1 to current_content.len)
+			for(var/c_product =1 to length(current_content))
 				path = current_content[c_product]
 				var/atom/A = path
 				name = initial(A.name)
@@ -174,7 +187,7 @@
 			if (isnull(products[type]))
 				return TOPIC_REFRESH
 			var/list/sub_products = products[type]
-			if (product_index < 1 || product_index > sub_products.len)
+			if (product_index < 1 || product_index > length(sub_products))
 				return TOPIC_REFRESH
 			create_product(type, sub_products[product_index])
 		if("return")

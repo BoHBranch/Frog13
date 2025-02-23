@@ -5,57 +5,71 @@
 
 //an ordered list, using the cmp proc to weight the list elements
 /PriorityQueue
-	var/list/L //the actual queue
-	var/cmp //the weight function used to order the queue
+	/// List. The actual queue.
+	var/list/L
+	/// Proc path. The weight function used to order the queue.
+	var/cmp
 
 /PriorityQueue/New(compare)
 	L = new()
 	cmp = compare
 
+/// Checks if the queue is currently empty. Returns boolean. Mirrors to `!length(L)`
 /PriorityQueue/proc/IsEmpty()
-	return !L.len
+	SHOULD_BE_PURE(TRUE)
+	return !length(L)
 
-//add an element in the list,
-//immediatly ordering it to its position using dichotomic search
+/// Adds an element to the queue, immediately ordering it to its position using the function defined in `cmp`.
 /PriorityQueue/proc/Enqueue(atom/A)
 	ADD_SORTED(L, A, cmp)
 
-//removes and returns the first element in the queue
+/// Removes and returns the first element in the queue, or `FALSE` if the queue is empty.
 /PriorityQueue/proc/Dequeue()
-	if(!L.len)
-		return 0
+	if(!length(L))
+		return FALSE
 	. = L[1]
 
 	Remove(.)
 
-//removes an element
+/// Removes an element from the queue. Returns boolean, indicating whether an item was removed or not. Mirrors to `L.Remove(A)`
 /PriorityQueue/proc/Remove(atom/A)
 	. = L.Remove(A)
 
-//returns a copy of the elements list
+/// Returns a copy of the queue as a list. Mirrors to `L.Copy()`
 /PriorityQueue/proc/List()
+	RETURN_TYPE(/list)
+	SHOULD_BE_PURE(TRUE)
 	. = L.Copy()
 
-//return the position of an element or 0 if not found
+/// Returns the position of an element or `FALSE` if not found. Mirrors to `L.Find(A)`
 /PriorityQueue/proc/Seek(atom/A)
+	SHOULD_BE_PURE(TRUE)
 	. = L.Find(A)
 
-//return the element at the i_th position
+/// Returns the element at position `i` (1-indexed), or `FALSE` if the position does not exist.
 /PriorityQueue/proc/Get(i)
-	if(i > L.len || i < 1)
-		return 0
+	SHOULD_BE_PURE(TRUE)
+	if(i > length(L) || i < 1)
+		return FALSE
 	return L[i]
 
-//return the length of the queue
+/// Returns the length of the queue. Mirrors to `length(L)`
 /PriorityQueue/proc/Length()
-	. = L.len
+	SHOULD_BE_PURE(TRUE)
+	. = length(L)
 
-//replace the passed element at it's right position using the cmp proc
+/**
+ * Repositions the given element to the correct position in the queue using the function defined in `cmp`.
+ *
+ * The element must already exist in the queue to be resorted.
+ *
+ * Has no return value.
+ */
 /PriorityQueue/proc/ReSort(atom/A)
 	var/i = Seek(A)
 	if(i == 0)
 		return
-	while(i < L.len && call(cmp)(L[i],L[i+1]) > 0)
+	while(i < length(L) && call(cmp)(L[i],L[i+1]) > 0)
 		L.Swap(i,i+1)
 		i++
 	while(i > 1 && call(cmp)(L[i],L[i-1]) <= 0) //last inserted element being first in case of ties (optimization)

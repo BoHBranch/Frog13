@@ -76,3 +76,26 @@
 #define DAMAGE_FLAG_SKIP_DEATH_STATE_CHANGE FLAG(0)
 /// The damage source should deal extra damage to turfs - Walls, floors,
 #define DAMAGE_FLAG_TURF_BREAKER            FLAG(1)
+#define DAMAGE_FLAG_SHARP                   FLAG(2)
+#define DAMAGE_FLAG_EDGE                    FLAG(3)
+#define DAMAGE_FLAG_LASER                   FLAG(4)
+#define DAMAGE_FLAG_BULLET                  FLAG(5)
+#define DAMAGE_FLAG_EXPLODE                 FLAG(6)
+/// Makes apply_damage calls without specified zone distribute damage rather than randomly choose organ (for humans)
+#define DAMAGE_FLAG_DISPERSED               FLAG(7)
+/// Toxin damage that should be mitigated by biological (i.e. sterile) armor
+#define DAMAGE_FLAG_BIO                     FLAG(8)
+
+
+/// Health Status flags for `/atom/var/health_status`.
+/// The atom is currently dead.
+#define HEALTH_STATUS_DEAD FLAG(0)
+/// The atom is currently broken. An atom is `broken` if `HEALTH_FLAG_BREAKABLE` is set and the atom's health falls below 1/2 of `health_max`. Used for certain atoms that needed an additional damage state.
+#define HEALTH_STATUS_BROKEN FLAG(1)
+
+
+/// Health Flags for `/atom/var/health_flags`.
+/// The atom is 'breakable', and considered broken upon reaching 1/2 health.
+#define HEALTH_FLAG_BREAKABLE FLAG(0)
+/// The atom should be treated as a structure for damage calculations.
+#define HEALTH_FLAG_STRUCTURE FLAG(1)

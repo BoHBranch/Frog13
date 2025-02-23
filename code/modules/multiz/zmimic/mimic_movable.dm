@@ -1,8 +1,7 @@
-/atom/movable
-	/// The mimic (if any) that's *directly* copying us.
-	var/tmp/atom/movable/openspace/mimic/bound_overlay
-	/// If TRUE, this atom is ignored by Z-Mimic.
-	var/no_z_overlay
+/// The mimic (if any) that's *directly* copying us.
+/atom/movable/var/atom/movable/openspace/mimic/bound_overlay
+/// If TRUE, this atom is ignored by Z-Mimic.
+/atom/movable/var/z_flags
 
 /atom/movable/forceMove(atom/dest)
 	. = ..(dest)
@@ -79,10 +78,11 @@
 	name = "openspace multiplier"
 	desc = "You shouldn't see this."
 	icon = 'icons/effects/lighting_overlay.dmi'
-	icon_state = "dark"
+	icon_state = LIGHTING_TRANSPARENT_ICON_STATE
 	plane = OPENTURF_MAX_PLANE
 	layer = MIMICED_LIGHTING_LAYER
-	color = "#0000004b"
+	color = SHADOWER_DARKENING_COLOR
+	//blend_mode = BLEND_MULTIPLY
 
 /atom/movable/openspace/multiplier/Destroy()
 	var/turf/myturf = loc
@@ -96,38 +96,36 @@
 	layer = MIMICED_LIGHTING_LAYER
 	plane = OPENTURF_MAX_PLANE
 	invisibility = 0
-	blend_mode = BLEND_MULTIPLY
-	if (icon_state == null)
+
+	if (icon_state == LIGHTING_BASE_ICON_STATE)
+		blend_mode = BLEND_MULTIPLY
 		// We're using a color matrix, so just darken the colors across the board.
-		// Bay stores lights as inverted so the lighting PM can invert it for darksight, but
-		//   we don't have a plane master, so invert it again.
 		var/list/c_list = color
-		c_list[CL_MATRIX_RR] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_RG] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_RB] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_GR] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_GG] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_GB] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_BR] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_BG] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_BB] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_AR] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_AG] *= -SHADOWER_DARKENING_FACTOR
-		c_list[CL_MATRIX_AB] *= -SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_RR] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_RG] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_RB] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_GR] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_GG] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_GB] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_BR] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_BG] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_BB] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_AR] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_AG] *= SHADOWER_DARKENING_FACTOR
+		c_list[CL_MATRIX_AB] *= SHADOWER_DARKENING_FACTOR
 		color = c_list
+
+		//Hackfix until I look into planes a bit more, we copy the plane of turf
+		var/turf/myturf = loc
+		if (istype(myturf))
+			plane = myturf.plane
 	else
-		// Not a color matrix, so we just ignore the lighting values.
-		icon_state = "dark"	// this is actually just a white sprite, which is what this blending needs
-		color = list(
-			SHADOWER_DARKENING_FACTOR, 0, 0,
-			0, SHADOWER_DARKENING_FACTOR, 0,
-			0, 0, SHADOWER_DARKENING_FACTOR
-		)
+		// Not a color matrix, so we can just use the color var ourselves.
+		color = (icon_state == LIGHTING_DARKNESS_ICON_STATE) ? COLOR_WHITE : SHADOWER_DARKENING_COLOR
 
 	var/turf/parent = loc
 	ASSERT(isturf(parent))
-	if (LAZYLEN(parent.ao_overlays_mimic))
-		overlays += parent.ao_overlays_mimic
+	UpdateOverlays()
 
 	if (bound_overlay)
 		update_above()
@@ -145,8 +143,10 @@
 	var/mimiced_type
 	var/original_z
 	var/override_depth
+	var/have_performed_fixup = FALSE
 
 /atom/movable/openspace/mimic/New()
+	SHOULD_CALL_PARENT(FALSE) // Probably a reason for this but I don't know it
 	atom_flags |= ATOM_FLAG_INITIALIZED
 	SSzcopy.openspace_overlays += 1
 
@@ -162,8 +162,9 @@
 
 	return ..()
 
-/atom/movable/openspace/mimic/attackby(obj/item/W, mob/user)
-	to_chat(user, SPAN_NOTICE("\The [src] is too far away."))
+/atom/movable/openspace/mimic/use_tool(obj/item/tool, mob/user, list/click_params)
+	SHOULD_CALL_PARENT(FALSE)
+	return tool.resolve_attackby(loc, user, click_params)
 
 /atom/movable/openspace/mimic/attack_hand(mob/user)
 	to_chat(user, SPAN_NOTICE("You cannot reach \the [src] from here."))
@@ -179,12 +180,12 @@
 			deltimer(destruction_timer)
 			destruction_timer = null
 	else if (!destruction_timer)
-		destruction_timer = addtimer(CALLBACK(src, /datum/.proc/qdel_self), 10 SECONDS, TIMER_STOPPABLE)
+		destruction_timer = QDEL_IN(src, 10 SECONDS)
 
 // Called when the turf we're on is deleted/changed.
 /atom/movable/openspace/mimic/proc/owning_turf_changed()
 	if (!destruction_timer)
-		destruction_timer = addtimer(CALLBACK(src, /datum/.proc/qdel_self), 10 SECONDS, TIMER_STOPPABLE)
+		destruction_timer = QDEL_IN(src, 10 SECONDS)
 
 // -- TURF PROXY --
 
@@ -192,10 +193,11 @@
 /atom/movable/openspace/turf_proxy
 	plane = OPENTURF_MAX_PLANE
 	mouse_opacity = 0
-	no_z_overlay = TRUE  // Only one of these should ever be visible at a time, the mimic logic will handle that.
+	z_flags = ZMM_IGNORE // Only one of these should ever be visible at a time, the mimic logic will handle that.
 
-/atom/movable/openspace/turf_proxy/attackby(obj/item/W, mob/user)
-	loc.attackby(W, user)
+/atom/movable/openspace/turf_proxy/use_tool(obj/item/tool, mob/user, list/click_params)
+	SHOULD_CALL_PARENT(FALSE)
+	return tool.resolve_attackby(loc, user, click_params)
 
 /atom/movable/openspace/turf_proxy/attack_hand(mob/user as mob)
 	loc.attack_hand(user)
@@ -203,9 +205,9 @@
 /atom/movable/openspace/turf_proxy/attack_generic(mob/user as mob)
 	loc.attack_generic(user)
 
-/atom/movable/openspace/turf_proxy/examine(mob/examiner)
+/atom/movable/openspace/turf_proxy/examine(...)
 	SHOULD_CALL_PARENT(FALSE)
-	. = loc.examine(examiner)
+	. = loc.examine(arglist(args))
 
 
 // -- TURF MIMIC --
@@ -221,8 +223,9 @@
 	ASSERT(isturf(loc))
 	delegate = loc:below
 
-/atom/movable/openspace/turf_mimic/attackby(obj/item/W, mob/user)
-	loc.attackby(W, user)
+/atom/movable/openspace/turf_mimic/use_tool(obj/item/tool, mob/user, list/click_params)
+	SHOULD_CALL_PARENT(FALSE)
+	return tool.resolve_attackby(loc, user, click_params)
 
 /atom/movable/openspace/turf_mimic/attack_hand(mob/user as mob)
 	to_chat(user, SPAN_NOTICE("You cannot reach \the [src] from here."))
@@ -230,6 +233,6 @@
 /atom/movable/openspace/turf_mimic/attack_generic(mob/user as mob)
 	to_chat(user, SPAN_NOTICE("You cannot reach \the [src] from here."))
 
-/atom/movable/openspace/turf_mimic/examine(mob/examiner)
+/atom/movable/openspace/turf_mimic/examine(...)
 	SHOULD_CALL_PARENT(FALSE)
-	. = delegate.examine(examiner)
+	. = delegate.examine(arglist(args))

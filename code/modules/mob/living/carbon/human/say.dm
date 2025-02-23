@@ -25,18 +25,19 @@
 		var/obj/item/organ/internal/lungs/L = internal_organs_by_name[species.breathing_organ]
 		if(!L || L.breath_fail_ratio > 0.9)
 			if(L && world.time < L.last_successful_breath + 2 MINUTES) //if we're in grace suffocation period, give it up for last words
-				to_chat(src, "<span class='warning'>You use your remaining air to say something!</span>")
+				to_chat(src, SPAN_WARNING("You use your remaining air to say something!"))
 				L.last_successful_breath = world.time - 2 MINUTES
 				return ..(message, speaking = speaking)
 
-			to_chat(src, "<span class='warning'>You don't have enough air[L ? " in [L]" : ""] to make a sound!</span>")
+			to_chat(src, SPAN_WARNING("You don't have enough air[L ? " in [L]" : ""] to make a sound!"))
 			return
 		else if(L.breath_fail_ratio > 0.7)
 			whisper_say(length(message) > 5 ? stars(message) : message, speaking)
+			return
 		else if(L.breath_fail_ratio > 0.4 && length(message) > 10)
 			whisper_say(message, speaking)
-	else
-		return ..(message, speaking = speaking, whispering = whispering)
+			return
+	return ..(message, speaking = speaking, whispering = whispering)
 
 
 /mob/living/carbon/human/proc/forcesay(list/append)
@@ -45,10 +46,10 @@
 			var/virgin = 1	//has the text been modified yet?
 			var/temp = winget(client, "input", "text")
 			if(findtextEx(temp, "Say \"", 1, 7) && length(temp) > 5)	//case sensitive means
-				var/main_key = get_prefix_key(/decl/prefix/radio_main_channel)
+				var/main_key = get_prefix_key(/singleton/prefix/radio_main_channel)
 				temp = replacetext(temp, main_key, "")	//general radio
 
-				var/channel_key = get_prefix_key(/decl/prefix/radio_channel_selection)
+				var/channel_key = get_prefix_key(/singleton/prefix/radio_channel_selection)
 				if(findtext(trim_left(temp), channel_key, 6, 7))	//dept radio
 					temp = copytext(trim_left(temp), 8)
 					virgin = 0
@@ -60,7 +61,7 @@
 				while(findtext(trim_left(temp), channel_key, 1, 2))	//dept radio again (necessary)
 					temp = copytext(trim_left(temp), 3)
 
-				var/custom_emote_key = get_prefix_key(/decl/prefix/custom_emote)
+				var/custom_emote_key = get_prefix_key(/singleton/prefix/custom_emote)
 				if(findtext(temp, custom_emote_key, 1, 2))	//emotes
 					return
 				temp = copytext(trim_left(temp), 1, rand(5,8))
@@ -84,7 +85,7 @@
 	//These only pertain to common. Languages are handled by mob/say_understands()
 	if (!speaking)
 		if (istype(other, /mob/living/carbon/alien/diona))
-			if(other.languages.len >= 2) //They've sucked down some blood and can speak common now.
+			if(length(other.languages) >= 2) //They've sucked down some blood and can speak common now.
 				return 1
 		if (istype(other, /mob/living/silicon))
 			return 1
@@ -147,19 +148,18 @@
 	return verb
 
 /mob/living/carbon/human/handle_speech_problems(list/message_data)
-	if(silent || (sdisabilities & MUTED))
+	if (silent || (sdisabilities & MUTED))
 		message_data[1] = ""
-		. = 1
+		return TRUE
 
-	else if(istype(wear_mask, /obj/item/clothing/mask))
+	if (istype(wear_mask, /obj/item/clothing/mask))
 		var/obj/item/clothing/mask/M = wear_mask
 		if(M.voicechange)
 			message_data[1] = pick(M.say_messages)
 			message_data[2] = pick(M.say_verbs)
-			. = 1
+			return TRUE
 
-	else
-		. = ..(message_data)
+	return ..(message_data)
 
 /mob/living/carbon/human/handle_message_mode(message_mode, message, verb, speaking, used_radios, alt_name)
 	switch(message_mode)
@@ -233,7 +233,7 @@
 
 /mob/living/carbon/human/parse_language(message)
 	var/prefix = copytext_char(message,1,2)
-	if(length(message) >= 1 && prefix == get_prefix_key(/decl/prefix/audible_emote))
+	if(length(message) >= 1 && prefix == get_prefix_key(/singleton/prefix/audible_emote))
 		return all_languages["Noise"]
 
 	if(length(message) >= 2 && is_language_prefix(prefix))

@@ -1,6 +1,6 @@
 /obj/machinery/psi_monitor
 	name = "psionic implant monitor"
-	icon = 'icons/obj/machines/psimeter.dmi'
+	icon = 'icons/obj/machines/research/psimeter.dmi'
 	icon_state = "meter_on"
 	use_power = POWER_USE_ACTIVE
 	anchored = TRUE
@@ -21,7 +21,7 @@
 		emagged = TRUE
 		remaining_charges--
 		req_access.Cut()
-		to_chat(user, "<span class='notice'>You short out the access protocols.</span>")
+		to_chat(user, SPAN_NOTICE("You short out the access protocols."))
 		return TRUE
 	return FALSE
 
@@ -34,7 +34,7 @@
 
 			var/obj/item/card/id/ID = usr.GetIdCard()
 			if(!ID || !allowed(usr))
-				to_chat(usr, "<span class='warning'>Access denied.</span>")
+				to_chat(usr, SPAN_WARNING("Access denied."))
 			else
 				authorized = "[ID.registered_name] ([ID.assignment])"
 			. = 1
@@ -49,7 +49,7 @@
 
 		else  if(href_list["remove_violation"])
 			var/remove_ind = text2num(href_list["remove_violation"])
-			if(remove_ind > 0 && remove_ind <= psi_violations.len)
+			if(remove_ind > 0 && remove_ind <= length(psi_violations))
 				psi_violations.Cut(remove_ind, remove_ind++)
 				. = 1
 
@@ -74,9 +74,9 @@
 	var/list/dat = list()
 	dat += "<h1>Psi Dampener Monitor</h1>"
 	if(authorized)
-		dat += "<b>[authorized]</b> <a href='?src=\ref[src];logout=1'>Logout</a>"
+		dat += "<b>[authorized]</b> <a href='byond://?src=\ref[src];logout=1'>Logout</a>"
 	else
-		dat += "<a href='?src=\ref[src];login=1'>Login</a>"
+		dat += "<a href='byond://?src=\ref[src];login=1'>Login</a>"
 
 	dat += "<h2>Active Psionic Dampeners</h2><hr>"
 	dat += "<center><table>"
@@ -89,21 +89,21 @@
 		if(implant.malfunction)
 			dat += "<td>ERROR</td><td>ERROR</td>"
 		else
-			dat += "<td>[implant.overload]%</td><td>[authorized ? "<a href='?src=\ref[src];change_mode=\ref[implant]'>[implant.psi_mode]</a>" : "[implant.psi_mode]"]</td>"
+			dat += "<td>[implant.overload]%</td><td>[authorized ? "<a href='byond://?src=\ref[src];change_mode=\ref[implant]'>[implant.psi_mode]</a>" : "[implant.psi_mode]"]</td>"
 		dat += "</tr>"
 	dat += "</table><hr></center>"
 
 	if(show_violations)
-		dat += "<h2>Psionic Control Violations <a href='?src=\ref[src];show_violations=0'>-</a></h2><hr><center><table>"
-		if(psi_violations.len)
-			for(var/i =  1 to psi_violations.len)
+		dat += "<h2>Psionic Control Violations <a href='byond://?src=\ref[src];show_violations=0'>-</a></h2><hr><center><table>"
+		if(length(psi_violations))
+			for(var/i =  1 to length(psi_violations))
 				var/entry = psi_violations[i]
-				dat += "<tr><td><br>[entry]</td><td>[authorized ? "<a href='?src=\ref[src];remove_violation=[i]'>Remove</a>" : ""]</td></tr>"
+				dat += "<tr><td><br>[entry]</td><td>[authorized ? "<a href='byond://?src=\ref[src];remove_violation=[i]'>Remove</a>" : ""]</td></tr>"
 		else
 			dat += "<tr><td colspan = 2>None reported.</td></tr>"
 		dat += "</table></center><hr>"
 	else
-		dat += "<h2>Psionic Control Violations <a href='?src=\ref[src];show_violations=1'>+</a></h2><hr>"
+		dat += "<h2>Psionic Control Violations <a href='byond://?src=\ref[src];show_violations=1'>+</a></h2><hr>"
 
 	var/datum/browser/popup = new(user, "psi_monitor_\ref[src]", "Psi-Monitor")
 	popup.set_content(jointext(dat,null))
@@ -111,7 +111,7 @@
 
 
 /obj/machinery/psi_monitor/proc/report_failure(obj/item/implant/psi_control/implant)
-	psi_violations += "<font color='#FF0000'>Critical system failure - [implant.imp_in.name].</font>"
+	psi_violations += SPAN_COLOR("#ff0000", "Critical system failure - [implant.imp_in.name].")
 
 /obj/machinery/psi_monitor/proc/report_violation(obj/item/implant/psi_control/implant, stress)
 	psi_violations += "Sigma [round(stress/10)] event - [implant.imp_in.name]."

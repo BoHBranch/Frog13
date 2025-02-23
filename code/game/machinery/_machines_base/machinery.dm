@@ -7,10 +7,15 @@
 
 /obj/machinery
 	name = "machinery"
-	icon = 'icons/obj/stationobjs.dmi'
+	icon = 'icons/obj/machines/wooden_tv.dmi'
 	w_class = ITEM_SIZE_NO_CONTAINER
 	layer = STRUCTURE_LAYER // Layer under items
-	init_flags = INIT_MACHINERY_PROCESS_SELF
+	init_flags = INIT_MACHINERY_START_PROCESSING
+	throw_speed = 1
+	throw_range = 5
+
+	health_resistances = DAMAGE_RESIST_ELECTRICAL
+	health_flags = HEALTH_FLAG_STRUCTURE
 
 	/// Boolean. Whether or not the machine has been emagged.
 	var/emagged = FALSE
@@ -30,7 +35,7 @@
 	var/power_init_complete = FALSE
 	/// List of component instances. Expected type: `/obj/item/stock_parts.`
 	var/list/component_parts
-	/// List of component paths which have delayed init. Indeces = number of components.
+	/// LAZYLIST of component paths which have delayed init. Indeces = number of components.
 	var/list/uncreated_component_parts = list(/obj/item/stock_parts/power/apc)
 	/// List of componant paths and the maximum number of that specific path that can be inserted into the machine. `null` - no max. `list(type part = number max)`.
 	var/list/maximum_component_parts = list(/obj/item/stock_parts = 10)
@@ -60,7 +65,6 @@
 	var/frame_type = /obj/machinery/constructable_frame/machine_frame/deconstruct
 	/// Whether or not the machine is allowed to be dismantled/modified. Used for snowflake consoles that would break permanently if dismantled. Also prevents damage, since the machine would be irreparable in this state. Has to be defined here because machinery datums.
 	var/can_use_tools = TRUE
-
 	/// Component parts queued for processing by the machine. Expected type: `/obj/item/stock_parts`
 	var/list/processing_parts
 	/// Bitflag. What is being processed. One of `MACHINERY_PROCESS_*`.
@@ -77,14 +81,25 @@
 	. = ..()
 	if(d)
 		set_dir(d)
-	if (init_flags & INIT_MACHINERY_PROCESS_ALL)
-		START_PROCESSING_MACHINE(src, init_flags & INIT_MACHINERY_PROCESS_ALL)
+	if (init_flags & INIT_MACHINERY_START_PROCESSING)
+		START_PROCESSING_MACHINE(src, INIT_MACHINERY_START_PROCESSING)
 	SSmachines.machinery += src // All machines should remain in this list, always.
 	if(ispath(wires))
 		wires = new wires(src)
 	populate_parts(populate_parts)
 	RefreshParts()
 	power_change()
+
+/obj/machinery/post_health_change(health_mod, prior_health, damage_type)
+	if (health_mod < 0 && !health_dead())
+		var/initial_damage_percentage = Percent(get_max_health() - prior_health, get_max_health(), 0)
+		var/damage_percentage = get_damage_percentage()
+		if (damage_percentage >= 75 && initial_damage_percentage < 75)
+			visible_message(SPAN_DANGER("\The [src] looks like it's about to break!"))
+		else if (damage_percentage >= 50 && initial_damage_percentage < 50)
+			visible_message(SPAN_DANGER("\The [src] looks seriously damaged!" ))
+		else if (damage_percentage >= 25 && initial_damage_percentage < 25)
+			visible_message(SPAN_DANGER("\The [src] shows signs of damage!" ))
 
 /obj/machinery/Destroy()
 	if(istype(wires))
@@ -94,35 +109,48 @@
 	STOP_PROCESSING_MACHINE(src, MACHINERY_PROCESS_ALL)
 	. = ..()
 
-/// Part of the machinery subsystem's process stack. Processes everything defined by `processing_flags`.
-/obj/machinery/proc/ProcessAll(wait)
-	if(processing_flags & MACHINERY_PROCESS_COMPONENTS)
-		for(var/thing in processing_parts)
-			var/obj/item/stock_parts/part = thing
-			if(part.machine_process(src) == PROCESS_KILL)
-				part.stop_processing()
+/obj/machinery/on_death()
+	..()
+	set_broken(TRUE, MACHINE_BROKEN_HEALTH)
+	queue_icon_update()
 
-	if((processing_flags & MACHINERY_PROCESS_SELF) && Process(wait) == PROCESS_KILL)
-		STOP_PROCESSING_MACHINE(src, MACHINERY_PROCESS_SELF)
+/obj/machinery/on_revive()
+	..()
+	set_broken(FALSE, MACHINE_BROKEN_HEALTH)
+	queue_icon_update()
 
 /obj/machinery/Process()
 	return PROCESS_KILL // Only process if you need to.
 
 /obj/machinery/emp_act(severity)
-	if(use_power && stat == EMPTY_BITFIELD)
+	if(use_power && operable())
 		use_power_oneoff(7500/severity)
 
-		var/obj/effect/overlay/pulse2 = new /obj/effect/overlay(loc)
+		var/obj/overlay/pulse2 = new /obj/overlay(loc)
 		pulse2.icon = 'icons/effects/effects.dmi'
 		pulse2.icon_state = "empdisable"
 		pulse2.SetName("emp sparks")
 		pulse2.anchored = TRUE
 		pulse2.set_dir(pick(GLOB.cardinal))
 
-		addtimer(CALLBACK(GLOBAL_PROC, /proc/qdel, pulse2), 1 SECOND)
-	..()
+		QDEL_IN(pulse2, 1 SECOND)
+
+		if (prob(100 / severity) && istype(wires))
+			if (prob(20))
+				wires.RandomCut()
+				visible_message(SPAN_DANGER("A shower of sparks sprays out of \the [src]'s wiring panel!"))
+				sparks(3, 0, get_turf(src))
+			else
+				wires.RandomPulse()
+				visible_message(SPAN_WARNING("Something sparks inside \the [src]'s wiring panel!"))
+				new /obj/sparks(get_turf(src))
+
+		..()
 
 /obj/machinery/ex_act(severity)
+	..()
+	if (get_max_health())
+		return
 	switch(severity)
 		if(EX_ACT_DEVASTATING)
 			qdel(src)
@@ -209,33 +237,70 @@
 // If you don't call parent in this proc, you must make all appropriate checks yourself.
 // If you do, you must respect the return value.
 /obj/machinery/attack_hand(mob/user)
-	if((. = ..())) // Buckling, climbers; unlikely to return true.
+	if((. = ..())) // Buckling, climbers; unlikely to return true unless on harm intent and damage is dealt.
 		return
-	if(MUTATION_FERAL in user.mutations)
-		user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN*2)
-		attack_generic(user, 10, "smashes")
-		return TRUE
 	if(!CanPhysicallyInteract(user))
 		return FALSE // The interactions below all assume physical access to the machine. If this is not the case, we let the machine take further action.
 	if(!user.IsAdvancedToolUser())
-		to_chat(user, SPAN_WARNING("You don't have the dexterity to do this!"))
 		return TRUE
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
-		if(H.getBrainLoss() >= 55)
+		if(H.getBrainLoss() >= 80)
 			visible_message(SPAN_WARNING("\The [H] stares cluelessly at \the [src]."))
 			return TRUE
-		else if(prob(H.getBrainLoss()))
-			to_chat(user, SPAN_WARNING("You momentarily forget how to use \the [src]."))
-			return TRUE
 	if((. = component_attack_hand(user)))
-		return
+		return TRUE
 	if(wires && (. = wires.Interact(user)))
-		return
+		return TRUE
 	if((. = physical_attack_hand(user)))
-		return
+		return TRUE
 	if(CanUseTopic(user, DefaultTopicState()) > STATUS_CLOSE)
 		return interface_interact(user)
+
+
+/obj/machinery/post_anchor_change()
+	update_use_power(anchored)
+	power_change()
+	..()
+
+/**
+ * Called by machines that can hold a mob (sleeper, suit cycler, etc.), checking if mob can be moved before doing so.
+ * Call parent first if you want to add new checks specific for each machine, this proc handles the common stuff.
+ * Returns TRUE if mob can be moved into a machine, FALSE if it cannot.
+ */
+/obj/machinery/proc/user_can_move_target_inside(mob/target, mob/user)
+	SHOULD_CALL_PARENT(TRUE)
+	if (!user.use_sanity_check(src, target))
+		return FALSE
+	if (!istype(target))
+		to_chat(user, SPAN_WARNING("\The [src] cannot handle such a lifeform!"))
+		return FALSE
+	if (user.incapacitated() || !istype(user))
+		return FALSE
+	if (!target.simulated)
+		return FALSE
+	if (inoperable())
+		to_chat(user, SPAN_WARNING("\The [src] is not functioning."))
+		return FALSE
+	if (target.abiotic())
+		to_chat(user, SPAN_WARNING("[user == target ? "You" : "[target]"] can't enter \the [src] while wearing abiotic items."))
+		return FALSE
+	if (target.buckled)
+		to_chat(user, SPAN_WARNING("Unbuckle [user == target ? "yourself" : "\the [target]"] before attempting to [user == target ? "enter \the [src]" : "move them"]."))
+		return FALSE
+	if (panel_open)
+		to_chat(user, SPAN_WARNING("Close the maintenance panel before attempting to place [user == target ? "yourself" : "\the [target]"] in \the [src]."))
+		return FALSE
+	for (var/mob/living/carbon/slime/slime in range(0,target))
+		if (slime.Victim == target)
+			to_chat(user, "[target] will not fit into \the [src] because they have a slime latched onto them.")
+			return FALSE
+	for (var/obj/item/grab/grab in target.grabbed_by)
+		if (grab.assailant == user || grab.assailant == target)
+			continue
+		to_chat(user, SPAN_WARNING("\The [target] is being grabbed by [grab.assailant] and can't be placed in \the [src]."))
+		return FALSE
+	return TRUE
 
 /**
  * If you want to have interface interactions handled for you conveniently, use this.
@@ -278,20 +343,21 @@
 
 /// Electrocutes the mob `user` based on probability `prb`, if the machine is in a state capable of doing so. Returns `TRUE` if the user was shocked.
 /obj/machinery/proc/shock(mob/user, prb)
+	if (!user)
+		return FALSE
 	if(inoperable())
 		return FALSE
 	if(!prob(prb))
 		return FALSE
-	var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+	var/datum/effect/spark_spread/s = new /datum/effect/spark_spread
 	s.set_up(5, 1, src)
 	s.start()
 	if(electrocute_mob(user, get_area(src), src, 0.7))
 		var/area/temp_area = get_area(src)
 		if(temp_area)
-			var/obj/machinery/power/apc/temp_apc = temp_area.get_apc()
-			var/obj/machinery/power/terminal/terminal = temp_apc && temp_apc.terminal()
-
-			if(terminal && terminal.powernet)
+			var/obj/machinery/power/apc/temp_apc = temp_area.apc
+			var/obj/machinery/power/terminal/terminal = temp_apc?.terminal()
+			if(terminal?.powernet)
 				terminal.powernet.trigger_warning()
 		if(user.stunned)
 			return TRUE
@@ -361,7 +427,7 @@
 	else if((!is_powered()) && !interact_offline)
 		to_chat(user, SPAN_WARNING("It is not receiving power."))
 	if(construct_state && construct_state.mechanics_info())
-		to_chat(user, SPAN_NOTICE("It can be <a href='?src=\ref[src];mechanics_text=1'>manipulated</a> using tools."))
+		to_chat(user, SPAN_NOTICE("It can be <a href='byond://?src=\ref[src];mechanics_text=1'>manipulated</a> using tools."))
 	var/list/missing = missing_parts()
 	if(missing)
 		var/list/parts = list()
@@ -416,12 +482,19 @@
 		. += "<p>It draws [active_power_usage] watts while active.</p>"
 
 	if (core_skill)
-		var/decl/hierarchy/skill/core_skill_decl = core_skill
-		. += "<p>It utilizes the [initial(core_skill_decl.name)] skill.</p>"
+		var/singleton/hierarchy/skill/core_skill_singleton = core_skill
+		. += "<p>It utilizes the [initial(core_skill_singleton.name)] skill.</p>"
 
 	var/wire_mechanics = wires?.get_mechanics_info()
 	if (wire_mechanics)
 		. += "<hr><h5>Wiring</h5>[wire_mechanics]"
+
+/obj/machinery/get_interactions_info()
+	. = ..()
+	var/wire_interactions = wires?.get_interactions_info()
+	if (wire_interactions)
+		for (var/key in wire_interactions)
+			.["[key]"] += "[wire_interactions[key]]"
 
 // This is really pretty crap and should be overridden for specific machines.
 /obj/machinery/water_act(depth)

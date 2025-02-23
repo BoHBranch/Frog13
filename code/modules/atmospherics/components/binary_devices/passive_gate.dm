@@ -5,7 +5,7 @@
 /obj/machinery/atmospherics/binary/passive_gate
 	icon = 'icons/atmos/passive_gate.dmi'
 	icon_state = "map_off"
-	level = 1
+	level = ATOM_LEVEL_OVER_TILE
 
 	name = "pressure regulator"
 	desc = "A one-way air valve that can be used to regulate input or output pressure, and flow rate. Does not require power."
@@ -235,27 +235,28 @@
 	src.add_fingerprint(usr)
 	return
 
-/obj/machinery/atmospherics/binary/passive_gate/attackby(obj/item/W as obj, mob/user as mob)
+/obj/machinery/atmospherics/binary/passive_gate/use_tool(obj/item/W, mob/living/user, list/click_params)
 	if(!isWrench(W))
 		return ..()
 	if (unlocked)
-		to_chat(user, "<span class='warning'>You cannot unwrench \the [src], turn it off first.</span>")
-		return 1
+		to_chat(user, SPAN_WARNING("You cannot unwrench \the [src], turn it off first."))
+		return TRUE
 	var/datum/gas_mixture/int_air = return_air()
 	var/datum/gas_mixture/env_air = loc.return_air()
 	if ((int_air.return_pressure()-env_air.return_pressure()) > 2*ONE_ATMOSPHERE)
-		to_chat(user, "<span class='warning'>You cannot unwrench \the [src], it too exerted due to internal pressure.</span>")
-		add_fingerprint(user)
-		return 1
+		to_chat(user, SPAN_WARNING("You cannot unwrench \the [src], it too exerted due to internal pressure."))
+		return TRUE
 	playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
-	to_chat(user, "<span class='notice'>You begin to unfasten \the [src]...</span>")
-	if (do_after(user, 4 SECONDS, src, DO_REPAIR_CONSTRUCT))
-		user.visible_message( \
-			"<span class='notice'>\The [user] unfastens \the [src].</span>", \
-			"<span class='notice'>You have unfastened \the [src].</span>", \
-			"You hear ratchet.")
-		new /obj/item/pipe(loc, src)
-		qdel(src)
+	to_chat(user, SPAN_NOTICE("You begin to unfasten \the [src]..."))
+	if (!do_after(user, (W.toolspeed * 4) SECONDS, src, DO_REPAIR_CONSTRUCT))
+		return TRUE
+	user.visible_message( \
+		SPAN_NOTICE("\The [user] unfastens \the [src]."), \
+		SPAN_NOTICE("You have unfastened \the [src]."), \
+		"You hear ratchet.")
+	new /obj/item/pipe(loc, src)
+	qdel(src)
+	return TRUE
 
 #undef REGULATE_NONE
 #undef REGULATE_INPUT
